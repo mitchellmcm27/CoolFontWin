@@ -35,7 +35,7 @@ namespace CoolFontWin
                     {
                         Console.WriteLine("Parsed integers:");
                     }
-                    Console.WriteLine("x" + i + ": %d{0}", val);
+                    Console.WriteLine("x" + i + ": {0}", val);
                     i++;
                 }
             }
