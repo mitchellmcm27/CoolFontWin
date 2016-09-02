@@ -47,7 +47,8 @@ namespace CoolFontUdp
             listener.ExclusiveAddressUse = false;
 
             /* Client is the underlying Socket */
-            listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            listener.Client.SetSocketOption(SocketOptionLevel.Socket, 
+                                            SocketOptionName.ReuseAddress, true);
 
             /* Bind the socket to a good local address */
             listener.Client.Bind(bindEP);
