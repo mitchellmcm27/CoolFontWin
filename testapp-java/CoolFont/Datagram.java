@@ -1,3 +1,5 @@
+package CoolFont;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.*;
@@ -7,7 +9,6 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.ServiceEvent;
 
-import CoolFont.XYLineChart;
 import org.jfree.data.xy.XYSeries;
 
 public class Datagram {

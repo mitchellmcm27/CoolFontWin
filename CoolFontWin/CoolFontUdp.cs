@@ -13,24 +13,27 @@ namespace CoolFontUdp
          * Implements a UDP socket to listen on a given port, defaults to 5555
          * Currently receives packets consisting of a string
          * Contains a method for splitting string into ints
-         * Helper method to get a local PC IP address </summary>
-         */
+         * Helper method to get a local PC IP address 
+         * </summary>*/
 
         public UdpClient listener = new UdpClient();
         private byte[] receive_byte_array;
         private IPEndPoint senderEP; // network End Point for the device sending packets
 
+        /* Don't allow instantiation without a port
         public UdpListener()
             : this((int)5555)
         {
         }
+        */
 
         public UdpListener(int listenPort)
         {
 
-            /* Call function to choose best address of local network interface */
+            /* Calls method to choose best address of local network interface */
             /* Supports IPv4 and v6 */
-            /* Try Ethernet first, and then wifi */
+            /* Tries Ethernet first, and then WiFi */
+
             string[] localAddrs = GetAllLocalIPv4(NetworkInterfaceType.Ethernet);
             if (localAddrs.Length == 0)
             {
@@ -39,7 +42,7 @@ namespace CoolFontUdp
 
             if (localAddrs.Length == 0)
             {
-                throw new IndexOutOfRangeException("Must have a reachable network address.");
+                throw new Exception("Must have a reachable network address.");
             }
 
             IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(localAddrs[0]), listenPort);
@@ -94,14 +97,18 @@ namespace CoolFontUdp
             return received_data;
         }
 
-        public int[] parseString2Ints(string instring)
+        public void Close()
+        {
+            listener.Close();
+        }
+
+        public int[] parseString2Ints(string instring, char[] delimiterChars)
         {
             /* Given a string representation of ints, split it into ints */
             /* Return int array */
 
-            char[] delimiterChars = { ':' };
             string[] instring_sep = instring.Split(delimiterChars);
-            int[] parsed_ints = new int[] { 0, 0, 0, 0 };
+            int[] parsed_ints = new int[instring_sep.Length];
 
             int i = 0;
             foreach (string s in instring_sep)

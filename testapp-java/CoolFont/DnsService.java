@@ -24,7 +24,7 @@ public class DnsService {
 
     public DnsService(int port) {
         DEFAULT_SERVICE_NAME = "JmDNS Server";
-        SERVICE_TYPE = "_IAmTheBirdman._udp.loacl";
+        SERVICE_TYPE = "_IAmTheBirdman._udp.local";
         serverUptime = 600;
         client = false;
         tryPort = port;
@@ -35,7 +35,7 @@ public class DnsService {
         SERVICE_TYPE = "_IAmTheBirdman._udp.local";
         serverUptime = 600;
         client = false;
-        tryPort = 5555;
+        tryPort = ThreadLocalRandom.current().nextInt(49152, 65535 + 1);
     }
 
     public boolean registerService() {
@@ -81,7 +81,7 @@ public class DnsService {
         jmdns.addServiceListener("_IAmPhone._udp.local.", new SampleListener());
         return 1;
     }
-    static void unregister () {
+    public void unregister () {
         jmdns.unregisterAllServices();
     }
     static void displayInterfaceInformation(NetworkInterface netint) throws SocketException {
