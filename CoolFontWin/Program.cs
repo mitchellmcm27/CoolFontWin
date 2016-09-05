@@ -71,7 +71,7 @@ namespace CoolFontWin
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxval);
 
             int t = 0; // number of packets to receive
-            while (t < 600)
+            while (t < 120000)
             {
       
                 /* Receive one string synchronously */
@@ -80,8 +80,8 @@ namespace CoolFontWin
                 vals = listener.parseString2Ints(rcvd, delimiters);
 
                 /*update joystick*/
-                X = vals[1]*(int)maxval/1000;
-                Y = vals[4]*(int)maxval/1000;
+                X = vals[0]*(int)maxval/1000;
+                Y = vals[3]*(int)maxval/1000;
                 res = joystick.SetAxis(X, id, HID_USAGES.HID_USAGE_X);
                 res = joystick.SetAxis(Y, id, HID_USAGES.HID_USAGE_Y);
 

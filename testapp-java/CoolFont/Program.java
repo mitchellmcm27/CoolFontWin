@@ -11,6 +11,8 @@ public class Program {
         int lastPort;
         DnsService dnsService;
         File PORT_FILE = new File("../last-port.txt");
+        /* Should I call c# program to listen on the socket? */
+        boolean CALL_CS = false;
         int port = 0;
 
         try {
@@ -42,10 +44,9 @@ public class Program {
 
         assert(port>0);
 
-        /* Should I call c# program to listen on the socket? */
-        boolean call_cs = true;
 
-        if (call_cs) {
+
+        if (CALL_CS) {
             //TODO: see http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.html
             ProcessBuilder pb = new ProcessBuilder("../CoolFontWin/bin/Debug/CoolFontWin.exe", Integer.toString(port)); // determined by VS
             pb.directory(new File("../CoolFontWin/bin/Debug"));
