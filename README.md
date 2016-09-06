@@ -23,7 +23,7 @@ Then in the item properties, change *Copy to Output Director* to *Copy if Newer*
 This will make sure that your wrapper dll can always see a copy of the base dll.
 
 ##How to get it running
-0. Launch vJoyConfig and enable Device 1
+0. Launch Configure vJoy and enable vJoy Device 1
 1. Run testapp-java to publish the service
 2. Run (or have testapp-java run) the CoolFontWin main program
 3. Launch the iPhone app and select the service
