@@ -22,20 +22,32 @@ public class DnsService {
     static int tryPort;
     public int registeredPort;
 
-    public DnsService(int port) {
+    public DnsService(int port) throws IOException {
         DEFAULT_SERVICE_NAME = "JmDNS Server";
         SERVICE_TYPE = "_IAmTheBirdman._udp.local";
         serverUptime = 600;
         client = false;
         tryPort = port;
+        try {
+            jmdns = JmDNS.create();
+        } catch (IOException ioe) {
+            System.out.println("Unable to create service");
+            throw ioe;
+        }
     }
 
-    public DnsService() {
+    public DnsService() throws IOException {
         DEFAULT_SERVICE_NAME = "JmDNS Server";
         SERVICE_TYPE = "_IAmTheBirdman._udp.local";
         serverUptime = 600;
         client = false;
         tryPort = ThreadLocalRandom.current().nextInt(49152, 65535 + 1);
+        try {
+            jmdns = JmDNS.create();
+        } catch (IOException ioe) {
+            System.out.println("Unable to create service");
+            throw ioe;
+        }
     }
 
     public boolean registerService() {
@@ -55,7 +67,6 @@ public class DnsService {
         while (tries < nAttempts) {
             try {
                 tries++;
-                jmdns = JmDNS.create();
                 jmdns.unregisterAllServices();
                 info = ServiceInfo.create(SERVICE_TYPE, hostname, tryPort, "App service");
                 jmdns.registerService(info);
@@ -76,14 +87,24 @@ public class DnsService {
         System.out.println("REGISTERED as " + info);
         return true;
     }
+
     static int hostService () {
         jmdns.unregisterAllServices();
         jmdns.addServiceListener("_IAmPhone._udp.local.", new SampleListener());
         return 1;
     }
+
     public void unregister () {
         jmdns.unregisterAllServices();
+        System.out.println("Unregistered all services");
     }
+    public void unregister (int port) {
+        jmdns.unregisterAllServices();
+        ServiceInfo info = ServiceInfo.create(SERVICE_TYPE, DEFAULT_SERVICE_NAME, port, "App service");
+        jmdns.unregisterService(info);
+        System.out.println("Unregistered" + info);
+    }
+
     static void displayInterfaceInformation(NetworkInterface netint) throws SocketException {
         System.out.printf("Display name: %s\n", netint.getDisplayName());
         System.out.printf("Name: %s\n", netint.getName());
@@ -93,6 +114,7 @@ public class DnsService {
         }
         System.out.printf("\n");
     }
+
     static class SampleListener implements ServiceListener {
         @Override
         public void serviceAdded(ServiceEvent event) {
@@ -110,4 +132,5 @@ public class DnsService {
             serviceUrls = event.getInfo().getURLs();
         }
     }
+
 }

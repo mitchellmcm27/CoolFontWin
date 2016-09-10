@@ -2,6 +2,7 @@
 //#define EFFICIENT
 
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,25 +30,61 @@ namespace CoolFontWin
 
         static void Main(string[] args)
         {
-            /* First make sure we have a socket connection */
-
+   
+            /*
+             * Previous version read the port from text file written by Java program
+             * Now we decide the port and call the java program with the port as arg
+             * Code is left here in case we decide to go back to the other way
+             * 
             if (args.Length==0)
             {
-                /* Read the port number written by Java to file */
-                /* This has to work so don't put it in try..except */
+                /* Read the port number written by Java to file 
+                /* This has to work so don't put it in try..except 
                 System.IO.StreamReader file = new System.IO.StreamReader(PORT_FILE);
                 string hdr = file.ReadLine();
                 port = Convert.ToInt32(file.ReadLine());
                 file.Close();
             }
+            
+
             else
             {
                 port = Convert.ToInt32(args[0]);
             }
+            *
+            *
+            */
    
             /* Instantiate listener using port */
-            UdpListener listener = new UdpListener(port); // port must match Java (and iOS)
+            UdpListener listener = new UdpListener(); // port must match Java (and iOS)
+            int port = listener.port;
 
+            Process myProcess = new Process();
+            try
+            {
+                myProcess.StartInfo.UseShellExecute = false;
+                Console.WriteLine(myProcess.StartInfo.WorkingDirectory);
+                myProcess.StartInfo.Verb = "";
+                myProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
+                String jarfile = "../../../../testapp-java.jar";
+                String arg0 = String.Format("{0}", port); // -r: register, -u: unregister, -b: both (not useful?)
+                String arg1 = "-r";
+
+                myProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);
+                //myProcess.StartInfo.CreateNoWindow = true;
+                myProcess.Start();
+                Console.WriteLine("Called java program");
+                myProcess.WaitForExit();
+                // This code assumes the process you are starting will terminate itself. 
+                // Given that is is started without a window so you cannot terminate it 
+                // on the desktop, it must terminate itself or you can do it programmatically
+                // from this application using the Kill method.
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }            
 
             /* Now set up vJoy device */
             UInt32 id = 1;

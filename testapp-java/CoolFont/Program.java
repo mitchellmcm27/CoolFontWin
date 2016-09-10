@@ -10,42 +10,72 @@ public class Program {
 
         int lastPort;
         DnsService dnsService;
-        File PORT_FILE = new File("../last-port.txt");
-        /* Should I call c# program to listen on the socket? */
-        boolean CALL_CS = false;
         int port = 0;
+        boolean shouldRegister = true;
+        boolean shouldUnregister = false;
 
-        try {
-            Scanner in = new Scanner(PORT_FILE);
-            String hdr = in.nextLine();
-            lastPort = in.nextInt();
-            in.close();
-            System.out.println(hdr);
-            System.out.println(lastPort);
-        } catch (Exception e) {
-            lastPort = -1;
+        if (args.length > 0) {
+            try {
+                port = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.println("First argument" + args[0] + " must be an integer.");
+                System.exit(1);
+            }
         }
-
-        if (lastPort < 1) {
-            dnsService = new DnsService();
-        } else {
-            dnsService = new DnsService(lastPort);
-        }
-
-        boolean registered = dnsService.registerService();
-
-        if (registered) {
-            port = dnsService.registeredPort;
-            PrintWriter out = new PrintWriter(PORT_FILE);
-            out.println("Last registered on port:");
-            out.println(Integer.toString(port));
-            out.close();
+        if(args.length>1) {
+            switch (args[1]) {
+                case "-r": // register service
+                    shouldRegister = true;
+                    shouldUnregister = false;
+                    break;
+                case "-u": // unregister all services
+                    shouldRegister = false;
+                    shouldUnregister = true;
+                    break;
+                case "-b": // both: register then unregister (not useful?)
+                    shouldRegister = true;
+                    shouldUnregister = true;
+                    break;
+            }
         }
 
         assert(port>0);
 
+        if (shouldRegister) {
+            /*
+            try {
+                Scanner in = new Scanner(PORT_FILE);
+                String hdr = in.nextLine();
+                lastPort = in.nextInt();
+                in.close();
+                System.out.println(hdr);
+                System.out.println(lastPort);
+            } catch (Exception e) {
+                lastPort = -1;
+            }
+            */
+            lastPort = port;
+            if (lastPort < 1) {
+                dnsService = new DnsService();
+            } else {
+                dnsService = new DnsService(lastPort);
+            }
 
+            boolean registered = dnsService.registerService();
 
+            if (registered) {
+                int registeredPort = dnsService.registeredPort;
+                //File PORT_FILE = new File("../last-port.txt");
+                //PrintWriter out = new PrintWriter(PORT_FILE);
+                //out.println("Last registered on port:");
+                //out.println(Integer.toString(registeredPort));
+                //out.close();
+                assert (registeredPort == port);
+            }
+        }
+
+        /*
+        boolean CALL_CS = false;
         if (CALL_CS) {
             //TODO: see http://www.javaworld.com/article/2071275/core-java/when-runtime-exec---won-t.html
             ProcessBuilder pb = new ProcessBuilder("../CoolFontWin/bin/Debug/CoolFontWin.exe", Integer.toString(port)); // determined by VS
@@ -72,10 +102,12 @@ public class Program {
                 }
             }
         }
+        */
 
-
-        System.in.read();
-
-        dnsService.unregister();
+        if (shouldUnregister)
+        {
+            dnsService = new DnsService();
+            dnsService.unregister(); // can also pass in port to unregister a specific service
+        }
     }
 }

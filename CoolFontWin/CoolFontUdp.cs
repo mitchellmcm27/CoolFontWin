@@ -10,23 +10,27 @@ namespace CoolFontUdp
     public class UdpListener
     {
         /**<summary>
-         * Implements a UDP socket to listen on a given port, defaults to 5555
-         * Currently receives packets consisting of a string
-         * Contains a method for splitting string into ints
-         * Helper method to get a local PC IP address 
+         * Implements a UDP socket to listen on a given port, defaults to 5555.
+         * Currently receives packets consisting of a string.
+         * Contains a method for splitting string into ints.
+         * Helper method to get a local PC IP address .
+         * 
+         * You can access the underlying UdpClient listener using the public .Listener property.
+         * You can access the underlying Socket using the public .listener.Client property.
          * </summary>*/
 
-        public UdpClient listener = new UdpClient();
+        public UdpClient Listener = new UdpClient();
+        public int port;
+
         private byte[] receive_byte_array;
         private IPEndPoint senderEP; // network End Point for the device sending packets
 
-        /* Don't allow instantiation without a port
+
         public UdpListener()
-            : this((int)5555)
+            : this(0)
         {
         }
-        */
-
+        
         public UdpListener(int listenPort)
         {
 
@@ -47,14 +51,17 @@ namespace CoolFontUdp
 
             IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(localAddrs[0]), listenPort);
             senderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
-            listener.ExclusiveAddressUse = false;
+            Listener.ExclusiveAddressUse = false;
 
             /* Client is the underlying Socket */
-            listener.Client.SetSocketOption(SocketOptionLevel.Socket, 
+            Listener.Client.SetSocketOption(SocketOptionLevel.Socket, 
                                             SocketOptionName.ReuseAddress, true);
 
             /* Bind the socket to a good local address */
-            listener.Client.Bind(bindEP);
+            Listener.Client.Bind(bindEP);
+            IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
+            port = localEP.Port;
+            Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
         }
 
         public string receiveStringSync()
@@ -69,9 +76,7 @@ namespace CoolFontUdp
             try
             {
                 /* ref keyword: pass by reference, not by value (value can change inside the method) */
-                Console.WriteLine("Listening on " + listener.Client.LocalEndPoint);
-
-                receive_byte_array = listener.Receive(ref senderEP); // blocking
+                receive_byte_array = Listener.Receive(ref senderEP); // blocking
 
                 /* GetString args: byte array, index of first byte, number of bytes to decode */
                 received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
@@ -99,7 +104,7 @@ namespace CoolFontUdp
 
         public void Close()
         {
-            listener.Close();
+            Listener.Close();
         }
 
         public int[] parseString2Ints(string instring, char[] delimiterChars)
