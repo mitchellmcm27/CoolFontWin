@@ -60,31 +60,53 @@ namespace CoolFontWin
             int port = listener.port;
 
             Process myProcess = new Process();
+            int exitCode = 0;
             try
             {
                 myProcess.StartInfo.UseShellExecute = false;
-                Console.WriteLine(myProcess.StartInfo.WorkingDirectory);
-                myProcess.StartInfo.Verb = "";
+                myProcess.StartInfo.RedirectStandardError = true;
+                myProcess.StartInfo.RedirectStandardOutput = true;
+                myProcess.StartInfo.CreateNoWindow = true;
+
                 myProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
                 String jarfile = "../../../../testapp-java.jar";
                 String arg0 = String.Format("{0}", port); // -r: register, -u: unregister, -b: both (not useful?)
                 String arg1 = "-r";
-
                 myProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);
-                //myProcess.StartInfo.CreateNoWindow = true;
+                
                 myProcess.Start();
-                Console.WriteLine("Called java program");
-                myProcess.WaitForExit();
                 // This code assumes the process you are starting will terminate itself. 
                 // Given that is is started without a window so you cannot terminate it 
                 // on the desktop, it must terminate itself or you can do it programmatically
                 // from this application using the Kill method.
+
+                string stdoutx = myProcess.StandardOutput.ReadToEnd();
+                string stderrx = myProcess.StandardError.ReadToEnd();
+                myProcess.WaitForExit();
+                exitCode = myProcess.ExitCode;
+                Console.WriteLine("Exit code : {0}", exitCode);
+                Console.WriteLine("Stdout : {0}", stdoutx);
+                Console.WriteLine("Stderr : {0}", stderrx);
             }
-            catch (Exception e)
+            catch (System.ComponentModel.Win32Exception w)
             {
+                Console.WriteLine(w.Message);
+                Console.WriteLine(w.ErrorCode.ToString());
+                Console.WriteLine(w.NativeErrorCode.ToString());
+                Console.WriteLine(w.StackTrace);
+                Console.WriteLine(w.Source);
+                Exception e = w.GetBaseException();
                 Console.WriteLine(e.Message);
-                throw;
-            }            
+            }
+
+            if (exitCode == 1)
+            {
+                Console.WriteLine("DNS service failed to register. Check location of testapp-java.jar");
+                Console.WriteLine("Press any key to quit");
+                Console.ReadKey();
+                return;
+            }
+            Console.WriteLine("Called java program");
 
             /* Now set up vJoy device */
             UInt32 id = 1;
