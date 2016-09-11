@@ -21,7 +21,7 @@ namespace CoolFontUdp
 
         public UdpClient Listener = new UdpClient();
         public int port;
-
+        public Boolean isBound = false;
         private byte[] receive_byte_array;
         private IPEndPoint senderEP; // network End Point for the device sending packets
 
@@ -61,6 +61,7 @@ namespace CoolFontUdp
             Listener.Client.Bind(bindEP);
             IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
             port = localEP.Port;
+            isBound = Listener.Client.IsBound;
             Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
         }
 

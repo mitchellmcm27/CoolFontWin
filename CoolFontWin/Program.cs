@@ -26,38 +26,43 @@ namespace CoolFontWin
 
         /* other globals */
         static string PORT_FILE = "../../../../last-port.txt";
-        static int port;
 
         static void Main(string[] args)
         {
-   
-            /*
-             * Previous version read the port from text file written by Java program
-             * Now we decide the port and call the java program with the port as arg
-             * Code is left here in case we decide to go back to the other way
-             * 
-            if (args.Length==0)
+            int tryport;
+            if (args.Length == 0)
             {
-                /* Read the port number written by Java to file 
-                /* This has to work so don't put it in try..except 
-                System.IO.StreamReader file = new System.IO.StreamReader(PORT_FILE);
-                string hdr = file.ReadLine();
-                port = Convert.ToInt32(file.ReadLine());
+                try
+                {
+                    System.IO.StreamReader file = new System.IO.StreamReader(PORT_FILE);
+                    string hdr = file.ReadLine();
+                    tryport = Convert.ToInt32(file.ReadLine());
+                    file.Close();
+                }
+                catch (Exception e)
+                {
+                    tryport = 0; // UdpListener will decide the port
+                }
+            }
+            else // port was passed as an arg
+            {
+                tryport = Convert.ToInt32(args[0]);
+            } 
+        
+            /* Instantiate listener using port */
+
+            UdpListener listener = new UdpListener(tryport);
+            int port = listener.port;
+
+            if (port > 0 & listener.isBound) // write successful port to file
+            {
+                System.IO.StreamWriter file = new System.IO.StreamWriter(PORT_FILE);
+                string hdr = "Last successful port:";
+                string port_string = String.Format("{0}", port);
+                file.WriteLine(hdr);
+                file.WriteLine(port_string);
                 file.Close();
             }
-            
-
-            else
-            {
-                port = Convert.ToInt32(args[0]);
-            }
-            *
-            *
-            */
-   
-            /* Instantiate listener using port */
-            UdpListener listener = new UdpListener(); // port must match Java (and iOS)
-            int port = listener.port;
 
             Process myProcess = new Process();
             int exitCode = 0;
@@ -130,7 +135,7 @@ namespace CoolFontWin
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxval);
 
             int t = 0; // number of packets to receive
-            while (t < 120000)
+            while (true)
             {
       
                 /* Receive one string synchronously */
