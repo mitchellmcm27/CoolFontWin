@@ -118,9 +118,16 @@ namespace CoolFontWin
 
             setUpVJoy(id);
 
-            int X, Y, Z, ZR, XR;
+            int X, Y, rX, rY, POV;
             uint count = 0;
-            long maxval = 0;
+            long maxX = 0;
+            long maxY = 0;
+            long maxRX = 0;
+            long maxRY = 0;
+            long maxPOV = 0;
+
+            double POV_f;
+            double X_f;
 
             string rcvd;
             char[] delimiters = { ':' };
@@ -132,7 +139,13 @@ namespace CoolFontWin
             joystick.ResetVJD(id);
 #endif
 
-            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxval);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxX);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Y, ref maxY);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RX, ref maxRX);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RY, ref maxRY);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_POV, ref maxPOV);
+
+            int ContPovNumber = joystick.GetVJDContPovNumber(id);
 
             int t = 0; // number of packets to receive
             while (true)
@@ -144,13 +157,25 @@ namespace CoolFontWin
                 vals = listener.parseString2Ints(rcvd, delimiters);
 
                 /*update joystick*/
-                X = vals[0]*(int)maxval/1000;
-                Y = vals[3]*(int)maxval/1000;
+                Y = -vals[0]*(int)maxY/1000/2 + (int)maxY/2;
+                X_f = Math.Cos(vals[1] / 1000.0 * Math.PI / 180.0);
+                X = (int)(X_f*maxX/2 + maxX/2);
+                rX = (int)maxRX/2;
+                rY = (int)maxRX/2;
+                POV_f = vals[1] / 1000.0 / 360.0 * maxPOV;
+                POV = (int)POV_f;
                 res = joystick.SetAxis(X, id, HID_USAGES.HID_USAGE_X);
                 res = joystick.SetAxis(Y, id, HID_USAGES.HID_USAGE_Y);
+                res = joystick.SetAxis(rX, id, HID_USAGES.HID_USAGE_RX);
+                res = joystick.SetAxis(rY, id, HID_USAGES.HID_USAGE_RY);
 
-                /* Display X,Y,t values  */
-                Console.WriteLine("X {0} Y {1} t {2}", X, Y, t);
+                if (ContPovNumber > 0)
+                {
+                    res = joystick.SetContPov(POV, id, 1);
+                }
+
+                    /* Display X,Y,t values  */
+                    Console.WriteLine("X {0} Y {1} t {2}", X, Y, t);
                 t++;
             }
             listener.Close();
