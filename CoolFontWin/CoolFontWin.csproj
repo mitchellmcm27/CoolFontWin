@@ -88,9 +88,32 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoolFontUdp.cs" />
+    <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
+    <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
+    <Compile Include="InputSimulator\IInputSimulator.cs" />
+    <Compile Include="InputSimulator\IKeyboardSimulator.cs" />
+    <Compile Include="InputSimulator\IMouseSimulator.cs" />
+    <Compile Include="InputSimulator\InputBuilder.cs" />
+    <Compile Include="InputSimulator\InputSimulator.cs" />
+    <Compile Include="InputSimulator\KeyboardSimulator.cs" />
+    <Compile Include="InputSimulator\MouseButton.cs" />
+    <Compile Include="InputSimulator\MouseSimulator.cs" />
+    <Compile Include="InputSimulator\WindowsInputDeviceStateAdaptor.cs" />
+    <Compile Include="InputSimulator\WindowsInputMessageDispatcher.cs" />
+    <Compile Include="InputSimulator\Native\HARDWAREINPUT.cs" />
+    <Compile Include="InputSimulator\Native\INPUT.cs" />
+    <Compile Include="InputSimulator\Native\InputType.cs" />
+    <Compile Include="InputSimulator\Native\KEYBDINPUT.cs" />
+    <Compile Include="InputSimulator\Native\KeyboardFlag.cs" />
+    <Compile Include="InputSimulator\Native\MouseFlag.cs" />
+    <Compile Include="InputSimulator\Native\MOUSEINPUT.cs" />
+    <Compile Include="InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
+    <Compile Include="InputSimulator\Native\NativeMethods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="vjoy-sdk-ex.cs" />
+    <Compile Include="XButton.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
