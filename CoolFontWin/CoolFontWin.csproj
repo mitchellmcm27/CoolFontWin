@@ -87,6 +87,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
+    <Compile Include="CoolFontSimulator.cs" />
     <Compile Include="CoolFontUdp.cs" />
     <Compile Include="InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="InputSimulator\IInputMessageDispatcher.cs" />
