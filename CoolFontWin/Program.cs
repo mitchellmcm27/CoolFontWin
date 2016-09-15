@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CoolFontUdp;
 using CoolFontIO;
+using CoolFontUtils;
 
 namespace CoolFontWin
 {
@@ -79,6 +80,7 @@ namespace CoolFontWin
                     try
                     {
                         vals = listener.parseString2Ints(rcvd, delimiters);
+                        vals = Algorithm.LowPassFilter(vals,vals_last,Config.RCFilterStrength,Config.dt);
                         vals_last = vals;
                         tries = 0;
                     }

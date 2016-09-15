@@ -120,7 +120,7 @@ namespace CoolFontWin
                     rX = (int)maxRX / 2; // needs to change
                     rY = (int)maxRX / 2; // look up/down
 
-                    kbm.Mouse.MoveMouseBy(-(int)(vals[3] / 1000.0), // negative because device is not assumed upside down
+                    kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
                                          0); // dx, dy (pixels)
                     FeedVJoy();
                     if (logOutput)
@@ -202,7 +202,7 @@ namespace CoolFontWin
             else
             {
                 Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", joystick.GetvJoyManufacturerString(), joystick.GetvJoyProductString(), joystick.GetvJoySerialNumberString());
-                Config.Mode = Config.MovementModes.JoystickMove;
+                Config.Mode = Config.MovementModes.JoystickMoveAndLook;
             }
 
             // Get the state of the requested device

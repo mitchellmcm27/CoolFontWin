@@ -28,5 +28,12 @@ namespace CoolFontWin
         static public double THRESH_WALK = 0.3;
         static public int mouseSens = 5;
         static public int socketPollInterval = 8*1000; // microseconds (us)
+        static public double dt = socketPollInterval / 1000.0 / 1000.0; // s
+
+        // assuming socketPollInterval = 8,000:
+        // 0.05 good for mouse movement, 0.15 was a little too smooth
+        // 0.05 probably good for VR, where you don't have to aim with the phone
+        // 0.00 is good for when you have to aim slowly/precisely
+        static public double RCFilterStrength = 0.05;
     }
 }

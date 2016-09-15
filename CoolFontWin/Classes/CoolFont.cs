@@ -283,3 +283,21 @@ namespace CoolFontIO
         }
     }
 }
+
+namespace CoolFontUtils
+{
+    public static class Algorithm
+    {
+        public static int[] LowPassFilter(int[] vals, int[] vals_last, double RC, double dt)
+        {
+            double alpha = dt / (RC + dt); // smoothing factor, 0 to 1
+
+            for (int i=0; i<vals.Length; i++)
+            {
+                vals[i] = (int)(vals[i] * alpha + (1.0 - alpha) * vals_last[i]);
+            }
+
+            return vals;
+        }
+    }
+}
