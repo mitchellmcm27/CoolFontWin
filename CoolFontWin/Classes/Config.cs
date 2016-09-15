@@ -26,5 +26,7 @@ namespace CoolFontWin
 
         static public double THRESH_RUN = 0.7;
         static public double THRESH_WALK = 0.3;
+        static public int mouseSens = 5;
+        static public int socketPollInterval = 8*1000; // microseconds (us)
     }
 }

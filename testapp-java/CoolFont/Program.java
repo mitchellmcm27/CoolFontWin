@@ -8,7 +8,6 @@ import java.lang.ProcessBuilder;
 public class Program {
     public static void main (String[] args) throws IOException {
 
-        int lastPort;
         DnsService dnsService;
         int port = 0;
         boolean shouldRegister = true;
@@ -36,12 +35,20 @@ public class Program {
                     shouldRegister = true;
                     shouldUnregister = true;
                     break;
+                default:
+                    shouldRegister = true;
+                    shouldUnregister = false;
             }
         }
 
-        assert(port>0);
+        if (port < 1) {
+            dnsService = new DnsService();
+        } else {
+            dnsService = new DnsService(port);
+        }
 
         if (shouldRegister) {
+
             /*
             try {
                 Scanner in = new Scanner(PORT_FILE);
@@ -54,12 +61,6 @@ public class Program {
                 lastPort = -1;
             }
             */
-            lastPort = port;
-            if (lastPort < 1) {
-                dnsService = new DnsService();
-            } else {
-                dnsService = new DnsService(lastPort);
-            }
 
             boolean registered = dnsService.registerService();
 
@@ -70,7 +71,9 @@ public class Program {
                 //out.println("Last registered on port:");
                 //out.println(Integer.toString(registeredPort));
                 //out.close();
-                assert (registeredPort == port);
+                if (port>0) {
+                    assert registeredPort == port;
+                }
             }
         }
 
@@ -106,8 +109,9 @@ public class Program {
 
         if (shouldUnregister)
         {
-            dnsService = new DnsService();
             dnsService.unregister(); // can also pass in port to unregister a specific service
         }
+
+        System.in.read();
     }
 }

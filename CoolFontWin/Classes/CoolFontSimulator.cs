@@ -1,12 +1,7 @@
-﻿#define ROBUST
-//#define EFFICIENT
-//TODO:Implement Efficient vJoy feeder (see vjoy-sdk-ex.cs)
+﻿#define EFFICIENT
+//#define ROBUST
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WindowsInput;
 using vJoyInterfaceWrap;
 
@@ -28,15 +23,18 @@ namespace CoolFontWin
         private int X, Y, rX, rY, POV, d_theta;
         private double POV_f, d_theta_f;
         private bool res;
+        private byte[] pov;
 
-        public bool writeOutput = false;
+        public bool logOutput = false;
+        public int[] neutralVals { get; set; }
 
 
         public CoolFontSimulator(Config.MovementModes MODE)
         {
             StartVJoy(Config.ID);
             SetUpVJoy(Config.ID);
-            kbm = new InputSimulator();
+            kbm = new InputSimulator();    
+
         }
 
         public void UpdateCharacterWithValsForMode(int[] vals, Config.MovementModes mode)
@@ -46,6 +44,7 @@ namespace CoolFontWin
                 //TODO: Hold CTRL+W when under running threshold but over walking threshold
                 case Config.MovementModes.KeyboardMouse:
                     kbm.Mouse.MoveMouseBy((int)(10.0 * vals[3] / 1000.0), 0); // dx, dy (pixels)
+
                     if (vals[0] >= Config.THRESH_RUN)
                     {
                         kbm.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
@@ -56,13 +55,12 @@ namespace CoolFontWin
                     }
 
                     //TODO: Implement jumping on iPhone, send it in the 3rd int value
-                    if (vals[2] > 0)
+                    if (false)
                     {
-                        // vals[2] is always 0 right now so this never executes
                         kbm.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
 
-                    if (writeOutput)
+                    if (logOutput)
                     {
                         Console.Write("W?: {0} Mouse: {1}", 
                             kbm.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W), 
@@ -72,34 +70,49 @@ namespace CoolFontWin
 
                 case Config.MovementModes.JoystickMove:
 
-                    POV_f = vals[1] / 1000.0 / 360.0 * maxPOV;
+                    POV_f = vals[1] / 1000.0;
 
-                    X = (int)(Math.Cos(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxX / 2 + maxX / 2);
-                    Y = (int)(Math.Sin(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxY / 2 + maxY / 2);
+                    while (POV_f > 360)
+                    {
+                        POV_f -= 360;
+                    }
+                    while (POV_f < 0)
+                    {
+                        POV_f += 360;
+                    }
+
+                    POV_f *= maxPOV/360;
+
+                    X = (int)(Math.Sin(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxX / 2 + maxX / 2);
+                    Y = (int)(Math.Cos(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxY / 2 + maxY / 2);
 
                     rX = (int)maxRX / 2;
                     rY = (int)maxRX / 2;
 
                     /* Feed vJoy device */
-                    res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
-                    res = joystick.SetAxis(Y, Config.ID, HID_USAGES.HID_USAGE_Y);
-                    res = joystick.SetAxis(rX, Config.ID, HID_USAGES.HID_USAGE_RX);
-                    res = joystick.SetAxis(rY, Config.ID, HID_USAGES.HID_USAGE_RY);
-                    if (ContPovNumber > 0)
-                    {
-                        res = joystick.SetContPov((int)POV_f, Config.ID, 1);
-                    }
-
-                    if(writeOutput)
+                    FeedVJoy();
+                    if (logOutput)
                     {
                         Console.Write("X:{0} Y:{1} dir:{2}", X, Y, (int)POV_f);
                     }
+
                     break;
 
                 //TODO:
                 case Config.MovementModes.JoystickMoveAndLook:
                     // NOT FINISHED YET
-                    POV_f = vals[1] / 1000.0 / 360.0 * maxPOV;
+                    POV_f = vals[1] / 1000.0;
+
+                    while (POV_f > 360)
+                    {
+                        POV_f -= 360;
+                    }
+                    while (POV_f < 0)
+                    {
+                        POV_f += 360;
+                    }
+
+                    POV_f *= maxPOV / 360;
 
                     X = (int)maxX / 2; // no strafing
                     Y = -vals[0] * (int)maxY / 1000 / 2 + (int)maxY / 2;
@@ -107,33 +120,66 @@ namespace CoolFontWin
                     rX = (int)maxRX / 2; // needs to change
                     rY = (int)maxRX / 2; // look up/down
 
-                    res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
-                    res = joystick.SetAxis(Y, Config.ID, HID_USAGES.HID_USAGE_Y);
-                    res = joystick.SetAxis(rX, Config.ID, HID_USAGES.HID_USAGE_RX);
-                    res = joystick.SetAxis(rY, Config.ID, HID_USAGES.HID_USAGE_RY);
-                    if (ContPovNumber > 0)
-                    {
-                        res = joystick.SetContPov((int)POV_f, Config.ID, 1);
-                    }
-
-                    if (writeOutput)
+                    kbm.Mouse.MoveMouseBy(-(int)(vals[3] / 1000.0), // negative because device is not assumed upside down
+                                         0); // dx, dy (pixels)
+                    FeedVJoy();
+                    if (logOutput)
                     {
                         Console.Write("Y:{0} dir:{1}", Y, (int)POV_f);
                     }
+
                     break;
 
                 case Config.MovementModes.Mouse2D:
-                    kbm.Mouse.MoveMouseBy((int)(30.0 * vals[3] / 1000.0), // negative because device is not assumed upside down
-                                          (int)(60.0 * vals[2] / 1000.0)); // dx, dy (pixels)
-                    if (writeOutput)
+
+                    kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
+                                          -(int)(2 * vals[2] / 1000.0 * Config.mouseSens)); // dx, dy (pixels)
+
+                    if (logOutput)
                     {
                         Console.Write("dx:{0} dy:{1}",
                             (int)(30.0 * vals[3] / 1000.0), (int)(60.0 * vals[2] / 1000.0));
                     }
+
                     break;
             }
         }
+        private void FeedVJoy()
+        {
+#if ROBUST
+                    res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
+                    res = joystick.SetAxis(Y, Config.ID, HID_USAGES.HID_USAGE_Y);
+                    res = joystick.SetAxis(rX, Config.ID, HID_USAGES.HID_USAGE_RX);
+                    res = joystick.SetAxis(rY, Config.ID, HID_USAGES.HID_USAGE_RY);
 
+                    if (ContPovNumber > 0)
+                    {
+                        res = joystick.SetContPov((int)POV_f, Config.ID, 1);
+                    }
+#endif
+#if EFFICIENT
+            iReport.bDevice = (byte)Config.ID;
+
+            iReport.AxisX = X;
+            iReport.AxisY = Y;
+            iReport.AxisXRot = rX;
+            iReport.AxisYRot = rY;
+
+            if (ContPovNumber > 0)
+            {
+                iReport.bHats = ((uint)POV_f);
+                //iReport.bHats = 0xFFFFFFFF; // Neutral state
+            }
+
+            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
+            if (!joystick.UpdateVJD(Config.ID, ref iReport))
+            {
+                Console.WriteLine("Feeding vJoy device number {0} failed - try to enable device then press enter\n", Config.ID);
+                Console.ReadKey(true);
+                joystick.AcquireVJD(Config.ID);
+            }
+#endif
+        }
         private void StartVJoy(UInt32 id)
         {
             // Create one joystick object and a position structure.
@@ -150,9 +196,7 @@ namespace CoolFontWin
             if (!joystick.vJoyEnabled())
             {
                 Console.WriteLine("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
-                Console.WriteLine("Defaulting to keyboard simulation.");
-                //MODE = MovementModes.KeyboardMouse;
-                Config.Mode = Config.MovementModes.Mouse2D;
+                Console.WriteLine("Defaulting to KBM simulation.");
                 return;
             }
             else
@@ -208,9 +252,13 @@ namespace CoolFontWin
             UInt32 DllVer = 0, DrvVer = 0;
             bool match = joystick.DriverMatch(ref DllVer, ref DrvVer);
             if (match)
+            {
                 Console.WriteLine("Version of Driver Matches DLL Version ({0:X})\n", DllVer);
+            }
             else
+            {
                 Console.WriteLine("Version of Driver ({0:X}) does NOT match DLL Version ({1:X})\n", DrvVer, DllVer);
+            }
 
 
             // Acquire the target
@@ -220,7 +268,9 @@ namespace CoolFontWin
                 return;
             }
             else
+            {
                 Console.WriteLine("Acquired: vJoy device number {0}.\n", id);
+            }
 
         }
         private void SetUpVJoy(UInt32 id)
@@ -229,7 +279,9 @@ namespace CoolFontWin
             // Reset this device to default values
             joystick.ResetVJD(Config.ID);
 #endif
-
+#if EFFICIENT
+            pov = new byte[4];
+#endif
             // get max range of joysticks
             // neutral position is max/2
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxX);

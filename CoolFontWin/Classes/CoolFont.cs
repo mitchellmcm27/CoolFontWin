@@ -20,26 +20,22 @@ namespace CoolFontUdp
          * You can access the underlying Socket using the public .listener.Client property.
          * </summary>*/
 
-        public UdpClient Listener = new UdpClient();
+        private UdpClient _listener;
         public int port;
-        public Boolean isBound = false;
-        private byte[] receive_byte_array;
-        private IPEndPoint senderEP; // network End Point for the device sending packets
+        public bool isBound = false;
+        private byte[] _rcv_bytes;
+        private IPEndPoint _senderEP; // network End Point for the device sending packets
 
+        public UdpListener() : this(0) { }
 
-        public UdpListener()
-            : this(0)
-        {
-        }
-        
         public UdpListener(int listenPort)
         {
 
             /* Calls method to choose best address of local network interface */
             /* Supports IPv4 and v6 */
             /* Tries Ethernet first, and then WiFi */
-
             string[] localAddrs = GetAllLocalIPv4(NetworkInterfaceType.Ethernet);
+
             if (localAddrs.Length == 0)
             {
                 localAddrs = GetAllLocalIPv4(NetworkInterfaceType.Wireless80211);
@@ -47,23 +43,25 @@ namespace CoolFontUdp
 
             if (localAddrs.Length == 0)
             {
-                throw new Exception("Must have a reachable network address.");
+                throw new WebException("Must have a reachable network address.");
             }
 
             IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(localAddrs[0]), listenPort);
-            senderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
-            Listener.ExclusiveAddressUse = false;
+            _senderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
+
+            _listener = new UdpClient();
+            _listener.ExclusiveAddressUse = false;
 
             /* Client is the underlying Socket */
-            Listener.Client.SetSocketOption(SocketOptionLevel.Socket, 
+            _listener.Client.SetSocketOption(SocketOptionLevel.Socket, 
                                             SocketOptionName.ReuseAddress, true);
 
             /* Bind the socket to a good local address */
-            Listener.Client.Bind(bindEP);
-            IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
+            _listener.Client.Bind(bindEP);
+            IPEndPoint localEP = (IPEndPoint)_listener.Client.LocalEndPoint;
             port = localEP.Port;
-            isBound = Listener.Client.IsBound;
-            Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
+            isBound = _listener.Client.IsBound;
+            Console.WriteLine("Listening on " + _listener.Client.LocalEndPoint);
         }
 
         public string receiveStringSync()
@@ -74,14 +72,15 @@ namespace CoolFontUdp
 
             bool done = false;
             string received_data = "";
+            _listener.Client.Blocking = true;
 
             try
             {
                 /* ref keyword: pass by reference, not by value (value can change inside the method) */
-                receive_byte_array = Listener.Receive(ref senderEP); // blocking
+                _rcv_bytes = _listener.Receive(ref _senderEP); // blocking
 
                 /* GetString args: byte array, index of first byte, number of bytes to decode */
-                received_data = Encoding.ASCII.GetString(receive_byte_array, 0, receive_byte_array.Length);
+                received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
             }
             catch (Exception e)
             {
@@ -95,18 +94,45 @@ namespace CoolFontUdp
         {
             bool done = false;
             string received_data = "";
-            byte[] receive_byte_array;
-            /* 
+            _listener.Client.Blocking = false;
+            try
+            {
+                _rcv_bytes = _listener.Receive(ref _senderEP); // non-blocking mode, returns immediately
+                /* GetString args: byte array, index of first byte, number of bytes to decode */
+                received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
+            }
+            catch (SocketException se)
+            {
+                switch (se.ErrorCode)
+                {
+                    case 10035:
+                        return "";      
+                }
+                throw se;
+            }
 
-            ... 
+            return received_data;
+        }
 
-            */
+        public string pollSocket(int rate_us)
+        {
+            bool done = false;
+            string received_data = "";
+            _listener.Client.Blocking = false;
+            if (_listener.Client.Poll(rate_us, SelectMode.SelectRead))
+            {
+                _rcv_bytes = _listener.Receive(ref _senderEP);
+                received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
+            }
+
             return received_data;
         }
 
         public void Close()
         {
-            Listener.Close();
+            _listener.Close();
+            isBound = false;
+            port = 0;
         }
 
         public int[] parseString2Ints(string instring, char[] delimiterChars)
@@ -116,13 +142,14 @@ namespace CoolFontUdp
 
             string[] instring_sep = instring.Split(delimiterChars);
             int[] parsed_ints = new int[instring_sep.Length];
-
             int i = 0;
+
             foreach (string s in instring_sep)
             {
                 parsed_ints[i] = Int32.Parse(s);
                 i++;
             }
+
             return parsed_ints;
         }
 
@@ -150,13 +177,45 @@ namespace CoolFontUdp
             return ipAddrList.ToArray();
         }
     } // end of class UDPListener
+} // end of namespace
+
+namespace CoolFontIO
+{
+    public static class FileManager
+    {
+        public static int ReadPortFromFile(string filename)
+        {
+            try
+            {
+                System.IO.StreamReader file = new System.IO.StreamReader(filename);
+                string hdr = file.ReadLine();
+                int port = Convert.ToInt32(file.ReadLine());
+                file.Close();
+                return port;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        public static void WritePortToFile(int port, string filename)
+        {
+            System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
+            string hdr = "Last successful port:";
+            string port_string = String.Format("{0}", port);
+            file.WriteLine(hdr);
+            file.WriteLine(port_string);
+            file.Close();
+        }
+    }
 
     public static class JavaProc
     {
+        public static Process myProcess = new Process();
+        public static int exitCode = 0;
         public static void StartDnsService(int port)
-        {
-            Process myProcess = new Process();
-            int exitCode = 0;
+        {    
             try
             {
                 myProcess.StartInfo.UseShellExecute = false;
@@ -176,13 +235,22 @@ namespace CoolFontUdp
                 // on the desktop, it must terminate itself or you can do it programmatically
                 // from this application using the Kill method.
 
-                string stdoutx = myProcess.StandardOutput.ReadToEnd();
-                string stderrx = myProcess.StandardError.ReadToEnd();
+                //string stdoutx = myProcess.StandardOutput.ReadToEnd();
+                //string stderrx = myProcess.StandardError.ReadToEnd();
+                /*
                 myProcess.WaitForExit();
                 exitCode = myProcess.ExitCode;
                 Console.WriteLine("Exit code : {0}", exitCode);
-                Console.WriteLine("Stdout : {0}", stdoutx);
-                Console.WriteLine("Stderr : {0}", stderrx);
+                */
+                //Console.WriteLine("Stdout : {0}", stdoutx);
+                //Console.WriteLine("Stderr : {0}", stderrx);
+                try
+                {
+                    exitCode = myProcess.ExitCode;
+                }
+                catch (InvalidOperationException ioe)
+                {
+                }
             }
             catch (System.ComponentModel.Win32Exception w)
             {
@@ -207,5 +275,11 @@ namespace CoolFontUdp
                 Console.WriteLine("Called java program");
             }
         }
+        public static void Kill()
+        {
+            myProcess.Kill();
+            exitCode = myProcess.ExitCode;
+            Console.WriteLine("Exit code : {0}", exitCode);
+        }
     }
-} // end of namespace
+}

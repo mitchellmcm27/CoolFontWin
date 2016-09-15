@@ -10,12 +10,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class DnsService {
+class DnsService {
     static String[] serviceUrls;
     static String DEFAULT_SERVICE_NAME;
     static String SERVICE_TYPE;
-    static int serverUptime; // packets
-    static boolean client;
+    static boolean isClient;
     static JmDNS jmdns;
     static ServiceInfo info;
 
@@ -25,8 +24,7 @@ public class DnsService {
     public DnsService(int port) throws IOException {
         DEFAULT_SERVICE_NAME = "JmDNS Server";
         SERVICE_TYPE = "_IAmTheBirdman._udp.local";
-        serverUptime = 600;
-        client = false;
+        isClient = false;
         tryPort = port;
         try {
             jmdns = JmDNS.create();
@@ -37,55 +35,33 @@ public class DnsService {
     }
 
     public DnsService() throws IOException {
-        DEFAULT_SERVICE_NAME = "JmDNS Server";
-        SERVICE_TYPE = "_IAmTheBirdman._udp.local";
-        serverUptime = 600;
-        client = false;
-        tryPort = ThreadLocalRandom.current().nextInt(49152, 65535 + 1);
-        try {
-            jmdns = JmDNS.create();
-        } catch (IOException ioe) {
-            System.out.println("Unable to create service");
-            throw ioe;
-        }
+        this(ThreadLocalRandom.current().nextInt(49152, 65535 + 1));
     }
 
     public boolean registerService() {
-        String hostname = DEFAULT_SERVICE_NAME;
+
+        String hostname;
 
         try {
-            InetAddress my_addr;
-            my_addr = InetAddress.getLocalHost();
+            InetAddress my_addr = InetAddress.getLocalHost();
             hostname = my_addr.getHostName();
         }
         catch (UnknownHostException uhe) {
             System.out.println("Hostname can not be resolved");
             hostname = DEFAULT_SERVICE_NAME;
         }
-        int nAttempts = 5;
-        int tries = 0;
-        while (tries < nAttempts) {
-            try {
-                tries++;
-                jmdns.unregisterAllServices();
-                info = ServiceInfo.create(SERVICE_TYPE, hostname, tryPort, "App service");
-                jmdns.registerService(info);
-                registeredPort = info.getPort();
-                System.out.println(registeredPort);
-                break;
-            } catch (IOException ioe) {
-                tryPort = ThreadLocalRandom.current().nextInt(49152, 65535 + 1);
-                System.out.println(tries);
-                if (tries == nAttempts) {
-                    System.out.println("Unable to register service");
-                    return false;
-                }
-            }
 
+        try {
+            info = ServiceInfo.create(SERVICE_TYPE, hostname, tryPort, "App service");
+            jmdns.registerService(info);
+            registeredPort = info.getPort();
+            System.out.println(registeredPort);
+            System.out.println("REGISTERED as " + info);
+            return true;
+        } catch (IOException ioe) {
+            System.out.println("Unable to register service");
+            return false;
         }
-
-        System.out.println("REGISTERED as " + info);
-        return true;
     }
 
     static int hostService () {

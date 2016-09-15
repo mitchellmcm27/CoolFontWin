@@ -5,56 +5,51 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CoolFontUdp;
+using CoolFontIO;
 
 namespace CoolFontWin
 {
-
     class Program
     {
         static void Main(string[] args)
         {
-            Config.Mode = Config.MovementModes.KeyboardMouse; // default to the most general option
-            int tryport;
-            if (args.Length == 0) // no port given
+            int tryport = ProcessArgs(args);
+
+            if (tryport == 0)
             {
-                try
-                {
-                    System.IO.StreamReader file = new System.IO.StreamReader(Config.PORT_FILE);
-                    string hdr = file.ReadLine();
-                    tryport = Convert.ToInt32(file.ReadLine());
-                    file.Close();
-                }
-                catch (Exception e)
-                {
-                    tryport = 0; // UdpListener will decide the port
-                }
+                tryport = FileManager.ReadPortFromFile(Config.PORT_FILE);
             }
-            else // port was passed as an arg
+
+            if (tryport == 0)
             {
-                tryport = Convert.ToInt32(args[0]);
-            } 
-        
+                Console.WriteLine("No port given or found: Will select random port.");
+            }
+
             /* Instantiate listener using port */
             UdpListener listener = new UdpListener(tryport);
-            int port = listener.port;
-            // write successful port to file
-            if (port > 0 & listener.isBound) 
+            int port = listener.port;      
+
+            if (port > 0 & listener.isBound)
             {
-                System.IO.StreamWriter file = new System.IO.StreamWriter(Config.PORT_FILE);
-                string hdr = "Last successful port:";
-                string port_string = String.Format("{0}", port);
-                file.WriteLine(hdr);
-                file.WriteLine(port_string);
-                file.Close();
+                // write successful port to file for next time
+                FileManager.WritePortToFile(port, Config.PORT_FILE);
             }
 
+            /* Register DNS service through Java */
             JavaProc.StartDnsService(port); // blocks
-            CoolFontSimulator sim = new CoolFontSimulator(Config.Mode);
 
-            string rcvd; 
+            /* Set up the simulator */
+            Config.Mode = Config.MovementModes.Mouse2D; // try this first 
+            CoolFontSimulator sim = new CoolFontSimulator(Config.Mode); // will change Mode if necessary
+
+            string rcvd;
             char[] delimiters = { ':' };
             int[] vals;
-            int t = 0; 
+            int[] vals_last = sim.neutralVals;
+            int T = 0; // total time
+            int timeout = 30; // set to -1 to block on every socket read
+            int tries = timeout + 1;
+            sim.logOutput = true;
 
             //TODO: execute loop in background thread and allow user to break out
             while (true)
@@ -63,19 +58,60 @@ namespace CoolFontWin
                 /* vals[0]: 0-1000: represents user running at 0 to 100% speed.
                  * vals[1]: 0-360,000: represents the direction user is facing (in degrees)
                  * vals[2]: always 0
-                 * vals[3]: 0-infinity: user rotation rate in radians per second (x1000)
+                 * vals[3]: -infinity to infinity: user rotation rate in radians per second (x1000)
                  */
-              
-                rcvd = listener.receiveStringSync();
-                vals = listener.parseString2Ints(rcvd, delimiters);
+                if (tries > timeout)
+                {
+                    /* block until we git the first packet 
+                     * or if we've gotten 10 empty packets
+                     * then reset counter
+                     */
+                    rcvd = listener.receiveStringSync(); 
+                    vals = listener.parseString2Ints(rcvd, delimiters);
+                    vals_last = vals;
+                    tries = 0;
+                }
+                else
+                {
+                    // do not block, returns "" if nothing to rcv
+                    //rcvd = listener.receiveStringAsync();
+                    rcvd = listener.pollSocket(Config.socketPollInterval);
+                    try
+                    {
+                        vals = listener.parseString2Ints(rcvd, delimiters);
+                        vals_last = vals;
+                        tries = 0;
+                    }
+                    catch
+                    {
+                        // assume empty packet
+                        vals = vals_last;
+                        tries++; // number of empty packets
+                    }
+                }
+     
                 // Depending on selected mode, translate vals in the correct way
                 // Also feed vjoy device if needed
-                sim.writeOutput = true;
                 sim.UpdateCharacterWithValsForMode(vals, Config.Mode);
-                if (sim.writeOutput) { Console.Write(" ({0}) \n", t); }
-                t++;
+
+                if (sim.logOutput) { Console.Write(" ({0}) \n", tries); }
+                T++;
+                if (T==10)
+                {
+                    JavaProc.Kill();
+                }
             }
+
             listener.Close();
+        }
+
+        static int ProcessArgs(string[] args)
+        {
+            if (args.Length > 0) // no port given
+            {
+                return Convert.ToInt32(args[0]);
+            }
+            return 0;
         }
     }
 }
