@@ -149,7 +149,8 @@ namespace CoolFontWin
 
         private void ConfigureVJoy(uint id)
         {
-
+            /* Enable and Configure a vJoy device by calling 2 external processes
+             * Requires path to the vJoy dll directory */
             String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
             String enableArgs = "enable on";
             String configArgs = String.Format("-t {0} -f -a x y rx ry -b1 -p1", id);
