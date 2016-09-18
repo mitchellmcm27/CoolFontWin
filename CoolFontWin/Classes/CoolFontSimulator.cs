@@ -2,6 +2,8 @@
 //#define ROBUST
 
 using System;
+using System.Diagnostics;
+
 using WindowsInput;
 using vJoyInterfaceWrap;
 
@@ -31,10 +33,10 @@ namespace CoolFontWin
 
         public CoolFontSimulator(Config.MovementModes MODE)
         {
+            ConfigureVJoy(Config.ID);
             StartVJoy(Config.ID);
             SetUpVJoy(Config.ID);
-            kbm = new InputSimulator();    
-
+            kbm = new InputSimulator();
         }
 
         public void UpdateCharacterWithValsForMode(int[] vals, Config.MovementModes mode)
@@ -116,7 +118,7 @@ namespace CoolFontWin
 
                     X = (int)maxX / 2; // no strafing
                     Y = -vals[0] * (int)maxY / 1000 / 2 + (int)maxY / 2;
-
+            
                     rX = (int)maxRX / 2; // needs to change
                     rY = (int)maxRX / 2; // look up/down
 
@@ -144,6 +146,38 @@ namespace CoolFontWin
                     break;
             }
         }
+
+        private void ConfigureVJoy(uint id)
+        {
+
+            String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
+            String enableArgs = "enable on";
+            String configArgs = String.Format("-t {0} -f -a x y rx ry -b1 -p1", id);
+
+            ProcessStartInfo[] infos = new ProcessStartInfo[]
+            {
+                new ProcessStartInfo(filename, enableArgs),
+                new ProcessStartInfo(filename, configArgs),
+            };
+
+            Process vJoyConfigProc;
+            foreach(ProcessStartInfo info in infos)
+            {
+                //Vista or higher check
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    info.Verb = "runas";
+                }
+
+                info.UseShellExecute = true;
+                info.RedirectStandardError = false;
+                info.RedirectStandardOutput = false;
+                info.CreateNoWindow = true;
+                vJoyConfigProc = Process.Start(info);
+                vJoyConfigProc.WaitForExit();
+            }
+        }
+
         private void FeedVJoy()
         {
 #if ROBUST
