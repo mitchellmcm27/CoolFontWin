@@ -87,6 +87,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\GameDevPoller.cs" />
     <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\CoolFontSimulator.cs" />
     <Compile Include="Classes\CoolFont.cs" />

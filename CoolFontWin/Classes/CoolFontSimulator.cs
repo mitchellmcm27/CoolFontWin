@@ -85,9 +85,12 @@ namespace CoolFontWin
 
                     POV_f *= maxPOV/360;
 
+                    /*
                     X = (int)(Math.Sin(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxX / 2 + maxX / 2);
                     Y = (int)(Math.Cos(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxY / 2 + maxY / 2);
-
+                    */
+                    X = (int)maxX / 2; // no strafing
+                    Y = -vals[0] * (int)maxY / 1000 / 2 + (int)maxY / 2;
                     rX = (int)maxRX / 2;
                     rY = (int)maxRX / 2;
 
@@ -99,8 +102,7 @@ namespace CoolFontWin
                     }
 
                     break;
-
-                //TODO:
+           
                 case Config.MovementModes.JoystickMoveAndLook:
                     // NOT FINISHED YET
                     POV_f = vals[1] / 1000.0;
@@ -237,7 +239,7 @@ namespace CoolFontWin
             else
             {
                 Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", joystick.GetvJoyManufacturerString(), joystick.GetvJoyProductString(), joystick.GetvJoySerialNumberString());
-                Config.Mode = Config.MovementModes.JoystickMoveAndLook;
+                Config.Mode = Config.MovementModes.JoystickMove;
             }
 
             // Get the state of the requested device
