@@ -6,6 +6,7 @@ using System.Diagnostics;
 
 using WindowsInput;
 using vJoyInterfaceWrap;
+using SharpDX.XInput;
 
 namespace CoolFontWin
 {
@@ -16,13 +17,27 @@ namespace CoolFontWin
         private long maxRX = 0;
         private long maxRY = 0;
         private long maxPOV = 0;
+        private long maxZ = 0;
+        private long maxRZ = 0;
 
         private vJoy joystick;
         private vJoy.JoystickState iReport;
         private int ContPovNumber;
 
         private InputSimulator kbm;
-        private int X, Y, rX, rY, POV, d_theta;
+
+        private int X;
+        private int Y;
+        private int rX;
+        private int rY;
+        private int lT;
+        private int rT;
+        private int Z;
+        private int rZ;
+        private int buttons;
+
+        private int POV = 0;
+        private int d_theta = 0;
         private double POV_f, d_theta_f;
         private bool res;
         private byte[] pov;
@@ -37,9 +52,41 @@ namespace CoolFontWin
             StartVJoy(Config.ID);
             SetUpVJoy(Config.ID);
             kbm = new InputSimulator();
+            ResetValues();
         }
 
-        public void UpdateCharacterWithValsForMode(int[] vals, Config.MovementModes mode)
+        private int[] setNeutralVals(Config.MovementModes MODE)
+        {
+            int[] arr = { };
+            switch (MODE)
+            {
+                case Config.MovementModes.JoystickMove:
+                    break;
+                case Config.MovementModes.JoystickMoveAndLook:
+                    break;
+                case Config.MovementModes.KeyboardMouse:
+                    break;
+                case Config.MovementModes.Mouse2D:
+                    break;
+                case Config.MovementModes.Paused:
+                    break;
+            }
+            return arr;
+        }
+        public void ResetValues()
+        {
+            X = (int)maxX / 2;
+            Y = (int)maxY / 2;
+            rX = (int)maxRX / 2;
+            rY = (int)maxRY / 2;
+            Z = 0;
+            rZ = 0;
+            lT = 0;
+            rT = 0;
+            buttons = 0;
+        }
+
+        public void AddValues(int[] vals, Config.MovementModes mode)
         {
             switch (mode)
             {
@@ -56,8 +103,7 @@ namespace CoolFontWin
                         kbm.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
                     }
 
-                    //TODO: Implement jumping on iPhone, send it in the 3rd int value
-                    if (false)
+                    if (false) //TODO: Implement jumping on iPhone
                     {
                         kbm.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
@@ -85,22 +131,20 @@ namespace CoolFontWin
 
                     POV_f *= maxPOV/360;
 
-                    /*
+                    /* strafing...
                     X = (int)(Math.Sin(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxX / 2 + maxX / 2);
                     Y = (int)(Math.Cos(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxY / 2 + maxY / 2);
                     */
-                    X = (int)maxX / 2; // no strafing
-                    Y = -vals[0] * (int)maxY / 1000 / 2 + (int)maxY / 2;
-                    rX = (int)maxRX / 2;
-                    rY = (int)maxRX / 2;
 
-                    /* Feed vJoy device */
-                    FeedVJoy();
+                    X += 0; // no strafing
+                    Y += -vals[0] * (int)maxY / 1000 / 2;
+                    rX += 0;
+                    rY += 0;
+
                     if (logOutput)
                     {
                         Console.Write("X:{0} Y:{1} dir:{2}", X, Y, (int)POV_f);
                     }
-
                     break;
            
                 case Config.MovementModes.JoystickMoveAndLook:
@@ -118,27 +162,25 @@ namespace CoolFontWin
 
                     POV_f *= maxPOV / 360;
 
-                    X = (int)maxX / 2; // no strafing
-                    Y = -vals[0] * (int)maxY / 1000 / 2 + (int)maxY / 2;
+                    X += 0; // no strafing
+                    Y += -vals[0] * (int)maxY / 1000 / 2;
             
-                    rX = (int)maxRX / 2; // needs to change
-                    rY = (int)maxRX / 2; // look up/down
+                    rX += 0; // needs to change
+                    rY += 0; // look up/down
 
                     kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
                                          0); // dx, dy (pixels)
-                    FeedVJoy();
+
                     if (logOutput)
                     {
                         Console.Write("Y:{0} dir:{1}", Y, (int)POV_f);
                     }
-
                     break;
 
                 case Config.MovementModes.Mouse2D:
 
                     kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
                                           -(int)(2 * vals[2] / 1000.0 * Config.mouseSens)); // dx, dy (pixels)
-
                     if (logOutput)
                     {
                         Console.Write("dx:{0} dy:{1}",
@@ -149,18 +191,84 @@ namespace CoolFontWin
             }
         }
 
+        public void AddButtons(int buttonsDown, Config.MovementModes mode)
+        {
+            if ((buttonsDown & 32768) != 0) // Y button pressed on Phone
+            {
+                buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
+            }
+
+            buttons = buttons | buttonsDown;
+        }
+
+        public void AddControllerState(State state)
+        {
+            X += state.Gamepad.LeftThumbX;
+            Y -= state.Gamepad.LeftThumbY; // inverted for some reason
+            rX += state.Gamepad.RightThumbX;
+            rY += state.Gamepad.RightThumbY;
+            Z += state.Gamepad.LeftTrigger; // not the right scale
+            rZ += state.Gamepad.RightTrigger; // not the right scale
+            buttons = (short)state.Gamepad.Buttons;      
+        }
+
+        public void FeedVJoy()
+        {
+#if ROBUST
+            /* incomplete now */
+                    res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
+                    res = joystick.SetAxis(Y, Config.ID, HID_USAGES.HID_USAGE_Y);
+                    res = joystick.SetAxis(rX, Config.ID, HID_USAGES.HID_USAGE_RX);
+                    res = joystick.SetAxis(rY, Config.ID, HID_USAGES.HID_USAGE_RY);
+
+                    if (ContPovNumber > 0)
+                    {
+                        res = joystick.SetContPov((int)POV_f, Config.ID, 1);
+                    }
+#endif
+#if EFFICIENT
+            iReport.bDevice = (byte)Config.ID;
+
+            iReport.AxisX = X;
+            iReport.AxisY = Y;
+            iReport.AxisXRot = rX;
+            iReport.AxisYRot = rY;
+            iReport.AxisZ = Z;
+            iReport.AxisZRot = rZ;
+
+            // Press/Release Buttons
+            iReport.Buttons = (uint)(buttons);
+
+            if (ContPovNumber > 0)
+            {
+                iReport.bHats = ((uint)POV_f);
+                //iReport.bHats = 0xFFFFFFFF; // Neutral state
+            }
+
+            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
+            if (!joystick.UpdateVJD(Config.ID, ref iReport))
+            {
+                Console.WriteLine("Feeding vJoy device number {0} failed - try to enable device then press enter\n", Config.ID);
+                Console.ReadKey(true);
+                joystick.AcquireVJD(Config.ID);
+            }
+#endif
+        }
+
         private void ConfigureVJoy(uint id)
         {
             /* Enable and Configure a vJoy device by calling 2 external processes
              * Requires path to the vJoy dll directory */
             String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
             String enableArgs = "enable on";
-            String configArgs = String.Format("-t {0} -f -a x y rx ry -b1 -p1", id);
+            String createArgs = String.Format("{0}", id);
+            String configArgs = String.Format("{0} -f -a x y rx ry z rz -b 14 -p 1", id);
 
             ProcessStartInfo[] infos = new ProcessStartInfo[]
             {
-                new ProcessStartInfo(filename, enableArgs),
-                new ProcessStartInfo(filename, configArgs),
+              //  new ProcessStartInfo(filename, enableArgs),
+              //  new ProcessStartInfo(filename, configArgs),
+              //  new ProcessStartInfo(filename, createArgs),
             };
 
             Process vJoyConfigProc;
@@ -180,43 +288,7 @@ namespace CoolFontWin
                 vJoyConfigProc.WaitForExit();
             }
         }
-
-        private void FeedVJoy()
-        {
-#if ROBUST
-                    res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
-                    res = joystick.SetAxis(Y, Config.ID, HID_USAGES.HID_USAGE_Y);
-                    res = joystick.SetAxis(rX, Config.ID, HID_USAGES.HID_USAGE_RX);
-                    res = joystick.SetAxis(rY, Config.ID, HID_USAGES.HID_USAGE_RY);
-
-                    if (ContPovNumber > 0)
-                    {
-                        res = joystick.SetContPov((int)POV_f, Config.ID, 1);
-                    }
-#endif
-#if EFFICIENT
-            iReport.bDevice = (byte)Config.ID;
-
-            iReport.AxisX = X;
-            iReport.AxisY = Y;
-            iReport.AxisXRot = rX;
-            iReport.AxisYRot = rY;
-
-            if (ContPovNumber > 0)
-            {
-                iReport.bHats = ((uint)POV_f);
-                //iReport.bHats = 0xFFFFFFFF; // Neutral state
-            }
-
-            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
-            if (!joystick.UpdateVJD(Config.ID, ref iReport))
-            {
-                Console.WriteLine("Feeding vJoy device number {0} failed - try to enable device then press enter\n", Config.ID);
-                Console.ReadKey(true);
-                joystick.AcquireVJD(Config.ID);
-            }
-#endif
-        }
+        
         private void StartVJoy(UInt32 id)
         {
             // Create one joystick object and a position structure.
@@ -310,6 +382,7 @@ namespace CoolFontWin
             }
 
         }
+
         private void SetUpVJoy(UInt32 id)
         {
 #if ROBUST
@@ -326,8 +399,41 @@ namespace CoolFontWin
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RX, ref maxRX);
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RY, ref maxRY);
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_POV, ref maxPOV);
-
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Z, ref maxZ);
+            joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RZ, ref maxRZ);
             ContPovNumber = joystick.GetVJDContPovNumber(id);
+        }
+
+        public void DisableVJoy(uint id)
+        {
+            /* Enable and Configure a vJoy device by calling 2 external processes
+             * Requires path to the vJoy dll directory */
+            String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
+            String disableArgs = "enable off";
+            String deleteArgs = String.Format("-d {0}", id);
+
+            ProcessStartInfo[] infos = new ProcessStartInfo[]
+            {
+                new ProcessStartInfo(filename, deleteArgs),
+                new ProcessStartInfo(filename, disableArgs),
+            };
+
+            Process vJoyConfigProc;
+            foreach (ProcessStartInfo info in infos)
+            {
+                //Vista or higher check
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    info.Verb = "runas";
+                }
+
+                info.UseShellExecute = true;
+                info.RedirectStandardError = false;
+                info.RedirectStandardOutput = false;
+                info.CreateNoWindow = true;
+                vJoyConfigProc = Process.Start(info);
+                vJoyConfigProc.WaitForExit();
+            }
         }
     }
 }

@@ -73,6 +73,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpDX.XInput">
+      <HintPath>..\..\SharpDX\Bin\Desktop\SharpDX.XInput.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -87,7 +90,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\GameDevPoller.cs" />
+    <Compile Include="Classes\XInputDevice.cs" />
     <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\CoolFontSimulator.cs" />
     <Compile Include="Classes\CoolFont.cs" />

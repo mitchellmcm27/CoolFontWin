@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
@@ -140,17 +141,55 @@ namespace CoolFontUdp
             /* Given a string representation of ints, split it into ints */
             /* Return int array */
 
+            //Console.WriteLine(instring);
             string[] instring_sep = instring.Split(delimiterChars);
-            int[] parsed_ints = new int[instring_sep.Length];
+            int[] parsed_ints = new int[4]; // TODO: don't hard code in 4
             int i = 0;
+            int j = 0;
+            bool copy = true;
 
             foreach (string s in instring_sep)
             {
-                parsed_ints[i] = Int32.Parse(s);
+                if (s == "$")
+                {
+                    copy = false;
+                }
+                if (copy)
+                {
+                    parsed_ints[j] = Int32.Parse(s);
+                    j++;
+                }
                 i++;
             }
 
+            
             return parsed_ints;
+        }
+
+        public int parseButtons(string instring, char[] delimiterChars)
+        {
+            /* Parse string representation of bitmask (unsigned int) 
+             * String array is separated by ":"
+             * Assume bitmask follows the "$" string */
+             
+            string[] instring_sep = instring.Split(delimiterChars);
+            bool copy = false;
+
+            foreach (string s in instring_sep)
+            {
+                if (copy)
+                {
+                    return int.Parse(s);
+                }
+
+                if (s == "$")
+                {
+                    // next string will be the one
+                    copy = true;
+                }
+            }
+
+            return 0;
         }
 
         private string[] GetAllLocalIPv4(NetworkInterfaceType _type)
