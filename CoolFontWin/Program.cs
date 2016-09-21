@@ -59,7 +59,6 @@ namespace CoolFontWin
 
 
             //TODO: execute loop in background thread and allow user to break out
-
             while (true)
             {
                 if (IsKeyPressed(ConsoleKey.Escape))
