@@ -42,6 +42,9 @@ namespace CoolFontWin
         private bool res;
         private byte[] pov;
 
+        private bool _leftMouseButtonDown = false;
+        private bool _rightMouseButtonDown = false;
+
         public bool logOutput = false;
         public int[] neutralVals { get; set; }
 
@@ -55,24 +58,6 @@ namespace CoolFontWin
             ResetValues();
         }
 
-        private int[] setNeutralVals(Config.MovementModes MODE)
-        {
-            int[] arr = { };
-            switch (MODE)
-            {
-                case Config.MovementModes.JoystickMove:
-                    break;
-                case Config.MovementModes.JoystickMoveAndLook:
-                    break;
-                case Config.MovementModes.KeyboardMouse:
-                    break;
-                case Config.MovementModes.Mouse2D:
-                    break;
-                case Config.MovementModes.Paused:
-                    break;
-            }
-            return arr;
-        }
         public void ResetValues()
         {
             X = (int)maxX / 2;
@@ -86,9 +71,16 @@ namespace CoolFontWin
             buttons = 0;
         }
 
-        public void AddValues(int[] vals, Config.MovementModes mode)
+        public void AddValues(int[] vals)
         {
-            switch (mode)
+            // Receive data from iPhone, parse it, and translate it to the correct inputs
+            /* vals[0]: 0-1000: represents user running at 0 to 100% speed.
+             * vals[1]: 0-360,000: represents the direction user is facing (in degrees)
+             * vals[2]: always 0
+             * vals[3]: -infinity to infinity: user rotation rate in radians per second (x1000)
+             */
+
+            switch (Config.Mode)
             {
                 //TODO: Hold CTRL+W when under running threshold but over walking threshold
                 case Config.MovementModes.KeyboardMouse:
@@ -129,14 +121,9 @@ namespace CoolFontWin
                         POV_f += 360;
                     }
 
-                    POV_f *= maxPOV/360;
 
-                    /* strafing...
-                    X = (int)(Math.Sin(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxX / 2 + maxX / 2);
-                    Y = (int)(Math.Cos(POV_f / maxPOV * Math.PI * 2) * -vals[0] / 1000.0 * maxY / 2 + maxY / 2);
-                    */
-
-                    X += 0; // no strafing
+                    /* no strafing */
+                    X += 0; 
                     Y += -vals[0] * (int)maxY / 1000 / 2;
                     rX += 0;
                     rY += 0;
@@ -146,7 +133,38 @@ namespace CoolFontWin
                         Console.Write("X:{0} Y:{1} dir:{2}", X, Y, (int)POV_f);
                     }
                     break;
-           
+
+                case Config.MovementModes.JoystickStrafe:
+
+                    POV_f = vals[1] / 1000.0;
+
+                    while (POV_f > 360)
+                    {
+                        POV_f -= 360;
+                    }
+                    while (POV_f < 0)
+                    {
+                        POV_f += 360;
+                    }
+
+                    POV_f = POV_f / 360;
+
+                    /* strafing */
+                    double X_f = -Math.Sin(POV_f * Math.PI * 2) * vals[0] * (int)maxX / 1000 / 2;
+                    double Y_f = -Math.Cos(POV_f * Math.PI * 2) * vals[0] * (int)maxY / 1000 / 2;
+
+                    X += (int)X_f;
+                    Y += (int)Y_f;
+
+                    rX += 0;
+                    rY += 0;
+                    
+                    if (logOutput)
+                    {
+                        Console.WriteLine("X:{0} Y:{1} dir:{2}", X, Y, POV_f);
+                    }
+                    break;
+
                 case Config.MovementModes.JoystickMoveAndLook:
                     // NOT FINISHED YET
                     POV_f = vals[1] / 1000.0;
@@ -191,14 +209,54 @@ namespace CoolFontWin
             }
         }
 
-        public void AddButtons(int buttonsDown, Config.MovementModes mode)
+        public void AddButtons(int buttonsDown)
         {
-            if ((buttonsDown & 32768) != 0) // Y button pressed on Phone
+            switch (Config.Mode)
             {
-                buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
-            }
 
-            buttons = buttons | buttonsDown;
+                case Config.MovementModes.JoystickMove:
+                case Config.MovementModes.JoystickMoveAndLook:
+                case Config.MovementModes.JoystickStrafe:
+                    if ((buttonsDown & 32768) != 0) // Y button pressed on Phone
+                    {
+                        buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
+                    }
+
+                    buttons = buttons | buttonsDown;
+                    break;
+
+                case Config.MovementModes.Mouse2D:
+                    if ((buttonsDown & 4096) != 0 & !_leftMouseButtonDown) // A button pressed on phone
+                    {
+                        kbm.Mouse.LeftButtonDown();
+                        _leftMouseButtonDown = true;
+                    }
+                    if ((buttonsDown & 4096) == 0 & _leftMouseButtonDown)
+                    {
+                        kbm.Mouse.LeftButtonUp();
+                        _leftMouseButtonDown = false;
+                    }
+
+                    if ((buttonsDown & 8192) != 0 & !_rightMouseButtonDown) // B button pressed on phone
+                    {
+                        kbm.Mouse.RightButtonDown();
+                        _rightMouseButtonDown = true;
+                    }
+                    if ((buttonsDown & 8192) == 0 & _rightMouseButtonDown)
+                    {
+                        kbm.Mouse.RightButtonUp();
+                        _rightMouseButtonDown = false;
+                    }
+                    break;
+             }
+        
+        }
+
+        public void UpdateMode(int new_mode)
+        {
+            if(new_mode == (int)Config.Mode) { return; }
+
+            Config.Mode = (Config.MovementModes)new_mode;
         }
 
         public void AddControllerState(State state)
@@ -214,6 +272,10 @@ namespace CoolFontWin
 
         public void FeedVJoy()
         {
+            if (Config.Mode == (Config.MovementModes.Mouse2D | Config.MovementModes.Paused | Config.MovementModes.KeyboardMouse))
+            {
+                return;
+            }
 #if ROBUST
             /* incomplete now */
                     res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
@@ -311,7 +373,7 @@ namespace CoolFontWin
             else
             {
                 Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", joystick.GetvJoyManufacturerString(), joystick.GetvJoyProductString(), joystick.GetvJoySerialNumberString());
-                Config.Mode = Config.MovementModes.JoystickMove;
+                Config.Mode = Config.MovementModes.JoystickStrafe;
             }
 
             // Get the state of the requested device

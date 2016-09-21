@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,10 @@ namespace CoolFontWin
             KeyboardMouse, // Use KB to run forward, mouse to turn
             JoystickMove, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
             JoystickMoveAndLook, //TODO: Move character forward and turn L/R using joystick. Difficult.
+            JoystickStrafe, // phone direction decides which direction the character strafes (no turning)
             Mouse2D, // tilt the phone L/R U/D to move the mouse pointer
+            FromPhone,
+
         };
 
         static public MovementModes Mode { get; set; }

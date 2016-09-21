@@ -136,60 +136,62 @@ namespace CoolFontUdp
             port = 0;
         }
 
-        public int[] parseString2Ints(string instring, char[] delimiterChars)
+        public int[] parseString2Ints(string instring)
         {
             /* Given a string representation of ints, split it into ints */
             /* Return int array */
 
             //Console.WriteLine(instring);
-            string[] instring_sep = instring.Split(delimiterChars);
-            int[] parsed_ints = new int[4]; // TODO: don't hard code in 4
-            int i = 0;
-            int j = 0;
-            bool copy = true;
+            string[] instring_sep = instring.Split('$');
+            string axes_string = instring_sep[1];
+            string[] axes_sep = axes_string.Split(':');
 
-            foreach (string s in instring_sep)
+            int[] parsed_ints = new int[axes_sep.Length];
+     
+            for (int i=0; i<axes_sep.Length; i++)
             {
-                if (s == "$")
-                {
-                    copy = false;
-                }
-                if (copy)
-                {
-                    parsed_ints[j] = Int32.Parse(s);
-                    j++;
-                }
-                i++;
+              parsed_ints[i] = Int32.Parse(axes_sep[i]);
             }
 
-            
             return parsed_ints;
         }
 
-        public int parseButtons(string instring, char[] delimiterChars)
+        public int parseButtons(string instring)
         {
             /* Parse string representation of bitmask (unsigned int) 
-             * String array is separated by ":"
-             * Assume bitmask follows the "$" string */
+             * String array is separated by "$"
+             * Button bitmask is the (2nd string starting from 0)*/
              
-            string[] instring_sep = instring.Split(delimiterChars);
-            bool copy = false;
+            string[] instring_sep = instring.Split('$');
+            string button_string = instring_sep[2];
 
-            foreach (string s in instring_sep)
+            try
             {
-                if (copy)
-                {
-                    return int.Parse(s);
-                }
-
-                if (s == "$")
-                {
-                    // next string will be the one
-                    copy = true;
-                }
+                return int.Parse(button_string);
             }
+            catch
+            {
+                return 0; // no buttons pressed
+            }
+        }
 
-            return 0;
+
+        public int parseMode(string instring, int mode_old)
+        {
+            /* Parse string representation of bitmask (unsigned int) 
+             * String array is separated by "$"
+             * Mode bitmask is the 0th string */
+
+            string[] instring_sep = instring.Split('$');
+            string mode_string = instring_sep[0];
+            try
+            {
+                return int.Parse(mode_string);
+            }
+            catch
+            {
+                return mode_old; // current mode
+            }
         }
 
         private string[] GetAllLocalIPv4(NetworkInterfaceType _type)
