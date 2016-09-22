@@ -10,10 +10,11 @@ using SharpDX.XInput;
 using CoolFontUdp;
 using CoolFontIO;
 using CoolFontUtils;
+using System.Windows.Forms;
 
 namespace CoolFontWin
 {
-    class Program
+    public class Program : SysTray
     {
         [DllImport("Kernel32")]
         public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
@@ -36,6 +37,11 @@ namespace CoolFontWin
 
         static void Main(string[] args)
         {
+            //Application.Run(new MyCustomApplicationContext());
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            Application.Run(new MyCustomApplicationContext());
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
             int tryport = ProcessArgs(args);
 
@@ -154,4 +160,7 @@ namespace CoolFontWin
             return 0;
         }
     }
+   
+
+
 }
