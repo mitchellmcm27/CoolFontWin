@@ -13,12 +13,23 @@ namespace CoolFontWin
     class CoolFontSimulator
     {
         private long maxX = 0;
+        private long minX = 0;
         private long maxY = 0;
+        private long minY = 0;
+
         private long maxRX = 0;
+        private long minRX = 0;
         private long maxRY = 0;
+        private long minRY = 0;
+
         private long maxPOV = 0;
+        private long minPOV = 0;
+
         private long maxZ = 0;
+        private long minZ = 0;
         private long maxRZ = 0;
+        private long minRZ = 0;
+
 
         private vJoy joystick;
         private vJoy.JoystickState iReport;
@@ -70,23 +81,114 @@ namespace CoolFontWin
             rT = 0;
             buttons = 0;
         }
-
-        public void AddValues(int[] vals)
+ 
+        public double[] ProcessValues(int[] vals)
         {
-            // Receive data from iPhone, parse it, and translate it to the correct inputs
-            /* vals[0]: 0-1000: represents user running at 0 to 100% speed.
-             * vals[1]: 0-360,000: represents the direction user is facing (in degrees)
-             * vals[2]: always 0
-             * vals[3]: -infinity to infinity: user rotation rate in radians per second (x1000)
-             */
 
+            double[] valsf = new double[vals.Length];
+
+            /* Goal:
+             * Convert ints to floats and put in sensible units (e.g. 0 to 1, -1 to 1)
+             *
+             *    ^ 0    . pi/6
+             *    |     / 
+             *    |    /
+             *    |   /
+             *    |  /
+             *    | /
+             *    ./______________> pi/2
+             * 
+            /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX */
+
+            valsf[0] = vals[0] / 1000.0; // 0 to 1
+
+            valsf[7] =  CoolFontUtils.Algorithm.WrapAngle(vals[7] / 1000.0); // 0 to 360, do not Clamp
+            valsf[7] = valsf[7] / 360; // 0 to 1
+
+            if (Config.Mode == Config.MovementModes.JoystickStrafe)
+            {
+                // X and Y are determined by user direction and speed
+                valsf[1] = -Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                valsf[2] = -Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+            }
+            else
+            {
+                /* X and Y are determined by device orientation
+                 * Could be any angle, but used as linear joystick input
+                 * Need to wrap, because the user could turn their device >360,
+                 * which would be read as maximum on the joystick
+                 * 
+                 * -1 to 1 
+                 */
+                valsf[1] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[1] / 1000.0); // -180 to 180
+                valsf[1] = valsf[1] / 180; 
+                valsf[2] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[2] / 1000.0);
+                valsf[2] = valsf[2] / 180;
+            }
+
+            /* RX, RY, Z, and RZ determiend by device orientation
+             * They are linear joystick input, so Clamp
+             * 
+             * -1 to 1
+             */
+            valsf[3] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[3] / 1000.0);
+            valsf[3] = valsf[3] / 180;
+            valsf[4] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[4] / 1000.0);
+            valsf[4] = valsf[4] / 180;
+
+            valsf[5] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[5] / 1000.0);
+            valsf[5] = valsf[5] / 180;
+            valsf[6] = CoolFontUtils.Algorithm.WrapQ2toQ4(vals[6] / 1000.0);
+            valsf[6] = valsf[6] / 180;
+
+            /* Mouse dY and dX
+             * Could be any number but often around += 2
+             */
+             
+            valsf[9] = 1 * vals[9] / 1000.0; // not yet accounting for mouse sensitivity
+            valsf[8] = 2 * vals[8] / 1000.0;    
+
+            return valsf;
+        }
+
+        public double[] TranslateValues(double[] valsf)
+        {
+            /* Goal: get data to the point where it can be added to the joystick device 
+             * Specific to particular joystick
+             * Final step before filtering and adding */
+
+            // Y axis in some modes
+            valsf[0] = valsf[0] * maxY / 2;
+
+            // 3 axes
+            valsf[1] = valsf[1] * maxX / 2 * 2; // max at half turn
+            valsf[2] = valsf[2] * maxY / 2 * 2;
+            valsf[3] = valsf[3] * maxRX / 2 * 2;
+            valsf[4] = valsf[4] * maxRY / 2 * 2;
+
+            // 2 triggers
+            valsf[5] = -valsf[5] * maxZ * 2; // max out at a quarter turn
+            valsf[6] = valsf[6] * maxZ * 2;
+
+            // POV hat
+            valsf[7] = valsf[7] * maxPOV;
+
+            // Mouse movement
+            valsf[8] = valsf[8] * Config.mouseSens;
+            valsf[9] = valsf[9] * Config.mouseSens;
+
+            return valsf;
+        }
+
+        public void AddValues(double[] valsf)
+        {
+            /* Simply update joystick with vals */
             switch (Config.Mode)
             {
-                //TODO: Hold CTRL+W when under running threshold but over walking threshold
                 case Config.MovementModes.KeyboardMouse:
-                    kbm.Mouse.MoveMouseBy((int)(10.0 * vals[3] / 1000.0), 0); // dx, dy (pixels)
+                    kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                    if (vals[0] >= Config.THRESH_RUN)
+                    if (valsf[0] >= Config.THRESH_RUN*maxY)
                     {
                         kbm.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                     }
@@ -102,107 +204,87 @@ namespace CoolFontWin
 
                     if (logOutput)
                     {
-                        Console.Write("W?: {0} Mouse: {1}", 
-                            kbm.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W), 
-                            (int)(10.0 * vals[3] / 1000.0));
+                        Console.Write("W?: {0} Mouse: {1}",
+                            kbm.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W),
+                            (int)valsf[9]);
                     }
                     break;
 
                 case Config.MovementModes.JoystickMove:
 
-                    POV_f = vals[1] / 1000.0;
-
-                    while (POV_f > 360)
-                    {
-                        POV_f -= 360;
-                    }
-                    while (POV_f < 0)
-                    {
-                        POV_f += 360;
-                    }
-
-
                     /* no strafing */
-                    X += 0; 
-                    Y += -vals[0] * (int)maxY / 1000 / 2;
+                    X += 0;
+                    Y += -(int)valsf[0];
                     rX += 0;
                     rY += 0;
 
                     if (logOutput)
                     {
-                        Console.Write("X:{0} Y:{1} dir:{2}", X, Y, (int)POV_f);
+                        Console.Write("Y:{0}", Y);
                     }
                     break;
 
                 case Config.MovementModes.JoystickStrafe:
 
-                    POV_f = vals[1] / 1000.0;
-
-                    while (POV_f > 360)
-                    {
-                        POV_f -= 360;
-                    }
-                    while (POV_f < 0)
-                    {
-                        POV_f += 360;
-                    }
-
-                    POV_f = POV_f / 360;
-
-                    /* strafing */
-                    double X_f = -Math.Sin(POV_f * Math.PI * 2) * vals[0] * (int)maxX / 1000 / 2;
-                    double Y_f = -Math.Cos(POV_f * Math.PI * 2) * vals[0] * (int)maxY / 1000 / 2;
-
-                    X += (int)X_f;
-                    Y += (int)Y_f;
+                    /* strafing but no turning*/
+                    X += (int)valsf[1];
+                    Y += (int)valsf[2];
 
                     rX += 0;
                     rY += 0;
-                    
+
                     if (logOutput)
                     {
-                        Console.WriteLine("X:{0} Y:{1} dir:{2}", X, Y, POV_f);
+                        Console.WriteLine("X:{0} Y:{1}", X, Y);
                     }
                     break;
 
                 case Config.MovementModes.JoystickMoveAndLook:
-                    // NOT FINISHED YET
-                    POV_f = vals[1] / 1000.0;
 
-                    while (POV_f > 360)
-                    {
-                        POV_f -= 360;
-                    }
-                    while (POV_f < 0)
-                    {
-                        POV_f += 360;
-                    }
-
-                    POV_f *= maxPOV / 360;
+                    // still in testing
 
                     X += 0; // no strafing
-                    Y += -vals[0] * (int)maxY / 1000 / 2;
-            
-                    rX += 0; // needs to change
+                    Y += -(int)valsf[0];
+
+                    rX += 0; // look left/right, currently handled by mouse
                     rY += 0; // look up/down
 
-                    kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
-                                         0); // dx, dy (pixels)
+                    kbm.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
+                                          0); // dx, dy (pixels)
 
                     if (logOutput)
                     {
-                        Console.Write("Y:{0} dir:{1}", Y, (int)POV_f);
+                        Console.Write("Y:{0} dX:{1}", Y, -(int)valsf[9]);
+                    }
+                    break;
+
+                case Config.MovementModes.Gamepad:
+
+                    /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX, */
+                    // Full gamepad simulation
+                    // NOT FINISHED YET
+
+                    X += (int)valsf[1];
+                    Y += -(int)valsf[2];
+                    rX += (int)valsf[3];
+                    rY += -(int)valsf[4];
+                    Z += (int)valsf[6];
+                    rZ += (int)valsf[5];
+
+                    if (logOutput)
+                    {
+                        Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5}", X, Y, rX, rY, Z, rZ);
                     }
                     break;
 
                 case Config.MovementModes.Mouse2D:
-
-                    kbm.Mouse.MoveMouseBy(-(int)(1 * vals[3] / 1000.0 * Config.mouseSens), // negative because device is not assumed upside down
-                                          -(int)(2 * vals[2] / 1000.0 * Config.mouseSens)); // dx, dy (pixels)
+                    /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX, */
+                    // Control mouse on screen
+                    kbm.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
+                                          -(int)valsf[8]); // dx, dy (pixels)
                     if (logOutput)
                     {
-                        Console.Write("dx:{0} dy:{1}",
-                            (int)(30.0 * vals[3] / 1000.0), (int)(60.0 * vals[2] / 1000.0));
+                        Console.Write("dx:{0} dy:{1}", (int)valsf[9], (int)valsf[9]);
                     }
 
                     break;
@@ -217,6 +299,7 @@ namespace CoolFontWin
                 case Config.MovementModes.JoystickMove:
                 case Config.MovementModes.JoystickMoveAndLook:
                 case Config.MovementModes.JoystickStrafe:
+                case Config.MovementModes.Gamepad:
                     if ((buttonsDown & 32768) != 0) // Y button pressed on Phone
                     {
                         buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
@@ -276,6 +359,16 @@ namespace CoolFontWin
             {
                 return;
             }
+
+            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
+            if (!joystick.UpdateVJD(Config.ID, ref iReport))
+            {
+                /* We can assume an xbox controller is plugged in */
+                Console.WriteLine("vJoy device {0} not enabled.\n", Config.ID);
+                //Console.ReadKey(true);
+                //joystick.AcquireVJD(Config.ID);
+                return;
+            }
 #if ROBUST
             /* incomplete now */
                     res = joystick.SetAxis(X, Config.ID, HID_USAGES.HID_USAGE_X);
@@ -305,14 +398,6 @@ namespace CoolFontWin
             {
                 iReport.bHats = ((uint)POV_f);
                 //iReport.bHats = 0xFFFFFFFF; // Neutral state
-            }
-
-            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
-            if (!joystick.UpdateVJD(Config.ID, ref iReport))
-            {
-                Console.WriteLine("Feeding vJoy device number {0} failed - try to enable device then press enter\n", Config.ID);
-                Console.ReadKey(true);
-                joystick.AcquireVJD(Config.ID);
             }
 #endif
         }
@@ -457,12 +542,22 @@ namespace CoolFontWin
             // get max range of joysticks
             // neutral position is max/2
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref maxX);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_X, ref minX);
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Y, ref maxY);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_Y, ref minY);
+
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RX, ref maxRX);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RX, ref minRX);
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RY, ref maxRY);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RY, ref minRY);
+
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_POV, ref maxPOV);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_POV, ref minPOV);
+
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Z, ref maxZ);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_Z, ref minZ);
             joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RZ, ref maxRZ);
+            joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RZ, ref minRZ);
             ContPovNumber = joystick.GetVJDContPovNumber(id);
         }
 

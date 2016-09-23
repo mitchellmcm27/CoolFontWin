@@ -329,16 +329,37 @@ namespace CoolFontUtils
 {
     public static class Algorithm
     {
-        public static int[] LowPassFilter(int[] vals, int[] vals_last, double RC, double dt)
+        public static double[] LowPassFilter(double[] valsf, double[] valsf_last, double RC, double dt)
         {
             double alpha = dt / (RC + dt); // smoothing factor, 0 to 1
 
-            for (int i=0; i<vals.Length; i++)
+            for (int i=0; i<valsf.Length; i++)
             {
-                vals[i] = (int)(vals[i] * alpha + (1.0 - alpha) * vals_last[i]);
+                valsf[i] = (int)(valsf[i] * alpha + (1.0 - alpha) * valsf_last[i]);
             }
 
-            return vals;
+            return valsf;
+        }
+
+        public static double WrapAngle(double ang)
+        {
+            while (ang > 360) { ang -= 360; }
+            while (ang < 0) { ang += 360; }
+
+            return ang;
+        }
+
+        public static double WrapQ2toQ4(double ang)
+        {
+            while (ang > 180) { ang -= 360; }
+            while (ang < -180) { ang += 360; }
+
+            return ang;
+        }
+
+        public static double Clamp(double val, double min, double max)
+        {
+            return Math.Min(Math.Max(val, min), max);
         }
     }
 }
