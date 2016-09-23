@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoolFontWin
+namespace CoolFont
 {
     public static class Config
     {
@@ -21,7 +21,6 @@ namespace CoolFontWin
             JoystickStrafe, // phone direction decides which direction the character strafes (no turning)
             Mouse2D, // tilt the phone L/R U/D to move the mouse pointer
             Gamepad, // fully functional gamepad similar to Xbox controller
-
         };
 
         static public MovementModes Mode { get; set; }
@@ -30,7 +29,7 @@ namespace CoolFontWin
 
         static public double THRESH_RUN = 0.7;
         static public double THRESH_WALK = 0.3;
-        static public int mouseSens = 30;
+        static public int mouseSens = 20;
         static public int socketPollInterval = 8*1000; // microseconds (us)
         static public double dt = socketPollInterval / 1000.0 / 1000.0; // s
 
