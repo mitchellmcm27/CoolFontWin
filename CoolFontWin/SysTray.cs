@@ -7,7 +7,9 @@ using System.Windows.Forms;
 using System.Configuration;
 using System.Resources;
 using System.Drawing;
-using System.Diagnostics; 
+using System.Diagnostics;
+using CoolFontUdp;
+using CoolFontIO;
 
 namespace CoolFontWin
 {
@@ -39,15 +41,30 @@ namespace CoolFontWin
 
             void Reset(object sender, EventArgs e)
             {
-                proc.StartInfo.FileName = @"C:\User\Roy\Desktop\CoolFontWin\testapp-java.jar";
-                proc.StartInfo.Arguments = Application.ExecutablePath;
+                JavaProc.Kill();
+                /* Instantiate listener using port */
+                UdpListener listener = new UdpListener();
+                int port = listener.port;
+
+                if (port > 0 & listener.isBound)
+                {
+                    // write successful port to file for next time
+                    FileManager.WritePortToFile(port, Config.PORT_FILE);
+                }
+
+                /* Register DNS service through Java */
+                JavaProc.StartDnsService(port); // blocks    
+                //proc.StartInfo.FileName = @"C:\User\Roy\Desktop\CoolFontWin\testapp-java.jar";
+                //proc.StartInfo.Arguments = Application.ExecutablePath;
+                //proc.Kill(); 
             }
             void Exit(object sender, EventArgs e)
             {
                 // Hide tray icon, otherwise it will remain shown until user mouses over it
                 trayIcon.Visible = false;
-                proc.Kill(); 
+               // proc.Kill(); 
                 Application.Exit();
+                Environment.Exit(0);
             }
         }
     }
