@@ -20,7 +20,7 @@ namespace CoolFontWin
             JoystickMoveAndLook, //TODO: Move character forward and turn L/R using joystick. Difficult.
             JoystickStrafe, // phone direction decides which direction the character strafes (no turning)
             Mouse2D, // tilt the phone L/R U/D to move the mouse pointer
-            FromPhone,
+            Gamepad, // fully functional gamepad similar to Xbox controller
 
         };
 
@@ -30,7 +30,7 @@ namespace CoolFontWin
 
         static public double THRESH_RUN = 0.7;
         static public double THRESH_WALK = 0.3;
-        static public int mouseSens = 5;
+        static public int mouseSens = 30;
         static public int socketPollInterval = 8*1000; // microseconds (us)
         static public double dt = socketPollInterval / 1000.0 / 1000.0; // s
 
@@ -38,6 +38,6 @@ namespace CoolFontWin
         // 0.05 good for mouse movement, 0.15 was a little too smooth
         // 0.05 probably good for VR, where you don't have to aim with the phone
         // 0.00 is good for when you have to aim slowly/precisely
-        static public double RCFilterStrength = 0.1;
+        static public double RCFilterStrength = 0.05;
     }
 }

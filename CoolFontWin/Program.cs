@@ -73,15 +73,16 @@ namespace CoolFontWin
             CoolFontSimulator sim = new CoolFontSimulator(Config.Mode); // will change Mode if necessary
 
             string rcvd;
-            int[] vals = { 0, 0, 0, 0 };
-            int[] vals_last = vals;
+            int[] vals = new int[10];
+            double[] valsf_last = new double[10];
+            double[] valsf = new double[10];
             int buttons = 0; // bitmask
             int modeIn = (int)Config.Mode;
             int T = 0; // total time
             int timeout = 30; // set to -1 to block on every socket read
             int tries = timeout + 1;
 
-            sim.logOutput = false;
+            sim.logOutput = true;
             bool logRcvd = false;
 
 
@@ -90,37 +91,41 @@ namespace CoolFontWin
             {
                 // do not block, returns "" if nothing to rcv
                 //rcvd = listener.receiveStringAsync();
+
                 rcvd = listener.pollSocket(Config.socketPollInterval);
-
-
                 try
                 {
                     vals = listener.parseString2Ints(rcvd);
                     buttons = listener.parseButtons(rcvd);
                     modeIn = listener.parseMode(rcvd, (int)Config.Mode); // Config.Mode is a fallback
-                    vals = Algorithm.LowPassFilter(vals,vals_last,Config.RCFilterStrength,Config.dt);
-                    vals_last = vals;
+
+                    sim.UpdateMode(modeIn);
+
+                    valsf = sim.ProcessValues(vals); // could make these funcs private
+                    valsf = sim.TranslateValues(valsf); //
+                    valsf = Algorithm.LowPassFilter(valsf,valsf_last,Config.RCFilterStrength,Config.dt); // last step to avoid artifacts
+
+                    valsf_last = valsf;
                     tries = 0;
 
                     if (logRcvd && (T % 20 == 0))
-                        Console.WriteLine("{0} \n {1}{2}{3} \n {4}",modeIn, vals[0], vals[1], vals[2] , buttons);
+                        Console.WriteLine("{0} \n {1} {2} {3} {4} \n {5}",modeIn, vals[0], vals[1], vals[2], vals[4] , buttons);
                 }
                 catch
                 {
                      // assume empty packet
                     if (tries <= timeout)
                     {
-                        vals = vals_last;
+                        valsf = valsf_last;
                     }
                     tries++; // number of empty packets
                 }
 
-                /* Get input from connected XInput device */
-
-
-                sim.UpdateMode(modeIn);
-                sim.AddValues(vals);
+                /* Add values from phone to joystick device */
+                sim.AddValues(valsf);
                 sim.AddButtons(buttons);
+
+                /* Get data from connected XInput device and add those too*/
 
                 if (dev.controller != null && dev.controller.IsConnected)
                 {
@@ -128,8 +133,10 @@ namespace CoolFontWin
                     sim.AddControllerState(state);
                 }
 
+                /* Update device and reset values to neutral position */
                 sim.FeedVJoy();
                 sim.ResetValues();
+
                 if (sim.logOutput)
                 {
                     Console.Write(" ({0}) \n", tries);
