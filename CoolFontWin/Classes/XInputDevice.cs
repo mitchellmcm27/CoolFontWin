@@ -5,41 +5,51 @@ using System.Text;
 using System.Threading.Tasks;
 using SharpDX.XInput;
 
-namespace CoolFontWin
+namespace CoolFont
 {
-    class XInputDevice
-    {
-        public Controller controller;
-
-        public XInputDevice()
+    namespace Simulator
+    { 
+        class XInputDeviceManager
         {
-            // Initialize XInput
-            Controller[] controllers = new[] {
-                new Controller(UserIndex.One),
-                new Controller(UserIndex.Two),
-                new Controller(UserIndex.Three),
-                new Controller(UserIndex.Four),
-            };
+            public Controller controller { get; set; }
+            private Controller[] controllers;
 
-            controller = null;
-            foreach (Controller selectController in controllers)
+            public XInputDeviceManager()
             {
-                if (selectController.IsConnected)
+                // Initialize XInput
+                controller = null;
+                controllers = new[] {
+                    new Controller(UserIndex.One),
+                    new Controller(UserIndex.Two),
+                    new Controller(UserIndex.Three),
+                    new Controller(UserIndex.Four),
+                };
+            }
+
+            public Controller getController ()
+            {
+            
+                foreach (Controller selectController in controllers)
                 {
-                    controller = selectController;
-                    break;
+                    if (selectController.IsConnected)
+                    {
+                        controller = selectController;
+                        break;
+                    }
                 }
-            }
 
-            if (controller == null)
-            {
-                Console.WriteLine("No XInput controller installed");
-            }
+                if (controller == null)
+                {
+                    Console.WriteLine("No XInput controller installed");
+                }
 
-            else
-            {
-                Console.WriteLine("Found a XInput controller available");
-                Console.WriteLine(controller.GetCapabilities(DeviceQueryType.Any));
+                else
+                {
+                    Console.WriteLine("Found a XInput controller available");
+                    Console.WriteLine(controller.GetCapabilities(DeviceQueryType.Any));
+                }
+
+                return controller;
             }
         }
     }
