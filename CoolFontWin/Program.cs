@@ -18,7 +18,7 @@ namespace CoolFontWin
     {
         [DllImport("Kernel32")]
         public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
-
+        public static int globalPort; 
         // A delegate type to be used as the handler routine 
         // for SetConsoleCtrlHandler.
         public delegate bool HandlerRoutine(CtrlTypes CtrlType);
@@ -37,11 +37,8 @@ namespace CoolFontWin
 
         static void Main(string[] args)
         {
-            //Application.Run(new MyCustomApplicationContext());
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            Application.Run(new MyCustomApplicationContext());
+           
+           // SysTray.Run(); 
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
             int tryport = ProcessArgs(args);
 
@@ -67,7 +64,7 @@ namespace CoolFontWin
 
             /* Register DNS service through Java */
             JavaProc.StartDnsService(port); // blocks
-
+            globalPort = port; 
 
             State state;
             /* Set up the simulator */

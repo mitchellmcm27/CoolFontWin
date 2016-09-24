@@ -15,7 +15,14 @@ namespace CoolFontWin
 {
     public class SysTray
     {
-
+        public void Run()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            //Configuration sys = new MyCustomApplicationContext();
+            //sys.Show(); 
+            //Application.Run(new MyCustomApplicationContext());
+        }
         public class MyCustomApplicationContext : ApplicationContext
         {
             private NotifyIcon trayIcon;
@@ -43,29 +50,23 @@ namespace CoolFontWin
             {
                 JavaProc.Kill();
                 /* Instantiate listener using port */
-                UdpListener listener = new UdpListener();
-                int port = listener.port;
-
-                if (port > 0 & listener.isBound)
-                {
-                    // write successful port to file for next time
-                    FileManager.WritePortToFile(port, Config.PORT_FILE);
-                }
+               
+              
 
                 /* Register DNS service through Java */
-                JavaProc.StartDnsService(port); // blocks    
-                //proc.StartInfo.FileName = @"C:\User\Roy\Desktop\CoolFontWin\testapp-java.jar";
-                //proc.StartInfo.Arguments = Application.ExecutablePath;
-                //proc.Kill(); 
+                JavaProc.StartDnsService(Program.globalPort); // blocks    
+              
             }
             void Exit(object sender, EventArgs e)
             {
                 // Hide tray icon, otherwise it will remain shown until user mouses over it
                 trayIcon.Visible = false;
-               // proc.Kill(); 
+                // proc.Kill(); 
+                JavaProc.Kill(); 
                 Application.Exit();
                 Environment.Exit(0);
             }
+
         }
     }
 }
