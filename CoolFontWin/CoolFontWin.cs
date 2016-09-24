@@ -18,6 +18,26 @@ namespace CoolFont
 {
     public class CoolFontWin
     {
+        
+        [DllImport("Kernel32")]
+        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
+
+        // A delegate type to be used as the handler routine 
+        // for SetConsoleCtrlHandler.
+        public delegate bool HandlerRoutine(CtrlTypes CtrlType);
+
+        // An enumerated type for the control messages
+        // sent to the handler routine.
+        public enum CtrlTypes
+        {
+            CTRL_C_EVENT = 0,
+            CTRL_BREAK_EVENT,
+            CTRL_CLOSE_EVENT,
+            CTRL_LOGOFF_EVENT = 5,
+            CTRL_SHUTDOWN_EVENT
+        }
+
+
         private int _port;
         // A delegate type to be used as the handler routine 
         // for SetConsoleCtrlHandler.
@@ -51,12 +71,12 @@ namespace CoolFont
 
             // check to see if everything is set up?
             ReceiveService(sock);
-            
 
         }
-        [STAThread]
+
         private void ReceiveService(UdpListener sock)
         {
+            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
             /* Set up the simulator */
             Config.Mode = Config.MovementModes.Mouse2D;
             XInputDeviceManager devMan = new XInputDeviceManager();
@@ -72,7 +92,7 @@ namespace CoolFont
                 while (true)
                 {
                     vDevice.logOutput = false;
-                    bool logRcvd = false;
+                    bool logRcvd = true;
 
                     /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.pollSocket(Config.socketPollInterval);
@@ -102,6 +122,14 @@ namespace CoolFont
             }).Start(); 
         }
 
+        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        {
+            if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
+            {
+                JavaProc.Kill();
+            }
+            return true;
+        }
 
         /*
          * 

@@ -47,7 +47,7 @@ namespace CoolFont
             private int Z;
             private int rZ;
             private int POV;
-            private int buttons;
+            private int _buttons;
             private byte[] pov;
 
             private bool _leftMouseButtonDown = false;
@@ -78,7 +78,7 @@ namespace CoolFont
 
                 double[] valsf = ParseString(rcvd);
                 if (_valsf == null) _valsf = valsf;
-                int buttons = ParseButtons(rcvd);
+                _buttons = ParseButtons(rcvd);
                 int modeIn = ParseMode(rcvd, (int)Config.Mode); // Config.Mode is a fallback
 
                 UpdateMode(modeIn);
@@ -94,7 +94,7 @@ namespace CoolFont
                 _valsf = valsf;
 
                 AddValues(_valsf);
-                AddButtons(buttons);
+                AddButtons(_buttons);
 
                 shouldInterpolate = true;
                 return true;
@@ -106,6 +106,7 @@ namespace CoolFont
                 /* Could be more complex but right now just returns the last good values */
 
                 AddValues(_valsf);
+                AddButtons(_buttons);
             }
 
             private double[] ParseString(string instring)
@@ -174,7 +175,6 @@ namespace CoolFont
                 Z = 0;
                 rZ = 0;
                 POV = -1; // neutral state
-                buttons = 0;
             }
 
             private double[] ProcessValues(double[] valsf)
@@ -402,7 +402,7 @@ namespace CoolFont
                             buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
                         }
 
-                        buttons = buttons | buttonsDown;
+                        _buttons = _buttons | buttonsDown;
                         break;
 
                     case Config.MovementModes.Mouse2D:
@@ -447,7 +447,7 @@ namespace CoolFont
                 rY += state.Gamepad.RightThumbY;
                 Z += state.Gamepad.LeftTrigger; // not the right scale
                 rZ += state.Gamepad.RightTrigger; // not the right scale
-                buttons = (short)state.Gamepad.Buttons;
+                _buttons = (short)state.Gamepad.Buttons;
             }
 
             public void FeedVJoy()
@@ -488,7 +488,7 @@ namespace CoolFont
                 iReport.AxisZRot = rZ;
 
                 // Press/Release Buttons
-                iReport.Buttons = (uint)(buttons);
+                iReport.Buttons = (uint)(_buttons);
 
                 if (ContPovNumber > 0)
                 {

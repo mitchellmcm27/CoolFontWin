@@ -9,10 +9,10 @@ namespace CoolFont
 {
    static class Program
     {
-        //[STAThread]
+        [STAThread]
         static void Main()
         {
-            // if (!SingleInstance.Start()) { return;  } 
+            // if (!SingleInstance.Start()) { return;  }  // Mutex library
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -27,7 +27,8 @@ namespace CoolFont
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             }
-            //SingleInstance.Stop(); 
+
+            //SingleInstance.Stop(); // Mutex library
 
         }
     }
@@ -72,13 +73,9 @@ namespace CoolFont
 
         private System.ComponentModel.IContainer components;
         private NotifyIcon notifyIcon;
-        //private NotifyIcon notifyIcon; 
 
         private void InitializeContext()
         {
-            
-            //code
-            //NotifyIcon myIcon = new NotifyIcon("AppIcon.ico");
             components = new System.ComponentModel.Container();
             notifyIcon = new NotifyIcon(components)
             {
