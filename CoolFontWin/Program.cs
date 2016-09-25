@@ -15,10 +15,10 @@ namespace CoolFont
             // if (!SingleInstance.Start()) { return;  }  // Mutex library
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Console.WriteLine("args:{0}", args);
+            Console.WriteLine(args);
             try
             {
-                var applicationContext = new CustomApplicationContext();
+                var applicationContext = new CustomApplicationContext(args);
                 Application.Run(applicationContext);
 
             }
@@ -38,12 +38,12 @@ namespace CoolFont
         private static readonly string IconFileName = "AppIcon.ico";
         private static readonly string DefaultTooltip = "Pocket Strafe";
        
-        private CoolFontWin cfw; 
-              
-        public CustomApplicationContext()
+        private CoolFontWin cfw;
+
+        public CustomApplicationContext(string[] args)
         {
             InitializeContext();
-            cfw = new CoolFontWin(notifyIcon);
+            cfw = new CoolFontWin(notifyIcon, args);
             cfw.StartService();               
         }
 

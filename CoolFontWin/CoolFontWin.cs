@@ -40,14 +40,19 @@ namespace CoolFont
         private int _port;
         private readonly NotifyIcon notifyIcon;
 
-        public CoolFontWin(NotifyIcon notifyIcon)
+        private bool log = false;
+        private bool verbose = false;
+        private string[] args;
+
+        public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
-            this.notifyIcon = notifyIcon; 
+            this.notifyIcon = notifyIcon;
+            this.args = args;
         }
 
        public void StartService()
         {
-
+            ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(Config.PORT_FILE); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
             _port = sock.port;
@@ -65,6 +70,21 @@ namespace CoolFont
             ReceiveService(sock);
         }
 
+        private void ProcessArgs()
+        {
+            foreach (string arg in args)
+            {
+                if (arg.Equals("log"))
+                {
+                    log = true;
+                }
+                if (arg.Equals("verbose"))
+                {
+                    verbose = true;
+                }
+            }
+        }
+
         private void ReceiveService(UdpListener sock)
         {
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
@@ -75,6 +95,8 @@ namespace CoolFont
             Controller xDevice = devMan.getController();
             VirtualDevice vDevice = new VirtualDevice(Config.Mode); // will change Mode if necessary
 
+            vDevice.logOutput = verbose; // T or F
+
             int T = 0; // total time
             int maxGapSize = 30; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
@@ -83,8 +105,6 @@ namespace CoolFont
             {
                 while (true)
                 {
-                    vDevice.logOutput = false;
-                    bool logRcvd = false;
 
                     /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.pollSocket(Config.socketPollInterval);
@@ -105,7 +125,7 @@ namespace CoolFont
                     vDevice.FeedVJoy();
                     T++;
 
-                    if (logRcvd && (T % 10 == 0))
+                    if (log && (T % 10 == 0))
                         Console.WriteLine(rcvd);
                     if (vDevice.logOutput)
                         Console.Write(" ({0}) \n", gapSize);
