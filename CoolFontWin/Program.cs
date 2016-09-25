@@ -82,8 +82,8 @@ namespace CoolFont
                 Visible = true     
             };
             /* http://www.99colors.net/dot-net-colors */
-            notifyIcon.ContextMenuStrip.BackColor = Color.DarkSlateGray;
-            notifyIcon.ContextMenuStrip.ForeColor = Color.LightSteelBlue; 
+            notifyIcon.ContextMenuStrip.BackColor = Color.Ivory;
+            notifyIcon.ContextMenuStrip.ForeColor = Color.DarkSlateGray;
             notifyIcon.ContextMenuStrip.ShowImageMargin = false; // no images
 
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
@@ -94,7 +94,10 @@ namespace CoolFont
         {  
             e.Cancel = false;
             cfw.BuildContextMenu(notifyIcon.ContextMenuStrip);
-            notifyIcon.ContextMenuStrip.Items.Add(cfw.ToolStripMenuItemWithHandler("&Exit", exit_Click));          
+            ToolStripMenuItem exitItem = cfw.ToolStripMenuItemWithHandler("&Exit", exit_Click);
+            exitItem.ForeColor = Color.Crimson;
+            exitItem.BackColor = Color.White;
+            notifyIcon.ContextMenuStrip.Items.Add(exitItem);  
         }
 
         private void notifyIcon_MouseUp(Object sender, MouseEventArgs e)
