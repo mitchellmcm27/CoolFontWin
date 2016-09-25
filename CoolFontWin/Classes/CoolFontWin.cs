@@ -134,11 +134,12 @@ namespace CoolFont
             }).Start(); 
         }
 
-        private static bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        private bool ConsoleCtrlCheck(CtrlTypes ctrlType)
         {
             if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
             {
                 JavaProc.Kill();
+                notifyIcon.Dispose();
             }
             return true;
         }
