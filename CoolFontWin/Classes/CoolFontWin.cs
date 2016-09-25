@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms; 
+using System.Windows.Forms;
 using SharpDX.XInput;
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
-using CoolFont.Utils;
-using System.Threading; 
+using System.Threading;
+using System.Drawing;
 
 namespace CoolFont
 {
@@ -190,9 +184,12 @@ namespace CoolFont
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
+            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Mode: {0}", GetModeString()));
+            modeItem.Font = new Font(modeItem.Font, modeItem.Font.Style | FontStyle.Bold);
+
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
-                    new ToolStripMenuItem(String.Format("Mode: {0}", GetModeString())), 
+                    modeItem,
                     new ToolStripSeparator(),
                    ToolStripMenuItemWithHandler("&Reset Server", reset_Click),
                    ToolStripMenuItemWithHandler("Double smoothing factor", smoothing2_Click),

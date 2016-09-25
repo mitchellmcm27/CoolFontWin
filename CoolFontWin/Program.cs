@@ -83,7 +83,7 @@ namespace CoolFont
             };
             /* http://www.99colors.net/dot-net-colors */
             notifyIcon.ContextMenuStrip.BackColor = Color.DarkSlateGray;
-            notifyIcon.ContextMenuStrip.ForeColor = Color.LightSteelBlue;
+            notifyIcon.ContextMenuStrip.ForeColor = Color.LightSteelBlue; 
             notifyIcon.ContextMenuStrip.ShowImageMargin = false; // no images
 
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
