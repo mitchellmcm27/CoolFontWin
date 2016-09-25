@@ -160,6 +160,8 @@
     <Compile Include="Classes\InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="Assets\vjoy-sdk-ex.cs" />
     <Compile Include="Classes\InputSimulator\Native\XButton.cs" />
+    <Compile Include="UI\Colors.cs" />
+    <Compile Include="UI\CustomContextMenuRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

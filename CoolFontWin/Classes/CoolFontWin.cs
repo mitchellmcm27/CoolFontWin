@@ -184,16 +184,16 @@ namespace CoolFont
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
-            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Mode: {0}", GetModeString()));
+            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Mode - {0}", GetModeString()));
             modeItem.Font = new Font(modeItem.Font, modeItem.Font.Style | FontStyle.Bold);
             modeItem.BackColor = Color.DarkSlateBlue;
             modeItem.ForeColor = Color.Lavender;
+            modeItem.Enabled = false; // not clickable
 
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     modeItem,
-                    new ToolStripSeparator(),
-                   ToolStripMenuItemWithHandler("&Reset Server", reset_Click),
+                   ToolStripMenuItemWithHandler("&Reset server", reset_Click),
                    ToolStripMenuItemWithHandler("Double smoothing factor", smoothing2_Click),
                    ToolStripMenuItemWithHandler("Half smoothing factor", smoothingHalf_Click),
                 });          

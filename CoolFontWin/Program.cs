@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Reflection;
 using MutexManager;
 using CoolFont.IO;
+using CoolFont.UI;
 
 namespace CoolFont
 {
@@ -81,11 +82,14 @@ namespace CoolFont
                 Text = DefaultTooltip,
                 Visible = true     
             };
-            /* http://www.99colors.net/dot-net-colors */
-            notifyIcon.ContextMenuStrip.BackColor = Color.Ivory;
+            notifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();
+
+            /* Use custom renderer instead
+            notifyIcon.ContextMenuStrip.BackColor = Color.White;//Ivory;
             notifyIcon.ContextMenuStrip.ForeColor = Color.DarkSlateGray;
             notifyIcon.ContextMenuStrip.ShowImageMargin = false; // no images
-
+            notifyIcon.ContextMenuStrip.DropShadowEnabled = false;
+            */
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
         }
@@ -97,7 +101,6 @@ namespace CoolFont
 
             ToolStripMenuItem quitItem = cfw.ToolStripMenuItemWithHandler("&Quit", exit_Click);
             quitItem.ForeColor = Color.Crimson;
-            quitItem.BackColor = Color.White;
             notifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     new ToolStripSeparator(), quitItem });  
