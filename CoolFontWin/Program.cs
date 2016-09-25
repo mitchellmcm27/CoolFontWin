@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Drawing;
 using System.Reflection;
+using MutexManager;
 using CoolFont.IO;
 
 namespace CoolFont
@@ -12,7 +13,7 @@ namespace CoolFont
         [STAThread]
         static void Main(string[] args)
         {
-            // if (!SingleInstance.Start()) { return;  }  // Mutex library
+            if (!SingleInstance.Start()) { return;  }  // Mutex not obtained so exit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Console.WriteLine(args);
@@ -26,7 +27,7 @@ namespace CoolFont
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             
-            //SingleInstance.Stop(); // Mutex library
+            SingleInstance.Stop(); // Release mutex
 
         }
     }

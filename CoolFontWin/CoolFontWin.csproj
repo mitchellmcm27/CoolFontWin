@@ -83,6 +83,10 @@
     </Win32Resource>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MutexManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\MutexManager.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.XInput">
       <HintPath>..\..\Bin\Desktop\SharpDX.XInput.dll</HintPath>
     </Reference>
