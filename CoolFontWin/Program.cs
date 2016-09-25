@@ -35,7 +35,7 @@ namespace CoolFont
 
     public class CustomApplicationContext : ApplicationContext
     {
-        private static readonly string IconFileName = "AppIcon.ico";
+        private static readonly string IconFileName = "tray-icon.ico";
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin cfw;
 
