@@ -94,10 +94,13 @@ namespace CoolFont
         {  
             e.Cancel = false;
             cfw.BuildContextMenu(notifyIcon.ContextMenuStrip);
-            ToolStripMenuItem exitItem = cfw.ToolStripMenuItemWithHandler("&Exit", exit_Click);
-            exitItem.ForeColor = Color.Crimson;
-            exitItem.BackColor = Color.White;
-            notifyIcon.ContextMenuStrip.Items.Add(exitItem);  
+
+            ToolStripMenuItem quitItem = cfw.ToolStripMenuItemWithHandler("&Quit", exit_Click);
+            quitItem.ForeColor = Color.Crimson;
+            quitItem.BackColor = Color.White;
+            notifyIcon.ContextMenuStrip.Items.AddRange(
+                new ToolStripItem[] {
+                    new ToolStripSeparator(), quitItem });  
         }
 
         private void notifyIcon_MouseUp(Object sender, MouseEventArgs e)

@@ -186,8 +186,8 @@ namespace CoolFont
             contextMenuStrip.Items.Clear();
             ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Mode: {0}", GetModeString()));
             modeItem.Font = new Font(modeItem.Font, modeItem.Font.Style | FontStyle.Bold);
-            modeItem.BackColor = Color.SlateBlue;
-            modeItem.ForeColor = Color.White;
+            modeItem.BackColor = Color.DarkSlateBlue;
+            modeItem.ForeColor = Color.Lavender;
 
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
