@@ -151,13 +151,7 @@
     <Compile Include="Classes\InputSimulator\Native\MOUSEINPUT.cs" />
     <Compile Include="Classes\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
     <Compile Include="Classes\InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="Form1.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </Compile>
-    <Compile Include="CoolFontWin.cs" />
+    <Compile Include="Classes\CoolFontWin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="Assets\vjoy-sdk-ex.cs" />
@@ -170,14 +164,14 @@
     <Resource Include="Properties\AppIcon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Content Include="AppIcon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resource1.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
