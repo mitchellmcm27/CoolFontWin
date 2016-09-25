@@ -98,7 +98,7 @@ namespace CoolFont
             vDevice.logOutput = verbose; // T or F
 
             int T = 0; // total time
-            int maxGapSize = 30; // set to -1 to always interpolate data
+            int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
             new Thread(() =>
@@ -143,6 +143,29 @@ namespace CoolFont
             return true;
         }
 
+        public string GetModeString()
+        {
+            switch (Config.Mode)
+            {
+                case Config.MODE.ModeGamepad:
+                    return "Gamepad";
+                case Config.MODE.ModeJoystickCoupled:
+                    return "VR: Coupled";
+                case Config.MODE.ModeJoystickDecoupled:
+                    return "VR: Decoupled";
+                case Config.MODE.ModeJoystickTurn:
+                    return "VR: Decoupled 2";
+                case Config.MODE.ModeMouse:
+                    return "Mouse";
+                case Config.MODE.ModePaused:
+                    return "Paused";
+                case Config.MODE.ModeWASD:
+                    return "Keyboard/Mouse";
+                default:
+                    return "Unrecognized";
+            }
+        }
+
         /*
          * Context menu methods
          */
@@ -153,13 +176,26 @@ namespace CoolFont
             JavaProc.StartDnsService(_port); // blocks
         }
 
+        private void smoothing2_Click(object sender, EventArgs e)
+        {
+            Config.RCFilterStrength *= 2;
+        }
+
+        private void smoothingHalf_Click(object sender, EventArgs e)
+        {
+            Config.RCFilterStrength /= 2;
+        }
+
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
             contextMenuStrip.Items.AddRange(
-                new ToolStripItem[] {        
+                new ToolStripItem[] {
+                    new ToolStripMenuItem(String.Format("Mode: {0}", GetModeString())), 
                     new ToolStripSeparator(),
                    ToolStripMenuItemWithHandler("&Reset Server", reset_Click),
+                   ToolStripMenuItemWithHandler("Double smoothing factor", smoothing2_Click),
+                   ToolStripMenuItemWithHandler("Half smoothing factor", smoothingHalf_Click),
                 });          
         }
 

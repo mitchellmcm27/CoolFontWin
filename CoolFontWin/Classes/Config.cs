@@ -17,7 +17,7 @@ namespace CoolFont
             ModePaused = 0, //TODO: Implement a "pause" button in iOS, useful for navigating menus
             ModeWASD, // Use KB to run forward, mouse to turn
             ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
-            ModeJoystickR, //TODO: Move character forward and turn L/R using joystick. Difficult.
+            ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
             ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
             ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
             ModeGamepad, // fully functional gamepad similar to Xbox controller

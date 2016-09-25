@@ -342,7 +342,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MODE.ModeJoystickR:
+                    case Config.MODE.ModeJoystickTurn:
 
                         // still in testing
 
@@ -402,7 +402,7 @@ namespace CoolFont
                 {
 
                     case Config.MODE.ModeJoystickCoupled:
-                    case Config.MODE.ModeJoystickR:
+                    case Config.MODE.ModeJoystickTurn:
                     case Config.MODE.ModeJoystickDecoupled:
                     case Config.MODE.ModeGamepad:
                         if ((buttonsDown & 32768) != 0) // Y button pressed on Phone

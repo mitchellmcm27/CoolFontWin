@@ -20,12 +20,10 @@ namespace CoolFont
             {
                 var applicationContext = new CustomApplicationContext(args);
                 Application.Run(applicationContext);
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
             
             //SingleInstance.Stop(); // Mutex library
@@ -36,8 +34,7 @@ namespace CoolFont
     public class CustomApplicationContext : ApplicationContext
     {
         private static readonly string IconFileName = "AppIcon.ico";
-        private static readonly string DefaultTooltip = "Pocket Strafe";
-       
+        private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin cfw;
 
         public CustomApplicationContext(string[] args)
@@ -57,7 +54,8 @@ namespace CoolFont
 
         protected override void ExitThreadCore()
         {
-            notifyIcon.Visible = false; 
+            notifyIcon.Visible = false;
+            Dispose(true);
             base.ExitThreadCore();               
         }
 
@@ -90,9 +88,7 @@ namespace CoolFont
         {  
             e.Cancel = false;
             cfw.BuildContextMenu(notifyIcon.ContextMenuStrip);
-            notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
-            notifyIcon.ContextMenuStrip.Items.Add(cfw.ToolStripMenuItemWithHandler("&Exit", exit_Click));
-                
+            notifyIcon.ContextMenuStrip.Items.Add(cfw.ToolStripMenuItemWithHandler("&Exit", exit_Click));          
         }
 
         private void notifyIcon_MouseUp(Object sender, MouseEventArgs e)
