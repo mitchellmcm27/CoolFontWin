@@ -37,11 +37,7 @@ namespace CoolFont
             CTRL_SHUTDOWN_EVENT
         }
 
-
         private int _port;
-        // A delegate type to be used as the handler routine 
-        // for SetConsoleCtrlHandler.
-
         private readonly NotifyIcon notifyIcon;
 
         public CoolFontWin(NotifyIcon notifyIcon)
@@ -52,9 +48,7 @@ namespace CoolFont
        public void StartService()
         {
 
-           int tryport = FileManager.TryToReadPortFromFile(Config.PORT_FILE); // returns 0 if none
-     
-            /* Instantiate listener using port */
+            int tryport = FileManager.TryToReadPortFromFile(Config.PORT_FILE); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
             _port = sock.port;
 
@@ -69,28 +63,28 @@ namespace CoolFont
 
             // check to see if everything is set up?
             ReceiveService(sock);
-
         }
 
         private void ReceiveService(UdpListener sock)
         {
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+
             /* Set up the simulator */
             Config.Mode = Config.MODE.ModeMouse;
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
             VirtualDevice vDevice = new VirtualDevice(Config.Mode); // will change Mode if necessary
 
-            //TODO: execute loop in background thread and allow user to break out
             int T = 0; // total time
             int maxGapSize = 30; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
+
             new Thread(() =>
             {
                 while (true)
                 {
                     vDevice.logOutput = false;
-                    bool logRcvd = true;
+                    bool logRcvd = false;
 
                     /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.pollSocket(Config.socketPollInterval);
@@ -130,8 +124,9 @@ namespace CoolFont
         }
 
         /*
-         * 
+         * Context menu methods
          */
+
         private void reset_Click(object sender, EventArgs e)
         {
             JavaProc.Kill();
@@ -155,9 +150,5 @@ namespace CoolFont
             if (eventHandler != null) { item.Click += eventHandler; }
             return item;
         }
-
-    
-
     }
-
 }

@@ -10,12 +10,12 @@ namespace CoolFont
    static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
             // if (!SingleInstance.Start()) { return;  }  // Mutex library
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
+            Console.WriteLine("args:{0}", args);
             try
             {
                 var applicationContext = new CustomApplicationContext();
@@ -27,7 +27,7 @@ namespace CoolFont
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             }
-
+            
             //SingleInstance.Stop(); // Mutex library
 
         }
@@ -63,11 +63,9 @@ namespace CoolFont
 
         private void exit_Click(object sender, EventArgs e)
         {
-            // Hide tray icon, otherwise it will remain shown until user mouses over it
-              
+            // Hide tray icon, otherwise it will remain shown until user mouses over it     
             JavaProc.Kill();
             ExitThread(); 
-            //Application.Exit();
             Environment.Exit(0);
         }
 
@@ -82,16 +80,14 @@ namespace CoolFont
                 ContextMenuStrip = new ContextMenuStrip(),
                 Icon = new Icon(IconFileName),
                 Text = DefaultTooltip,
-                Visible = true
-                     
+                Visible = true     
             };
             notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             notifyIcon.MouseUp += notifyIcon_MouseUp;
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-           
+        {  
             e.Cancel = false;
             cfw.BuildContextMenu(notifyIcon.ContextMenuStrip);
             notifyIcon.ContextMenuStrip.Items.Add(new ToolStripSeparator());
@@ -100,8 +96,7 @@ namespace CoolFont
         }
 
         private void notifyIcon_MouseUp(Object sender, MouseEventArgs e)
-        {
-            
+        {  
             if (e.Button == MouseButtons.Left)
             {
                 MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
