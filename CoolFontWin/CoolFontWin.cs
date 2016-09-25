@@ -52,10 +52,8 @@ namespace CoolFont
        public void StartService()
         {
 
-            // SysTray.Run(); 
-
-            int tryport = FileManager.ReadPortFromFile(Config.PORT_FILE);
-
+           int tryport = FileManager.TryToReadPortFromFile(Config.PORT_FILE); // returns 0 if none
+     
             /* Instantiate listener using port */
             UdpListener sock = new UdpListener(tryport);
             _port = sock.port;
@@ -78,7 +76,7 @@ namespace CoolFont
         {
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
             /* Set up the simulator */
-            Config.Mode = Config.MovementModes.Mouse2D;
+            Config.Mode = Config.MODE.ModeMouse;
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
             VirtualDevice vDevice = new VirtualDevice(Config.Mode); // will change Mode if necessary

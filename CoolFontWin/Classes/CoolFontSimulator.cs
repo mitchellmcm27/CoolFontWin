@@ -58,7 +58,7 @@ namespace CoolFont
             public bool shouldInterpolate;
             public bool logOutput = false;
 
-            public VirtualDevice(Config.MovementModes MODE)
+            public VirtualDevice(Config.MODE Mode)
             {
                 ConfigureVJoy(Config.ID);
                 StartVJoy(Config.ID);
@@ -196,13 +196,13 @@ namespace CoolFont
                 valsf[0] = valsf[0] / 1000.0; // 0 to 1
 
                 valsf[7] = Algorithm.WrapAngle(valsf[7] / 1000.0); // 0 to 360, do not Clamp
-                valsf[7] = valsf[7] / 360; // 0 to 1
+                
 
-                if (Config.Mode == Config.MovementModes.JoystickStrafe)
+                if (Config.Mode == Config.MODE.ModeJoystickDecoupled)
                 {
                     // X and Y are determined by user direction and speed
-                    valsf[1] = -Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
-                    valsf[2] = -Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                    valsf[1] = Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                    valsf[2] = -Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
                 }
                 else
                 {
@@ -254,8 +254,16 @@ namespace CoolFont
                 valsf[0] = valsf[0] * maxY / 2;
 
                 // 3 axes
-                valsf[1] = valsf[1] * maxX / 2 * 2; // max at half turn
-                valsf[2] = valsf[2] * maxY / 2 * 2;
+                if (Config.Mode == Config.MODE.ModeJoystickDecoupled)
+                {
+                    valsf[1] = valsf[1] * maxX/2;
+                    valsf[2] = valsf[2] * maxY/2;
+                }
+                else
+                {
+                    valsf[1] = valsf[1] * maxX / 2 * 2; // max at half turn
+                    valsf[2] = valsf[2] * maxY / 2 * 2;
+                }
                 valsf[3] = valsf[3] * maxRX / 2 * 2;
                 valsf[4] = valsf[4] * maxRY / 2 * 2;
 
@@ -264,7 +272,7 @@ namespace CoolFont
                 valsf[6] = valsf[6] * maxZ * 2;
 
                 // POV hat
-                valsf[7] = valsf[7] * maxPOV;
+                valsf[7] = valsf[7] / 360 * maxPOV;
 
                 // Mouse movement
                 valsf[8] = valsf[8] * Config.mouseSens;
@@ -278,7 +286,7 @@ namespace CoolFont
                 /* Simply update joystick with vals */
                 switch (Config.Mode)
                 {
-                    case Config.MovementModes.KeyboardMouse:
+                    case Config.MODE.ModeWASD:
                         kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
                         if (valsf[0] >= Config.THRESH_RUN * maxY)
@@ -303,7 +311,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MovementModes.JoystickMove:
+                    case Config.MODE.ModeJoystickCoupled:
 
                         /* no strafing */
                         X += 0;
@@ -318,7 +326,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MovementModes.JoystickStrafe:
+                    case Config.MODE.ModeJoystickDecoupled:
 
                         /* strafing but no turning*/
                         X += (int)valsf[1];
@@ -334,7 +342,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MovementModes.JoystickMoveAndLook:
+                    case Config.MODE.ModeJoystickR:
 
                         // still in testing
 
@@ -354,7 +362,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MovementModes.Gamepad:
+                    case Config.MODE.ModeGamepad:
 
                         /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX, */
                         // Full gamepad simulation
@@ -374,7 +382,7 @@ namespace CoolFont
                         }
                         break;
 
-                    case Config.MovementModes.Mouse2D:
+                    case Config.MODE.ModeMouse:
                         /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX, */
                         // Control mouse on screen
                         kbm.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
@@ -393,10 +401,10 @@ namespace CoolFont
                 switch (Config.Mode)
                 {
 
-                    case Config.MovementModes.JoystickMove:
-                    case Config.MovementModes.JoystickMoveAndLook:
-                    case Config.MovementModes.JoystickStrafe:
-                    case Config.MovementModes.Gamepad:
+                    case Config.MODE.ModeJoystickCoupled:
+                    case Config.MODE.ModeJoystickR:
+                    case Config.MODE.ModeJoystickDecoupled:
+                    case Config.MODE.ModeGamepad:
                         if ((buttonsDown & 32768) != 0) // Y button pressed on Phone
                         {
                             buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
@@ -405,7 +413,7 @@ namespace CoolFont
                         _buttons = _buttons | buttonsDown;
                         break;
 
-                    case Config.MovementModes.Mouse2D:
+                    case Config.MODE.ModeMouse:
                         if ((buttonsDown & 4096) != 0 & !_leftMouseButtonDown) // A button pressed on phone
                         {
                             kbm.Mouse.LeftButtonDown();
@@ -436,7 +444,7 @@ namespace CoolFont
             {
                 if (new_mode == (int)Config.Mode) { return; }
 
-                Config.Mode = (Config.MovementModes)new_mode;
+                Config.Mode = (Config.MODE)new_mode;
             }
 
             public void AddControllerState(State state)
@@ -452,7 +460,7 @@ namespace CoolFont
 
             public void FeedVJoy()
             {
-                if (Config.Mode == (Config.MovementModes.Mouse2D | Config.MovementModes.Paused | Config.MovementModes.KeyboardMouse))
+                if (Config.Mode == (Config.MODE.ModeMouse | Config.MODE.ModePaused | Config.MODE.ModeWASD))
                 {
                     return;
                 }
@@ -561,7 +569,7 @@ namespace CoolFont
                 else
                 {
                     Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", joystick.GetvJoyManufacturerString(), joystick.GetvJoyProductString(), joystick.GetvJoySerialNumberString());
-                    Config.Mode = Config.MovementModes.JoystickStrafe;
+                    Config.Mode = Config.MODE.ModeJoystickDecoupled;
                 }
 
                 // Get the state of the requested device
