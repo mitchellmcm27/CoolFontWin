@@ -173,7 +173,7 @@ namespace CoolFont
     {
         public static class FileManager
         {
-            public static int ReadPortFromFile(string filename)
+            public static int TryToReadPortFromFile(string filename)
             {
                 try
                 {
