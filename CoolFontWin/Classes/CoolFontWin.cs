@@ -31,19 +31,19 @@ namespace CoolFont
             CTRL_SHUTDOWN_EVENT
         }
 
-        private int port;
-        private readonly NotifyIcon notifyIcon;
+        private int Port;
+        private readonly NotifyIcon NotifyIcon;
 
-        private bool log = false;
-        private bool verbose = false;
+        private bool Log = false;
+        private bool Verbose = false;
         private string[] args;
-        private JavaProc jProc = new JavaProc();
+        private JavaProc JProc = new JavaProc();
 
         public VirtualDevice VDevice;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
-            this.notifyIcon = notifyIcon;
+            this.NotifyIcon = notifyIcon;
             this.args = args;
         }
 
@@ -51,48 +51,48 @@ namespace CoolFont
 
         public void StartService()
         {
-            processArgs();
+            ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
-            port = sock.port;
+            Port = sock.Port;
 
-            if (port > 0 & sock.isBound)
+            if (Port > 0 & sock.IsBound)
             {
                 // write successful port to file for next time
-                FileManager.WritePortToFile(port, CoolFontWin.PortFile);
+                FileManager.WritePortToFile(Port, CoolFontWin.PortFile);
             }
 
             /* Register DNS service through Java */
-            jProc.StartDnsService(port); // blocks
+            JProc.StartDnsService(Port); // blocks
 
             // check to see if everything is set up?
-            receiveService(sock);
+            ReceiveService(sock);
         }
 
-        private void processArgs()
+        private void ProcessArgs()
         {
             foreach (string arg in args)
             {
                 if (arg.Equals("log"))
                 {
-                    log = true;
+                    Log = true;
                 }
                 if (arg.Equals("verbose"))
                 {
-                    verbose = true;
+                    Verbose = true;
                 }
             }
         }
         
-        private void receiveService(UdpListener sock)
+        private void ReceiveService(UdpListener sock)
         {
-            SetConsoleCtrlHandler(new HandlerRoutine(consoleCtrlCheck), true);
+            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
-            VDevice = new VirtualDevice(1, sock.socketPollInterval); // will change Mode if necessary
-            VDevice.LogOutput = verbose; // T or F
+            VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
+            VDevice.LogOutput = Verbose; // T or F
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
@@ -104,7 +104,7 @@ namespace CoolFont
                 {
 
                     /* get data from iPhone socket, add to vDev */
-                    string rcvd = sock.pollSocket();
+                    string rcvd = sock.Poll();
                     bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
 
@@ -116,13 +116,13 @@ namespace CoolFont
                     if (xDevice != null && xDevice.IsConnected)
                     {
                         State state = xDevice.GetState();
-                        VDevice.addControllerState(state);
+                        VDevice.AddControllerState(state);
                     }
 
                     VDevice.FeedVJoy();
                     T++;
 
-                    if (log && (T % 10 == 0))
+                    if (Log && (T % 10 == 0))
                         Console.WriteLine(rcvd);
                     if (VDevice.LogOutput)
                         Console.Write(" ({0}) \n", gapSize);
@@ -131,12 +131,12 @@ namespace CoolFont
             }).Start(); 
         }
 
-        private bool consoleCtrlCheck(CtrlTypes ctrlType)
+        private bool ConsoleCtrlCheck(CtrlTypes ctrlType)
         {
             if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
             {
                 KillOpenProcesses();
-                notifyIcon.Dispose();
+                NotifyIcon.Dispose();
             }
             return true;
         }
@@ -166,25 +166,25 @@ namespace CoolFont
 
         public void KillOpenProcesses()
         {
-            if (jProc != null & jProc.Running == true) { jProc.Kill(); }
+            if (JProc != null & JProc.Running == true) { JProc.Kill(); }
         }
 
         /*
          * Context menu methods
          */
 
-        private void reset_Click(object sender, EventArgs e)
+        private void Reset_Click(object sender, EventArgs e)
         {
             KillOpenProcesses();
-            if (jProc != null) { jProc.StartDnsService(port); }// blocks
+            if (JProc != null) { JProc.StartDnsService(Port); }// blocks
         }
 
-        private void smoothing2_Click(object sender, EventArgs e)
+        private void SmoothingDouble_Click(object sender, EventArgs e)
         {
             VDevice.RCFilterStrength *= 2;
         }
 
-        private void smoothingHalf_Click(object sender, EventArgs e)
+        private void SmoothingHalf_Click(object sender, EventArgs e)
         {
             VDevice.RCFilterStrength /= 2;
         }
@@ -201,9 +201,9 @@ namespace CoolFont
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     modeItem,
-                   ToolStripMenuItemWithHandler("&Reset server", reset_Click),
-                   ToolStripMenuItemWithHandler("Double smoothing factor", smoothing2_Click),
-                   ToolStripMenuItemWithHandler("Half smoothing factor", smoothingHalf_Click),
+                   ToolStripMenuItemWithHandler("&Reset server", Reset_Click),
+                   ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click),
+                   ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click),
                 });          
         }
 

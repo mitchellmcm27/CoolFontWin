@@ -9,54 +9,54 @@ namespace CoolFont
 {
     public class CustomApplicationContext : ApplicationContext
     {
-        private static readonly string iconFileName = "tray-icon.ico";
-        private static readonly string defaultTooltip = "Pocket Strafe Companion";
-        private CoolFontWin cfw;
+        private static readonly string IconFileName = "tray-icon.ico";
+        private static readonly string DefaultTooltip = "Pocket Strafe Companion";
+        private CoolFontWin Cfw;
 
         public CustomApplicationContext(string[] args)
         {
             InitializeContext();
-            cfw = new CoolFontWin(notifyIcon, args);
-            cfw.StartService();
+            Cfw = new CoolFontWin(NotifyIcon, args);
+            Cfw.StartService();
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && components != null)
+            if (disposing && Components != null)
             {
-                components.Dispose();
+                Components.Dispose();
             }
         }
 
         protected override void ExitThreadCore()
         {
-            notifyIcon.Visible = false;
+            NotifyIcon.Visible = false;
             Dispose(true);
             base.ExitThreadCore();
         }
 
-        private void exit_Click(object sender, EventArgs e)
+        private void Exit_Click(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it     
-            cfw.KillOpenProcesses();
+            Cfw.KillOpenProcesses();
             ExitThread();
             Environment.Exit(0);
         }
 
-        private System.ComponentModel.IContainer components;
-        private NotifyIcon notifyIcon;
+        private System.ComponentModel.IContainer Components;
+        private NotifyIcon NotifyIcon;
 
         private void InitializeContext()
         {
-            components = new System.ComponentModel.Container();
-            notifyIcon = new NotifyIcon(components)
+            Components = new System.ComponentModel.Container();
+            NotifyIcon = new NotifyIcon(Components)
             {
                 ContextMenuStrip = new ContextMenuStrip(),
-                Icon = new Icon(CustomApplicationContext.iconFileName),
-                Text = CustomApplicationContext.defaultTooltip,
+                Icon = new Icon(CustomApplicationContext.IconFileName),
+                Text = CustomApplicationContext.DefaultTooltip,
                 Visible = true
             };
-            notifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();
+            NotifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();
 
             /* Use custom renderer instead
             notifyIcon.ContextMenuStrip.BackColor = Color.White;//Ivory;
@@ -64,34 +64,34 @@ namespace CoolFont
             notifyIcon.ContextMenuStrip.ShowImageMargin = false; // no images
             notifyIcon.ContextMenuStrip.DropShadowEnabled = false;
             */
-            notifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
-            notifyIcon.MouseUp += notifyIcon_MouseUp;
+            NotifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            NotifyIcon.MouseUp += NotifyIcon_MouseUp;
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
-            cfw.BuildContextMenu(notifyIcon.ContextMenuStrip);
+            Cfw.BuildContextMenu(NotifyIcon.ContextMenuStrip);
 
-            ToolStripMenuItem quitItem = cfw.ToolStripMenuItemWithHandler("&Quit", exit_Click);
+            ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.ForeColor = Color.Crimson;
-            notifyIcon.ContextMenuStrip.Items.AddRange(
+            NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     new ToolStripSeparator(), quitItem });
         }
 
-        private void notifyIcon_MouseUp(Object sender, MouseEventArgs e)
+        private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
                 MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
 
-                mi.Invoke(notifyIcon, null);
+                mi.Invoke(NotifyIcon, null);
             }
             else if (e.Button == MouseButtons.Right)
             {
                 MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-                mi.Invoke(notifyIcon, null);
+                mi.Invoke(NotifyIcon, null);
             }
         }
 
