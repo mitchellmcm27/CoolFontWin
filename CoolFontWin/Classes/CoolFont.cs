@@ -122,12 +122,13 @@ namespace CoolFont
                 return received_data;
             }
 
-            public string pollSocket(int rate_us)
+            public int socketPollInterval = 8 * 1000; // microseconds (us)
+            public string pollSocket()
             {
                 bool done = false;
                 string received_data = "";
                 _listener.Client.Blocking = false;
-                if (_listener.Client.Poll(rate_us, SelectMode.SelectRead))
+                if (_listener.Client.Poll(socketPollInterval, SelectMode.SelectRead))
                 {
                     _rcv_bytes = _listener.Receive(ref _senderEP);
                     received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);

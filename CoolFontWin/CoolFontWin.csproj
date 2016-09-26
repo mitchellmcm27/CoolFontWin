@@ -121,7 +121,6 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Classes\XInputDevice.cs" />
-    <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\CoolFontSimulator.cs" />
     <Compile Include="Classes\CoolFont.cs" />
     <Compile Include="Classes\InputSimulator\IInputDeviceStateAdaptor.cs" />
@@ -151,6 +150,7 @@
     <Compile Include="Assets\vjoy-sdk-ex.cs" />
     <Compile Include="Classes\InputSimulator\Native\XButton.cs" />
     <Compile Include="UI\Colors.cs" />
+    <Compile Include="UI\CustomApplicationContext.cs" />
     <Compile Include="UI\CustomContextMenuRenderer.cs" />
   </ItemGroup>
   <ItemGroup>

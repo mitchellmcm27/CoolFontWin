@@ -38,23 +38,27 @@ namespace CoolFont
         private bool verbose = false;
         private string[] args;
 
+        public VirtualDevice vDevice;
+
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
             this.notifyIcon = notifyIcon;
             this.args = args;
         }
 
-       public void StartService()
+        static public string PORT_FILE = "last-port.txt";
+
+        public void StartService()
         {
             ProcessArgs();
-            int tryport = FileManager.TryToReadPortFromFile(Config.PORT_FILE); // returns 0 if none
+            int tryport = FileManager.TryToReadPortFromFile(PORT_FILE); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
             _port = sock.port;
 
             if (_port > 0 & sock.isBound)
             {
                 // write successful port to file for next time
-                FileManager.WritePortToFile(_port, Config.PORT_FILE);
+                FileManager.WritePortToFile(_port, PORT_FILE);
             }
 
             /* Register DNS service through Java */
@@ -79,16 +83,16 @@ namespace CoolFont
             }
         }
 
+        
+        
         private void ReceiveService(UdpListener sock)
         {
             SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
 
             /* Set up the simulator */
-            Config.Mode = Config.MODE.ModeMouse;
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
-            VirtualDevice vDevice = new VirtualDevice(Config.Mode); // will change Mode if necessary
-
+            vDevice = new VirtualDevice(SimulatorMode.ModeDefault, sock.socketPollInterval); // will change Mode if necessary
             vDevice.logOutput = verbose; // T or F
 
             int T = 0; // total time
@@ -101,7 +105,7 @@ namespace CoolFont
                 {
 
                     /* get data from iPhone socket, add to vDev */
-                    string rcvd = sock.pollSocket(Config.socketPollInterval);
+                    string rcvd = sock.pollSocket();
                     bool res = vDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
 
@@ -140,21 +144,21 @@ namespace CoolFont
 
         public string GetModeString()
         {
-            switch (Config.Mode)
+            switch (vDevice.mode)
             {
-                case Config.MODE.ModeGamepad:
+                case SimulatorMode.ModeGamepad:
                     return "Gamepad";
-                case Config.MODE.ModeJoystickCoupled:
+                case SimulatorMode.ModeJoystickCoupled:
                     return "VR: Coupled";
-                case Config.MODE.ModeJoystickDecoupled:
+                case SimulatorMode.ModeJoystickDecoupled:
                     return "VR: Decoupled";
-                case Config.MODE.ModeJoystickTurn:
+                case SimulatorMode.ModeJoystickTurn:
                     return "VR: Decoupled 2";
-                case Config.MODE.ModeMouse:
+                case SimulatorMode.ModeMouse:
                     return "Mouse";
-                case Config.MODE.ModePaused:
+                case SimulatorMode.ModePaused:
                     return "Paused";
-                case Config.MODE.ModeWASD:
+                case SimulatorMode.ModeWASD:
                     return "Keyboard/Mouse";
                 default:
                     return "Unrecognized";
@@ -173,12 +177,12 @@ namespace CoolFont
 
         private void smoothing2_Click(object sender, EventArgs e)
         {
-            Config.RCFilterStrength *= 2;
+            vDevice.RCFilterStrength *= 2;
         }
 
         private void smoothingHalf_Click(object sender, EventArgs e)
         {
-            Config.RCFilterStrength /= 2;
+            vDevice.RCFilterStrength /= 2;
         }
 
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
