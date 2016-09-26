@@ -206,13 +206,13 @@ namespace CoolFont
             private Process myProcess;
             private int exitCode;
 
-            public bool running;
+            public bool Running;
 
             public JavaProc()
             {
                 myProcess = new Process();
                 exitCode = 0;
-                running = false;
+                Running = false;
             }
             public void StartDnsService(int port)
             {
@@ -272,7 +272,7 @@ namespace CoolFont
                 }
                 else
                 {
-                    running = true;
+                    Running = true;
                     Console.WriteLine("Called java program");
                 }
             }
@@ -281,7 +281,7 @@ namespace CoolFont
                 myProcess.Kill();
                 exitCode = myProcess.ExitCode;
                 Console.WriteLine("JavaProc Exit code : {0}", exitCode);
-                running = false;
+                Running = false;
             }
         }
     }

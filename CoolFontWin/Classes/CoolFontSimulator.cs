@@ -81,7 +81,6 @@ namespace CoolFont
 
             public double RCFilterStrength;
 
-            
             public VirtualDevice(uint id, int updateInterval)
             {
                 Mode = SimulatorMode.ModeDefault;
@@ -95,31 +94,30 @@ namespace CoolFont
                 RCFilterStrength = 0.05;
 
                 ShouldInterpolate = false;
-                ConfigureVJoy(this.id);
-                StartVJoy(this.id);
-                SetUpVJoy(this.id);
+                configureVJoy(this.id);
+                startVJoy(this.id);
+                setUpVJoy(this.id);
                 kbm = new InputSimulator();
-                ResetValues();
+                resetValues();
             }
-
-            
+  
             public bool HandleNewData(string rcvd)
             {
                 if (rcvd.Length == 0)
                 {
-                    if (ShouldInterpolate) { InterpolateData(); }
+                    if (ShouldInterpolate) { interpolateData(); }
                     return false;
                 }
 
-                double[] valsf = ParseString(rcvd);
+                double[] valsf = parseString(rcvd);
                 if (this.valsf == null) this.valsf = valsf;
-                buttons = ParseButtons(rcvd);
-                int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
+                buttons = parseButtons(rcvd);
+                int modeIn = parseMode(rcvd, (int)Mode); // mode is a fallback
 
-                UpdateMode(modeIn);
+                updateMode(modeIn);
 
-                valsf = ProcessValues(valsf); // converts ints to doubles in generic units
-                valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
+                valsf = processValues(valsf); // converts ints to doubles in generic units
+                valsf = translateValues(valsf); // converts units for specific device (e.g. vJoy)  
 
                 double dt = updateInterval / 1000.0 / 1000.0; // s
                 for (int i=0; i < valsf.Length; i++)
@@ -129,23 +127,23 @@ namespace CoolFont
                 }
                 this.valsf = valsf;
 
-                AddValues(this.valsf);
-                AddButtons(buttons);
+                addValues(this.valsf);
+                addButtons(buttons);
 
                 ShouldInterpolate = true;
                 return true;
             }
 
-            private void InterpolateData()
+            private void interpolateData()
             {
                 /* given no new data, create some from previously received data */
                 /* Could be more complex but right now just returns the last good values */
 
-                AddValues(valsf);
-                AddButtons(buttons);
+                addValues(valsf);
+                addButtons(buttons);
             }
 
-            private double[] ParseString(string instring)
+            private double[] parseString(string instring)
             {
                 /* Given a string representation of ints, split it into ints */
                 /* Return int array */
@@ -165,7 +163,7 @@ namespace CoolFont
                 return parsed;
             }
 
-            private int ParseButtons(string instring)
+            private int parseButtons(string instring)
             {
                 /* Parse string representation of bitmask (unsigned int) 
                  * String array is separated by "$"
@@ -184,7 +182,7 @@ namespace CoolFont
                 }
             }
 
-            private int ParseMode(string instring, int mode_old)
+            private int parseMode(string instring, int mode_old)
             {
                 /* Parse string representation of bitmask (unsigned int) 
                  * String array is separated by "$"
@@ -202,7 +200,7 @@ namespace CoolFont
                 }
             }
 
-            private void ResetValues()
+            private void resetValues()
             {
                 lX = (int)maxX / 2;
                 lY = (int)maxY / 2;
@@ -213,7 +211,7 @@ namespace CoolFont
                 pov = -1; // neutral state
             }
 
-            private double[] ProcessValues(double[] valsf)
+            private double[] processValues(double[] valsf)
             {
 
                 /* Goal:
@@ -282,7 +280,7 @@ namespace CoolFont
 
             static private int mouseSens = 20;
 
-            private double[] TranslateValues(double[] valsf)
+            private double[] translateValues(double[] valsf)
             {
                 /* Goal: get data to the point where it can be added to the joystick device 
                  * Specific to particular joystick
@@ -313,16 +311,16 @@ namespace CoolFont
                 valsf[7] = valsf[7] / 360 * maxPOV;
 
                 // Mouse movement
-                valsf[8] = valsf[8] * mouseSens;
-                valsf[9] = valsf[9] * mouseSens;
+                valsf[8] = valsf[8] * VirtualDevice.mouseSens;
+                valsf[9] = valsf[9] * VirtualDevice.mouseSens;
 
                 return valsf;
             }
 
-            static private double THRESH_RUN = 0.7;
-            static private double THRESH_WALK = 0.3;
+            static private double threshRun = 0.7;
+            static private double threshWalk = 0.3;
 
-            private void AddValues(double[] valsf)
+            private void addValues(double[] valsf)
             {
                 /* Simply update joystick with vals */
                 switch (Mode)
@@ -330,7 +328,7 @@ namespace CoolFont
                     case SimulatorMode.ModeWASD:
                         kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= THRESH_RUN * maxY)
+                        if (valsf[0] >= VirtualDevice.threshRun * maxY)
                         {
                             kbm.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         }
@@ -437,7 +435,7 @@ namespace CoolFont
                 }
             }
 
-            private void AddButtons(int buttonsDown)
+            private void addButtons(int buttonsDown)
             {
                 switch (Mode)
                 {
@@ -481,14 +479,14 @@ namespace CoolFont
 
             }
 
-            private void UpdateMode(int new_mode)
+            private void updateMode(int new_mode)
             {
                 if (new_mode == (int)Mode) { return; }
 
                 Mode = (SimulatorMode)new_mode;
             }
 
-            public void AddControllerState(State state)
+            public void addControllerState(State state)
             {
                 lX += state.Gamepad.LeftThumbX;
                 lY -= state.Gamepad.LeftThumbY; // inverted 
@@ -545,10 +543,10 @@ namespace CoolFont
                     //iReport.bHats = 0xFFFFFFFF; // Neutral state
                 }
 #endif
-                ResetValues();
+                resetValues();
             }
 
-            private void ConfigureVJoy(uint id)
+            private void configureVJoy(uint id)
             {
                 /* Enable and Configure a vJoy device by calling 2 external processes
                  * Requires path to the vJoy dll directory */
@@ -588,7 +586,7 @@ namespace CoolFont
                 }
             }
 
-            private void StartVJoy(UInt32 id)
+            private void startVJoy(uint id)
             {
                 // Create one joystick object and a position structure.
                 joystick = new vJoy();
@@ -682,7 +680,7 @@ namespace CoolFont
 
             }
 
-            private void SetUpVJoy(UInt32 id)
+            private void setUpVJoy(UInt32 id)
             {
 #if ROBUST
             // Reset this device to default values
@@ -713,7 +711,7 @@ namespace CoolFont
                 contPovNumber = joystick.GetVJDContPovNumber(id);
             }
 
-            public void DisableVJoy(uint id)
+            public void disableVJoy(uint id)
             {
                 /* Enable and Configure a vJoy device by calling 2 external processes
                  * Requires path to the vJoy dll directory */

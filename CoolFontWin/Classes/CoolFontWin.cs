@@ -47,29 +47,29 @@ namespace CoolFont
             this.args = args;
         }
 
-        static public string PORT_FILE = "last-port.txt";
+        static public string PortFile = "last-port.txt";
 
         public void StartService()
         {
-            ProcessArgs();
-            int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PORT_FILE); // returns 0 if none
+            processArgs();
+            int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
             port = sock.port;
 
             if (port > 0 & sock.isBound)
             {
                 // write successful port to file for next time
-                FileManager.WritePortToFile(port, CoolFontWin.PORT_FILE);
+                FileManager.WritePortToFile(port, CoolFontWin.PortFile);
             }
 
             /* Register DNS service through Java */
             jProc.StartDnsService(port); // blocks
 
             // check to see if everything is set up?
-            ReceiveService(sock);
+            receiveService(sock);
         }
 
-        private void ProcessArgs()
+        private void processArgs()
         {
             foreach (string arg in args)
             {
@@ -84,9 +84,9 @@ namespace CoolFont
             }
         }
         
-        private void ReceiveService(UdpListener sock)
+        private void receiveService(UdpListener sock)
         {
-            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
+            SetConsoleCtrlHandler(new HandlerRoutine(consoleCtrlCheck), true);
 
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
@@ -116,7 +116,7 @@ namespace CoolFont
                     if (xDevice != null && xDevice.IsConnected)
                     {
                         State state = xDevice.GetState();
-                        VDevice.AddControllerState(state);
+                        VDevice.addControllerState(state);
                     }
 
                     VDevice.FeedVJoy();
@@ -131,7 +131,7 @@ namespace CoolFont
             }).Start(); 
         }
 
-        private bool ConsoleCtrlCheck(CtrlTypes ctrlType)
+        private bool consoleCtrlCheck(CtrlTypes ctrlType)
         {
             if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
             {
@@ -166,7 +166,7 @@ namespace CoolFont
 
         public void KillOpenProcesses()
         {
-            if (jProc != null & jProc.running == true) { jProc.Kill(); }
+            if (jProc != null & jProc.Running == true) { jProc.Kill(); }
         }
 
         /*

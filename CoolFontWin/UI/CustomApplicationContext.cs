@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using System.Drawing;
 using System.Reflection;
-using CoolFont.IO;
 using CoolFont.UI;
 
 
