@@ -39,7 +39,7 @@ namespace CoolFont
         private void exit_Click(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it     
-            JavaProc.Kill();
+            cfw.KillOpenProcesses();
             ExitThread();
             Environment.Exit(0);
         }

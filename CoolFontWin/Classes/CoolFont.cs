@@ -201,11 +201,20 @@ namespace CoolFont
             }
         }
 
-        public static class JavaProc
+        public class JavaProc
         {
-            public static Process myProcess = new Process();
-            public static int exitCode = 0;
-            public static void StartDnsService(int port)
+            private Process myProcess;
+            private int exitCode;
+
+            public bool running;
+
+            public JavaProc()
+            {
+                myProcess = new Process();
+                exitCode = 0;
+                running = false;
+            }
+            public void StartDnsService(int port)
             {
                 try
                 {
@@ -263,14 +272,16 @@ namespace CoolFont
                 }
                 else
                 {
+                    running = true;
                     Console.WriteLine("Called java program");
                 }
             }
-            public static void Kill()
+            public void Kill()
             {
                 myProcess.Kill();
                 exitCode = myProcess.ExitCode;
-                Console.WriteLine("Exit code : {0}", exitCode);
+                Console.WriteLine("JavaProc Exit code : {0}", exitCode);
+                running = false;
             }
         }
     }

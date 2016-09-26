@@ -37,6 +37,7 @@ namespace CoolFont
         private bool log = false;
         private bool verbose = false;
         private string[] args;
+        private JavaProc jProc = new JavaProc();
 
         public VirtualDevice vDevice;
 
@@ -62,7 +63,7 @@ namespace CoolFont
             }
 
             /* Register DNS service through Java */
-            JavaProc.StartDnsService(_port); // blocks
+            jProc.StartDnsService(_port); // blocks
 
             // check to see if everything is set up?
             ReceiveService(sock);
@@ -134,7 +135,7 @@ namespace CoolFont
         {
             if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
             {
-                JavaProc.Kill();
+                KillOpenProcesses();
                 notifyIcon.Dispose();
             }
             return true;
@@ -163,14 +164,19 @@ namespace CoolFont
             }
         }
 
+        public void KillOpenProcesses()
+        {
+            if (jProc != null & jProc.running == true) { jProc.Kill(); }
+        }
+
         /*
          * Context menu methods
          */
 
         private void reset_Click(object sender, EventArgs e)
         {
-            JavaProc.Kill();
-            JavaProc.StartDnsService(_port); // blocks
+            KillOpenProcesses();
+            if (jProc != null) { jProc.StartDnsService(_port); }// blocks
         }
 
         private void smoothing2_Click(object sender, EventArgs e)
