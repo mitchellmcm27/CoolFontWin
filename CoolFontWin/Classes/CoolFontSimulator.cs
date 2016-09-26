@@ -78,10 +78,8 @@ namespace CoolFont
 
 
             public double RCFilterStrength { get; set; }
-
-            static private UInt32 ID = 1;
-
-            public VirtualDevice(int interval)
+            private uint ID;
+            public VirtualDevice(uint id, int interval)
             {
                 mode = SimulatorMode.ModeDefault;
                 updateInterval = interval;
@@ -90,8 +88,9 @@ namespace CoolFont
                 // 0.05 good for mouse movement, 0.15 was a little too smooth
                 // 0.05 probably good for VR, where you don't have to aim with the phone
                 // 0.00 is good for when you have to aim slowly/precisely
-                this.RCFilterStrength = 0.05;
+                RCFilterStrength = 0.05;
                 shouldInterpolate = false;
+                ID = id;
 
                 ConfigureVJoy(ID);
                 StartVJoy(ID);

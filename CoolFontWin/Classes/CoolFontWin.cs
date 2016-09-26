@@ -92,7 +92,7 @@ namespace CoolFont
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
-            vDevice = new VirtualDevice(sock.socketPollInterval); // will change Mode if necessary
+            vDevice = new VirtualDevice(1, sock.socketPollInterval); // will change Mode if necessary
             vDevice.logOutput = verbose; // T or F
 
             int T = 0; // total time
