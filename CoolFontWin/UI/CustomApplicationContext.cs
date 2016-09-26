@@ -10,8 +10,8 @@ namespace CoolFont
 {
     public class CustomApplicationContext : ApplicationContext
     {
-        private static readonly string IconFileName = "tray-icon.ico";
-        private static readonly string DefaultTooltip = "Pocket Strafe Companion";
+        private static readonly string iconFileName = "tray-icon.ico";
+        private static readonly string defaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin cfw;
 
         public CustomApplicationContext(string[] args)
@@ -53,8 +53,8 @@ namespace CoolFont
             notifyIcon = new NotifyIcon(components)
             {
                 ContextMenuStrip = new ContextMenuStrip(),
-                Icon = new Icon(IconFileName),
-                Text = DefaultTooltip,
+                Icon = new Icon(CustomApplicationContext.iconFileName),
+                Text = CustomApplicationContext.defaultTooltip,
                 Visible = true
             };
             notifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();

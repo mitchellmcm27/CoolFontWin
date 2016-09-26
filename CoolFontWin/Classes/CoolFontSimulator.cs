@@ -16,7 +16,7 @@ namespace CoolFont
     public enum SimulatorMode
     {
         // Controls how the character moves in-game
-        ModePaused = 0, //TODO: Implement a "pause" button in iOS, useful for navigating menus
+        ModePaused = 0,
         ModeWASD, // Use KB to run forward, mouse to turn
         ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
         ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
@@ -52,40 +52,41 @@ namespace CoolFont
 
             private vJoy joystick;
             private vJoy.JoystickState iReport;
-            private int ContPovNumber;
+            private int contPovNumber;
 
             private InputSimulator kbm;
 
-            private int X;
-            private int Y;
+            private int lX;
+            private int lY;
             private int rX;
             private int rY;
-            private int Z;
+            private int lZ;
             private int rZ;
-            private int POV;
-            private int _buttons;
-            private byte[] pov;
+            private int pov;
+            private int buttons;
 
-            private bool _leftMouseButtonDown = false;
-            private bool _rightMouseButtonDown = false;  
+            private bool leftMouseButtonDown = false;
+            private bool rightMoustButtonDown = false;  
 
-            private double[] _valsf;
+            private double[] valsf;
             private int updateInterval;
-            private uint ID;
+            private uint id;
 
-            public bool shouldInterpolate;
-            public bool logOutput = false;
-            public SimulatorMode mode { get; set; }
+            /* public properties */
+            public bool ShouldInterpolate;
+            public bool LogOutput = false;
 
+            // getter and setter allows for future event handling
+            public SimulatorMode Mode { get; set; } 
 
-            public double RCFilterStrength { get; set; }
+            public double RCFilterStrength;
 
             
-            public VirtualDevice(uint id, int interval)
+            public VirtualDevice(uint id, int updateInterval)
             {
-                mode = SimulatorMode.ModeDefault;
-                updateInterval = interval;
-                ID = id;
+                Mode = SimulatorMode.ModeDefault;
+                this.updateInterval = updateInterval;
+                this.id = id;
 
                 // assuming socketPollInterval = 8,000:
                 // 0.05 good for mouse movement, 0.15 was a little too smooth
@@ -93,10 +94,10 @@ namespace CoolFont
                 // 0.00 is good for when you have to aim slowly/precisely
                 RCFilterStrength = 0.05;
 
-                shouldInterpolate = false;
-                ConfigureVJoy(ID);
-                StartVJoy(ID);
-                SetUpVJoy(ID);
+                ShouldInterpolate = false;
+                ConfigureVJoy(this.id);
+                StartVJoy(this.id);
+                SetUpVJoy(this.id);
                 kbm = new InputSimulator();
                 ResetValues();
             }
@@ -106,14 +107,14 @@ namespace CoolFont
             {
                 if (rcvd.Length == 0)
                 {
-                    if (shouldInterpolate) { InterpolateData(); }
+                    if (ShouldInterpolate) { InterpolateData(); }
                     return false;
                 }
 
                 double[] valsf = ParseString(rcvd);
-                if (_valsf == null) _valsf = valsf;
-                _buttons = ParseButtons(rcvd);
-                int modeIn = ParseMode(rcvd, (int)mode); // mode is a fallback
+                if (this.valsf == null) this.valsf = valsf;
+                buttons = ParseButtons(rcvd);
+                int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
 
                 UpdateMode(modeIn);
 
@@ -124,14 +125,14 @@ namespace CoolFont
                 for (int i=0; i < valsf.Length; i++)
                 {
                     if (i == 7) { continue; }// do not filter POV
-                    valsf[i] = Algorithm.LowPassFilter(valsf[i], _valsf[i], RCFilterStrength, dt); // filter vals last
+                    valsf[i] = Algorithm.LowPassFilter(valsf[i], this.valsf[i], RCFilterStrength, dt); // filter vals last
                 }
-                _valsf = valsf;
+                this.valsf = valsf;
 
-                AddValues(_valsf);
-                AddButtons(_buttons);
+                AddValues(this.valsf);
+                AddButtons(buttons);
 
-                shouldInterpolate = true;
+                ShouldInterpolate = true;
                 return true;
             }
 
@@ -140,8 +141,8 @@ namespace CoolFont
                 /* given no new data, create some from previously received data */
                 /* Could be more complex but right now just returns the last good values */
 
-                AddValues(_valsf);
-                AddButtons(_buttons);
+                AddValues(valsf);
+                AddButtons(buttons);
             }
 
             private double[] ParseString(string instring)
@@ -203,13 +204,13 @@ namespace CoolFont
 
             private void ResetValues()
             {
-                X = (int)maxX / 2;
-                Y = (int)maxY / 2;
+                lX = (int)maxX / 2;
+                lY = (int)maxY / 2;
                 rX = (int)maxRX / 2;
                 rY = (int)maxRY / 2;
-                Z = 0;
+                lZ = 0;
                 rZ = 0;
-                POV = -1; // neutral state
+                pov = -1; // neutral state
             }
 
             private double[] ProcessValues(double[] valsf)
@@ -233,7 +234,7 @@ namespace CoolFont
                 valsf[7] = Algorithm.WrapAngle(valsf[7] / 1000.0); // 0 to 360, do not Clamp
                 
 
-                if (mode == SimulatorMode.ModeJoystickDecoupled)
+                if (Mode == SimulatorMode.ModeJoystickDecoupled)
                 {
                     // X and Y are determined by user direction and speed
                     valsf[1] = Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
@@ -291,7 +292,7 @@ namespace CoolFont
                 valsf[0] = valsf[0] * maxY / 2;
 
                 // 3 axes
-                if (mode == SimulatorMode.ModeJoystickDecoupled)
+                if (Mode == SimulatorMode.ModeJoystickDecoupled)
                 {
                     valsf[1] = valsf[1] * maxX/2;
                     valsf[2] = valsf[2] * maxY/2;
@@ -324,7 +325,7 @@ namespace CoolFont
             private void AddValues(double[] valsf)
             {
                 /* Simply update joystick with vals */
-                switch (mode)
+                switch (Mode)
                 {
                     case SimulatorMode.ModeWASD:
                         kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
@@ -343,7 +344,7 @@ namespace CoolFont
                             kbm.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                         }
 
-                        if (logOutput)
+                        if (LogOutput)
                         {
                             Console.Write("W?: {0} Mouse: {1}",
                                 kbm.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W),
@@ -354,31 +355,31 @@ namespace CoolFont
                     case SimulatorMode.ModeJoystickCoupled:
 
                         /* no strafing */
-                        X += 0;
-                        Y += -(int)valsf[0];
+                        lX += 0;
+                        lY += -(int)valsf[0];
                         rX += 0;
                         rY += 0;
-                        POV = (int)valsf[7];
+                        pov = (int)valsf[7];
 
-                        if (logOutput)
+                        if (LogOutput)
                         {
-                            Console.Write("Y:{0}", Y);
+                            Console.Write("Y:{0}", lY);
                         }
                         break;
 
                     case SimulatorMode.ModeJoystickDecoupled:
 
                         /* strafing but no turning*/
-                        X += (int)valsf[1];
-                        Y += (int)valsf[2];
+                        lX += (int)valsf[1];
+                        lY += (int)valsf[2];
 
                         rX += 0;
                         rY += 0;
-                        POV = (int)valsf[7];
+                        pov = (int)valsf[7];
 
-                        if (logOutput)
+                        if (LogOutput)
                         {
-                            Console.WriteLine("X:{0} Y:{1}", X, Y);
+                            Console.WriteLine("X:{0} Y:{1}", lX, lY);
                         }
                         break;
 
@@ -386,19 +387,19 @@ namespace CoolFont
 
                         // still in testing
 
-                        X += 0; // no strafing
-                        Y += -(int)valsf[0];
+                        lX += 0; // no strafing
+                        lY += -(int)valsf[0];
 
                         rX += 0; // look left/right, currently handled by mouse
                         rY += 0; // look up/down
-                        POV = (int)valsf[7];
+                        pov = (int)valsf[7];
 
                         kbm.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
                                               0); // dx, dy (pixels)
 
-                        if (logOutput)
+                        if (LogOutput)
                         {
-                            Console.Write("Y:{0} dX:{1}", Y, -(int)valsf[9]);
+                            Console.Write("Y:{0} dX:{1}", lY, -(int)valsf[9]);
                         }
                         break;
 
@@ -408,17 +409,17 @@ namespace CoolFont
                         // Full gamepad simulation
                         // NOT FINISHED YET
 
-                        X += (int)valsf[1];
-                        Y += -(int)valsf[2];
+                        lX += (int)valsf[1];
+                        lY += -(int)valsf[2];
                         rX += (int)valsf[3];
                         rY += -(int)valsf[4];
-                        Z += (int)valsf[6];
+                        lZ += (int)valsf[6];
                         rZ += (int)valsf[5];
-                        POV = (int)valsf[7];
+                        pov = (int)valsf[7];
 
-                        if (logOutput)
+                        if (LogOutput)
                         {
-                            Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5} POV{6}", X, Y, rX, rY, Z, rZ, POV);
+                            Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5} POV{6}", lX, lY, rX, rY, lZ, rZ, pov);
                         }
                         break;
 
@@ -427,7 +428,7 @@ namespace CoolFont
                         // Control mouse on screen
                         kbm.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
                                               -(int)valsf[8]); // dx, dy (pixels)
-                        if (logOutput)
+                        if (LogOutput)
                         {
                             Console.Write("dx:{0} dy:{1}", (int)valsf[9], (int)valsf[9]);
                         }
@@ -438,7 +439,7 @@ namespace CoolFont
 
             private void AddButtons(int buttonsDown)
             {
-                switch (mode)
+                switch (Mode)
                 {
 
                     case SimulatorMode.ModeJoystickCoupled:
@@ -450,30 +451,30 @@ namespace CoolFont
                             buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
                         }
 
-                        _buttons = _buttons | buttonsDown;
+                        buttons = buttons | buttonsDown;
                         break;
 
                     case SimulatorMode.ModeMouse:
-                        if ((buttonsDown & 4096) != 0 & !_leftMouseButtonDown) // A button pressed on phone
+                        if ((buttonsDown & 4096) != 0 & !leftMouseButtonDown) // A button pressed on phone
                         {
                             kbm.Mouse.LeftButtonDown();
-                            _leftMouseButtonDown = true;
+                            leftMouseButtonDown = true;
                         }
-                        if ((buttonsDown & 4096) == 0 & _leftMouseButtonDown)
+                        if ((buttonsDown & 4096) == 0 & leftMouseButtonDown)
                         {
                             kbm.Mouse.LeftButtonUp();
-                            _leftMouseButtonDown = false;
+                            leftMouseButtonDown = false;
                         }
 
-                        if ((buttonsDown & 8192) != 0 & !_rightMouseButtonDown) // B button pressed on phone
+                        if ((buttonsDown & 8192) != 0 & !rightMoustButtonDown) // B button pressed on phone
                         {
                             kbm.Mouse.RightButtonDown();
-                            _rightMouseButtonDown = true;
+                            rightMoustButtonDown = true;
                         }
-                        if ((buttonsDown & 8192) == 0 & _rightMouseButtonDown)
+                        if ((buttonsDown & 8192) == 0 & rightMoustButtonDown)
                         {
                             kbm.Mouse.RightButtonUp();
-                            _rightMouseButtonDown = false;
+                            rightMoustButtonDown = false;
                         }
                         break;
                 }
@@ -482,35 +483,35 @@ namespace CoolFont
 
             private void UpdateMode(int new_mode)
             {
-                if (new_mode == (int)mode) { return; }
+                if (new_mode == (int)Mode) { return; }
 
-                mode = (SimulatorMode)new_mode;
+                Mode = (SimulatorMode)new_mode;
             }
 
             public void AddControllerState(State state)
             {
-                X += state.Gamepad.LeftThumbX;
-                Y -= state.Gamepad.LeftThumbY; // inverted 
+                lX += state.Gamepad.LeftThumbX;
+                lY -= state.Gamepad.LeftThumbY; // inverted 
                 rX += state.Gamepad.RightThumbX;
                 rY += state.Gamepad.RightThumbY;
-                Z += state.Gamepad.LeftTrigger; // not the right scale
+                lZ += state.Gamepad.LeftTrigger; // not the right scale
                 rZ += state.Gamepad.RightTrigger; // not the right scale
-                _buttons = (short)state.Gamepad.Buttons;
+                buttons = (short)state.Gamepad.Buttons;
             }
 
             public void FeedVJoy()
             {
-                if (mode == (SimulatorMode.ModeMouse | SimulatorMode.ModePaused | SimulatorMode.ModeWASD))
+                if (Mode == (SimulatorMode.ModeMouse | SimulatorMode.ModePaused | SimulatorMode.ModeWASD))
                 {
                     return;
                 }
 
                 /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
-                if (!joystick.UpdateVJD(ID, ref iReport))
+                if (!joystick.UpdateVJD(id, ref iReport))
                 {
-                    Console.WriteLine("vJoy device {0} not enabled. Enable, then press Enter. \n", ID);
+                    Console.WriteLine("vJoy device {0} not enabled. Enable, then press Enter. \n", id);
                     Console.ReadKey(true);
-                    joystick.AcquireVJD(ID);
+                    joystick.AcquireVJD(id);
                     return;
                 }
 #if ROBUST
@@ -526,21 +527,21 @@ namespace CoolFont
                     }
 #endif
 #if EFFICIENT
-                iReport.bDevice = (byte)ID;
+                iReport.bDevice = (byte)id;
 
-                iReport.AxisX = X;
-                iReport.AxisY = Y;
+                iReport.AxisX = lX;
+                iReport.AxisY = lY;
                 iReport.AxisXRot = rX;
                 iReport.AxisYRot = rY;
-                iReport.AxisZ = Z;
+                iReport.AxisZ = lZ;
                 iReport.AxisZRot = rZ;
 
                 // Press/Release Buttons
-                iReport.Buttons = (uint)(_buttons);
+                iReport.Buttons = (uint)(buttons);
 
-                if (ContPovNumber > 0)
+                if (contPovNumber > 0)
                 {
-                    iReport.bHats = ((uint)POV);
+                    iReport.bHats = ((uint)pov);
                     //iReport.bHats = 0xFFFFFFFF; // Neutral state
                 }
 #endif
@@ -609,7 +610,7 @@ namespace CoolFont
                 else
                 {
                     Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", joystick.GetvJoyManufacturerString(), joystick.GetvJoyProductString(), joystick.GetvJoySerialNumberString());
-                    mode = SimulatorMode.ModeJoystickDecoupled;
+                    Mode = SimulatorMode.ModeJoystickDecoupled;
                 }
 
                 // Get the state of the requested device
@@ -688,7 +689,7 @@ namespace CoolFont
             joystick.ResetVJD(ID);
 #endif
 #if EFFICIENT
-                pov = new byte[4];
+               // pov = new byte[4];
 #endif
                 // get max range of joysticks
                 // neutral position is max/2
@@ -709,7 +710,7 @@ namespace CoolFont
                 joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_Z, ref minZ);
                 joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RZ, ref maxRZ);
                 joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RZ, ref minRZ);
-                ContPovNumber = joystick.GetVJDContPovNumber(id);
+                contPovNumber = joystick.GetVJDContPovNumber(id);
             }
 
             public void DisableVJoy(uint id)

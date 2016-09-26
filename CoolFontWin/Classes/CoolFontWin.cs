@@ -31,7 +31,7 @@ namespace CoolFont
             CTRL_SHUTDOWN_EVENT
         }
 
-        private int _port;
+        private int port;
         private readonly NotifyIcon notifyIcon;
 
         private bool log = false;
@@ -39,7 +39,7 @@ namespace CoolFont
         private string[] args;
         private JavaProc jProc = new JavaProc();
 
-        public VirtualDevice vDevice;
+        public VirtualDevice VDevice;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
@@ -52,18 +52,18 @@ namespace CoolFont
         public void StartService()
         {
             ProcessArgs();
-            int tryport = FileManager.TryToReadPortFromFile(PORT_FILE); // returns 0 if none
+            int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PORT_FILE); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
-            _port = sock.port;
+            port = sock.port;
 
-            if (_port > 0 & sock.isBound)
+            if (port > 0 & sock.isBound)
             {
                 // write successful port to file for next time
-                FileManager.WritePortToFile(_port, PORT_FILE);
+                FileManager.WritePortToFile(port, CoolFontWin.PORT_FILE);
             }
 
             /* Register DNS service through Java */
-            jProc.StartDnsService(_port); // blocks
+            jProc.StartDnsService(port); // blocks
 
             // check to see if everything is set up?
             ReceiveService(sock);
@@ -91,8 +91,8 @@ namespace CoolFont
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
-            vDevice = new VirtualDevice(1, sock.socketPollInterval); // will change Mode if necessary
-            vDevice.logOutput = verbose; // T or F
+            VDevice = new VirtualDevice(1, sock.socketPollInterval); // will change Mode if necessary
+            VDevice.LogOutput = verbose; // T or F
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
@@ -105,26 +105,26 @@ namespace CoolFont
 
                     /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.pollSocket();
-                    bool res = vDevice.HandleNewData(rcvd);
+                    bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
 
                     /* Tell vDev whether we want it to fill in missing data */
-                    if (gapSize > maxGapSize) { vDevice.shouldInterpolate = false; }
+                    if (gapSize > maxGapSize) { VDevice.ShouldInterpolate = false; }
 
                     /* Get data from connected XInput device, add to vDev*/
 
                     if (xDevice != null && xDevice.IsConnected)
                     {
                         State state = xDevice.GetState();
-                        vDevice.AddControllerState(state);
+                        VDevice.AddControllerState(state);
                     }
 
-                    vDevice.FeedVJoy();
+                    VDevice.FeedVJoy();
                     T++;
 
                     if (log && (T % 10 == 0))
                         Console.WriteLine(rcvd);
-                    if (vDevice.logOutput)
+                    if (VDevice.LogOutput)
                         Console.Write(" ({0}) \n", gapSize);
                 }
               
@@ -143,7 +143,7 @@ namespace CoolFont
 
         public string GetModeString()
         {
-            switch (vDevice.mode)
+            switch (VDevice.Mode)
             {
                 case SimulatorMode.ModeGamepad:
                     return "Gamepad";
@@ -176,17 +176,17 @@ namespace CoolFont
         private void reset_Click(object sender, EventArgs e)
         {
             KillOpenProcesses();
-            if (jProc != null) { jProc.StartDnsService(_port); }// blocks
+            if (jProc != null) { jProc.StartDnsService(port); }// blocks
         }
 
         private void smoothing2_Click(object sender, EventArgs e)
         {
-            vDevice.RCFilterStrength *= 2;
+            VDevice.RCFilterStrength *= 2;
         }
 
         private void smoothingHalf_Click(object sender, EventArgs e)
         {
-            vDevice.RCFilterStrength /= 2;
+            VDevice.RCFilterStrength /= 2;
         }
 
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
