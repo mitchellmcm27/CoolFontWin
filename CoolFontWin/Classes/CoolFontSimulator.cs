@@ -71,6 +71,7 @@ namespace CoolFont
 
             private double[] _valsf;
             private int updateInterval;
+            private uint ID;
 
             public bool shouldInterpolate;
             public bool logOutput = false;
@@ -78,20 +79,21 @@ namespace CoolFont
 
 
             public double RCFilterStrength { get; set; }
-            private uint ID;
+
+            
             public VirtualDevice(uint id, int interval)
             {
                 mode = SimulatorMode.ModeDefault;
                 updateInterval = interval;
+                ID = id;
 
                 // assuming socketPollInterval = 8,000:
                 // 0.05 good for mouse movement, 0.15 was a little too smooth
                 // 0.05 probably good for VR, where you don't have to aim with the phone
                 // 0.00 is good for when you have to aim slowly/precisely
                 RCFilterStrength = 0.05;
-                shouldInterpolate = false;
-                ID = id;
 
+                shouldInterpolate = false;
                 ConfigureVJoy(ID);
                 StartVJoy(ID);
                 SetUpVJoy(ID);

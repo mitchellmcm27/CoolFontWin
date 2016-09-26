@@ -82,8 +82,6 @@ namespace CoolFont
                 }
             }
         }
-
-        
         
         private void ReceiveService(UdpListener sock)
         {
