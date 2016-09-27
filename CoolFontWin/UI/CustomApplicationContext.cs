@@ -55,9 +55,13 @@ namespace CoolFont
 
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.ForeColor = Color.Crimson;
+            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph", ShowGraphFormItem_Clicked);
+
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
-                    new ToolStripSeparator(), quitItem });
+                    new ToolStripSeparator(),
+                    graphItem,
+                    quitItem, });
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
@@ -74,14 +78,29 @@ namespace CoolFont
                 mi.Invoke(NotifyIcon, null);
             }
         }
+        #region child forms
+        private GraphForm GraphForm;
+        private void ShowGraphForm()
+        {
+            if (GraphForm == null)
+            {
+                GraphForm = new GraphForm { Cfw = this.Cfw };
+                GraphForm.Closed += GraphForm_Closed; // avoid reshowing a disposed form
+                GraphForm.Show();
+            }
+            else { GraphForm.Activate(); }
+        }
+        private void ShowGraphFormItem_Clicked(object sender, EventArgs e) { ShowGraphForm(); }
+        private void GraphForm_Closed(object sender, EventArgs e) { GraphForm = null; }
 
-        /* Application exit handling */
+        #endregion
+
+        #region exit handling
 
         bool ConsoleEventCallback(int eventType)
         {
             if (eventType == 2)
             {
-                Cfw.KillOpenProcesses();
                 ExitThread();
             }
             return false;
@@ -103,6 +122,8 @@ namespace CoolFont
 
         protected override void ExitThreadCore()
         {
+            //if (GraphForm != null) { GraphForm.Close(); }
+            Cfw.KillOpenProcesses();
             NotifyIcon.Visible = false;
             Dispose(true);
             base.ExitThreadCore();
@@ -111,10 +132,11 @@ namespace CoolFont
         private void Exit_Click(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it     
-            Cfw.KillOpenProcesses();
-            ExitThread();
+            ExitThread();       
             Environment.Exit(0);
         }
+
+        #endregion
 
     }
 }
