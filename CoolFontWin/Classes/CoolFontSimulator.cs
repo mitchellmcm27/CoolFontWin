@@ -287,9 +287,9 @@ namespace CoolFont
                 switch (Config.Mode)
                 {
                     case Config.MODE.ModeWASD:
-                        kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
+                        //kbm.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= Config.THRESH_RUN * maxY)
+                        if (valsf[0] >= Config.THRESH_RUN * maxY / 2)
                         {
                             kbm.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         }
