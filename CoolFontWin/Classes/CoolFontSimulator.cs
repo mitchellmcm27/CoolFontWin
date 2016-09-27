@@ -75,6 +75,7 @@ namespace CoolFont
             /* public properties */
             public bool ShouldInterpolate;
             public bool LogOutput = false;
+            public bool UserIsRunning = true;
 
             // getter and setter allows for future event handling
             public SimulatorMode Mode { get; set; } 
@@ -328,13 +329,15 @@ namespace CoolFont
                     case SimulatorMode.ModeWASD:
                         KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= VirtualDevice.ThreshRun * MaxLY)
+                        if (valsf[0] >= VirtualDevice.ThreshRun * MaxLY/2)
                         {
                             KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
+                            UserIsRunning = true;
                         }
                         else
                         {
                             KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
+                            UserIsRunning = false;
                         }
 
                         if (false) //TODO: Implement jumping on iPhone

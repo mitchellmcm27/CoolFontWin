@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using SharpDX.XInput;
 using CoolFont.IO;
@@ -12,29 +11,10 @@ namespace CoolFont
 {
     public class CoolFontWin
     {
-        
-        [DllImport("Kernel32")]
-        public static extern bool SetConsoleCtrlHandler(HandlerRoutine Handler, bool Add);
-
-        // A delegate type to be used as the handler routine 
-        // for SetConsoleCtrlHandler.
-        public delegate bool HandlerRoutine(CtrlTypes CtrlType);
-
-        // An enumerated type for the control messages
-        // sent to the handler routine.
-        public enum CtrlTypes
-        {
-            CTRL_C_EVENT = 0,
-            CTRL_BREAK_EVENT,
-            CTRL_CLOSE_EVENT,
-            CTRL_LOGOFF_EVENT = 5,
-            CTRL_SHUTDOWN_EVENT
-        }
-
         private int Port;
         private readonly NotifyIcon NotifyIcon;
 
-        private bool Log = false;
+        private bool LogRcvd = false;
         private bool Verbose = false;
         private string[] args;
         private JavaProc JProc = new JavaProc();
@@ -51,6 +31,7 @@ namespace CoolFont
 
         public void StartService()
         {
+            
             ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
             UdpListener sock = new UdpListener(tryport);
@@ -75,7 +56,7 @@ namespace CoolFont
             {
                 if (arg.Equals("log"))
                 {
-                    Log = true;
+                    LogRcvd = true;
                 }
                 if (arg.Equals("verbose"))
                 {
@@ -85,9 +66,7 @@ namespace CoolFont
         }
         
         private void ReceiveService(UdpListener sock)
-        {
-            SetConsoleCtrlHandler(new HandlerRoutine(ConsoleCtrlCheck), true);
-
+        {  
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
@@ -122,23 +101,22 @@ namespace CoolFont
                     VDevice.FeedVJoy();
                     T++;
 
-                    if (Log && (T % 10 == 0))
-                        Console.WriteLine(rcvd);
-                    if (VDevice.LogOutput)
-                        Console.Write(" ({0}) \n", gapSize);
+                    if (LogRcvd && (T % 1 == 0))
+                        Console.Write("{0}\n", rcvd);
+                    if (VDevice.LogOutput) // simulator will write some stuff, then...
+                        Console.Write("({0})\n", gapSize);
+                    
+                    if (VDevice.UserIsRunning)
+                    {
+                        Console.Write("\r RUNNING ");
+                    }
+                    else
+                    {
+                        Console.Write("\r ........");
+                    }
                 }
               
             }).Start(); 
-        }
-
-        private bool ConsoleCtrlCheck(CtrlTypes ctrlType)
-        {
-            if (ctrlType == CtrlTypes.CTRL_CLOSE_EVENT)
-            {
-                KillOpenProcesses();
-                NotifyIcon.Dispose();
-            }
-            return true;
         }
 
         public string GetModeString()

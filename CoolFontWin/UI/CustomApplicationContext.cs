@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Reflection;
 using CoolFont.UI;
@@ -15,32 +16,11 @@ namespace CoolFont
 
         public CustomApplicationContext(string[] args)
         {
+            handler = new ConsoleEventDelegate(ConsoleEventCallback);
+            SetConsoleCtrlHandler(handler, true);
             InitializeContext();
             Cfw = new CoolFontWin(NotifyIcon, args);
             Cfw.StartService();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && Components != null)
-            {
-                Components.Dispose();
-            }
-        }
-
-        protected override void ExitThreadCore()
-        {
-            NotifyIcon.Visible = false;
-            Dispose(true);
-            base.ExitThreadCore();
-        }
-
-        private void Exit_Click(object sender, EventArgs e)
-        {
-            // Hide tray icon, otherwise it will remain shown until user mouses over it     
-            Cfw.KillOpenProcesses();
-            ExitThread();
-            Environment.Exit(0);
         }
 
         private System.ComponentModel.IContainer Components;
@@ -93,6 +73,46 @@ namespace CoolFont
                 MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
                 mi.Invoke(NotifyIcon, null);
             }
+        }
+
+        /* Application exit handling */
+
+        bool ConsoleEventCallback(int eventType)
+        {
+            if (eventType == 2)
+            {
+                Cfw.KillOpenProcesses();
+            }
+            return false;
+        }
+
+        static ConsoleEventDelegate handler;   // Keeps it from getting garbage collected
+                                               // Pinvoke
+        private delegate bool ConsoleEventDelegate(int eventType);
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
+
+        protected override void Dispose(bool disposing) 
+        {
+            if (disposing && Components != null)
+            {
+                Components.Dispose();
+            }
+        }
+
+        protected override void ExitThreadCore()
+        {
+            NotifyIcon.Visible = false;
+            Dispose(true);
+            base.ExitThreadCore();
+        }
+
+        private void Exit_Click(object sender, EventArgs e)
+        {
+            // Hide tray icon, otherwise it will remain shown until user mouses over it     
+            Cfw.KillOpenProcesses();
+            ExitThread();
+            Environment.Exit(0);
         }
 
     }

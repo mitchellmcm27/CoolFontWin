@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MutexManager;
 
@@ -7,10 +8,12 @@ namespace CoolFont
 {
    static class Program
     {
+
         [STAThread]
         static void Main(string[] args)
         {
             if (!SingleInstance.Start()) { return;  }  // Mutex not obtained so exit
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Console.WriteLine(args);
