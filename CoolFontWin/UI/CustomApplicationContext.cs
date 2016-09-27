@@ -82,6 +82,7 @@ namespace CoolFont
             if (eventType == 2)
             {
                 Cfw.KillOpenProcesses();
+                ExitThread();
             }
             return false;
         }
