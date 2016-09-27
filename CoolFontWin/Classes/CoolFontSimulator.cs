@@ -1,7 +1,4 @@
-﻿#define EFFICIENT
-//#define ROBUST
-
-using System;
+﻿using System;
 using System.Diagnostics;
 
 using WindowsInput;
@@ -83,7 +80,7 @@ namespace CoolFont
             public double RCFilterStrength;
 
             public VirtualDevice(uint id, int updateInterval)
-            {
+            {               
                 Mode = SimulatorMode.ModeDefault;
                 this.UpdateInterval = updateInterval;
                 this.Id = id;
@@ -104,9 +101,12 @@ namespace CoolFont
   
             public bool HandleNewData(string rcvd)
             {
+                ResetValues();
+
                 if (rcvd.Length == 0)
                 {
                     if (ShouldInterpolate) { InterpolateData(); }
+                    // need to reset vjoy ?
                     return false;
                 }
 
@@ -210,6 +210,7 @@ namespace CoolFont
                 LZ = 0;
                 RZ = 0;
                 Pov = -1; // neutral state
+               // Joystick.ResetVJD(); // need to reset vjoy?
             }
 
             private double[] ProcessValues(double[] valsf)
@@ -515,19 +516,6 @@ namespace CoolFont
                     Joystick.AcquireVJD(Id);
                     return;
                 }
-#if ROBUST
-            /* incomplete now */
-                    res = joystick.SetAxis(X, ID, HID_USAGES.HID_USAGE_X);
-                    res = joystick.SetAxis(Y, ID, HID_USAGES.HID_USAGE_Y);
-                    res = joystick.SetAxis(rX, ID, HID_USAGES.HID_USAGE_RX);
-                    res = joystick.SetAxis(rY, ID, HID_USAGES.HID_USAGE_RY);
-
-                    if (ContPovNumber > 0)
-                    {
-                        res = joystick.SetContPov((int)POV_f, ID, 1);
-                    }
-#endif
-#if EFFICIENT
                 iReport.bDevice = (byte)Id;
 
                 iReport.AxisX = LX;
@@ -545,8 +533,6 @@ namespace CoolFont
                     iReport.bHats = ((uint)Pov);
                     //iReport.bHats = 0xFFFFFFFF; // Neutral state
                 }
-#endif
-                ResetValues();
             }
 
             private void ConfigureVJoy(uint id)
@@ -685,13 +671,8 @@ namespace CoolFont
 
             private void SetUpVJoy(UInt32 id)
             {
-#if ROBUST
-            // Reset this device to default values
-            joystick.ResetVJD(ID);
-#endif
-#if EFFICIENT
-               // pov = new byte[4];
-#endif
+               // pov = new byte[4]; // discrete pov hat directions
+
                 // get max range of joysticks
                 // neutral position is max/2
                 Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref MaxLX);
