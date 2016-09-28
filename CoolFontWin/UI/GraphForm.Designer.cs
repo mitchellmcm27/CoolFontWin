@@ -62,7 +62,7 @@ namespace CoolFont.UI
                 //get the data
             }
             z1.IsShowPointValues = true;
-            z1.GraphPane.Title = "Test Case for C#";
+            //z1.GraphPane.Title = "Test Case for C#";
             double[] x = new double[100];
             double[] y = new double[100];
             int i;

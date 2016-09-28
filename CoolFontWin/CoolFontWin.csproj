@@ -118,7 +118,7 @@
     </Reference>
     <Reference Include="WindowsFormsIntegration" />
     <Reference Include="ZedGraph">
-      <HintPath>..\..\ZGControlTestCs\ZedGraph.dll</HintPath>
+      <HintPath>..\lib\ZedGraph.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

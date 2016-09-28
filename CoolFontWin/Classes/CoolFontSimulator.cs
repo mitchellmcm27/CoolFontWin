@@ -106,7 +106,7 @@ namespace CoolFont
                 if (rcvd.Length == 0)
                 {
                     if (ShouldInterpolate) { InterpolateData(); }
-                    // need to reset vjoy ?
+                    //need to reset vjoy ?
                     return false;
                 }
 
