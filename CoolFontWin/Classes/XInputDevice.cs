@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SharpDX.XInput;
 
 namespace CoolFont
@@ -11,13 +7,13 @@ namespace CoolFont
     { 
         class XInputDeviceManager
         {
-            public Controller controller { get; set; }
+            public Controller Controller { get; set; }
             private Controller[] controllers;
 
             public XInputDeviceManager()
             {
                 // Initialize XInput
-                controller = null;
+                Controller = null;
                 controllers = new[] {
                     new Controller(UserIndex.One),
                     new Controller(UserIndex.Two),
@@ -33,12 +29,12 @@ namespace CoolFont
                 {
                     if (selectController.IsConnected)
                     {
-                        controller = selectController;
+                        Controller = selectController;
                         break;
                     }
                 }
 
-                if (controller == null)
+                if (Controller == null)
                 {
                     Console.WriteLine("No XInput controller installed");
                 }
@@ -46,10 +42,10 @@ namespace CoolFont
                 else
                 {
                     Console.WriteLine("Found a XInput controller available");
-                    Console.WriteLine(controller.GetCapabilities(DeviceQueryType.Any));
+                    Console.WriteLine(Controller.GetCapabilities(DeviceQueryType.Any));
                 }
 
-                return controller;
+                return Controller;
             }
         }
     }

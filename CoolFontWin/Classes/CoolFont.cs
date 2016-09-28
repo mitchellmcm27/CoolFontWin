@@ -23,13 +23,13 @@ namespace CoolFont
              * You can access the underlying Socket using the public .listener.Client property.
              * </summary>*/
 
-            private UdpClient _listener;
-            private byte[] _rcv_bytes;
-            private IPEndPoint _senderEP; // network End Point for the device sending packets
+            private UdpClient Listener;
+            private byte[] RcvBytes;
+            private IPEndPoint SenderEP; // network End Point for the device sending packets
 
-            public int port;
-            public bool isBound = false;
-            public string[] localAddrs;
+            public int Port;
+            public bool IsBound = false;
+            public string[] LocalAddrs;
 
             public UdpListener() : this(0)
             {
@@ -42,37 +42,37 @@ namespace CoolFont
                 /* Supports IPv4 and v6 */
                 /* Tries Ethernet first, and then WiFi */
 
-                localAddrs = GetAllLocalIPv4(NetworkInterfaceType.Ethernet);
+                LocalAddrs = GetAllLocalIPv4(NetworkInterfaceType.Ethernet);
 
-                if (localAddrs.Length == 0)
+                if (LocalAddrs.Length == 0)
                 {
-                    localAddrs = GetAllLocalIPv4(NetworkInterfaceType.Wireless80211);
+                    LocalAddrs = GetAllLocalIPv4(NetworkInterfaceType.Wireless80211);
                 }
 
-                if (localAddrs.Length == 0)
+                if (LocalAddrs.Length == 0)
                 {
                     throw new WebException("Must have a reachable network address.");
                 }
 
-                IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(localAddrs[0]), listenPort);
-                _senderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
+                IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(LocalAddrs[0]), listenPort);
+                SenderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
 
-                _listener = new UdpClient();
-                _listener.ExclusiveAddressUse = false;
+                Listener = new UdpClient();
+                Listener.ExclusiveAddressUse = false;
 
                 /* Client is the underlying Socket */
-                _listener.Client.SetSocketOption(SocketOptionLevel.Socket,
+                Listener.Client.SetSocketOption(SocketOptionLevel.Socket,
                                                 SocketOptionName.ReuseAddress, true);
 
                 /* Bind the socket to a good local address */
-                _listener.Client.Bind(bindEP);
-                IPEndPoint localEP = (IPEndPoint)_listener.Client.LocalEndPoint;
-                port = localEP.Port;
-                isBound = _listener.Client.IsBound;
-                Console.WriteLine("Listening on " + _listener.Client.LocalEndPoint);
+                Listener.Client.Bind(bindEP);
+                IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
+                Port = localEP.Port;
+                IsBound = Listener.Client.IsBound;
+                Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
             }
 
-            public string receiveStringSync()
+            public string ReceiveStringSync()
             {
                 /* Receive a string from the instantiated UdpClient socket */
                 /* This method is synchronous (blocking) */
@@ -80,15 +80,15 @@ namespace CoolFont
 
                 bool done = false;
                 string received_data = "";
-                _listener.Client.Blocking = true;
+                Listener.Client.Blocking = true;
 
                 try
                 {
                     /* ref keyword: pass by reference, not by value (value can change inside the method) */
-                    _rcv_bytes = _listener.Receive(ref _senderEP); // blocking
+                    RcvBytes = Listener.Receive(ref SenderEP); // blocking
 
                     /* GetString args: byte array, index of first byte, number of bytes to decode */
-                    received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
+                    received_data = Encoding.ASCII.GetString(RcvBytes, 0, RcvBytes.Length);
                 }
                 catch (Exception e)
                 {
@@ -98,16 +98,16 @@ namespace CoolFont
                 return received_data;
             }
 
-            public string receiveStringAsync()
+            public string ReceiveStringAsync()
             {
                 bool done = false;
                 string received_data = "";
-                _listener.Client.Blocking = false;
+                Listener.Client.Blocking = false;
                 try
                 {
-                    _rcv_bytes = _listener.Receive(ref _senderEP); // non-blocking mode, returns immediately
+                    RcvBytes = Listener.Receive(ref SenderEP); // non-blocking mode, returns immediately
                                                                    /* GetString args: byte array, index of first byte, number of bytes to decode */
-                    received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
+                    received_data = Encoding.ASCII.GetString(RcvBytes, 0, RcvBytes.Length);
                 }
                 catch (SocketException se)
                 {
@@ -122,15 +122,16 @@ namespace CoolFont
                 return received_data;
             }
 
-            public string pollSocket(int rate_us)
+            public int SocketPollInterval = 8 * 1000; // microseconds (us)
+            public string Poll()
             {
                 bool done = false;
                 string received_data = "";
-                _listener.Client.Blocking = false;
-                if (_listener.Client.Poll(rate_us, SelectMode.SelectRead))
+                Listener.Client.Blocking = false;
+                if (Listener.Client.Poll(SocketPollInterval, SelectMode.SelectRead))
                 {
-                    _rcv_bytes = _listener.Receive(ref _senderEP);
-                    received_data = Encoding.ASCII.GetString(_rcv_bytes, 0, _rcv_bytes.Length);
+                    RcvBytes = Listener.Receive(ref SenderEP);
+                    received_data = Encoding.ASCII.GetString(RcvBytes, 0, RcvBytes.Length);
                 }
 
                 return received_data;
@@ -139,11 +140,11 @@ namespace CoolFont
             public void Close()
             {
                 /* Close but do not delete */
-                _listener.Close();
-                isBound = false;
+                Listener.Close();
+                IsBound = false;
             } 
 
-            private string[] GetAllLocalIPv4(NetworkInterfaceType _type)
+            private string[] GetAllLocalIPv4(NetworkInterfaceType type)
             {
                 /* Helper method to choose a local IP address */
                 /* Device may have multiple interfaces/addresses, including IPv6 addresses */
@@ -153,7 +154,7 @@ namespace CoolFont
 
                 foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    if (item.NetworkInterfaceType == _type && item.OperationalStatus == OperationalStatus.Up)
+                    if (item.NetworkInterfaceType == type && item.OperationalStatus == OperationalStatus.Up)
                     {
                         foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
                         {
@@ -200,26 +201,35 @@ namespace CoolFont
             }
         }
 
-        public static class JavaProc
+        public class JavaProc
         {
-            public static Process myProcess = new Process();
-            public static int exitCode = 0;
-            public static void StartDnsService(int port)
+            private Process MyProcess;
+            private int ExitCode;
+
+            public bool Running;
+
+            public JavaProc()
+            {
+                MyProcess = new Process();
+                ExitCode = 0;
+                Running = false;
+            }
+            public void StartDnsService(int port)
             {
                 try
                 {
-                    myProcess.StartInfo.UseShellExecute = false;
-                    myProcess.StartInfo.RedirectStandardError = true;
-                    myProcess.StartInfo.RedirectStandardOutput = true;
-                    myProcess.StartInfo.CreateNoWindow = true;
+                    MyProcess.StartInfo.UseShellExecute = false;
+                    MyProcess.StartInfo.RedirectStandardError = true;
+                    MyProcess.StartInfo.RedirectStandardOutput = true;
+                    MyProcess.StartInfo.CreateNoWindow = true;
 
-                    myProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
+                    MyProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
                     String jarfile = "../../../../testapp-java.jar";
                     String arg0 = String.Format("{0}", port); // -r: register, -u: unregister, -b: both (not useful?)
                     String arg1 = "-r";
-                    myProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);
+                    MyProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);
 
-                    myProcess.Start();
+                    MyProcess.Start();
                     // This code assumes the process you are starting will terminate itself. 
                     // Given that is is started without a window so you cannot terminate it 
                     // on the desktop, it must terminate itself or you can do it programmatically
@@ -236,7 +246,7 @@ namespace CoolFont
                     //Console.WriteLine("Stderr : {0}", stderrx);
                     try
                     {
-                        exitCode = myProcess.ExitCode;
+                        ExitCode = MyProcess.ExitCode;
                     }
                     catch (InvalidOperationException ioe)
                     {
@@ -253,7 +263,7 @@ namespace CoolFont
                     Console.WriteLine(e.Message);
                 }
 
-                if (exitCode == 1)
+                if (ExitCode == 1)
                 {
                     Console.WriteLine("DNS service failed to register. Check location of testapp-java.jar");
                     Console.WriteLine("Press any key to quit");
@@ -262,14 +272,16 @@ namespace CoolFont
                 }
                 else
                 {
+                    Running = true;
                     Console.WriteLine("Called java program");
                 }
             }
-            public static void Kill()
+            public void Kill()
             {
-                myProcess.Kill();
-                exitCode = myProcess.ExitCode;
-                Console.WriteLine("Exit code : {0}", exitCode);
+                MyProcess.Kill();
+                ExitCode = MyProcess.ExitCode;
+                Console.WriteLine("JavaProc Exit code : {0}", ExitCode);
+                Running = false;
             }
         }
     }
