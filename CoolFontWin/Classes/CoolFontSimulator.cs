@@ -65,6 +65,8 @@ namespace CoolFont
             private bool RightMoustButtonDown = false;  
 
             private double[] Valsf;
+            private int PacketNumber;
+            private static int MaxPacketNumber = 999;
             private int UpdateInterval;
             private uint Id;
 
@@ -109,11 +111,29 @@ namespace CoolFont
                     return false;
                 }
 
-                double[] valsf = ParseString(rcvd);
-                if (this.Valsf == null) this.Valsf = valsf;
+                // packet number goes from 0 to 99 (MaxPacketNumber)
+                // when packet number reaches 99, it resets to 0
+                // we want to check if we received an outdated packet
+                int packetNumber = ParsePacketNumber(rcvd);
+
+                // if new packet # is smaller than previous 
+                // and if it's not just the number resetting to 0
+                // e.g. have 99, received 0  ->  99 -> false 
+                // e.g. have 99, received 3  ->  95 -> false
+                // e.g. have 99, received 98 ->   1 -> true
+                // e.g. have 0, received 95  -> -95 -> true
+                // e.g. have 10, received 98 -> -88 -> true
+                if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
+                {
+                    if (ShouldInterpolate) { InterpolateData(); }
+                    return false;
+                }
+
+                this.PacketNumber = packetNumber;
+                double[] valsf = ParseString(rcvd); 
+                if (this.Valsf == null) { this.Valsf = valsf; }
                 Buttons = ParseButtons(rcvd);
                 int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
-
                 UpdateMode(modeIn);
 
                 valsf = ProcessValues(valsf); // converts ints to doubles in generic units
@@ -141,6 +161,24 @@ namespace CoolFont
 
                 AddValues(Valsf);
                 AddButtons(Buttons);
+            }
+
+            private int ParsePacketNumber(string instring)
+            {
+                /* Parse string representation of bitmask (unsigned int) 
+                 * String array is separated by "$"
+                 * Mode bitmask is the 0th string */
+
+                string[] instring_sep = instring.Split('$');
+                string packetNumberString = instring_sep[3];
+                try
+                {
+                    return int.Parse(packetNumberString);
+                }
+                catch
+                {
+                    return 0;
+                }
             }
 
             private double[] ParseString(string instring)

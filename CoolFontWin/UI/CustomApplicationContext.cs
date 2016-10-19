@@ -60,7 +60,7 @@ namespace CoolFont
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), quitItem});
 
-            AddDebugMenuItems(); // only if DEBUG is defined
+            AddDebugMenuItems(); // called only if DEBUG is defined
         }
 
         [Conditional("DEBUG")]
