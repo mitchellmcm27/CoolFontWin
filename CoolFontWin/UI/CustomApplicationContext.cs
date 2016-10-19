@@ -58,10 +58,13 @@ namespace CoolFont
             ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph", ShowGraphFormItem_Clicked);
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] {
-                    new ToolStripSeparator(),
-                    graphItem,
-                    quitItem, });
+                new ToolStripItem[] { new ToolStripSeparator()});
+#if DEBUG
+            NotifyIcon.ContextMenuStrip.Items.AddRange(
+                new ToolStripItem[] { graphItem });
+#endif
+            NotifyIcon.ContextMenuStrip.Items.AddRange(
+                new ToolStripItem[] { quitItem });
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-
 using WindowsInput;
 using vJoyInterfaceWrap;
 using SharpDX.XInput;

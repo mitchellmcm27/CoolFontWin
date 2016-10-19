@@ -66,10 +66,11 @@ namespace CoolFont
         }
         
         private void ReceiveService(UdpListener sock)
-        {  
+        {
             /* Set up the simulator */
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
+
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
 
