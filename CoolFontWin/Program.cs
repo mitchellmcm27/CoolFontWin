@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using MutexManager;
-
 
 namespace CoolFont
 {
@@ -16,10 +16,15 @@ namespace CoolFont
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            string version = Assembly.GetExecutingAssembly()
+                                         .GetName()
+                                         .Version
+                                         .ToString();
+            Console.WriteLine("COOL FONT WIN version " + version);
             Console.WriteLine(args);
             try
             {
-                var applicationContext = new CustomApplicationContext(args);
+                var applicationContext = new CustomApplicationContext(args);             
                 Application.Run(applicationContext);
             }
             catch (Exception ex)
