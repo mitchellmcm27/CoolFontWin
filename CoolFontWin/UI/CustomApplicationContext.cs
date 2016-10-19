@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Reflection;
+using System.Diagnostics;
 using CoolFont.UI;
 
 
@@ -55,16 +56,19 @@ namespace CoolFont
 
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.ForeColor = Color.Crimson;
-            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph", ShowGraphFormItem_Clicked);
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator()});
-#if DEBUG
+                new ToolStripItem[] { new ToolStripSeparator(), quitItem});
+
+            AddDebugMenuItems(); // only if DEBUG is defined
+        }
+
+        [Conditional("DEBUG")]
+        private void AddDebugMenuItems()
+        {
+            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph (debug only)", ShowGraphFormItem_Clicked);
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { graphItem });
-#endif
-            NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { quitItem });
+                new ToolStripItem[] { new ToolStripSeparator(), graphItem});
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)

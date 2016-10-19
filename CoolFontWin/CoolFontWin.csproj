@@ -120,8 +120,9 @@
       <HintPath>..\lib\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
     <Reference Include="WindowsFormsIntegration" />
-    <Reference Include="ZedGraph">
-      <HintPath>..\..\ZGControlTestCs\ZedGraph.dll</HintPath>
+    <Reference Include="ZedGraph, Version=1.0.1812.29779, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\ZedGraph.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
