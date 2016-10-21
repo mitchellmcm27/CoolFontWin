@@ -238,7 +238,7 @@
   <GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
     <Output TaskParameter="Assemblies" ItemName="myAssemblyInfo"/>
   </GetAssemblyIdentity>
-  <Exec Command="nuget pack MyApp.nuspec -Version %(myAssemblyInfo.Version) -Properties Configuration=Release -OutputDirectory $(OutDir) -BasePath $(OutDir)" />
+  <Exec Command="nuget pack CoolFontWin.nuspec -Version %(myAssemblyInfo.Version) -Properties Configuration=Release -OutputDirectory $(OutDir) -BasePath $(OutDir)" />
   <Exec Command="squirrel --releasify $(OutDir)MyApp.%(myAssemblyInfo.Version).nupkg" />
 </Target>
 
