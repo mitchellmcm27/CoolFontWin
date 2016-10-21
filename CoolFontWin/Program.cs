@@ -23,6 +23,7 @@ namespace CoolFont
                                          .Version
                                          .ToString();
             Console.WriteLine("COOL FONT WIN version " + version);
+            Console.WriteLine("UDPATED");
             Console.WriteLine(args);
 
             // Check for app updates via Squirrel
