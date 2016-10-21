@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using Mono.Zeroconf;
 
 namespace CoolFont
 {
@@ -70,6 +71,57 @@ namespace CoolFont
                 Port = localEP.Port;
                 IsBound = Listener.Client.IsBound;
                 Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
+            }
+
+            public bool PublishOnPort(short port)
+            {
+                bool res = false;
+
+                RegisterService service = new RegisterService();
+                string name;
+
+                try
+                {
+                    name = Environment.MachineName.ToLower();
+                } catch (Exception e)
+                {
+                    name = "PocketStrafe Companion";
+                }
+
+                service.Name = name;
+                service.RegType = "_IAmTheBirdman._udp";
+                service.ReplyDomain = "local.";
+                service.Port = port;
+
+                TxtRecord record = null;
+
+                Console.WriteLine("*** Registering name = '{0}', type = '{1}', domain = '{2}'",
+                    service.Name,
+                    service.RegType,
+                    service.ReplyDomain);
+
+                service.Response += OnRegisterServiceResponse;
+                service.Register();
+                res = true;
+
+                return res;
+            }
+
+            private void OnRegisterServiceResponse(object o, RegisterServiceEventArgs args)
+            {
+                switch (args.ServiceError)
+                {
+                    case ServiceErrorCode.NameConflict:
+                        Console.WriteLine("*** Name Collision! '{0}' is already registered",
+                            args.Service.Name);
+                        break;
+                    case ServiceErrorCode.None:
+                        Console.WriteLine("*** Registered name = '{0}'", args.Service.Name);
+                        break;
+                    case ServiceErrorCode.Unknown:
+                        Console.WriteLine("*** Error registering name = '{0}'", args.Service.Name);
+                        break;
+                }
             }
 
             public string ReceiveStringSync()

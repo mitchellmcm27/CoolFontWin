@@ -46,7 +46,8 @@ namespace CoolFont
             }
 
             /* Register DNS service through Java */
-            JProc.StartDnsService(Port); // blocks
+            sock.PublishOnPort((short)Port);
+            //JProc.StartDnsService(Port); // blocks
 
             // check to see if everything is set up?
             ReceiveService(sock);
