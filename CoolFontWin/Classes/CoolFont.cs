@@ -224,7 +224,7 @@ namespace CoolFont
                     MyProcess.StartInfo.CreateNoWindow = true;
 
                     MyProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
-                    String jarfile = "../../../../testapp-java.jar";
+                    String jarfile = "testapp-java.jar";
                     String arg0 = String.Format("{0}", port); // -r: register, -u: unregister, -b: both (not useful?)
                     String arg1 = "-r";
                     MyProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);

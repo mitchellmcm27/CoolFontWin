@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MutexManager;
+using Squirrel;
 
 namespace CoolFont
 {
@@ -22,6 +24,16 @@ namespace CoolFont
                                          .ToString();
             Console.WriteLine("COOL FONT WIN version " + version);
             Console.WriteLine(args);
+
+            // Check for app updates via Squirrel
+            Task.Run(async () =>
+            {
+                using (var mgr = await UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/coolfontwin"))
+                {
+                    await mgr.UpdateApp();
+                }
+            });
+
             try
             {
                 var applicationContext = new CustomApplicationContext(args);             
