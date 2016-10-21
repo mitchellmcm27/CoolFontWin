@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.ComponentModel;
 using WindowsInput;
 using vJoyInterfaceWrap;
 using SharpDX.XInput;
@@ -8,26 +9,39 @@ using CoolFont.Utils;
 
 namespace CoolFont
 {
-
-    public enum SimulatorMode
-    {
-        // Controls how the character moves in-game
-        ModePaused = 0,
-        ModeWASD, // Use KB to run forward, mouse to turn
-        ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
-        ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
-        ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
-        ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
-        ModeGamepad, // fully functional gamepad similar to Xbox controller
-
-        ModeDefault = ModeJoystickCoupled,
-    };
-
-    
     namespace Simulator
     {
-        public class VirtualDevice
+        public enum SimulatorMode
         {
+            // Controls how the character moves in-game
+            [Description("Pause")]
+            ModePaused = 0,
+
+            [Description("Keyboard")]
+            ModeWASD, // Use KB to run forward, mouse to turn
+
+            [Description("Joystick (Coupled)")]
+            ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
+
+            [Description("Joystick (Decoupled)")]
+            ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
+
+            [Description("Joystick (Halo)")]
+            ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
+
+            [Description("Mouse")]
+            ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
+
+            [Description("Gamepad")]
+            ModeGamepad, // fully functional gamepad similar to Xbox controller
+
+            ModeCount,
+            ModeDefault = ModeJoystickCoupled,
+        };
+
+        public class VirtualDevice
+        {  
+
             private long MaxLX = 0;
             private long MinLX = 0;
             private long MaxLY = 0;
@@ -76,13 +90,16 @@ namespace CoolFont
             public bool UserIsRunning = true;
 
             // getter and setter allows for future event handling
-            public SimulatorMode Mode { get; set; } 
+            public SimulatorMode Mode { get; set; }
+            public SimulatorMode OldMode;
 
             public double RCFilterStrength;
 
             public VirtualDevice(uint id, int updateInterval)
             {               
                 Mode = SimulatorMode.ModeDefault;
+                OldMode = Mode;
+
                 this.UpdateInterval = updateInterval;
                 this.Id = id;
 
@@ -520,11 +537,18 @@ namespace CoolFont
 
             }
 
-            private void UpdateMode(int new_mode)
+            public void UpdateMode(int new_mode)
             {
-                if (new_mode == (int)Mode) { return; }
+                if (new_mode == (int)Mode) { return; } // mode is the same as current
+                if (new_mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
                 Mode = (SimulatorMode)new_mode;
+                OldMode = Mode;
+            }
+
+            public void ClickedMode(int clicked_mode)
+            {
+                Mode = (SimulatorMode)clicked_mode;
             }
 
             public void AddControllerState(State state)

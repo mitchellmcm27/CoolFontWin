@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.ComponentModel;
 using System.Windows.Forms;
 using SharpDX.XInput;
 using CoolFont.IO;
@@ -168,22 +170,46 @@ namespace CoolFont
             VDevice.RCFilterStrength /= 2;
         }
 
+        private void SelectedMode_Click(object sender, EventArgs e)
+        {
+            Console.WriteLine(sender);
+            VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
+        }
+
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
-            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Mode - {0}", GetModeString()));
+            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Current Mode - {0}", GetModeString()));
             modeItem.Font = new Font(modeItem.Font, modeItem.Font.Style | FontStyle.Bold);
             modeItem.BackColor = Color.DarkSlateBlue;
             modeItem.ForeColor = Color.Lavender;
             modeItem.Enabled = false; // not clickable
 
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem("Select Mode");
+            for (int i=0; i < (int)SimulatorMode.ModeCount; i++)
+            {
+                var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
+                item.Tag = i; // = SimulatorMode value
+                modeSubMenu.DropDownItems.Add(item);
+            }
+
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     modeItem,
+                    modeSubMenu,
                    ToolStripMenuItemWithHandler("&Reset server", Reset_Click),
                    ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click),
                    ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click),
                 });          
+        }
+
+        public static string GetDescription(Enum value)
+        {
+            FieldInfo fi = value.GetType().GetField(value.ToString());
+            DescriptionAttribute[] attributes =
+                  (DescriptionAttribute[])fi.GetCustomAttributes(
+                  typeof(DescriptionAttribute), false);
+            return (attributes.Length > 0) ? attributes[0].Description : value.ToString();
         }
 
         public ToolStripMenuItem ToolStripMenuItemWithHandler(string displayText, EventHandler eventHandler)
