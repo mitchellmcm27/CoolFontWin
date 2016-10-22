@@ -107,8 +107,8 @@ namespace CoolFont
                 // 0.05 good for mouse movement, 0.15 was a little too smooth
                 // 0.05 probably good for VR, where you don't have to aim with the phone
                 // 0.00 is good for when you have to aim slowly/precisely
-                RCFilterStrength = 0.05;
-
+                RCFilterStrength = 0.1;
+                
                 ShouldInterpolate = false;
                 ConfigureVJoy(this.Id);
                 bool success = StartVJoy(this.Id);
@@ -373,8 +373,8 @@ namespace CoolFont
                 return valsf;
             }
 
-            static private double ThreshRun = 0.7;
-            static private double ThreshWalk = 0.3;
+            static private double ThreshRun = 0.2;
+            static private double ThreshWalk = 0.1;
 
             private void AddValues(double[] valsf)
             {

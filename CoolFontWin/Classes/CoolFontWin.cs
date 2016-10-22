@@ -71,6 +71,8 @@ namespace CoolFont
         private void ReceiveService(UdpListener sock)
         {
             /* Set up the simulator */
+            
+
             XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
 
@@ -81,6 +83,7 @@ namespace CoolFont
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
+           
             new Thread(() =>
             {
                 while (true)
