@@ -111,8 +111,8 @@ namespace CoolFont
 
                 ShouldInterpolate = false;
                 ConfigureVJoy(this.Id);
-                StartVJoy(this.Id);
-                SetUpVJoy(this.Id);
+                bool success = StartVJoy(this.Id);
+                if (success == true) { SetUpVJoy(this.Id); }
                 KbM = new InputSimulator();
                 ResetValues();
             }
@@ -636,7 +636,7 @@ namespace CoolFont
                 }
             }
 
-            private void StartVJoy(uint id)
+            private bool StartVJoy(uint id)
             {
                 // Create one joystick object and a position structure.
                 Joystick = new vJoy();
@@ -645,7 +645,7 @@ namespace CoolFont
                 if (id <= 0 || id > 16)
                 {
                     Console.WriteLine("Illegal device ID {0}\nExit!", id);
-                    return;
+                    return false;
                 }
 
                 // Get the driver attributes (Vendor ID, Product ID, Version Number)
@@ -653,7 +653,8 @@ namespace CoolFont
                 {
                     Console.WriteLine("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
                     Console.WriteLine("Defaulting to KBM simulation.");
-                    return;
+                    Mode = SimulatorMode.ModeWASD;
+                    return false;
                 }
                 else
                 {
@@ -673,13 +674,13 @@ namespace CoolFont
                         break;
                     case VjdStat.VJD_STAT_BUSY:
                         Console.WriteLine("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id);
-                        return;
+                        return false;
                     case VjdStat.VJD_STAT_MISS:
                         Console.WriteLine("vJoy Device {0} is not installed or disabled\nCannot continue\n", id);
-                        return;
+                        return false;
                     default:
                         Console.WriteLine("vJoy Device {0} general error\nCannot continue\n", id);
-                        return;
+                        return false;
                 };
 
                 // Check which axes are supported
@@ -721,13 +722,14 @@ namespace CoolFont
                 if ((status == VjdStat.VJD_STAT_OWN) || ((status == VjdStat.VJD_STAT_FREE) && (!Joystick.AcquireVJD(id))))
                 {
                     Console.WriteLine("Failed to acquire vJoy device number {0}.\n", id);
-                    return;
+                    return false;
                 }
                 else
                 {
                     Console.WriteLine("Acquired: vJoy device number {0}.\n", id);
                 }
 
+                return true;
             }
 
             private void SetUpVJoy(UInt32 id)
