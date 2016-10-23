@@ -11,6 +11,7 @@ namespace CoolFont
 {
     namespace Simulator
     {
+
         public enum SimulatorMode
         {
             // Controls how the character moves in-game
@@ -35,9 +36,12 @@ namespace CoolFont
             [Description("Gamepad")]
             ModeGamepad, // fully functional gamepad similar to Xbox controller
 
-            ModeCount,
+            ModeCountDebug,
+            ModeCountRelease = 4,
             ModeDefault = ModeJoystickCoupled,
         };
+
+        
 
         public class VirtualDevice
         {  
@@ -572,9 +576,9 @@ namespace CoolFont
                 /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
                 if (!Joystick.UpdateVJD(Id, ref iReport))
                 {
-                    Console.WriteLine("vJoy device {0} not enabled. Enable, then press Enter. \n", Id);
-                    Console.ReadKey(true);
-                    Joystick.AcquireVJD(Id);
+                   // Console.WriteLine("vJoy device {0} not enabled. Enable, then press Enter. \n", Id);
+                   // Console.ReadKey(true);
+                   // Joystick.AcquireVJD(Id);
                     return;
                 }
                 iReport.bDevice = (byte)Id;

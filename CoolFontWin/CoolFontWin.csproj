@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BA180A90-96C9-422D-916D-4A07643E8558}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <!--<OutputType>Exe</OutputType>-->
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CoolFontWin</RootNamespace>
     <AssemblyName>CoolFontWin</AssemblyName>
@@ -13,6 +13,19 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
+  <!-- Hide Console on Release Build -->
+  <Choose>
+    <When Condition=" '$(Configuration)' == 'Debug' ">
+      <PropertyGroup>
+        <OutputType>Exe</OutputType>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <OutputType>Winexe</OutputType>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>

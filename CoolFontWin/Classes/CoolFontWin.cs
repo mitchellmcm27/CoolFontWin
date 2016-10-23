@@ -18,6 +18,7 @@ namespace CoolFont
 
         private bool LogRcvd = false;
         private bool Verbose = false;
+        private bool InterceptXInputDevice = false;
         private string[] args;
 
         public VirtualDevice VDevice;
@@ -64,16 +65,27 @@ namespace CoolFont
                 {
                     Verbose = true;
                 }
+                if (arg.Equals("intercept"))
+                {
+                    InterceptXInputDevice = true;
+                }
             }
         }
         
         private void ReceiveService(UdpListener sock)
         {
             /* Set up the simulator */
-            
+            Controller xDevice;
 
-            XInputDeviceManager devMan = new XInputDeviceManager();
-            Controller xDevice = devMan.getController();
+            if (InterceptXInputDevice)
+            {
+                XInputDeviceManager devMan = new XInputDeviceManager();
+                xDevice = devMan.getController();
+            }
+            else
+            {
+                xDevice = null;
+            }
 
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
@@ -93,12 +105,11 @@ namespace CoolFont
                     bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
 
-                    /* Tell vDev whether we want it to fill in missing data */
+                    /* Tell vDev whether to fill in missing data */
                     if (gapSize > maxGapSize) { VDevice.ShouldInterpolate = false; }
 
-                    /* Get data from connected XInput device, add to vDev*/
-
-                    if (xDevice != null && xDevice.IsConnected)
+                    /* Get data from connected XInput device, add to vDev*/         
+                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
                     {
                         State state = xDevice.GetState();
                         VDevice.AddControllerState(state);
@@ -109,6 +120,7 @@ namespace CoolFont
 
                     if (LogRcvd && (T % 1 == 0))
                         Console.Write("{0}\n", rcvd);
+
                     if (VDevice.LogOutput) // simulator will write some stuff, then...
                         Console.Write("({0})\n", gapSize);
                     
@@ -189,7 +201,14 @@ namespace CoolFont
             modeItem.Enabled = false; // not clickable
 
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem("Select Mode");
-            for (int i=0; i < (int)SimulatorMode.ModeCount; i++)
+
+            int numModes;
+#if DEBUG
+            numModes = (int)SimulatorMode.ModeCountDebug;
+#else
+            numModes = (int)SimulatorMode.ModeCountRelease;
+#endif
+            for (int i=0; i < numModes; i++)
             {
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode value
