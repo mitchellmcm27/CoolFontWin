@@ -377,7 +377,7 @@ namespace CoolFont
                 return valsf;
             }
 
-            static private double ThreshRun = 0.2;
+            static private double ThreshRun = 0.1;
             static private double ThreshWalk = 0.1;
 
             private void AddValues(double[] valsf)
@@ -386,9 +386,9 @@ namespace CoolFont
                 switch (Mode)
                 {
                     case SimulatorMode.ModeWASD:
-                        KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
+                     //   KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= VirtualDevice.ThreshRun * MaxLY/2)
+                        if (valsf[0] > VirtualDevice.ThreshRun * MaxLY/2)
                         {
                             KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = true;
