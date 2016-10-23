@@ -36,7 +36,7 @@ namespace CoolFont
             ModeGamepad, // fully functional gamepad similar to Xbox controller
 
             ModeCount,
-            ModeDefault = ModeJoystickCoupled,
+            ModeDefault = ModeWASD,
         };
 
         public class VirtualDevice
@@ -88,6 +88,7 @@ namespace CoolFont
             public bool ShouldInterpolate;
             public bool LogOutput = false;
             public bool UserIsRunning = true;
+            public bool vJoyEnabled = false;
 
             // getter and setter allows for future event handling
             public SimulatorMode Mode { get; set; }
@@ -111,8 +112,8 @@ namespace CoolFont
                 
                 ShouldInterpolate = false;
                 ConfigureVJoy(this.Id);
-                bool success = StartVJoy(this.Id);
-                if (success == true) { SetUpVJoy(this.Id); }
+                vJoyEnabled = StartVJoy(this.Id);
+                if (vJoyEnabled == true) { SetUpVJoy(this.Id); }
                 KbM = new InputSimulator();
                 ResetValues();
             }
@@ -373,7 +374,7 @@ namespace CoolFont
                 return valsf;
             }
 
-            static private double ThreshRun = 0.2;
+            static private double ThreshRun = 0.1;
             static private double ThreshWalk = 0.1;
 
             private void AddValues(double[] valsf)
@@ -382,9 +383,9 @@ namespace CoolFont
                 switch (Mode)
                 {
                     case SimulatorMode.ModeWASD:
-                        KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
+                       //KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= VirtualDevice.ThreshRun * MaxLY/2)
+                        if (valsf[0] > VirtualDevice.ThreshRun * MaxLY/2)
                         {
                             KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = true;
@@ -402,9 +403,11 @@ namespace CoolFont
 
                         if (LogOutput)
                         {
-                            Console.Write("W?: {0} Mouse: {1}",
+                            Console.Write("W?: {0} Mouse: {1} Val:{2:.#}/{3}",
                                 KbM.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W),
-                                (int)valsf[9]);
+                                (int)valsf[9],
+                                valsf[0],
+                                VirtualDevice.ThreshRun * MaxLY/2);
                         }
                         break;
 
@@ -542,13 +545,30 @@ namespace CoolFont
                 if (new_mode == (int)Mode) { return; } // mode is the same as current
                 if (new_mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
-                Mode = (SimulatorMode)new_mode;
-                OldMode = Mode;
+                if (CheckMode(new_mode) == true)
+                {
+                    Mode = (SimulatorMode)new_mode;
+                    OldMode = Mode;
+                }
             }
 
             public void ClickedMode(int clicked_mode)
             {
-                Mode = (SimulatorMode)clicked_mode;
+                if (CheckMode(clicked_mode) == true)
+                {
+                    Mode = (SimulatorMode)clicked_mode;
+                }
+            }
+
+            private bool CheckMode(int new_mode)
+            {
+                if (new_mode != (int)SimulatorMode.ModeMouse ||
+                    new_mode != (int)SimulatorMode.ModePaused ||
+                    new_mode != (int)SimulatorMode.ModeWASD)
+                {
+                    if (vJoyEnabled == false) { return false; }
+                }
+                return true;
             }
 
             public void AddControllerState(State state)
@@ -652,14 +672,11 @@ namespace CoolFont
                 if (!Joystick.vJoyEnabled())
                 {
                     Console.WriteLine("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
-                    Console.WriteLine("Defaulting to KBM simulation.");
-                    Mode = SimulatorMode.ModeWASD;
                     return false;
                 }
                 else
                 {
                     Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString());
-                    Mode = SimulatorMode.ModeJoystickDecoupled;
                 }
 
                 // Get the state of the requested device

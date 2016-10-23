@@ -73,8 +73,9 @@ namespace CoolFont
             /* Set up the simulator */
             
 
-            XInputDeviceManager devMan = new XInputDeviceManager();
-            Controller xDevice = devMan.getController();
+            // XInputDeviceManager devMan = new XInputDeviceManager();
+            // Controller xDevice = devMan.getController();
+            Controller xDevice = null;
 
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
@@ -83,7 +84,8 @@ namespace CoolFont
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
-           
+           // VDevice.LogOutput = true;
+            //Verbose = true;
             new Thread(() =>
             {
                 while (true)
@@ -112,14 +114,16 @@ namespace CoolFont
                         Console.Write("{0}\n", rcvd);
                     if (VDevice.LogOutput) // simulator will write some stuff, then...
                         Console.Write("({0})\n", gapSize);
-                    
-                    if (VDevice.UserIsRunning)
+                    if (LogRcvd == false && VDevice.LogOutput == false)
                     {
-                        Console.Write("\r RUNNING ");
-                    }
-                    else
-                    {
-                        Console.Write("\r ........");
+                        if (VDevice.UserIsRunning)
+                        {
+                            Console.Write("\r RUNNING ");
+                        }
+                        else
+                        {
+                            Console.Write("\r ........");
+                        }
                     }
                 }
               
