@@ -38,7 +38,7 @@ namespace CoolFont
 
             ModeCountDebug,
             ModeCountRelease = 4,
-            ModeDefault = ModeJoystickCoupled,
+            ModeDefault = ModeWASD,
         };
 
         
@@ -549,19 +549,17 @@ namespace CoolFont
                 if (new_mode == (int)Mode) { return; } // mode is the same as current
                 if (new_mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
-                if (CheckMode(new_mode) == true)
-                {
+                if (!CheckMode(new_mode)) { return; }
                     Mode = (SimulatorMode)new_mode;
                     OldMode = Mode;
-                }
+                
             }
 
             public void ClickedMode(int clicked_mode)
             {
-                if (CheckMode(clicked_mode) == true)
-                {
-                    Mode = (SimulatorMode)clicked_mode;
-                }
+                if(!CheckMode(clicked_mode)) { return; }
+                Mode = (SimulatorMode)clicked_mode;
+                
             }
 
             private bool CheckMode(int new_mode)
