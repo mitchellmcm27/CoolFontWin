@@ -25,12 +25,16 @@ namespace CoolFont
              * </summary>*/
 
             private UdpClient Listener;
+            public RegisterService Service;
+
             private byte[] RcvBytes;
             private IPEndPoint SenderEP; // network End Point for the device sending packets
 
             public int Port;
             public bool IsBound = false;
             public string[] LocalAddrs;
+
+            
 
             public UdpListener() : this(0)
             {
@@ -77,7 +81,7 @@ namespace CoolFont
             {
                 bool res = false;
 
-                RegisterService service = new RegisterService();
+                Service = new RegisterService();
                 string name;
 
                 try
@@ -88,22 +92,21 @@ namespace CoolFont
                     name = "PocketStrafe Companion";
                 }
 
-                service.Name = name;
-                service.RegType = "_IAmTheBirdman._udp";
-                service.ReplyDomain = "local.";
-                service.Port = port;
+                Service.Name = name;
+                Service.RegType = "_IAmTheBirdman._udp";
+                Service.ReplyDomain = "local.";
+                Service.Port = port;
 
                 TxtRecord record = null;
 
                 Console.WriteLine("*** Registering name = '{0}', type = '{1}', domain = '{2}'",
-                    service.Name,
-                    service.RegType,
-                    service.ReplyDomain);
+                    Service.Name,
+                    Service.RegType,
+                    Service.ReplyDomain);
 
-                service.Response += OnRegisterServiceResponse;
-                service.Register();
+                Service.Response += OnRegisterServiceResponse;
+                Service.Register();
                 res = true;
-
                 return res;
             }
 
@@ -175,6 +178,7 @@ namespace CoolFont
             }
 
             public int SocketPollInterval = 8 * 1000; // microseconds (us)
+
             public string Poll()
             {
                 bool done = false;
@@ -251,91 +255,7 @@ namespace CoolFont
                 file.WriteLine(port_string);
                 file.Close();
             }
-        }
-
-        public class JavaProc
-        {
-            private Process MyProcess;
-            private int ExitCode;
-
-            public bool Running;
-
-            public JavaProc()
-            {
-                MyProcess = new Process();
-                ExitCode = 0;
-                Running = false;
-            }
-            public void StartDnsService(int port)
-            {
-                try
-                {
-                    MyProcess.StartInfo.UseShellExecute = false;
-                    MyProcess.StartInfo.RedirectStandardError = true;
-                    MyProcess.StartInfo.RedirectStandardOutput = true;
-                    MyProcess.StartInfo.CreateNoWindow = true;
-
-                    MyProcess.StartInfo.FileName = "java.exe"; // for some reason VS calls java 7
-                    String jarfile = "testapp-java.jar";
-                    String arg0 = String.Format("{0}", port); // -r: register, -u: unregister, -b: both (not useful?)
-                    String arg1 = "-r";
-                    MyProcess.StartInfo.Arguments = String.Format("-jar {0} {1} {2}", jarfile, arg0, arg1);
-
-                    MyProcess.Start();
-                    // This code assumes the process you are starting will terminate itself. 
-                    // Given that is is started without a window so you cannot terminate it 
-                    // on the desktop, it must terminate itself or you can do it programmatically
-                    // from this application using the Kill method.
-
-                    //string stdoutx = myProcess.StandardOutput.ReadToEnd();
-                    //string stderrx = myProcess.StandardError.ReadToEnd();
-                    /*
-                    myProcess.WaitForExit();
-                    exitCode = myProcess.ExitCode;
-                    Console.WriteLine("Exit code : {0}", exitCode);
-                    */
-                    //Console.WriteLine("Stdout : {0}", stdoutx);
-                    //Console.WriteLine("Stderr : {0}", stderrx);
-                    try
-                    {
-                        ExitCode = MyProcess.ExitCode;
-                    }
-                    catch (InvalidOperationException ioe)
-                    {
-                    }
-                }
-                catch (System.ComponentModel.Win32Exception w)
-                {
-                    Console.WriteLine(w.Message);
-                    Console.WriteLine(w.ErrorCode.ToString());
-                    Console.WriteLine(w.NativeErrorCode.ToString());
-                    Console.WriteLine(w.StackTrace);
-                    Console.WriteLine(w.Source);
-                    Exception e = w.GetBaseException();
-                    Console.WriteLine(e.Message);
-                }
-
-                if (ExitCode == 1)
-                {
-                    Console.WriteLine("DNS service failed to register. Check location of testapp-java.jar");
-                    Console.WriteLine("Press any key to quit");
-                    Console.ReadKey();
-                    return;
-                }
-                else
-                {
-                    Running = true;
-                    Console.WriteLine("Called java program");
-                }
-            }
-            public void Kill()
-            {
-                MyProcess.Kill();
-                ExitCode = MyProcess.ExitCode;
-                Console.WriteLine("JavaProc Exit code : {0}", ExitCode);
-                Running = false;
-            }
-        }
+        }            
     }
 
     namespace Utils

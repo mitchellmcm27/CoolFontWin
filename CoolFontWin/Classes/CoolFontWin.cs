@@ -19,9 +19,10 @@ namespace CoolFont
         private bool LogRcvd = false;
         private bool Verbose = false;
         private string[] args;
-        private JavaProc JProc = new JavaProc();
 
         public VirtualDevice VDevice;
+        public UdpListener sock;
+        private bool servicePublished;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
@@ -36,7 +37,7 @@ namespace CoolFont
             
             ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
-            UdpListener sock = new UdpListener(tryport);
+            sock = new UdpListener(tryport);
             Port = sock.Port;
 
             if (Port > 0 & sock.IsBound)
@@ -45,11 +46,9 @@ namespace CoolFont
                 FileManager.WritePortToFile(Port, CoolFontWin.PortFile);
             }
 
-            /* Register DNS service through Java */
-            sock.PublishOnPort((short)Port);
-            //JProc.StartDnsService(Port); // blocks
+            /* Register DNS service through Mono.Zeroconf */
+            servicePublished = sock.PublishOnPort((short)Port);
 
-            // check to see if everything is set up?
             ReceiveService(sock);
         }
 
@@ -151,7 +150,7 @@ namespace CoolFont
 
         public void KillOpenProcesses()
         {
-            if (JProc != null & JProc.Running == true) { JProc.Kill(); }
+            if (servicePublished) { sock.Service.Dispose(); }
         }
 
         /*
@@ -161,7 +160,7 @@ namespace CoolFont
         private void Reset_Click(object sender, EventArgs e)
         {
             KillOpenProcesses();
-            if (JProc != null) { JProc.StartDnsService(Port); }// blocks
+            if (sock != null) { sock.PublishOnPort((short)Port); } // blocks
         }
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
