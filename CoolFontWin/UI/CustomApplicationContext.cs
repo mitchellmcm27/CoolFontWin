@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Reflection;
+using System.Diagnostics;
 using CoolFont.UI;
 
 
@@ -55,13 +56,19 @@ namespace CoolFont
 
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.ForeColor = Color.Crimson;
-            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph", ShowGraphFormItem_Clicked);
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] {
-                    new ToolStripSeparator(),
-                    graphItem,
-                    quitItem, });
+                new ToolStripItem[] { new ToolStripSeparator(), quitItem});
+
+            AddDebugMenuItems(); // called only if DEBUG is defined
+        }
+
+        [Conditional("DEBUG")]
+        private void AddDebugMenuItems()
+        {
+            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph (debug only)", ShowGraphFormItem_Clicked);
+            NotifyIcon.ContextMenuStrip.Items.AddRange(
+                new ToolStripItem[] { new ToolStripSeparator(), graphItem});
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
@@ -78,8 +85,11 @@ namespace CoolFont
                 mi.Invoke(NotifyIcon, null);
             }
         }
+
         #region child forms
+
         private GraphForm GraphForm;
+
         private void ShowGraphForm()
         {
             if (GraphForm == null)
@@ -90,7 +100,9 @@ namespace CoolFont
             }
             else { GraphForm.Activate(); }
         }
+
         private void ShowGraphFormItem_Clicked(object sender, EventArgs e) { ShowGraphForm(); }
+
         private void GraphForm_Closed(object sender, EventArgs e) { GraphForm = null; }
 
         #endregion
@@ -107,8 +119,9 @@ namespace CoolFont
         }
 
         static ConsoleEventDelegate handler;   // Keeps it from getting garbage collected
-                                               // Pinvoke
+                                               
         private delegate bool ConsoleEventDelegate(int eventType);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 

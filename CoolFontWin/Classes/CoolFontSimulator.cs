@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.ComponentModel;
 using WindowsInput;
 using vJoyInterfaceWrap;
 using SharpDX.XInput;
@@ -9,26 +9,39 @@ using CoolFont.Utils;
 
 namespace CoolFont
 {
-
-    public enum SimulatorMode
-    {
-        // Controls how the character moves in-game
-        ModePaused = 0,
-        ModeWASD, // Use KB to run forward, mouse to turn
-        ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
-        ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
-        ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
-        ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
-        ModeGamepad, // fully functional gamepad similar to Xbox controller
-
-        ModeDefault = ModeJoystickCoupled,
-    };
-
-    
     namespace Simulator
     {
-        public class VirtualDevice
+        public enum SimulatorMode
         {
+            // Controls how the character moves in-game
+            [Description("Pause")]
+            ModePaused = 0,
+
+            [Description("Keyboard")]
+            ModeWASD, // Use KB to run forward, mouse to turn
+
+            [Description("Joystick (Coupled)")]
+            ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
+
+            [Description("Joystick (Decoupled)")]
+            ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
+
+            [Description("Joystick (Halo)")]
+            ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
+
+            [Description("Mouse")]
+            ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
+
+            [Description("Gamepad")]
+            ModeGamepad, // fully functional gamepad similar to Xbox controller
+
+            ModeCount,
+            ModeDefault = ModeWASD,
+        };
+
+        public class VirtualDevice
+        {  
+
             private long MaxLX = 0;
             private long MinLX = 0;
             private long MaxLY = 0;
@@ -66,6 +79,8 @@ namespace CoolFont
             private bool RightMoustButtonDown = false;  
 
             private double[] Valsf;
+            private int PacketNumber;
+            private static int MaxPacketNumber = 999;
             private int UpdateInterval;
             private uint Id;
 
@@ -73,15 +88,19 @@ namespace CoolFont
             public bool ShouldInterpolate;
             public bool LogOutput = false;
             public bool UserIsRunning = true;
+            public bool vJoyEnabled = false;
 
             // getter and setter allows for future event handling
-            public SimulatorMode Mode { get; set; } 
+            public SimulatorMode Mode { get; set; }
+            public SimulatorMode OldMode;
 
             public double RCFilterStrength;
 
             public VirtualDevice(uint id, int updateInterval)
             {               
                 Mode = SimulatorMode.ModeDefault;
+                OldMode = Mode;
+
                 this.UpdateInterval = updateInterval;
                 this.Id = id;
 
@@ -89,12 +108,12 @@ namespace CoolFont
                 // 0.05 good for mouse movement, 0.15 was a little too smooth
                 // 0.05 probably good for VR, where you don't have to aim with the phone
                 // 0.00 is good for when you have to aim slowly/precisely
-                RCFilterStrength = 0.05;
-
+                RCFilterStrength = 0.1;
+                
                 ShouldInterpolate = false;
                 ConfigureVJoy(this.Id);
-                StartVJoy(this.Id);
-                SetUpVJoy(this.Id);
+                vJoyEnabled = StartVJoy(this.Id);
+                if (vJoyEnabled == true) { SetUpVJoy(this.Id); }
                 KbM = new InputSimulator();
                 ResetValues();
             }
@@ -110,11 +129,29 @@ namespace CoolFont
                     return false;
                 }
 
-                double[] valsf = ParseString(rcvd);
-                if (this.Valsf == null) this.Valsf = valsf;
+                // packet number goes from 0 to 99 (MaxPacketNumber)
+                // when packet number reaches 99, it resets to 0
+                // we want to check if we received an outdated packet
+                int packetNumber = ParsePacketNumber(rcvd);
+
+                // if new packet # is smaller than previous 
+                // and if it's not just the number resetting to 0
+                // e.g. have 99, received 0  ->  99 -> false 
+                // e.g. have 99, received 3  ->  95 -> false
+                // e.g. have 99, received 98 ->   1 -> true
+                // e.g. have 0, received 95  -> -95 -> true
+                // e.g. have 10, received 98 -> -88 -> true
+                if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
+                {
+                    if (ShouldInterpolate) { InterpolateData(); }
+                    return false;
+                }
+
+                this.PacketNumber = packetNumber;
+                double[] valsf = ParseString(rcvd); 
+                if (this.Valsf == null) { this.Valsf = valsf; }
                 Buttons = ParseButtons(rcvd);
                 int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
-
                 UpdateMode(modeIn);
 
                 valsf = ProcessValues(valsf); // converts ints to doubles in generic units
@@ -142,6 +179,24 @@ namespace CoolFont
 
                 AddValues(Valsf);
                 AddButtons(Buttons);
+            }
+
+            private int ParsePacketNumber(string instring)
+            {
+                /* Parse string representation of bitmask (unsigned int) 
+                 * String array is separated by "$"
+                 * Mode bitmask is the 0th string */
+
+                string[] instring_sep = instring.Split('$');
+                string packetNumberString = instring_sep[3];
+                try
+                {
+                    return int.Parse(packetNumberString);
+                }
+                catch
+                {
+                    return 0;
+                }
             }
 
             private double[] ParseString(string instring)
@@ -319,8 +374,8 @@ namespace CoolFont
                 return valsf;
             }
 
-            static private double ThreshRun = 0.7;
-            static private double ThreshWalk = 0.3;
+            static private double ThreshRun = 0.1;
+            static private double ThreshWalk = 0.1;
 
             private void AddValues(double[] valsf)
             {
@@ -328,9 +383,9 @@ namespace CoolFont
                 switch (Mode)
                 {
                     case SimulatorMode.ModeWASD:
-                        KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
+                       //KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] >= VirtualDevice.ThreshRun * MaxLY/2)
+                        if (valsf[0] > VirtualDevice.ThreshRun * MaxLY/2)
                         {
                             KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = true;
@@ -348,9 +403,11 @@ namespace CoolFont
 
                         if (LogOutput)
                         {
-                            Console.Write("W?: {0} Mouse: {1}",
+                            Console.Write("W?: {0} Mouse: {1} Val:{2:.#}/{3}",
                                 KbM.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W),
-                                (int)valsf[9]);
+                                (int)valsf[9],
+                                valsf[0],
+                                VirtualDevice.ThreshRun * MaxLY/2);
                         }
                         break;
 
@@ -483,11 +540,35 @@ namespace CoolFont
 
             }
 
-            private void UpdateMode(int new_mode)
+            public void UpdateMode(int new_mode)
             {
-                if (new_mode == (int)Mode) { return; }
+                if (new_mode == (int)Mode) { return; } // mode is the same as current
+                if (new_mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
-                Mode = (SimulatorMode)new_mode;
+                if (CheckMode(new_mode) == true)
+                {
+                    Mode = (SimulatorMode)new_mode;
+                    OldMode = Mode;
+                }
+            }
+
+            public void ClickedMode(int clicked_mode)
+            {
+                if (CheckMode(clicked_mode) == true)
+                {
+                    Mode = (SimulatorMode)clicked_mode;
+                }
+            }
+
+            private bool CheckMode(int new_mode)
+            {
+                if (new_mode != (int)SimulatorMode.ModeMouse ||
+                    new_mode != (int)SimulatorMode.ModePaused ||
+                    new_mode != (int)SimulatorMode.ModeWASD)
+                {
+                    if (vJoyEnabled == false) { return false; }
+                }
+                return true;
             }
 
             public void AddControllerState(State state)
@@ -575,7 +656,7 @@ namespace CoolFont
                 }
             }
 
-            private void StartVJoy(uint id)
+            private bool StartVJoy(uint id)
             {
                 // Create one joystick object and a position structure.
                 Joystick = new vJoy();
@@ -584,20 +665,18 @@ namespace CoolFont
                 if (id <= 0 || id > 16)
                 {
                     Console.WriteLine("Illegal device ID {0}\nExit!", id);
-                    return;
+                    return false;
                 }
 
                 // Get the driver attributes (Vendor ID, Product ID, Version Number)
                 if (!Joystick.vJoyEnabled())
                 {
                     Console.WriteLine("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
-                    Console.WriteLine("Defaulting to KBM simulation.");
-                    return;
+                    return false;
                 }
                 else
                 {
                     Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString());
-                    Mode = SimulatorMode.ModeJoystickDecoupled;
                 }
 
                 // Get the state of the requested device
@@ -612,13 +691,13 @@ namespace CoolFont
                         break;
                     case VjdStat.VJD_STAT_BUSY:
                         Console.WriteLine("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id);
-                        return;
+                        return false;
                     case VjdStat.VJD_STAT_MISS:
                         Console.WriteLine("vJoy Device {0} is not installed or disabled\nCannot continue\n", id);
-                        return;
+                        return false;
                     default:
                         Console.WriteLine("vJoy Device {0} general error\nCannot continue\n", id);
-                        return;
+                        return false;
                 };
 
                 // Check which axes are supported
@@ -660,13 +739,14 @@ namespace CoolFont
                 if ((status == VjdStat.VJD_STAT_OWN) || ((status == VjdStat.VJD_STAT_FREE) && (!Joystick.AcquireVJD(id))))
                 {
                     Console.WriteLine("Failed to acquire vJoy device number {0}.\n", id);
-                    return;
+                    return false;
                 }
                 else
                 {
                     Console.WriteLine("Acquired: vJoy device number {0}.\n", id);
                 }
 
+                return true;
             }
 
             private void SetUpVJoy(UInt32 id)

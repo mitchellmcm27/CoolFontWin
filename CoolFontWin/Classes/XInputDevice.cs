@@ -12,19 +12,21 @@ namespace CoolFont
 
             public XInputDeviceManager()
             {
+                Console.WriteLine("Initializing xinput Controller");
                 // Initialize XInput
                 Controller = null;
+                Console.WriteLine("Controller is null");
                 controllers = new[] {
                     new Controller(UserIndex.One),
                     new Controller(UserIndex.Two),
                     new Controller(UserIndex.Three),
                     new Controller(UserIndex.Four),
                 };
+                Console.WriteLine("Controller array controllers[] is filled with 4 Controllers");
             }
 
             public Controller getController ()
             {
-            
                 foreach (Controller selectController in controllers)
                 {
                     if (selectController.IsConnected)
