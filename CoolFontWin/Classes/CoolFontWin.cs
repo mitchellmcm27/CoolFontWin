@@ -94,7 +94,8 @@ namespace CoolFont
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
-           
+           // VDevice.LogOutput = true;
+            //Verbose = true;
             new Thread(() =>
             {
                 while (true)
@@ -123,14 +124,16 @@ namespace CoolFont
 
                     if (VDevice.LogOutput) // simulator will write some stuff, then...
                         Console.Write("({0})\n", gapSize);
-                    
-                    if (VDevice.UserIsRunning)
+                    if (LogRcvd == false && VDevice.LogOutput == false)
                     {
-                        Console.Write("\r RUNNING ");
-                    }
-                    else
-                    {
-                        Console.Write("\r ........");
+                        if (VDevice.UserIsRunning)
+                        {
+                            Console.Write("\r RUNNING ");
+                        }
+                        else
+                        {
+                            Console.Write("\r ........");
+                        }
                     }
                 }
               
