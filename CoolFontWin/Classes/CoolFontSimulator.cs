@@ -544,32 +544,34 @@ namespace CoolFont
 
             }
 
-            public void UpdateMode(int new_mode)
+            public void UpdateMode(int mode)
             {
-                if (new_mode == (int)Mode) { return; } // mode is the same as current
-                if (new_mode == (int)OldMode) { return; } // mode incoming from phone is outdated
+                if (mode == (int)Mode) { return; } // mode is the same as current
+                if (mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
-                if (!CheckMode(new_mode)) { return; }
-                    Mode = (SimulatorMode)new_mode;
+                if (!CheckMode(mode)) { return; }
+                    Mode = (SimulatorMode)mode;
                     OldMode = Mode;
                 
             }
 
-            public void ClickedMode(int clicked_mode)
+            public bool ClickedMode(int mode)
             {
-                if(!CheckMode(clicked_mode)) { return; }
-                Mode = (SimulatorMode)clicked_mode;
+                if(!CheckMode(mode)) { return false; }
+                Mode = (SimulatorMode)mode;
+                return true;
                 
             }
 
-            private bool CheckMode(int new_mode)
+            private bool CheckMode(int mode)
             {
-                if (new_mode != (int)SimulatorMode.ModeMouse ||
-                    new_mode != (int)SimulatorMode.ModePaused ||
-                    new_mode != (int)SimulatorMode.ModeWASD)
+                if (mode != (int)SimulatorMode.ModeWASD &&
+                    mode != (int)SimulatorMode.ModePaused &&
+                    mode != (int)SimulatorMode.ModeMouse)
                 {
-                    if (vJoyEnabled == false) { return false; }
+                    return vJoyEnabled;
                 }
+
                 return true;
             }
 

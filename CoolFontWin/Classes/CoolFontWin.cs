@@ -191,7 +191,11 @@ namespace CoolFont
         private void SelectedMode_Click(object sender, EventArgs e)
         {
             Console.WriteLine(sender);
-            VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
+            bool res = VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
+            if (!res)
+            {
+                MessageBox.Show("Unable to switch modes", "Enable vJoy and restart to use this mode", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
