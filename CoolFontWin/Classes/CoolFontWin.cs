@@ -194,7 +194,7 @@ namespace CoolFont
             bool res = VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
             if (!res)
             {
-                MessageBox.Show("Unable to switch modes", "Enable vJoy and restart to use this mode", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Enable vJoy and restart to use this mode", "Unable to switch modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
