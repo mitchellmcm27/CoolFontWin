@@ -17,8 +17,7 @@ namespace CoolFont.AppWinForms
                 if (updateManagerInstance != null)
                     return updateManagerInstance;
 
-                var updateManagerTask =
-                    UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/coolfontwin");
+                var updateManagerTask = UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/CoolFontWin");
                 updateManagerTask.Wait(TimeSpan.FromMinutes(1));
                 updateManagerInstance = updateManagerTask.Result;
                 return updateManagerInstance;

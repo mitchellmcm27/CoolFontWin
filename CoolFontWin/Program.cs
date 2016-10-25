@@ -29,9 +29,10 @@ namespace CoolFont.AppWinForms
             onAppUpdate: OnAppUpdate,
             onAppUninstall: OnAppUninstall,
             onFirstRun: OnFirstRun);
-   */
-   /*
-            using (var mgr = new UpdateManager(""))
+            */
+    
+            /*
+            using (var mgr = new UpdateManager("https://github.com/mitchellmcm27/coolfontwin"))
             {
                 // Note, in most of these scenarios, the app exits after this method
                 // completes!
@@ -39,20 +40,11 @@ namespace CoolFont.AppWinForms
                   onInitialInstall: v => mgr.CreateShortcutForThisExe(),
                   onAppUpdate: v => mgr.CreateShortcutForThisExe(),
                   onAppUninstall: v => mgr.RemoveShortcutForThisExe(),
-                  onFirstRun: () => ShowTheWelcomeWizard = true);
+                  onFirstRun: () => { });
+
             }
             */
-
-
-
-            string version = Assembly.GetExecutingAssembly()
-                                         .GetName()
-                                         .Version
-                                         .ToString();
-            Console.WriteLine("COOL FONT WIN version " + version);
-
-            Console.WriteLine(args);
-
+            
             // Check for app updates via Squirrel
             Task.Run(async () =>
             {
@@ -62,6 +54,15 @@ namespace CoolFont.AppWinForms
                     await mgr.UpdateApp();
                 }            
             });
+            
+
+            string version = Assembly.GetExecutingAssembly()
+                                         .GetName()
+                                         .Version
+                                         .ToString();
+            Console.WriteLine("COOL FONT WIN version " + version);
+
+            Console.WriteLine(args);
 
             try
             {             
@@ -85,8 +86,9 @@ namespace CoolFont.AppWinForms
 
         public static void OnInitialInstall(Version obj)
         {
+            MessageBox.Show("Initial install", "initial install", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             Process.Start("vJoySetup.exe");
-            AppUpdater.CreateShortcutForThisExe();
+           // AppUpdater.CreateShortcutForThisExe();
         }
 
         public static void OnAppUninstall(Version obj)

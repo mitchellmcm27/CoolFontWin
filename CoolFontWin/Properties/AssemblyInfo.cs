@@ -15,7 +15,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 // Make app Squirrel-aware
-[assembly: AssemblyMetadata("SquirrelAwareVersion", "1")]
+// [assembly: AssemblyMetadata("SquirrelAwareVersion", "1")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 

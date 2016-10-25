@@ -46,23 +46,23 @@ namespace CoolFont
         public class VirtualDevice
         {  
 
-            private long MaxLX = 0;
-            private long MinLX = 0;
-            private long MaxLY = 0;
-            private long MinLY = 0;
+            private long MaxLX = 1;
+            private long MinLX = 1;
+            private long MaxLY = 1;
+            private long MinLY = 1;
 
-            private long MaxRX = 0;
-            private long MinRX = 0;
-            private long MaxRY = 0;
-            private long MinRY = 0;
+            private long MaxRX = 1;
+            private long MinRX = 1;
+            private long MaxRY = 1;
+            private long MinRY = 1;
 
-            private long MaxPov = 0;
-            private long MinPov = 0;
+            private long MaxPov = 1;
+            private long MinPov = 1;
 
-            private long MaxLZ = 0;
-            private long MinLZ = 0;
-            private long MaxRZ = 0;
-            private long MinRZ = 0;
+            private long MaxLZ = 1;
+            private long MinLZ = 1;
+            private long MaxRZ = 1;
+            private long MinRZ = 1;
 
             private vJoy Joystick;
             private vJoy.JoystickState iReport;
@@ -145,21 +145,27 @@ namespace CoolFont
                 // e.g. have 99, received 98 ->   1 -> true
                 // e.g. have 0, received 95  -> -95 -> true
                 // e.g. have 10, received 98 -> -88 -> true
+               
                 if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
                 {
                     if (ShouldInterpolate) { InterpolateData(); }
                     return false;
-                }
+                }                
 
                 this.PacketNumber = packetNumber;
-                double[] valsf = ParseString(rcvd); 
+
+                double[] valsf = ParseString(rcvd);
+
                 if (this.Valsf == null) { this.Valsf = valsf; }
+
                 Buttons = ParseButtons(rcvd);
                 int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
                 UpdateMode(modeIn);
 
                 valsf = ProcessValues(valsf); // converts ints to doubles in generic units
+
                 valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
+                Console.WriteLine("{0}", valsf[0]);
 
                 double dt = UpdateInterval / 1000.0 / 1000.0; // s
                 for (int i=0; i < valsf.Length; i++)
@@ -168,7 +174,7 @@ namespace CoolFont
                     valsf[i] = Algorithm.LowPassFilter(valsf[i], this.Valsf[i], RCFilterStrength, dt); // filter vals last
                 }
                 this.Valsf = valsf;
-
+                
                 AddValues(this.Valsf);
                 AddButtons(Buttons);
 
@@ -290,6 +296,10 @@ namespace CoolFont
 
                 valsf[0] = valsf[0] / 1000.0; // 0 to 1
 
+                if ( valsf[0] > 0.1)
+                {
+                }
+
                 valsf[7] = Algorithm.WrapAngle(valsf[7] / 1000.0); // 0 to 360, do not Clamp
                 
 
@@ -347,6 +357,14 @@ namespace CoolFont
                  * Specific to particular joystick
                  * Final step before filtering and adding */
 
+                // Use default valsf for keyboard, mouse modes
+                if (Mode == SimulatorMode.ModeWASD ||
+                    Mode == SimulatorMode.ModeMouse ||
+                    Mode == SimulatorMode.ModePaused)
+                {
+                    return valsf;
+                }
+
                 // Y axis in some modes
                 valsf[0] = valsf[0] * MaxLY / 2;
 
@@ -389,7 +407,7 @@ namespace CoolFont
                     case SimulatorMode.ModeWASD:
                      //   KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
 
-                        if (valsf[0] > VirtualDevice.ThreshRun * MaxLY/2)
+                        if (valsf[0] > VirtualDevice.ThreshRun)
                         {
                             KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = true;

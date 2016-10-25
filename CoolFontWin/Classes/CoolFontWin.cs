@@ -86,7 +86,6 @@ namespace CoolFont
             {
                 xDevice = null;
             }
-
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
 
@@ -95,7 +94,6 @@ namespace CoolFont
             int gapSize = maxGapSize + 1;
 
            // VDevice.LogOutput = true;
-            //Verbose = true;
             new Thread(() =>
             {
                 while (true)
