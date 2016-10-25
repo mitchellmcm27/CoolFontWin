@@ -23,10 +23,10 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://raw.githubusercontent.com/mitchellmcm27/CoolFontWin/master/CoolFontWin/publish/</InstallUrl>
-    <UpdateUrl>https://raw.githubusercontent.com/mitchellmcm27/CoolFontWin/master/CoolFontWin/publish/</UpdateUrl>
+    <InstallUrl>https://s3.amazonaws.com/coolfont.win.app/publish/</InstallUrl>
+    <UpdateUrl>https://s3.amazonaws.com/coolfont.win.app/publish/</UpdateUrl>
     <MinimumRequiredVersion>0.1.0.0</MinimumRequiredVersion>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
