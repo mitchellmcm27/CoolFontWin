@@ -9,7 +9,7 @@ using CoolFont.UI;
 using Squirrel;
 
 
-namespace CoolFont
+namespace CoolFont.AppWinForms
 {
     public class CustomApplicationContext : ApplicationContext
     {
@@ -150,45 +150,6 @@ namespace CoolFont
             ExitThread();       
             Environment.Exit(0);
         }
-
         #endregion
-
-        #region squirrel helper
-
-        internal async void OnAppUpdate(Version obj)
-        {
-            using (var mgr = await UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/coolfontwin"))
-            {
-                mgr.CreateShortcutForThisExe();
-                await mgr.CreateUninstallerRegistryEntry();
-            }
-        }
-
-        internal async void OnInitialInstall(Version obj)
-        {
-            using (var mgr = await UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/coolfontwin"))
-            {
-                Process.Start("vJoySetup.exe");
-
-                mgr.CreateShortcutForThisExe();
-                await mgr.CreateUninstallerRegistryEntry();
-            }
-        }
-
-        internal async void OnAppUninstall(Version obj)
-        {
-            using (var mgr = await UpdateManager.GitHubUpdateManager("https://github.com/mitchellmcm27/coolfontwin"))
-            {
-                mgr.RemoveShortcutForThisExe();
-            }
-        }
-
-        internal void OnFirstRun()
-        {
-
-        }
-
-        #endregion
-
     }
 }
