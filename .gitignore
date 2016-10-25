@@ -147,8 +147,7 @@ DocProject/Help/Html2
 DocProject/Help/html
 
 # Click-Once directory
-# COMMENTED OUT BECAUSE TESTING CLICKONCE DEPLOYMENT THROUGH GITHUB
-# publish/
+ publish/
 
 # Publish Web Output
 *.[Pp]ublish.xml
