@@ -6,8 +6,6 @@ using System.Reflection;
 using System.Diagnostics;
 using CoolFont.UI;
 
-using Squirrel;
-
 
 namespace CoolFont.AppWinForms
 {
