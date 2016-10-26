@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Deployment;
+
 using MutexManager;
 
 namespace CoolFont.AppWinForms
@@ -20,6 +22,9 @@ namespace CoolFont.AppWinForms
             Application.SetCompatibleTextRenderingDefault(false);
 
             var applicationContext = new CustomApplicationContext(args);
+
+            applicationContext.CheckForUpdates();
+
             string version = Assembly.GetExecutingAssembly()
                                          .GetName()
                                          .Version
@@ -39,6 +44,6 @@ namespace CoolFont.AppWinForms
 
             SingleInstance.Stop(); // Release mutex
 
-        }
-    }
+        }        
+    }  
 }

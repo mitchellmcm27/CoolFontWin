@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Reflection;
 using System.Diagnostics;
+using System.Deployment;
+using System.Deployment.Application;
 using CoolFont.UI;
 
 
@@ -14,6 +16,25 @@ namespace CoolFont.AppWinForms
         private static readonly string IconFileName = "tray-icon.ico";
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin Cfw;
+
+        string _Ver;
+        public string Ver
+        {
+            get
+            {
+                Version version;
+                if (ApplicationDeployment.IsNetworkDeployed)
+                {
+                    version = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+                    _Ver = version.ToString();
+                }
+                else
+                {
+                    _Ver = "Debug";
+                }
+                return _Ver;
+            }
+        }
 
         public CustomApplicationContext(string[] args)
         {
@@ -52,13 +73,15 @@ namespace CoolFont.AppWinForms
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
+ 
             Cfw.BuildContextMenu(NotifyIcon.ContextMenuStrip);
 
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
-            quitItem.ForeColor = Color.Crimson;
+            ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
+            versionItem.Enabled = false;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), quitItem});
+                new ToolStripItem[] { new ToolStripSeparator(), quitItem, versionItem });
 
             AddDebugMenuItems(); // called only if DEBUG is defined
         }
@@ -67,8 +90,9 @@ namespace CoolFont.AppWinForms
         private void AddDebugMenuItems()
         {
             ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph (debug only)", ShowGraphFormItem_Clicked);
+
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), graphItem});
+                new ToolStripItem[] { new ToolStripSeparator(), graphItem });
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
@@ -149,5 +173,83 @@ namespace CoolFont.AppWinForms
             Environment.Exit(0);
         }
         #endregion
+        
+        #region updating
+
+        public void CheckForUpdates()
+        {
+            InstallUpdateSyncWithInfo();
+        }
+
+        private void InstallUpdateSyncWithInfo()
+        {
+            UpdateCheckInfo info = null;
+
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
+
+                try
+                {
+                    info = ad.CheckForDetailedUpdate();
+
+                }
+                catch (DeploymentDownloadException dde)
+                {
+                    MessageBox.Show("The new version of the application cannot be downloaded at this time. \n\nPlease check your network connection, or try again later. Error: " + dde.Message);
+                    return;
+                }
+                catch (InvalidDeploymentException ide)
+                {
+                    MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Error: " + ide.Message);
+                    return;
+                }
+                catch (InvalidOperationException ioe)
+                {
+                    MessageBox.Show("This application cannot be updated. It is likely not a ClickOnce application. Error: " + ioe.Message);
+                    return;
+                }
+
+                if (info.UpdateAvailable)
+                {
+                    Boolean doUpdate = true;
+
+                    if (!info.IsUpdateRequired)
+                    {
+                        DialogResult dr = MessageBox.Show("An update is available. Would you like to update the application now?", "Update Available", MessageBoxButtons.OKCancel);
+                        if (!(DialogResult.OK == dr))
+                        {
+                            doUpdate = false;
+                        }
+                    }
+                    else
+                    {
+                        // Display a message that the app MUST reboot. Display the minimum required version.
+                        MessageBox.Show("This application has detected a mandatory update from your current " +
+                            "version to version " + info.MinimumRequiredVersion.ToString() +
+                            ". The application will now install the update and restart.",
+                            "Update Available", MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+
+                    if (doUpdate)
+                    {
+                        try
+                        {
+                            ad.Update();
+                            MessageBox.Show("The application has been upgraded, and will now restart.");
+                            Application.Restart();
+                        }
+                        catch (DeploymentDownloadException dde)
+                        {
+                            MessageBox.Show("Cannot install the latest version of the application. \n\nPlease check your network connection, or try again later. Error: " + dde);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+    
     }
 }
