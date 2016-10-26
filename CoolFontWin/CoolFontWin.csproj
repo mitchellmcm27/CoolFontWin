@@ -25,7 +25,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>https://s3.amazonaws.com/coolfont.win.app/publish/</InstallUrl>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
-    <ApplicationRevision>21</ApplicationRevision>
+    <ApplicationRevision>23</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
