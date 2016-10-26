@@ -8,7 +8,6 @@ using System.Deployment;
 using System.Deployment.Application;
 using CoolFont.UI;
 using System.ComponentModel;
-using MutexManager;
 
 namespace CoolFont.AppWinForms
 {

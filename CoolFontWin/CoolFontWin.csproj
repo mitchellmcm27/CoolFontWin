@@ -138,9 +138,6 @@
     <Reference Include="Mono.Zeroconf.Providers.Bonjour">
       <HintPath>..\lib\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
     </Reference>
-    <Reference Include="MutexManager">
-      <HintPath>..\lib\MutexManager.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\SharpDX.dll</HintPath>
