@@ -189,6 +189,7 @@ namespace CoolFont.AppWinForms
         {
             if (ApplicationDeployment.IsNetworkDeployed)
             {
+                Console.WriteLine("Checking for updates...");
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
                 ad.CheckForUpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_CheckForUpdateProgressChanged);
@@ -204,24 +205,25 @@ namespace CoolFont.AppWinForms
 
         void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
         {
+            Console.WriteLine("Done checking for updates.");
             if (e.Error != null)
             {
-                MessageBox.Show("ERROR: Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
+               // MessageBox.Show("ERROR: Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
                 return;
             }
             else if (e.Cancelled == true)
             {
-                MessageBox.Show("The update was cancelled.");
+               // MessageBox.Show("The update was cancelled.");
             }
 
             // Ask the user if they would like to update the application now.
             if (e.UpdateAvailable)
             {
                 sizeOfUpdate = e.UpdateSizeBytes;
-
+                /*
                 if (!e.IsUpdateRequired)
                 {
-                    DialogResult dr = MessageBox.Show("An update is available. Would you like to update the application now?\n\nEstimated Download Time: ", "Update Available", MessageBoxButtons.OKCancel);
+                    DialogResult dr = MessageBox.Show("An update is available. Would you like to update the application now?", "Update Available", MessageBoxButtons.OKCancel);
                     if (DialogResult.OK == dr)
                     {
                         BeginUpdate();
@@ -232,6 +234,8 @@ namespace CoolFont.AppWinForms
                     MessageBox.Show("A mandatory update is available for your application. We will install the update now, after which we will save all of your in-progress data and restart your application.");
                     BeginUpdate();
                 }
+                */
+                BeginUpdate();
             }
         }
 
@@ -246,32 +250,31 @@ namespace CoolFont.AppWinForms
         }
 
         void ad_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {
-            Ver = String.Format("Downloading update: {0:D}K out of {1:D}K ({2:D}%)", e.BytesCompleted / 1024, e.BytesTotal / 1024, e.ProgressPercentage);
+        {         
         }
 
         void ad_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
-        {
+        {     
             if (e.Cancelled)
             {
-                MessageBox.Show("The update of the application's latest version was cancelled.");
+               //  MessageBox.Show("The update of the application's latest version was cancelled.");
                 return;
             }
             else if (e.Error != null)
             {
-                MessageBox.Show("ERROR: Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
+                // MessageBox.Show("ERROR: Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
                 return;
             }
 
-            /* 
+            
             // update on next launch
+            /*
             DialogResult dr = MessageBox.Show("The application has been updated. Restart? (If you do not restart now, the new version will not take effect until after you quit and launch the application again.)", "Restart Application", MessageBoxButtons.OKCancel);
             if (DialogResult.OK == dr)
             {
                 Application.Restart();
             }
-            */
-            Ver = "Update installed: Restart to apply";
+            */                    
         }
 
         // not used...

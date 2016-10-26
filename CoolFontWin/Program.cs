@@ -16,6 +16,7 @@ namespace CoolFont.AppWinForms
         [STAThread]
         static void Main(string[] args)
         {
+            Console.WriteLine(args.ToString());
 
             Mutex mutex = AcquireMutex();
             if (mutex == null)
@@ -23,23 +24,12 @@ namespace CoolFont.AppWinForms
                 return;
             }
 
-
-           // if (!SingleInstance.Start()) { return; }  // Mutex not obtained so exit
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             var applicationContext = new CustomApplicationContext(args);
 
             applicationContext.CheckForUpdates();
-
-            string version = Assembly.GetExecutingAssembly()
-                                         .GetName()
-                                         .Version
-                                         .ToString();
-            Console.WriteLine("COOL FONT WIN version " + version);
-
-            Console.WriteLine(args);
 
             try
             {
