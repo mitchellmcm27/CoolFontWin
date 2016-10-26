@@ -168,13 +168,7 @@ namespace CoolFont
 
         /*
          * Context menu methods
-         */
-
-        private void Reset_Click(object sender, EventArgs e)
-        {
-            KillOpenProcesses();
-            if (sock != null) { sock.PublishOnPort((short)Port); } // blocks
-        }
+         */ 
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
@@ -224,7 +218,6 @@ namespace CoolFont
                 new ToolStripItem[] {
                     modeItem,
                     modeSubMenu,
-                   ToolStripMenuItemWithHandler("&Reset server", Reset_Click),
                    ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click),
                    ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click),
                 });          

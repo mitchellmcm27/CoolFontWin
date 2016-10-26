@@ -2,11 +2,11 @@
 using System.Reflection;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.Deployment;
 
-using MutexManager;
+//using MutexManager;
 
 namespace CoolFont.AppWinForms
 {
@@ -16,7 +16,15 @@ namespace CoolFont.AppWinForms
         [STAThread]
         static void Main(string[] args)
         {
-            if (!SingleInstance.Start()) { return; }  // Mutex not obtained so exit
+
+            Mutex mutex = AcquireMutex();
+            if (mutex == null)
+            {
+                return;
+            }
+
+
+           // if (!SingleInstance.Start()) { return; }  // Mutex not obtained so exit
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -41,9 +49,20 @@ namespace CoolFont.AppWinForms
             {
                 MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
+        }
 
-            SingleInstance.Stop(); // Release mutex
-
-        }        
+        private static Mutex AcquireMutex()
+        {
+            Mutex appGlobalMutex = new Mutex(false, "mutex");
+            if (!appGlobalMutex.WaitOne(3000))
+            {
+                return null;
+            }
+            return appGlobalMutex;
+        }
     }  
 }
