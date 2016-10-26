@@ -121,18 +121,7 @@ namespace CoolFont
                         Console.Write("{0}\n", rcvd);
 
                     if (VDevice.LogOutput) // simulator will write some stuff, then...
-                        Console.Write("({0})\n", gapSize);
-                    if (LogRcvd == false && VDevice.LogOutput == false)
-                    {
-                        if (VDevice.UserIsRunning)
-                        {
-                            Console.Write("\r RUNNING ");
-                        }
-                        else
-                        {
-                            Console.Write("\r ........");
-                        }
-                    }
+                        Console.Write("({0})\n", gapSize);     
                 }
               
             }).Start(); 
