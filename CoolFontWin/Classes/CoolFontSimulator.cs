@@ -451,8 +451,8 @@ namespace CoolFont
                     case SimulatorMode.ModeJoystickDecoupled:
 
                         /* strafing but no turning*/
-                        LX += (int)valsf[1];
-                        LY += (int)valsf[2];
+                        LX += -(int)valsf[1];
+                        LY += -(int)valsf[2];
 
                         RX += 0;
                         RY += 0;
