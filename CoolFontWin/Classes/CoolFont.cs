@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.IO;
 using Mono.Zeroconf;
 
 namespace CoolFont
@@ -234,26 +235,60 @@ namespace CoolFont
             {
                 try
                 {
+                    Console.WriteLine("Reading port from text file " + filename);
                     System.IO.StreamReader file = new System.IO.StreamReader(filename);
                     string hdr = file.ReadLine();
                     int port = Convert.ToInt32(file.ReadLine());
+
+                    Console.WriteLine("Port " + port.ToString());
                     file.Close();
                     return port;
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("Error: " + e.Message);
                     return 0;
                 }
             }
 
             public static void WritePortToFile(int port, string filename)
             {
-                System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
-                string hdr = "Last successful port:";
-                string port_string = String.Format("{0}", port);
-                file.WriteLine(hdr);
-                file.WriteLine(port_string);
-                file.Close();
+                try
+                {
+                    System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
+                    string hdr = "Last successful port:";
+                    string port_string = String.Format("{0}", port);
+                    file.WriteLine(hdr);
+                    file.WriteLine(port_string);
+                    file.Close();
+
+                    Console.WriteLine("Wrote to file:" + hdr + port_string);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                }
+            }
+
+            public static string FirstOcurrenceOfFile(string dir, string template)
+            {
+                try
+                {
+                    foreach (string d in Directory.GetDirectories(dir))
+                    {
+                        Console.WriteLine("Searching in " + d);
+                        foreach (string f in Directory.GetFiles(d, template))
+                        {
+                            Console.WriteLine("Found " + f);
+                            return f;
+                        }
+                    }
+                }
+                catch
+                {
+                    return "";
+                }
+                return "";
             }
         }            
     }

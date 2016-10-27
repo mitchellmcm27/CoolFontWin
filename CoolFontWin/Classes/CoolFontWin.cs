@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Diagnostics;
 using SharpDX.XInput;
 using CoolFont.IO;
 using CoolFont.Network;
@@ -179,6 +180,52 @@ namespace CoolFont
             }
         }
 
+        private void VJoyConf_Click(object sender, EventArgs e)
+        {
+            string programFilesVJoy = Environment.GetEnvironmentVariable("ProgramFiles") + "\\vjoy\\";
+            string exe = FileManager.FirstOcurrenceOfFile(programFilesVJoy, "vjoyconf.exe");
+            if (exe.Length > 0)
+            {
+                Process.Start(exe);
+            }
+            else
+            {
+                MessageBox.Show("Find and launch Configure vJoy manually", "vJoy not in default directory", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void VJoyMon_Click(object sender, EventArgs e)
+        {
+            string programFilesVJoy = Environment.GetEnvironmentVariable("ProgramFiles") + "\\vjoy\\";
+            Console.WriteLine(programFilesVJoy);
+
+            string exe = FileManager.FirstOcurrenceOfFile(programFilesVJoy, "joymonitor.exe");
+            if (exe.Length > 0)
+            {
+                Process.Start(exe);
+            }
+            else
+            {
+                MessageBox.Show("Find and launch Monitor vJoy manually", "vJoy not in default directory", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }  
+        }
+
+        private void FlipX_Click(object sender, EventArgs e)
+        {
+            if (VDevice != null)
+            {
+                VDevice.signX = -VDevice.signX;
+            }
+        }
+
+        private void FlipY_Click(object sender, EventArgs e)
+        {
+            if (VDevice != null)
+            {
+                VDevice.signY = -VDevice.signY;
+            }
+        }
+
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
@@ -188,8 +235,8 @@ namespace CoolFont
             modeItem.ForeColor = Color.Lavender;
             modeItem.Enabled = false; // not clickable
 
+            // Select Mode submenu
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem("Select Mode");
-
             int numModes;
 #if DEBUG
             numModes = (int)SimulatorMode.ModeCountDebug;
@@ -203,12 +250,32 @@ namespace CoolFont
                 modeSubMenu.DropDownItems.Add(item);
             }
 
+            // vJoy config and monitor
+            ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
+            ToolStripMenuItem flipYitem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
+            ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Configure", VJoyConf_Click);
+            ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Monitor", VJoyMon_Click);
+
+            ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
+            vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
+                flipXItem,
+                flipYitem,
+                vJoyConfItem,
+                vJoyMonItem,
+            });
+
+            // Smoothing factor adjustment
+            ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click);
+            ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click);
+
+            // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     modeItem,
                     modeSubMenu,
-                   ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click),
-                   ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click),
+                    vJoySubMenu,
+                    smoothingDoubleItem,
+                   smoothingHalfItem,
                 });          
         }
 

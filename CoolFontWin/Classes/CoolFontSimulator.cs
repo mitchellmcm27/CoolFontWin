@@ -93,6 +93,8 @@ namespace CoolFont
             public bool LogOutput = false;
             public bool UserIsRunning = true;
             public bool vJoyEnabled = false;
+            public int signX = -1;
+            public int signY = -1;
 
             // getter and setter allows for future event handling
             public SimulatorMode Mode { get; set; }
@@ -437,7 +439,7 @@ namespace CoolFont
 
                         /* no strafing */
                         LX += 0;
-                        LY += -(int)valsf[0];
+                        LY += signY*(int)valsf[0];
                         RX += 0;
                         RY += 0;
                         Pov = (int)valsf[7];
@@ -451,8 +453,8 @@ namespace CoolFont
                     case SimulatorMode.ModeJoystickDecoupled:
 
                         /* strafing but no turning*/
-                        LX += -(int)valsf[1];
-                        LY += -(int)valsf[2];
+                        LX += signX*(int)valsf[1];
+                        LY += signY*(int)valsf[2];
 
                         RX += 0;
                         RY += 0;
@@ -469,7 +471,7 @@ namespace CoolFont
                         // still in testing
 
                         LX += 0; // no strafing
-                        LY += -(int)valsf[0];
+                        LY += signY*(int)valsf[0];
 
                         RX += 0; // look left/right, currently handled by mouse
                         RY += 0; // look up/down
@@ -490,8 +492,8 @@ namespace CoolFont
                         // Full gamepad simulation
                         // NOT FINISHED YET
 
-                        LX += (int)valsf[1];
-                        LY += -(int)valsf[2];
+                        LX += -signX*(int)valsf[1];
+                        LY += signY*(int)valsf[2];
                         RX += (int)valsf[3];
                         RY += -(int)valsf[4];
                         LZ += (int)valsf[6];
