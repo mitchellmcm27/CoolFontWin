@@ -127,30 +127,7 @@ namespace CoolFont
               
             }).Start(); 
         }
-
-        public string GetModeString()
-        {
-            switch (VDevice.Mode)
-            {
-                case SimulatorMode.ModeGamepad:
-                    return "Gamepad";
-                case SimulatorMode.ModeJoystickCoupled:
-                    return "VR: Coupled";
-                case SimulatorMode.ModeJoystickDecoupled:
-                    return "VR: Decoupled";
-                case SimulatorMode.ModeJoystickTurn:
-                    return "VR: Decoupled 2";
-                case SimulatorMode.ModeMouse:
-                    return "Mouse";
-                case SimulatorMode.ModePaused:
-                    return "Paused";
-                case SimulatorMode.ModeWASD:
-                    return "Keyboard/Mouse";
-                default:
-                    return "Unrecognized";
-            }
-        }
-
+        #region WinForms
         public void KillOpenProcesses()
         {
             if (servicePublished) { sock.Service.Dispose(); }
@@ -229,24 +206,24 @@ namespace CoolFont
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();
-            ToolStripMenuItem modeItem = new ToolStripMenuItem(string.Format("Current Mode - {0}", GetModeString()));
-            modeItem.Font = new Font(modeItem.Font, modeItem.Font.Style | FontStyle.Bold);
-            modeItem.BackColor = Color.DarkSlateBlue;
-            modeItem.ForeColor = Color.Lavender;
-            modeItem.Enabled = false; // not clickable
 
-            // Select Mode submenu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem("Select Mode");
-            int numModes;
+            // Mode submenu
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode)));
+            //modeSubMenu.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);         
 #if DEBUG
-            numModes = (int)SimulatorMode.ModeCountDebug;
+            int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
-            numModes = (int)SimulatorMode.ModeCountRelease;
+            int numModes = (int)SimulatorMode.ModeCountRelease;
 #endif
             for (int i=0; i < numModes; i++)
             {
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode value
+                item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Regular);
+                if (i==(int)VDevice.Mode)
+                {
+                    item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
+                }
                 modeSubMenu.DropDownItems.Add(item);
             }
 
@@ -271,9 +248,9 @@ namespace CoolFont
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
-                    modeItem,
                     modeSubMenu,
                     vJoySubMenu,
+                    new ToolStripSeparator(),
                     smoothingDoubleItem,
                    smoothingHalfItem,
                 });          
@@ -295,5 +272,7 @@ namespace CoolFont
             if (eventHandler != null) { item.Click += eventHandler; }
             return item;
         }
+
+        #endregion
     }
 }
