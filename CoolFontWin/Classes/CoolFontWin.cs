@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Diagnostics;
+using System.Threading;
+using System.Drawing;
+
 using SharpDX.XInput;
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
-using System.Threading;
-using System.Drawing;
 
 namespace CoolFont
 {
@@ -153,38 +153,49 @@ namespace CoolFont
             bool res = VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
             if (!res)
             {
-                MessageBox.Show("Enable vJoy and restart to use this mode", "Unable to switch modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Enable vJoy and restart to use this mode", "Unable to switch modes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
             }
         }
 
         private void VJoyConf_Click(object sender, EventArgs e)
         {
-            string programFilesVJoy = Environment.GetEnvironmentVariable("ProgramFiles") + "\\vjoy\\";
-            string exe = FileManager.FirstOcurrenceOfFile(programFilesVJoy, "vjoyconf.exe");
-            if (exe.Length > 0)
-            {
-                Process.Start(exe);
-            }
-            else
-            {
-                MessageBox.Show("Find and launch Configure vJoy manually", "vJoy not in default directory", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            string fname = "vJoyConf.exe";
+            bool launched = FileManager.FindAndLaunch(Properties.Settings.Default.VJoyDir, fname);
+            if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Configure vJoy"); }
+
         }
 
         private void VJoyMon_Click(object sender, EventArgs e)
         {
-            string programFilesVJoy = Environment.GetEnvironmentVariable("ProgramFiles") + "\\vjoy\\";
-            Console.WriteLine(programFilesVJoy);
+            string fname = "JoyMonitor.exe";
+            bool launched = FileManager.FindAndLaunch(Properties.Settings.Default.VJoyDir, fname);
+            if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Monitor vJoy"); }
+        }
 
-            string exe = FileManager.FirstOcurrenceOfFile(programFilesVJoy, "joymonitor.exe");
-            if (exe.Length > 0)
+        private void VJoyOK_Click()
+        {
+            // drop-in replacement for default dialog
+            Ookii.Dialogs.VistaFolderBrowserDialog fbd = new Ookii.Dialogs.VistaFolderBrowserDialog();
+            fbd.Description = "Select vJoy Folder (usually C:\\Program Files\\vJoy)";
+            fbd.UseDescriptionForTitle = true;
+            fbd.ShowNewFolderButton = false;
+            DialogResult result = fbd.ShowDialog();
+            if (!string.IsNullOrWhiteSpace(fbd.SelectedPath))
             {
-                Process.Start(exe);
+                Properties.Settings.Default.VJoyDir = fbd.SelectedPath;
+                Properties.Settings.Default.Save();
             }
-            else
+        }
+
+        private void ShowVJoyNotFoundMessageBox(string fname, string description)
+        {
+            string title = "vJoy not found in default directory";
+            string message = String.Format("If vJoy is installed, you can launch the '{0}' app for Windows or just browse to the vJoy install location manually. \n \n Browse to vJoy folder manually?", description);
+            DialogResult clicked = MessageBox.Show(message, title, MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            if (clicked == DialogResult.OK)
             {
-                MessageBox.Show("Find and launch Monitor vJoy manually", "vJoy not in default directory", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }  
+                VJoyOK_Click();
+            }
         }
 
         private void FlipX_Click(object sender, EventArgs e)
@@ -203,6 +214,9 @@ namespace CoolFont
             }
         }
 
+        /**
+         * Build the main context menu items and submenus
+         * */
         public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
         {
             contextMenuStrip.Items.Clear();

@@ -33,7 +33,7 @@ namespace CoolFont.AppWinForms
 
             try
             {
-                Application.Run(applicationContext);
+                 Application.Run(applicationContext);
             }
             catch (Exception ex)
             {

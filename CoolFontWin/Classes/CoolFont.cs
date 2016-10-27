@@ -270,6 +270,21 @@ namespace CoolFont
                 }
             }
 
+            public static bool FindAndLaunch(string dir, string fname)
+            {
+                Console.WriteLine(dir);
+                string exe = FirstOcurrenceOfFile(dir, fname);
+                if (exe.Length > 0)
+                {
+                    Process.Start(exe);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
             public static string FirstOcurrenceOfFile(string dir, string template)
             {
                 try

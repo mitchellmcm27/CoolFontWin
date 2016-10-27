@@ -7,7 +7,7 @@
     <ProjectGuid>{BA180A90-96C9-422D-916D-4A07643E8558}</ProjectGuid>
     <!--<OutputType>Exe</OutputType>-->
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CoolFontWin</RootNamespace>
+    <RootNamespace>CoolFont</RootNamespace>
     <AssemblyName>CoolFontWin</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -143,6 +143,10 @@
     <Reference Include="Mono.Zeroconf.Providers.Bonjour">
       <HintPath>..\lib\Mono.Zeroconf.Providers.Bonjour.dll</HintPath>
     </Reference>
+    <Reference Include="Ookii.Dialogs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ookii.Dialogs.WindowsForms.1.0\lib\net35\Ookii.Dialogs.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\SharpDX.dll</HintPath>
@@ -213,6 +217,11 @@
     <Compile Include="Classes\InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="Assets\vjoy-sdk-ex.cs" />
     <Compile Include="Classes\InputSimulator\Native\XButton.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="UI\Colors.cs" />
     <Compile Include="UI\CustomApplicationContext.cs" />
     <Compile Include="UI\CustomContextMenuRenderer.cs" />
@@ -227,7 +236,12 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\tray-icon.ico">
