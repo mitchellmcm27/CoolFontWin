@@ -13,7 +13,7 @@ namespace CoolFont.AppWinForms
 {
     public class CustomApplicationContext : ApplicationContext
     {
-        private static readonly string IconFileName = "tray-icon.ico";
+        private static readonly string IconFileName = "Assets//tray-icon.ico";
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin Cfw;
 
