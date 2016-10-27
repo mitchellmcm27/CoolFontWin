@@ -242,10 +242,13 @@ namespace CoolFont
             }
 
             // vJoy config and monitor
-            ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
+            ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);         
             ToolStripMenuItem flipYitem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
+
             ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Configure", VJoyConf_Click);
+            vJoyConfItem.Image = Properties.Resources._383_new_tab;
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Monitor", VJoyMon_Click);
+            vJoyMonItem.Image = Properties.Resources._383_new_tab;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
@@ -257,7 +260,10 @@ namespace CoolFont
 
             // Smoothing factor adjustment
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click);
+            smoothingDoubleItem.Image = Properties.Resources._315_arrow_up2;
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click);
+            smoothingHalfItem.Image = Properties.Resources._319_arrow_down2;
+
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(

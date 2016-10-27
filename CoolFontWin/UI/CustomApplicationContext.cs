@@ -13,7 +13,7 @@ namespace CoolFont.AppWinForms
 {
     public class CustomApplicationContext : ApplicationContext
     {
-        private static readonly string IconFileName = "Assets//tray-icon.ico";
+        //private static readonly string IconFileName = "Assets//tray-icon.ico"; // Now use embedded resource
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin Cfw;
 
@@ -55,7 +55,7 @@ namespace CoolFont.AppWinForms
             NotifyIcon = new NotifyIcon(Components)
             {
                 ContextMenuStrip = new ContextMenuStrip(),
-                Icon = new Icon(CustomApplicationContext.IconFileName),
+                Icon = Properties.Resources.tray_icon,
                 Text = CustomApplicationContext.DefaultTooltip,
                 Visible = true
             };
@@ -79,6 +79,7 @@ namespace CoolFont.AppWinForms
 
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
+            quitItem.Image = Properties.Resources._270_cancel_circle;
             ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
             versionItem.Enabled = false;
 

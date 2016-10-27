@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="VJoyDir" Type="System.String" Scope="User">
-      <Value Profile="(Default)">F:\\Program Files\\vJoy</Value>
+      <Value Profile="(Default)">C:\\Program Files\\vJoy</Value>
     </Setting>
   </Settings>
 </SettingsFile>

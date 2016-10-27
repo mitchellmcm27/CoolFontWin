@@ -25,7 +25,7 @@ namespace CoolFont.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("F:\\\\Program Files\\\\vJoy")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\\\Program Files\\\\vJoy")]
         public string VJoyDir {
             get {
                 return ((string)(this["VJoyDir"]));
