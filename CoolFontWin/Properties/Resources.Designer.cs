@@ -83,6 +83,16 @@ namespace CoolFont.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _269_info {
+            get {
+                object obj = ResourceManager.GetObject("269-info", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap _270_cancel_circle {
             get {
                 object obj = ResourceManager.GetObject("_270_cancel_circle", resourceCulture);
@@ -126,6 +136,26 @@ namespace CoolFont.Properties {
         internal static System.Drawing.Bitmap _383_new_tab {
             get {
                 object obj = ResourceManager.GetObject("_383_new_tab", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap circle_tilted_01 {
+            get {
+                object obj = ResourceManager.GetObject("circle tilted-01", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap lil_dued_in_space_unplugged_smaller_01 {
+            get {
+                object obj = ResourceManager.GetObject("lil_dued_in_space_unplugged_smaller_01", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

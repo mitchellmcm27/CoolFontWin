@@ -34,5 +34,17 @@ namespace CoolFont.Properties {
                 this["VJoyDir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FirstInstall {
+            get {
+                return ((bool)(this["FirstInstall"]));
+            }
+            set {
+                this["FirstInstall"] = value;
+            }
+        }
     }
 }

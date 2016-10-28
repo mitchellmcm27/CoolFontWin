@@ -51,6 +51,15 @@ namespace CoolFont.AppWinForms
 
         private void InitializeContext()
         {
+            if (Properties.Settings.Default.FirstInstall)
+            {
+                Console.WriteLine("First run after install");
+                ShowSuccessfulInstallForm();
+                
+                Properties.Settings.Default.FirstInstall = false;
+                Properties.Settings.Default.Save();
+            }
+
             Components = new System.ComponentModel.Container();
             NotifyIcon = new NotifyIcon(Components)
             {
@@ -116,6 +125,7 @@ namespace CoolFont.AppWinForms
         #region child forms
 
         private GraphForm GraphForm;
+        private SuccessForm SuccessForm;
 
         private void ShowGraphForm()
         {
@@ -128,9 +138,18 @@ namespace CoolFont.AppWinForms
             else { GraphForm.Activate(); }
         }
 
+        private void ShowSuccessfulInstallForm()
+        {
+            if (SuccessForm == null)
+                SuccessForm = new SuccessForm();
+            SuccessForm.Closed += SucessForm_Closed;
+            SuccessForm.Show();
+        }
+
         private void ShowGraphFormItem_Clicked(object sender, EventArgs e) { ShowGraphForm(); }
 
         private void GraphForm_Closed(object sender, EventArgs e) { GraphForm = null; }
+        private void SucessForm_Closed(object sender, EventArgs e) { SuccessForm = null; }
 
         #endregion
 

@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace WindowsFormsApplication1
+namespace CoolFont.UI
 {
-    public partial class Form1 : Form
+    public partial class SuccessForm : Form
     {
-        public Form1()
+        public SuccessForm()
         {
             InitializeComponent();
         }
@@ -33,6 +33,11 @@ namespace WindowsFormsApplication1
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
         {
 
         }
