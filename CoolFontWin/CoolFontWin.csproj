@@ -252,7 +252,9 @@
     <None Include="Resources\BrowseIcon.ico" />
     <None Include="Resources\cog.svg" />
     <None Include="Resources\ConfigImage.bmp" />
-    <None Include="Resources\cog.png" />
+    <None Include="Resources\cog.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\cog-2x.png" />
     <None Include="Resources\share-boxed-2x.png" />
     <None Include="Resources\dashboard-2x.png" />
@@ -267,6 +269,8 @@
     <None Include="Resources\268-minus.png" />
     <None Include="Resources\315-arrow-up2.png" />
     <None Include="Resources\319-arrow-down2.png" />
+    <None Include="Resources\circle straight-01.png" />
+    <None Include="Assets\tray-icon.ico" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
