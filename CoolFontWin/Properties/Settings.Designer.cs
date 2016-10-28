@@ -46,5 +46,17 @@ namespace CoolFont.Properties {
                 this["FirstInstall"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("87")]
+        public int RunForwardKey {
+            get {
+                return ((int)(this["RunForwardKey"]));
+            }
+            set {
+                this["RunForwardKey"] = value;
+            }
+        }
     }
 }

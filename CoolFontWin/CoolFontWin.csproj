@@ -12,22 +12,25 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
+    <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Background</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://coolfont.win.app.s3.amazonaws.com/publish/</InstallUrl>
+    <MapFileExtensions>false</MapFileExtensions>
+    <SupportUrl>http://www.coolfont.co</SupportUrl>
+    <ErrorReportUrl>http://www.coolfont.co</ErrorReportUrl>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
-    <ApplicationRevision>34</ApplicationRevision>
+    <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
+    <ApplicationRevision>38</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -107,8 +110,7 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Assets\tray-icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <Win32Resource>
@@ -135,6 +137,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Zeroconf">
@@ -254,8 +259,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LinkIcon.ico" />
-    <None Include="Resources\BrowseIcon.ico" />
     <None Include="Resources\cog.svg" />
     <None Include="Resources\ConfigImage.bmp" />
     <None Include="Resources\cog.png">
