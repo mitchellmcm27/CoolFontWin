@@ -23,9 +23,9 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://s3.amazonaws.com/coolfont.win.app/publish/</InstallUrl>
+    <InstallUrl>http://coolfont.win.app.s3.amazonaws.com/publish/</InstallUrl>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
-    <ApplicationRevision>25</ApplicationRevision>
+    <ApplicationRevision>34</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -281,9 +281,9 @@
       <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-    <BootstrapperPackage Include="CoolFontWin.Bootstrapper.Package">
+    <BootstrapperPackage Include="CoolFontWin.Dependencies">
       <Visible>False</Visible>
-      <ProductName>CoolFontWin</ProductName>
+      <ProductName>cfwdependencies</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
