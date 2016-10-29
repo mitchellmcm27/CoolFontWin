@@ -12,10 +12,10 @@
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
+    <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Background</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
@@ -23,11 +23,12 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
+    <InstallUrl>http://coolfont.win.app.s3.amazonaws.com/publish/</InstallUrl>
     <SupportUrl>http://www.coolfont.co</SupportUrl>
     <ErrorReportUrl>http://www.coolfont.co</ErrorReportUrl>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>38</ApplicationRevision>
+    <ApplicationRevision>39</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -132,14 +133,15 @@
   <PropertyGroup>
     <TargetZone>Internet</TargetZone>
   </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-  </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Zeroconf">
@@ -288,10 +290,20 @@
     <None Include="Resources\183-switch.png" />
     <None Include="Resources\105-redo2.png" />
     <None Include="Resources\273-checkmark.png" />
+    <None Include="Resources\ic_settings_cell_white_18dp.png" />
+    <None Include="Resources\ic_smartphone_white_18dp.png" />
+    <None Include="Resources\ic_power_settings_new_white_18dp.png" />
     <None Include="Resources\ic_done_white_16dp.png" />
     <None Include="Resources\ic_launch_white_18dp.png" />
-    <None Include="Resources\ic_power_settings_new_white_18dp.png" />
-    <None Include="Resources\ic_settings_cell_white_18dp.png" />
+    <None Include="Resources\ic_phone_iphone_white_18dp.png" />
+    <None Include="Resources\ic_view_day_white_18dp.png" />
+    <None Include="Resources\ic_view_headline_white_18dp.png" />
+    <None Include="Resources\ic_open_in_browser_white_18dp.png" />
+    <None Include="Resources\ic_swap_horiz_white_18dp.png" />
+    <None Include="Resources\ic_swap_vert_white_18dp.png" />
+    <None Include="Resources\ic_call_made_white_18dp.png" />
+    <None Include="Resources\ic_line_weight_white_18dp.png" />
+    <None Include="Resources\ic_line_style_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

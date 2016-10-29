@@ -93,10 +93,10 @@ namespace CoolFont
             public bool LogOutput = false;
             public bool UserIsRunning = true;
             public bool vJoyEnabled = false;
+            public bool CurrentModeIsFromPhone = false;
             public int signX = -1;
             public int signY = -1;
-            public System.Drawing.Bitmap ModeImg;
-
+            
             // getter and setter allows for future event handling
             public SimulatorMode Mode { get; set; }
             public SimulatorMode OldMode;
@@ -122,8 +122,6 @@ namespace CoolFont
                 vJoyEnabled = StartVJoy(this.Id);
                 if (vJoyEnabled == true) { SetUpVJoy(this.Id); }
                 KbM = new InputSimulator();
-
-                ModeImg = Properties.Resources.ic_done_white_16dp; // checkmark
 
                 ResetValues();
             }
@@ -574,18 +572,17 @@ namespace CoolFont
                 if (mode == (int)OldMode) { return; } // mode incoming from phone is outdated
 
                 if (!CheckMode(mode)) { return; }
-                    Mode = (SimulatorMode)mode;
-                    OldMode = Mode;
 
-                ModeImg = Properties.Resources.ic_settings_cell_white_18dp;
-                
+                Mode = (SimulatorMode)mode;
+                OldMode = Mode;
+                this.CurrentModeIsFromPhone = true;  
             }
 
             public bool ClickedMode(int mode)
             {
                 if(!CheckMode(mode)) { return false; }
                 Mode = (SimulatorMode)mode;
-                ModeImg = Properties.Resources.ic_done_white_16dp;
+                this.CurrentModeIsFromPhone = false;
                 return true;
                 
             }

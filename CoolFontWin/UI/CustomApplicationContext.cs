@@ -78,18 +78,23 @@ namespace CoolFont.AppWinForms
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
+
             e.Cancel = false;
- 
-            Cfw.BuildContextMenu(NotifyIcon.ContextMenuStrip);
+
+            NotifyIcon.ContextMenuStrip.Items.Clear();
+
+            ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
+            versionItem.Enabled = false;
+            NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
+
+            Cfw.AddToContextMenu(NotifyIcon.ContextMenuStrip);
 
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.Image = Properties.Resources.ic_power_settings_new_white_18dp;
-            ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
-            versionItem.Enabled = false;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), versionItem, quitItem });
+                new ToolStripItem[] { new ToolStripSeparator(), quitItem });
 
             AddDebugMenuItems(); // called only if DEBUG is defined
         }

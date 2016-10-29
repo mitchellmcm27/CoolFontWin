@@ -217,12 +217,11 @@ namespace CoolFont
         /**
          * Build the main context menu items and submenus
          * */
-        public void BuildContextMenu(ContextMenuStrip contextMenuStrip)
+        public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
         {
-            contextMenuStrip.Items.Clear();
-
             // Mode submenu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode))); 
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode)));
+            modeSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : null;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -236,31 +235,37 @@ namespace CoolFont
                 if (i==(int)VDevice.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
-                    item.Image = VDevice.ModeImg;
+                    item.Image = Properties.Resources.ic_done_white_16dp;
                 }
                 modeSubMenu.DropDownItems.Add(item);
             }
 
             // vJoy config and monitor
-            ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);         
-            ToolStripMenuItem flipYitem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
+            ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
+            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;     
+            ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
+            flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
 
-            ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Configure", VJoyConf_Click);
-            vJoyConfItem.Image = Properties.Resources.ic_launch_white_18dp;
-            ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Monitor", VJoyMon_Click);
-            vJoyMonItem.Image = Properties.Resources.ic_launch_white_18dp;
+            ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Launch Config", VJoyConf_Click);
+            vJoyConfItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
+
+            ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Launch Monitor", VJoyMon_Click);
+            vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
                 flipXItem,
-                flipYitem,
+                flipYItem,
+                new ToolStripSeparator(),
                 vJoyConfItem,
                 vJoyMonItem,
             });
 
             // Smoothing factor adjustment
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
+            smoothingDoubleItem.Image = Properties.Resources.ic_line_weight_white_18dp;
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
+            smoothingHalfItem.Image = Properties.Resources.ic_line_style_white_18dp;
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(

@@ -113,9 +113,9 @@ namespace CoolFont.UI
                     e.Item.ForeColor = Colors.LightText; // Highlight mouse-over text
                     var rect = new Rectangle(2, 0, e.Item.Width - 3, e.Item.Height);
 
-                    using (var b = new SolidBrush(Colors.GreySelection))
+                    using (var b = new SolidBrush(Colors.BlueSelection))
                     {
-                      //  g.FillRectangle(b, rect); // fill or do not fill selected item bg
+                        g.FillRectangle(b, rect); // fill or do not fill selected item bg
                     }
                 }
 
