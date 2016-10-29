@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using SharpDX.XInput;
 
 namespace CoolFont
@@ -52,3 +53,4 @@ namespace CoolFont
         }
     }
 }
+*/

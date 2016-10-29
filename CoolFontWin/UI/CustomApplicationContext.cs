@@ -96,9 +96,11 @@ namespace CoolFont.AppWinForms
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), quitItem });
 
-            AddDebugMenuItems(); // called only if DEBUG is defined
+         //   AddDebugMenuItems(); // called only if DEBUG is defined
         }
 
+        // removed ZedGraph.dll reference
+        /*
         [Conditional("DEBUG")]
         private void AddDebugMenuItems()
         {
@@ -107,6 +109,7 @@ namespace CoolFont.AppWinForms
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), graphItem });
         }
+        */
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
         {
@@ -125,19 +128,7 @@ namespace CoolFont.AppWinForms
 
         #region child forms
 
-        private GraphForm GraphForm;
         private SuccessForm SuccessForm;
-
-        private void ShowGraphForm()
-        {
-            if (GraphForm == null)
-            {
-                GraphForm = new GraphForm { Cfw = this.Cfw };
-                GraphForm.Closed += GraphForm_Closed; // avoid reshowing a disposed form
-                GraphForm.Show();
-            }
-            else { GraphForm.Activate(); }
-        }
 
         private void ShowSuccessfulInstallForm()
         {
@@ -147,9 +138,6 @@ namespace CoolFont.AppWinForms
             SuccessForm.Show();
         }
 
-        private void ShowGraphFormItem_Clicked(object sender, EventArgs e) { ShowGraphForm(); }
-
-        private void GraphForm_Closed(object sender, EventArgs e) { GraphForm = null; }
         private void SucessForm_Closed(object sender, EventArgs e) { SuccessForm = null; }
 
         #endregion

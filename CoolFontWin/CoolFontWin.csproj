@@ -154,14 +154,6 @@
       <HintPath>..\packages\Ookii.Dialogs.WindowsForms.1.0\lib\net35\Ookii.Dialogs.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SharpDX, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.XInput, Version=3.0.2.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\SharpDX.XInput.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Activities.Presentation" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -188,10 +180,6 @@
       <HintPath>..\lib\vJoyInterfaceWrap.dll</HintPath>
     </Reference>
     <Reference Include="WindowsFormsIntegration" />
-    <Reference Include="ZedGraph, Version=1.0.1812.29779, Culture=neutral">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\ZedGraph.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -241,12 +229,6 @@
     </Compile>
     <Compile Include="UI\Success.Designer.cs">
       <DependentUpon>Success.cs</DependentUpon>
-    </Compile>
-    <Compile Include="UI\GraphForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\GraphForm.Designer.cs">
-      <DependentUpon>GraphForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.ComponentModel;
 using WindowsInput;
 using vJoyInterfaceWrap;
-using SharpDX.XInput;
+// using SharpDX.XInput;
 
 using CoolFont.Utils;
 
@@ -599,6 +599,7 @@ namespace CoolFont
                 return true;
             }
 
+            /*
             public void AddControllerState(State state)
             {
                 LX += state.Gamepad.LeftThumbX;
@@ -609,6 +610,7 @@ namespace CoolFont
                 RZ += state.Gamepad.RightTrigger; // not the right scale
                 Buttons = (short)state.Gamepad.Buttons;
             }
+            */
 
             public void FeedVJoy()
             {

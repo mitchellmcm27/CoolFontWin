@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Drawing;
 
-using SharpDX.XInput;
+// using SharpDX.XInput; // removed
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
@@ -75,8 +75,11 @@ namespace CoolFont
         
         private void ReceiveService(UdpListener sock)
         {
-            /* Set up the simulator */
-            Controller xDevice;
+            /* Intercept xInput devices functionality disabled
+             * Removed reference to SharpDX.dll
+             * */
+            /*
+             Controller xDevice;
 
             if (InterceptXInputDevice)
             {
@@ -87,6 +90,8 @@ namespace CoolFont
             {
                 xDevice = null;
             }
+            */
+
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
 
@@ -108,12 +113,14 @@ namespace CoolFont
                     /* Tell vDev whether to fill in missing data */
                     if (gapSize > maxGapSize) { VDevice.ShouldInterpolate = false; }
 
-                    /* Get data from connected XInput device, add to vDev*/         
+                    /* Get data from connected XInput device, add to vDev*/   
+                    /*      
                     if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
                     {
                         State state = xDevice.GetState();
                         VDevice.AddControllerState(state);
                     }
+                    */
 
                     VDevice.FeedVJoy();
                     T++;
