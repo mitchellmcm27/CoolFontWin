@@ -246,9 +246,9 @@ namespace CoolFont
             ToolStripMenuItem flipYitem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
 
             ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Configure", VJoyConf_Click);
-            vJoyConfItem.Image = Properties.Resources._383_new_tab;
+            vJoyConfItem.Image = Properties.Resources._105_redo2;
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Monitor", VJoyMon_Click);
-            vJoyMonItem.Image = Properties.Resources._383_new_tab;
+            vJoyMonItem.Image = Properties.Resources._105_redo2;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
@@ -259,11 +259,10 @@ namespace CoolFont
             });
 
             // Smoothing factor adjustment
-            ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Double smoothing factor", SmoothingDouble_Click);
-            smoothingDoubleItem.Image = Properties.Resources._315_arrow_up2;
-            ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Half smoothing factor", SmoothingHalf_Click);
-            smoothingHalfItem.Image = Properties.Resources._319_arrow_down2;
-
+            ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
+            smoothingDoubleItem.ToolTipText = "Makes running smoother but more difficult.";
+            ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
+            smoothingHalfItem.ToolTipText = "Running is more responsive but choppier.";
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(

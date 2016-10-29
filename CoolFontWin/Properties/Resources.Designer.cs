@@ -63,6 +63,26 @@ namespace CoolFont.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _105_redo2 {
+            get {
+                object obj = ResourceManager.GetObject("_105_redo2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _183_switch {
+            get {
+                object obj = ResourceManager.GetObject("_183_switch", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap _267_plus {
             get {
                 object obj = ResourceManager.GetObject("_267_plus", resourceCulture);
@@ -86,6 +106,16 @@ namespace CoolFont.Properties {
         internal static System.Drawing.Bitmap _269_info {
             get {
                 object obj = ResourceManager.GetObject("269-info", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap _269_info_white {
+            get {
+                object obj = ResourceManager.GetObject("269-info-white", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

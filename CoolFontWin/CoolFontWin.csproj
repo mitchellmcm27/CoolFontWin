@@ -277,12 +277,16 @@
     <None Include="Resources\267-plus.png" />
     <None Include="Resources\268-minus.png" />
     <None Include="Resources\315-arrow-up2.png" />
-    <None Include="Resources\319-arrow-down2.png" />
     <None Include="Resources\circle straight-01.png" />
     <None Include="Assets\tray-icon.ico" />
     <None Include="Resources\lil-dued-in-space_unplugged_smaller-01.png" />
     <None Include="Resources\circle tilted-01.png" />
     <None Include="Resources\269-info.png" />
+    <None Include="Resources\320-arrow-down-left2.png" />
+    <None Include="Resources\319-arrow-down2.png" />
+    <None Include="Resources\269-info1.png" />
+    <None Include="Resources\183-switch.png" />
+    <None Include="Resources\105-redo2.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
