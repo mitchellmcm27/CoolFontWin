@@ -16,6 +16,7 @@ namespace CoolFont.UI
 
             toolStrip.BackColor = Colors.GreyBackground;
             toolStrip.ForeColor = Colors.LightText;
+            toolStrip.ShowItemToolTips = true;
         }
 
         protected override void InitializeItem(ToolStripItem item)
@@ -38,7 +39,7 @@ namespace CoolFont.UI
         protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
         {
             var g = e.Graphics;
-            using (var b = new SolidBrush(Colors.BlueBackground))
+            using (var b = new SolidBrush(Colors.DarkBlueBackground))
             {
                 g.FillRectangle(b, e.AffectedBounds);
             }
@@ -102,7 +103,7 @@ namespace CoolFont.UI
         {
             var g = e.Graphics;
 
-            e.Item.ForeColor = e.Item.Enabled ? Colors.DisabledText : Colors.DisabledText;
+            e.Item.ForeColor = e.Item.Enabled ? Colors.LightText : Colors.DisabledText;
 
             if (e.Item.Enabled)
             {

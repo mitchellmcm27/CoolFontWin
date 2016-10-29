@@ -143,6 +143,16 @@ namespace CoolFont.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _273_checkmark {
+            get {
+                object obj = ResourceManager.GetObject("_273_checkmark", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap _315_arrow_up2 {
             get {
                 object obj = ResourceManager.GetObject("_315_arrow_up2", resourceCulture);
@@ -176,6 +186,46 @@ namespace CoolFont.Properties {
         internal static System.Drawing.Bitmap circle_tilted_01 {
             get {
                 object obj = ResourceManager.GetObject("circle tilted-01", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_done_white_16dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_done_white_16dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_launch_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_launch_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_power_settings_new_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_power_settings_new_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_settings_cell_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_settings_cell_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

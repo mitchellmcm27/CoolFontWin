@@ -222,8 +222,7 @@ namespace CoolFont
             contextMenuStrip.Items.Clear();
 
             // Mode submenu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode)));
-            //modeSubMenu.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);         
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode))); 
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -237,6 +236,7 @@ namespace CoolFont
                 if (i==(int)VDevice.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
+                    item.Image = VDevice.ModeImg;
                 }
                 modeSubMenu.DropDownItems.Add(item);
             }
@@ -246,9 +246,9 @@ namespace CoolFont
             ToolStripMenuItem flipYitem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
 
             ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Configure", VJoyConf_Click);
-            vJoyConfItem.Image = Properties.Resources._105_redo2;
+            vJoyConfItem.Image = Properties.Resources.ic_launch_white_18dp;
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Monitor", VJoyMon_Click);
-            vJoyMonItem.Image = Properties.Resources._105_redo2;
+            vJoyMonItem.Image = Properties.Resources.ic_launch_white_18dp;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
@@ -260,9 +260,7 @@ namespace CoolFont
 
             // Smoothing factor adjustment
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
-            smoothingDoubleItem.ToolTipText = "Makes running smoother but more difficult.";
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
-            smoothingHalfItem.ToolTipText = "Running is more responsive but choppier.";
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(

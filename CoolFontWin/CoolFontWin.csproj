@@ -287,6 +287,11 @@
     <None Include="Resources\269-info1.png" />
     <None Include="Resources\183-switch.png" />
     <None Include="Resources\105-redo2.png" />
+    <None Include="Resources\273-checkmark.png" />
+    <None Include="Resources\ic_done_white_16dp.png" />
+    <None Include="Resources\ic_launch_white_18dp.png" />
+    <None Include="Resources\ic_power_settings_new_white_18dp.png" />
+    <None Include="Resources\ic_settings_cell_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

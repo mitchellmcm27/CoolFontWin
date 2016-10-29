@@ -95,6 +95,7 @@ namespace CoolFont
             public bool vJoyEnabled = false;
             public int signX = -1;
             public int signY = -1;
+            public System.Drawing.Bitmap ModeImg;
 
             // getter and setter allows for future event handling
             public SimulatorMode Mode { get; set; }
@@ -121,6 +122,9 @@ namespace CoolFont
                 vJoyEnabled = StartVJoy(this.Id);
                 if (vJoyEnabled == true) { SetUpVJoy(this.Id); }
                 KbM = new InputSimulator();
+
+                ModeImg = Properties.Resources.ic_done_white_16dp; // checkmark
+
                 ResetValues();
             }
   
@@ -572,6 +576,8 @@ namespace CoolFont
                 if (!CheckMode(mode)) { return; }
                     Mode = (SimulatorMode)mode;
                     OldMode = Mode;
+
+                ModeImg = Properties.Resources.ic_settings_cell_white_18dp;
                 
             }
 
@@ -579,6 +585,7 @@ namespace CoolFont
             {
                 if(!CheckMode(mode)) { return false; }
                 Mode = (SimulatorMode)mode;
+                ModeImg = Properties.Resources.ic_done_white_16dp;
                 return true;
                 
             }

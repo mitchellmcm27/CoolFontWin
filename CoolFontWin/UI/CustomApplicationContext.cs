@@ -84,7 +84,7 @@ namespace CoolFont.AppWinForms
 
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
-            quitItem.Image = Properties.Resources._183_switch;
+            quitItem.Image = Properties.Resources.ic_power_settings_new_white_18dp;
             ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
             versionItem.Enabled = false;
 
