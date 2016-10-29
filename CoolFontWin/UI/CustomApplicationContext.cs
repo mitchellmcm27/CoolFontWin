@@ -69,15 +69,11 @@ namespace CoolFont.AppWinForms
                 Visible = true
             };
             NotifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();
+            NotifyIcon.ContextMenuStrip.ShowItemToolTips = true;
 
-            /* Use custom renderer instead
-            notifyIcon.ContextMenuStrip.BackColor = Color.White;//Ivory;
-            notifyIcon.ContextMenuStrip.ForeColor = Color.DarkSlateGray;
-            notifyIcon.ContextMenuStrip.ShowImageMargin = false; // no images
-            notifyIcon.ContextMenuStrip.DropShadowEnabled = false;
-            */
             NotifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             NotifyIcon.MouseUp += NotifyIcon_MouseUp;
+            
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
