@@ -186,6 +186,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\LogFileManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Classes\XInputDevice.cs" />
     <Compile Include="Classes\CoolFontSimulator.cs" />

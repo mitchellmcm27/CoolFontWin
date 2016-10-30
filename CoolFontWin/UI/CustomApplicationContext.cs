@@ -10,7 +10,7 @@ using CoolFont.UI;
 using System.ComponentModel;
 using log4net;
 
-namespace CoolFont.AppWinForms
+namespace CoolFont
 {
     public class CustomApplicationContext : ApplicationContext
     {

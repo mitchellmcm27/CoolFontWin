@@ -6,7 +6,7 @@ using log4net;
 
 //using MutexManager;
 
-namespace CoolFont.AppWinForms
+namespace CoolFont
 {
     static class Program
     {
@@ -35,14 +35,14 @@ namespace CoolFont.AppWinForms
             var applicationContext = new CustomApplicationContext(args);
 
             applicationContext.CheckForUpdates();
-
+            throw new Exception("TEST");
             try
             {
                 Application.Run(applicationContext);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Program Terminated Unexpectedly", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                log.Error("Unhandled exception: "+ ex);
             }
             finally
             {
@@ -68,6 +68,16 @@ namespace CoolFont.AppWinForms
             Exception e = (Exception)args.ExceptionObject;
             log.Fatal("Unhandled Exception: " + e.Message);
             log.Fatal(String.Format("Runtime terminating: {0}", args.IsTerminating));
+
+           DialogResult res = MessageBox.Show("Would you like to send a report to CoolFont?", 
+               "Program Terminated Unexpectedly", 
+               MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+            if (res==DialogResult.Yes || res==DialogResult.OK)
+            {
+                LogFileManager.EmailLogFile();
+
+            }
+
         }
     }  
 }
