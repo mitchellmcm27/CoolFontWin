@@ -28,7 +28,7 @@
     <ErrorReportUrl>http://www.coolfont.co</ErrorReportUrl>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>39</ApplicationRevision>
+    <ApplicationRevision>42</ApplicationRevision>
     <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -138,7 +138,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
@@ -286,6 +286,8 @@
     <None Include="Resources\ic_call_made_white_18dp.png" />
     <None Include="Resources\ic_line_weight_white_18dp.png" />
     <None Include="Resources\ic_line_style_white_18dp.png" />
+    <None Include="Resources\ic_settings_applications_white_18dp.png" />
+    <None Include="Resources\ic_settings_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

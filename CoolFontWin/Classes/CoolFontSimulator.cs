@@ -169,7 +169,6 @@ namespace CoolFont
                 valsf = ProcessValues(valsf); // converts ints to doubles in generic units
 
                 valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
-                Console.WriteLine("{0}", valsf[0]);
 
                 double dt = UpdateInterval / 1000.0 / 1000.0; // s
                 for (int i=0; i < valsf.Length; i++)
@@ -182,6 +181,11 @@ namespace CoolFont
                 AddValues(this.Valsf);
                 AddButtons(Buttons);
 
+                // received packet after a long delay
+                if (!ShouldInterpolate)
+                {
+                    Console.WriteLine(DateTime.Now.TimeOfDay + "--Began receiving.");
+                }
                 ShouldInterpolate = true;
                 return true;
             }

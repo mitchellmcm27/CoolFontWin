@@ -37,9 +37,11 @@ namespace CoolFont
         public void StartService()
         {
             
+            
             ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
             sock = new UdpListener(tryport);
+            
             Port = sock.Port;
 
             if (Port > 0 & sock.IsBound)
@@ -102,6 +104,7 @@ namespace CoolFont
            // VDevice.LogOutput = true;
             new Thread(() =>
             {
+                Console.WriteLine(DateTime.Now.TimeOfDay + "--Ready to receive data.");
                 while (true)
                 {
 
@@ -109,9 +112,18 @@ namespace CoolFont
                     string rcvd = sock.Poll();
                     bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
+                    
+                    if (gapSize == maxGapSize)
+                    {
+                        Console.WriteLine(DateTime.Now.TimeOfDay + "--Waiting for data...");
+                    }
 
                     /* Tell vDev whether to fill in missing data */
-                    if (gapSize > maxGapSize) { VDevice.ShouldInterpolate = false; }
+                    if (gapSize > maxGapSize)
+                    {
+                        VDevice.ShouldInterpolate = false;
+                        continue;                        
+                    }
 
                     /* Get data from connected XInput device, add to vDev*/   
                     /*      
@@ -260,6 +272,7 @@ namespace CoolFont
             vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
+            vJoySubMenu.Image = Properties.Resources.ic_settings_white_18dp;
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
                 flipXItem,
                 flipYItem,

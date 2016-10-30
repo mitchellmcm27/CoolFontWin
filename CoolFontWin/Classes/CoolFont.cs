@@ -154,6 +154,16 @@ namespace CoolFont
                 return received_data;
             }
 
+            public void MakeFirewallPopup()
+            {
+                IPAddress ipAddress = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
+                IPEndPoint ipLocalEndPoint = new IPEndPoint(ipAddress, 12345);
+
+                TcpListener t = new TcpListener(ipLocalEndPoint);
+                t.Start();
+                t.Stop();
+            }
+
             public string ReceiveStringAsync()
             {
                 bool done = false;
