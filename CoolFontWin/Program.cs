@@ -17,8 +17,7 @@ namespace CoolFont.AppWinForms
         static void Main(string[] args)
         {
             log.Info("===APP STARTUP===");
-            log.Info("CoolFontWin Version " + AssemblyInfo.Version);
-
+            
             log.Debug(args.ToString());
 
             Mutex mutex = AcquireMutex();

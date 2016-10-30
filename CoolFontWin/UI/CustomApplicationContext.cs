@@ -199,6 +199,7 @@ namespace CoolFont.AppWinForms
         {
             if (ApplicationDeployment.IsNetworkDeployed)
             {
+                log.Info("CoolFontWin Version " + Ver);
                 log.Info("Checking for updates...");
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
@@ -216,6 +217,7 @@ namespace CoolFont.AppWinForms
         void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
         {
             log.Info("Done checking for updates.");
+            
             if (e.Error != null)
             {
                // MessageBox.Show("ERROR: Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
@@ -228,6 +230,7 @@ namespace CoolFont.AppWinForms
 
             if (e.UpdateAvailable)
             {
+                log.Info("Update available. Beginning... ");
                 BeginUpdate();
             }
         }
