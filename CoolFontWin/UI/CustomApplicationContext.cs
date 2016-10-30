@@ -96,10 +96,26 @@ namespace CoolFont.AppWinForms
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.Image = Properties.Resources.ic_power_settings_new_white_18dp;
 
+            ToolStripMenuItem logItem = Cfw.ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
+
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), quitItem });
+                new ToolStripItem[] { new ToolStripSeparator(), logItem, quitItem });
 
          //   AddDebugMenuItems(); // called only if DEBUG is defined
+        }
+
+        private void ViewLog_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                log.Info(path + "\\CoolFontWin\\Log.txt");
+                Process.Start(path + "\\CoolFontWin\\Log.txt");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error opening Log.txt: " + ex);
+            }
         }
 
         // removed ZedGraph.dll reference
