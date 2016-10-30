@@ -237,7 +237,7 @@ namespace CoolFont
             
             if (e.Error != null)
             {
-               // MessageBox.Show("ERROR: Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
+               log.Error("Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
                 return;
             }
             else if (e.Cancelled == true)
@@ -270,12 +270,12 @@ namespace CoolFont
         {     
             if (e.Cancelled)
             {
-               //  MessageBox.Show("The update of the application's latest version was cancelled.");
+                log.Info("The update of the application's latest version was cancelled.");
                 return;
             }
             else if (e.Error != null)
             {
-                // MessageBox.Show("ERROR: Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
+                log.Error("Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
                 return;
             }
 

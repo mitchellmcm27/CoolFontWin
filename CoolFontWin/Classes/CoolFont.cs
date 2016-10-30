@@ -63,21 +63,34 @@ namespace CoolFont
                     throw new WebException("Must have a reachable network address.");
                 }
 
-                IPEndPoint bindEP = new IPEndPoint(IPAddress.Parse(LocalAddrs[0]), listenPort);
-                SenderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
-
                 Listener = new UdpClient();
                 Listener.ExclusiveAddressUse = false;
 
                 /* Client is the underlying Socket */
                 Listener.Client.SetSocketOption(SocketOptionLevel.Socket,
-                                                SocketOptionName.ReuseAddress, true);
+                                SocketOptionName.ReuseAddress, true);
 
                 /* Bind the socket to a good local address */
-                Listener.Client.Bind(bindEP);
+                IPEndPoint bindEP;
+                try
+                {
+                    bindEP = new IPEndPoint(IPAddress.Parse(LocalAddrs[0]), listenPort);
+                    Listener.Client.Bind(bindEP);
+                }
+                catch (SocketException sockEx)
+                {
+                    log.Warn("Unable to bind to socket: " + sockEx);
+                    log.Info("Trying a random port");
+                    bindEP = new IPEndPoint(IPAddress.Parse(LocalAddrs[0]), 0); // randomly select a port
+                    Listener.Client.Bind(bindEP);
+                }
+
                 IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
                 Port = localEP.Port;
                 IsBound = Listener.Client.IsBound;
+
+                SenderEP = new IPEndPoint(IPAddress.Any, 0); // will be overwritten by the packet
+
                 log.Info("Listening on " + Listener.Client.LocalEndPoint);
             }
 
@@ -246,6 +259,7 @@ namespace CoolFont
         {
             private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
             public static int TryToReadPortFromFile(string filename)
             {
                 try
