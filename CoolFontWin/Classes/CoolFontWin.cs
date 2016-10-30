@@ -247,7 +247,7 @@ namespace CoolFont
         {
             // Mode submenu
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(VDevice.Mode)));
-            modeSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : null;
+            modeSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else

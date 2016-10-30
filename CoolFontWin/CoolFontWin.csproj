@@ -293,6 +293,7 @@
     <None Include="Resources\ic_line_style_white_18dp.png" />
     <None Include="Resources\ic_settings_applications_white_18dp.png" />
     <None Include="Resources\ic_settings_white_18dp.png" />
+    <None Include="Resources\ic_link_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

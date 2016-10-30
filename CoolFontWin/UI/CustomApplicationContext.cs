@@ -97,6 +97,7 @@ namespace CoolFont
             quitItem.Image = Properties.Resources.ic_power_settings_new_white_18dp;
 
             ToolStripMenuItem logItem = Cfw.ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
+            logItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), logItem, quitItem });
