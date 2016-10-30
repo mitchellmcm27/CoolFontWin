@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.IO;
 using Mono.Zeroconf;
+using log4net;
 
 namespace CoolFont
 {
@@ -24,6 +25,8 @@ namespace CoolFont
              * You can access the underlying UdpClient listener using the public .Listener property.
              * You can access the underlying Socket using the public .listener.Client property.
              * </summary>*/
+            private static readonly ILog log =
+                LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             private UdpClient Listener;
             public RegisterService Service;
@@ -75,7 +78,7 @@ namespace CoolFont
                 IPEndPoint localEP = (IPEndPoint)Listener.Client.LocalEndPoint;
                 Port = localEP.Port;
                 IsBound = Listener.Client.IsBound;
-                Console.WriteLine("Listening on " + Listener.Client.LocalEndPoint);
+                log.Info("Listening on " + Listener.Client.LocalEndPoint);
             }
 
             public bool PublishOnPort(short port)
@@ -100,10 +103,10 @@ namespace CoolFont
 
                 TxtRecord record = null;
 
-                Console.WriteLine("*** Registering name = '{0}', type = '{1}', domain = '{2}'",
+                log.Info(String.Format("!! Registering name = '{0}', type = '{1}', domain = '{2}'",
                     Service.Name,
                     Service.RegType,
-                    Service.ReplyDomain);
+                    Service.ReplyDomain));
 
                 Service.Response += OnRegisterServiceResponse;
                 Service.Register();
@@ -116,14 +119,14 @@ namespace CoolFont
                 switch (args.ServiceError)
                 {
                     case ServiceErrorCode.NameConflict:
-                        Console.WriteLine("*** Name Collision! '{0}' is already registered",
-                            args.Service.Name);
+                        log.Error(String.Format("!! Name Collision! '{0}' is already registered",
+                            args.Service.Name));
                         break;
                     case ServiceErrorCode.None:
-                        Console.WriteLine("*** Registered name = '{0}'", args.Service.Name);
+                        log.Info(String.Format("!! Registered name = '{0}'", args.Service.Name));
                         break;
                     case ServiceErrorCode.Unknown:
-                        Console.WriteLine("*** Error registering name = '{0}'", args.Service.Name);
+                        log.Error(String.Format("!! Error registering name = '{0}'", args.Service.Name));
                         break;
                 }
             }
@@ -148,7 +151,7 @@ namespace CoolFont
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
+                   log.Error(e.ToString());
                 }
 
                 return received_data;
@@ -241,22 +244,24 @@ namespace CoolFont
     {
         public static class FileManager
         {
+            private static readonly ILog log =
+                LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
             public static int TryToReadPortFromFile(string filename)
             {
                 try
                 {
-                    Console.WriteLine("Reading port from text file " + filename);
+                    log.Info("Reading port from text file " + filename);
                     System.IO.StreamReader file = new System.IO.StreamReader(filename);
                     string hdr = file.ReadLine();
                     int port = Convert.ToInt32(file.ReadLine());
 
-                    Console.WriteLine("Port " + port.ToString());
+                    log.Info("Port " + port.ToString());
                     file.Close();
                     return port;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error: " + e.Message);
+                    log.Error("Error: " + e.Message);
                     return 0;
                 }
             }
@@ -272,17 +277,17 @@ namespace CoolFont
                     file.WriteLine(port_string);
                     file.Close();
 
-                    Console.WriteLine("Wrote to file:" + hdr + port_string);
+                    log.Info("Wrote to file:" + hdr + port_string);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error: " + e.Message);
+                    log.Info("Error: " + e.Message);
                 }
             }
 
             public static bool FindAndLaunch(string dir, string fname)
             {
-                Console.WriteLine(dir);
+                log.Info("Searching in " + dir + " for " + fname);
                 string exe = FirstOcurrenceOfFile(dir, fname);
                 if (exe.Length > 0)
                 {
@@ -301,10 +306,10 @@ namespace CoolFont
                 {
                     foreach (string d in Directory.GetDirectories(dir))
                     {
-                        Console.WriteLine("Searching in " + d);
+                        log.Info("Searching in " + d);
                         foreach (string f in Directory.GetFiles(d, template))
                         {
-                            Console.WriteLine("Found " + f);
+                            log.Info("Found " + f);
                             return f;
                         }
                     }

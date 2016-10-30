@@ -37,3 +37,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.1.*")] // only change for non-backwards compatible builds
 [assembly: AssemblyInformationalVersion("0.1")] // consumer-facing description of project version, could be anything
+
+// Logging
+[assembly: log4net.Config.XmlConfigurator(Watch = true)]

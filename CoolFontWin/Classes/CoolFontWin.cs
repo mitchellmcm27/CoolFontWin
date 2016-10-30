@@ -9,11 +9,15 @@ using System.Drawing;
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
+using log4net;
 
 namespace CoolFont
 {
     public class CoolFontWin
     {
+        private static readonly ILog log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private int Port;
         private readonly NotifyIcon NotifyIcon;
 
@@ -101,38 +105,39 @@ namespace CoolFont
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
-           // VDevice.LogOutput = true;
+            // VDevice.LogOutput = true;
+         
             new Thread(() =>
             {
-                Console.WriteLine(DateTime.Now.TimeOfDay + "--Ready to receive data.");
+                log.Info("!! Ready to receive data.");
                 while (true)
                 {
 
-                    /* get data from iPhone socket, add to vDev */
+                /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.Poll();
                     bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
-                    
+
                     if (gapSize == maxGapSize)
                     {
-                        Console.WriteLine(DateTime.Now.TimeOfDay + "--Waiting for data...");
+                        log.Info("!! Waiting for data...");
                     }
 
-                    /* Tell vDev whether to fill in missing data */
+                /* Tell vDev whether to fill in missing data */
                     if (gapSize > maxGapSize)
                     {
                         VDevice.ShouldInterpolate = false;
-                        continue;                        
+                    continue;
                     }
 
-                    /* Get data from connected XInput device, add to vDev*/   
-                    /*      
-                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
-                    {
-                        State state = xDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }
-                    */
+                /* Get data from connected XInput device, add to vDev*/
+                /*      
+                if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
+                {
+                    State state = xDevice.GetState();
+                    VDevice.AddControllerState(state);
+                }
+                */
 
                     VDevice.FeedVJoy();
                     T++;
@@ -141,10 +146,12 @@ namespace CoolFont
                         Console.Write("{0}\n", rcvd);
 
                     if (VDevice.LogOutput) // simulator will write some stuff, then...
-                        Console.Write("({0})\n", gapSize);     
+                    Console.Write("({0})\n", gapSize);
                 }
-              
-            }).Start(); 
+
+            }).Start();
+            
+  
         }
         #region WinForms
         public void KillOpenProcesses()
@@ -168,7 +175,7 @@ namespace CoolFont
 
         private void SelectedMode_Click(object sender, EventArgs e)
         {
-            Console.WriteLine(sender);
+            log.Debug(sender);
             bool res = VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
             if (!res)
             {

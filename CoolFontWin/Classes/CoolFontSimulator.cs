@@ -3,9 +3,11 @@ using System.Diagnostics;
 using System.ComponentModel;
 using WindowsInput;
 using vJoyInterfaceWrap;
+
 // using SharpDX.XInput;
 
 using CoolFont.Utils;
+using log4net;
 
 namespace CoolFont
 {
@@ -44,7 +46,9 @@ namespace CoolFont
         
 
         public class VirtualDevice
-        {  
+        {
+            private static readonly ILog log =
+    LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             private long MaxLX = 1;
             private long MinLX = 1;
@@ -184,7 +188,7 @@ namespace CoolFont
                 // received packet after a long delay
                 if (!ShouldInterpolate)
                 {
-                    Console.WriteLine(DateTime.Now.TimeOfDay + "--Began receiving.");
+                    log.Info("!! Began receiving.");
                 }
                 ShouldInterpolate = true;
                 return true;
@@ -698,19 +702,19 @@ namespace CoolFont
 
                 if (id <= 0 || id > 16)
                 {
-                    Console.WriteLine("Illegal device ID {0}\nExit!", id);
+                    log.Info(String.Format("Illegal device ID {0}\nExit!", id));
                     return false;
                 }
 
                 // Get the driver attributes (Vendor ID, Product ID, Version Number)
                 if (!Joystick.vJoyEnabled())
                 {
-                    Console.WriteLine("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
+                    log.Info("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
                     return false;
                 }
                 else
                 {
-                    Console.WriteLine("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString());
+                    log.Info(String.Format("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString()));
                 }
 
                 // Get the state of the requested device
@@ -718,19 +722,19 @@ namespace CoolFont
                 switch (status)
                 {
                     case VjdStat.VJD_STAT_OWN:
-                        Console.WriteLine("vJoy Device {0} is already owned by this feeder\n", id);
+                        log.Info(String.Format("vJoy Device {0} is already owned by this feeder\n", id));
                         break;
                     case VjdStat.VJD_STAT_FREE:
-                        Console.WriteLine("vJoy Device {0} is free\n", id);
+                        log.Info(String.Format("vJoy Device {0} is free\n", id));
                         break;
                     case VjdStat.VJD_STAT_BUSY:
-                        Console.WriteLine("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id);
+                        log.Info(String.Format("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id));
                         return false;
                     case VjdStat.VJD_STAT_MISS:
-                        Console.WriteLine("vJoy Device {0} is not installed or disabled\nCannot continue\n", id);
+                        log.Info(String.Format("vJoy Device {0} is not installed or disabled\nCannot continue\n", id));
                         return false;
                     default:
-                        Console.WriteLine("vJoy Device {0} general error\nCannot continue\n", id);
+                        log.Info(String.Format("vJoy Device {0} general error\nCannot continue\n", id));
                         return false;
                 };
 
@@ -746,38 +750,38 @@ namespace CoolFont
                 int DiscPovNumber = Joystick.GetVJDDiscPovNumber(id);
 
                 // Print results
-                Console.WriteLine("\nvJoy Device {0} capabilities:\n", id);
-                Console.WriteLine("Numner of buttons\t\t{0}\n", nButtons);
-                Console.WriteLine("Numner of Continuous POVs\t{0}\n", ContPovNumber);
-                Console.WriteLine("Numner of Descrete POVs\t\t{0}\n", DiscPovNumber);
-                Console.WriteLine("Axis X\t\t{0}\n", AxisX ? "Yes" : "No");
-                Console.WriteLine("Axis Y\t\t{0}\n", AxisX ? "Yes" : "No");
-                Console.WriteLine("Axis Z\t\t{0}\n", AxisX ? "Yes" : "No");
-                Console.WriteLine("Axis Rx\t\t{0}\n", AxisRX ? "Yes" : "No");
-                Console.WriteLine("Axis Rz\t\t{0}\n", AxisRZ ? "Yes" : "No");
+                log.Info(String.Format("\nvJoy Device {0} capabilities:\n", id));
+                log.Info(String.Format("Numner of buttons\t\t{0}\n", nButtons));
+                log.Info(String.Format("Numner of Continuous POVs\t{0}\n", ContPovNumber));
+                log.Info(String.Format("Numner of Descrete POVs\t\t{0}\n", DiscPovNumber));
+                log.Info(String.Format("Axis X\t\t{0}\n", AxisX ? "Yes" : "No"));
+                log.Info(String.Format("Axis Y\t\t{0}\n", AxisX ? "Yes" : "No"));
+                log.Info(String.Format("Axis Z\t\t{0}\n", AxisX ? "Yes" : "No"));
+                log.Info(String.Format("Axis Rx\t\t{0}\n", AxisRX ? "Yes" : "No"));
+                log.Info(String.Format("Axis Rz\t\t{0}\n", AxisRZ ? "Yes" : "No"));
 
                 // Test if DLL matches the driver
                 UInt32 DllVer = 0, DrvVer = 0;
                 bool match = Joystick.DriverMatch(ref DllVer, ref DrvVer);
                 if (match)
                 {
-                    Console.WriteLine("Version of Driver Matches DLL Version ({0:X})\n", DllVer);
+                    log.Info(String.Format("Version of Driver Matches DLL Version ({0:X})\n", DllVer));
                 }
                 else
                 {
-                    Console.WriteLine("Version of Driver ({0:X}) does NOT match DLL Version ({1:X})\n", DrvVer, DllVer);
+                    log.Info(String.Format("Version of Driver ({0:X}) does NOT match DLL Version ({1:X})\n", DrvVer, DllVer));
                 }
 
 
                 // Acquire the target
                 if ((status == VjdStat.VJD_STAT_OWN) || ((status == VjdStat.VJD_STAT_FREE) && (!Joystick.AcquireVJD(id))))
                 {
-                    Console.WriteLine("Failed to acquire vJoy device number {0}.\n", id);
+                    log.Info(String.Format("Failed to acquire vJoy device number {0}.\n", id));
                     return false;
                 }
                 else
                 {
-                    Console.WriteLine("Acquired: vJoy device number {0}.\n", id);
+                    log.Info(String.Format("Acquired: vJoy device number {0}.\n", id));
                 }
 
                 return true;

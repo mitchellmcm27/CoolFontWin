@@ -8,12 +8,15 @@ using System.Deployment;
 using System.Deployment.Application;
 using CoolFont.UI;
 using System.ComponentModel;
+using log4net;
 
 namespace CoolFont.AppWinForms
 {
     public class CustomApplicationContext : ApplicationContext
     {
-        //private static readonly string IconFileName = "Assets//tray-icon.ico"; // Now use embedded resource
+        private static readonly ILog log =
+                LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private CoolFontWin Cfw;
 
@@ -53,7 +56,7 @@ namespace CoolFont.AppWinForms
         {
             if (Properties.Settings.Default.FirstInstall)
             {
-                Console.WriteLine("First run after install");
+                log.Info("First run after install");
                 ShowSuccessfulInstallForm();
                 
                 Properties.Settings.Default.FirstInstall = false;
@@ -196,7 +199,7 @@ namespace CoolFont.AppWinForms
         {
             if (ApplicationDeployment.IsNetworkDeployed)
             {
-                Console.WriteLine("Checking for updates...");
+                log.Info("Checking for updates...");
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
                 ad.CheckForUpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_CheckForUpdateProgressChanged);
@@ -212,7 +215,7 @@ namespace CoolFont.AppWinForms
 
         void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
         {
-            Console.WriteLine("Done checking for updates.");
+            log.Info("Done checking for updates.");
             if (e.Error != null)
             {
                // MessageBox.Show("ERROR: Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
