@@ -35,7 +35,7 @@ namespace CoolFont
             var applicationContext = new CustomApplicationContext(args);
 
             applicationContext.CheckForUpdates();
-            throw new Exception("TEST");
+
             try
             {
                 Application.Run(applicationContext);
