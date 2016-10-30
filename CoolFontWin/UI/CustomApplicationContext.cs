@@ -242,7 +242,7 @@ namespace CoolFont
             }
             else if (e.Cancelled == true)
             {
-               // MessageBox.Show("The update was cancelled.");
+               log.Info("The update was cancelled.");
             }
 
             if (e.UpdateAvailable)
