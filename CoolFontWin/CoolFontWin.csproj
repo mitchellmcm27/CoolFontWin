@@ -22,10 +22,12 @@
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>false</MapFileExtensions>
+    <MapFileExtensions>true</MapFileExtensions>
     <InstallUrl>http://coolfont.win.app.s3.amazonaws.com/publish/</InstallUrl>
     <SupportUrl>http://www.coolfont.co</SupportUrl>
     <ErrorReportUrl>http://www.coolfont.co</ErrorReportUrl>
+    <ProductName>CoolFontWin</ProductName>
+    <PublisherName>CoolFont</PublisherName>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
