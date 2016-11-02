@@ -150,6 +150,10 @@
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.DirectX.DirectInput, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectInput.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Zeroconf">
       <HintPath>..\lib\Mono.Zeroconf.dll</HintPath>
     </Reference>
@@ -188,6 +192,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\SendInputWrapper.cs" />
     <Compile Include="Classes\LogFileManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Classes\XInputDevice.cs" />
