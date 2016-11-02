@@ -28,7 +28,9 @@ namespace CoolFont
 
         public VirtualDevice VDevice;
         public UdpListener sock;
+        public UdpListener sock2;
         private bool servicePublished;
+        private bool servicePublished2;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
@@ -43,9 +45,10 @@ namespace CoolFont
             ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
             sock = new UdpListener(tryport);
-            
+      
             Port = sock.Port;
 
+            sock2 = new UdpListener(Port + 1);
             if (Port > 0 & sock.IsBound)
             {
                 // write successful port to file for next time
@@ -54,8 +57,12 @@ namespace CoolFont
 
             /* Register DNS service through Mono.Zeroconf */
             servicePublished = sock.PublishOnPort((short)Port);
+            servicePublished2 = sock.PublishOnPort((short)(Port+1));
 
-            ReceiveService(sock);
+            VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
+            VDevice.LogOutput = Verbose; // T or F
+
+            ReceiveService(sock, sock2);
         }
 
         private void ProcessArgs()
@@ -77,7 +84,7 @@ namespace CoolFont
             }
         }
         
-        private void ReceiveService(UdpListener sock)
+        private void ReceiveService(UdpListener sock, UdpListener sock2)
         {
             /* Intercept xInput devices functionality disabled
              * Removed reference to SharpDX.dll
@@ -96,15 +103,12 @@ namespace CoolFont
             }
             */
 
-            VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
-            VDevice.LogOutput = Verbose; // T or F
-
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
 
             // VDevice.LogOutput = true;
-         
+            LogRcvd = true;
             new Thread(() =>
             {
                 log.Info("!! Ready to receive data.");
@@ -113,8 +117,13 @@ namespace CoolFont
 
                 /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.Poll();
+                    string rcvd2 = sock2.Poll();        
+
+                    VDevice.ResetValues();
                     bool res = VDevice.HandleNewData(rcvd);
-                    gapSize = (res == true) ? 0 : gapSize + 1;
+                    bool res2 = VDevice.HandleNewData(rcvd2);
+
+                    gapSize = (res == true || res2 == true) ? 0 : gapSize + 1;
 
                     if (gapSize == maxGapSize)
                     {
@@ -141,9 +150,12 @@ namespace CoolFont
                     T++;
 
                     if (LogRcvd && (T % 1 == 0))
+                    {
                         Console.Write("{0}\n", rcvd);
+                        Console.Write("{0}\n", rcvd2);
+                    }
 
-                    if (VDevice.LogOutput) // simulator will write some stuff, then...
+                        if (VDevice.LogOutput) // simulator will write some stuff, then...
                     Console.Write("({0})\n", gapSize);
                 }
 

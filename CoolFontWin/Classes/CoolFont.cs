@@ -204,20 +204,19 @@ namespace CoolFont
                 return received_data;
             }
 
-            public int SocketPollInterval = 8 * 1000; // microseconds (us)
+            public int SocketPollInterval = 8 * 1000 * 2; // microseconds (us)
 
             public string Poll()
             {
                 bool done = false;
-                string received_data = "";
                 Listener.Client.Blocking = false;
                 if (Listener.Client.Poll(SocketPollInterval, SelectMode.SelectRead))
                 {
                     RcvBytes = Listener.Receive(ref SenderEP);
-                    received_data = Encoding.ASCII.GetString(RcvBytes, 0, RcvBytes.Length);
+                    return Encoding.ASCII.GetString(RcvBytes, 0, RcvBytes.Length);
                 }
 
-                return received_data;
+                return "";
             }
 
             public void Close()

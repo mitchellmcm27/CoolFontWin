@@ -132,7 +132,6 @@ namespace CoolFont
   
             public bool HandleNewData(string rcvd)
             {
-                ResetValues();
 
                 if (rcvd.Length == 0)
                 {
@@ -144,6 +143,7 @@ namespace CoolFont
                 // packet number goes from 0 to 99 (MaxPacketNumber)
                 // when packet number reaches 99, it resets to 0
                 // we want to check if we received an outdated packet
+                /*
                 int packetNumber = ParsePacketNumber(rcvd);
 
                 // if new packet # is smaller than previous 
@@ -159,8 +159,9 @@ namespace CoolFont
                     if (ShouldInterpolate) { InterpolateData(); }
                     return false;
                 }                
+                */
 
-                this.PacketNumber = packetNumber;
+               // this.PacketNumber = packetNumber;
 
                 double[] valsf = ParseString(rcvd);
 
@@ -278,7 +279,7 @@ namespace CoolFont
                 }
             }
 
-            private void ResetValues()
+            public void ResetValues()
             {
                 LX = (int)MaxLX / 2;
                 LY = (int)MaxLY / 2;
