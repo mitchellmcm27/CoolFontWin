@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Threading;
 using System.Drawing;
+using System.Collections.Generic;
+
 
 // using SharpDX.XInput; // removed
 using CoolFont.IO;
@@ -18,51 +20,23 @@ namespace CoolFont
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private int Port;
+        ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
+        ManualResetEvent _pauseEvent = new ManualResetEvent(true);
+
         private readonly NotifyIcon NotifyIcon;
 
         private bool LogRcvd = false;
         private bool Verbose = false;
         private bool InterceptXInputDevice = false;
         private string[] args;
+        private UdpListener[] socks;
 
         public VirtualDevice VDevice;
-        public UdpListener sock;
-        public UdpListener sock2;
-        private bool servicePublished;
-        private bool servicePublished2;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
             this.NotifyIcon = notifyIcon;
             this.args = args;
-        }
-
-        static public string PortFile = "last-port.txt";
-
-        public void StartService()
-        {
-            ProcessArgs();
-            int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
-            sock = new UdpListener(tryport);
-      
-            Port = sock.Port;
-
-            sock2 = new UdpListener(Port + 1);
-            if (Port > 0 & sock.IsBound)
-            {
-                // write successful port to file for next time
-                FileManager.WritePortToFile(Port, CoolFontWin.PortFile);
-            }
-
-            /* Register DNS service through Mono.Zeroconf */
-            servicePublished = sock.PublishOnPort((short)Port);
-            servicePublished2 = sock.PublishOnPort((short)(Port+1));
-
-            VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
-            VDevice.LogOutput = Verbose; // T or F
-
-            ReceiveService(sock, sock2);
         }
 
         private void ProcessArgs()
@@ -82,9 +56,65 @@ namespace CoolFont
                     InterceptXInputDevice = true;
                 }
             }
+
         }
-        
-        private void ReceiveService(UdpListener sock, UdpListener sock2)
+
+        static public string PortFile = "last-port.txt";
+
+        public void StartServices()
+        {
+            this.StartServices(new string[] { "" });
+        }
+
+        public void StartServices(string[] names)
+        {
+            ProcessArgs();
+
+            socks = new UdpListener[names.Length];
+            bool[] servicePublished = new bool[names.Length];
+            int[] tryports = new int[names.Length];
+
+            List<int> portsFromFile = FileManager.TryToReadPortsFromFile(CoolFontWin.PortFile); // returns 0 if none
+
+            for (int i = 0; i < tryports.Length; i++)
+            {
+                try
+                {
+                    tryports[i] = portsFromFile[i];
+                }
+                catch
+                {
+                    tryports[i] = 0;
+                }
+            }
+
+            for (int i = 0; i < socks.Length; i++)
+            {
+                socks[i] = new UdpListener(tryports[i]);
+
+                if (socks[i].Port > 0 && socks[i].IsBound)
+                {
+                    // write successful port to file for next time
+                    FileManager.WritePortToLine(socks[i].Port, i, CoolFontWin.PortFile);
+                }
+            }
+
+
+            /* Register DNS service through Mono.Zeroconf */
+            for (int i = 0; i < socks.Length; i++)
+            {
+                servicePublished[i] = socks[i].PublishOnPort((short)socks[i].Port, names[i]);
+            }
+
+            VDevice = new VirtualDevice(1, socks[0].SocketPollInterval); // will change Mode if necessary
+            VDevice.LogOutput = Verbose; // T or F
+
+            Thread ReceiveThread = new Thread(ReceiveService);
+
+            ReceiveThread.Start();
+        }
+
+        private void ReceiveService()
         {
             /* Intercept xInput devices functionality disabled
              * Removed reference to SharpDX.dll
@@ -106,39 +136,40 @@ namespace CoolFont
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
+            string[] rcvds = new string[socks.Length];
 
             // VDevice.LogOutput = true;
             LogRcvd = true;
-            new Thread(() =>
+
+            log.Info("!! Ready to receive data.");
+            while (true)
             {
-                log.Info("!! Ready to receive data.");
-                while (true)
-                {
 
                 /* get data from iPhone socket, add to vDev */
-                    string rcvd = sock.Poll();
-                    string rcvd2 = sock2.Poll();        
 
-                    VDevice.ResetValues();
-                    bool res = VDevice.HandleNewData(rcvd);
-                    bool res2 = VDevice.HandleNewData(rcvd2);
+                bool res = false;
+                for (int i = 0; i < socks.Length; i++)
+                {
+                    rcvds[i] = socks[i].Poll();
+                    res = VDevice.HandleNewData(rcvds[i]);
+                }
 
-                    gapSize = (res == true || res2 == true) ? 0 : gapSize + 1;
+                gapSize = (res == true) ? 0 : gapSize + 1;
+                /*
+                if (gapSize == maxGapSize)
+                {
+                    log.Info("!! Waiting for data...");
+                }
 
-                    if (gapSize == maxGapSize)
-                    {
-                        log.Info("!! Waiting for data...");
-                    }
-
-                /* Tell vDev whether to fill in missing data */
-                    if (gapSize > maxGapSize)
-                    {
-                        VDevice.ShouldInterpolate = false;
+                // Tell vDev whether to fill in missing data 
+                if (gapSize > maxGapSize)
+                {
+                    // VDevice.ShouldInterpolate = false;
                     continue;
-                    }
+                }
 
-                /* Get data from connected XInput device, add to vDev*/
-                /*      
+                //Get data from connected XInput device, add to vDev
+        
                 if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
                 {
                     State state = xDevice.GetState();
@@ -146,27 +177,25 @@ namespace CoolFont
                 }
                 */
 
-                    VDevice.FeedVJoy();
-                    T++;
+                VDevice.FeedVJoy();
+                VDevice.ResetValues();
+                T++;
 
-                    if (LogRcvd && (T % 1 == 0))
-                    {
-                        Console.Write("{0}\n", rcvd);
-                        Console.Write("{0}\n", rcvd2);
-                    }
-
-                        if (VDevice.LogOutput) // simulator will write some stuff, then...
-                    Console.Write("({0})\n", gapSize);
+                if (LogRcvd && (T % 10 == 0))
+                {
+                    Console.Write("\n" + rcvds.Length.ToString());
+                    Console.Write("{0}\n", string.Join(".....", rcvds));
                 }
 
-            }).Start();
-            
-  
+                if (VDevice.LogOutput) // simulator will write some stuff, then...
+                    Console.Write("({0})\n", gapSize);
+            }
         }
+
+
         #region WinForms
         public void KillOpenProcesses()
         {
-            if (servicePublished) { sock.Service.Dispose(); }
         }
 
         /*
@@ -250,6 +279,18 @@ namespace CoolFont
             }
         }
 
+        private void AddDevice_Click(object sender, EventArgs e)
+        {
+            var devicesCol = Properties.Settings.Default.ConnectedDevices;
+            devicesCol.Add("Secondary");
+            string[] devices = new string[devicesCol.Count];
+            devicesCol.CopyTo(devices, 0);
+
+            Properties.Settings.Default.ConnectedDevices = devicesCol;
+            Properties.Settings.Default.Save();
+
+        }
+
         /**
          * Build the main context menu items and submenus
          * */
@@ -304,6 +345,10 @@ namespace CoolFont
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
             smoothingHalfItem.Image = Properties.Resources.ic_line_style_white_18dp;
 
+            // Connect to multiple devices, add device
+            ToolStripMenuItem addDeviceItem = ToolStripMenuItemWithHandler(String.Format("Add device ({0})", socks.Length), AddDevice_Click);
+            addDeviceItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
+
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
@@ -311,7 +356,9 @@ namespace CoolFont
                     vJoySubMenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
-                   smoothingHalfItem,
+                    smoothingHalfItem,
+                    new ToolStripSeparator(),
+                    addDeviceItem,
                 });          
         }
 

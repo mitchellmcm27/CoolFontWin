@@ -94,7 +94,7 @@ namespace CoolFont
                 log.Info("Listening on " + Listener.Client.LocalEndPoint);
             }
 
-            public bool PublishOnPort(short port)
+            public bool PublishOnPort(short port, string appendToName)
             {
                 bool res = false;
 
@@ -108,6 +108,8 @@ namespace CoolFont
                 {
                     name = "PocketStrafe Companion";
                 }
+
+                name += (" - " + appendToName);
 
                 Service.Name = name;
                 Service.RegType = "_IAmTheBirdman._udp";
@@ -204,7 +206,7 @@ namespace CoolFont
                 return received_data;
             }
 
-            public int SocketPollInterval = 8 * 1000 * 2; // microseconds (us)
+            public int SocketPollInterval = 8 * 1000; // microseconds (us)
 
             public string Poll()
             {
@@ -259,42 +261,79 @@ namespace CoolFont
             private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-            public static int TryToReadPortFromFile(string filename)
+            public static List<int> TryToReadPortsFromFile(string filename)
             {
+                var ports = new List<int>();
+                
+                log.Info("Reading ports from text file " + filename);
+
                 try
                 {
-                    log.Info("Reading port from text file " + filename);
-                    System.IO.StreamReader file = new System.IO.StreamReader(filename);
-                    string hdr = file.ReadLine();
-                    int port = Convert.ToInt32(file.ReadLine());
+                    var lines = File.ReadLines(filename);
 
-                    log.Info("Port " + port.ToString());
-                    file.Close();
-                    return port;
+                    foreach (var line in lines)
+                    {
+                        try
+                        {
+                            ports.Add(Convert.ToInt32(line));
+                        }
+                        catch (FormatException fe)
+                        {
+                            log.Error("Unable to convert to int: " + fe.Message);
+                            log.Info("Setting port to 0");
+                            ports.Add(0);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
-                    log.Error("Error: " + e.Message);
-                    return 0;
+                    log.Error("Unable to read port file: " + e.Message);
+                    log.Info("Returning null");
+                    return null;
                 }
+
+                log.Info("Read ports: " + String.Join(",",ports.ToArray()));
+                return ports;
             }
 
-            public static void WritePortToFile(int port, string filename)
+            public static void WriteLinesToFile(string []lines, string filename)
             {
                 try
                 {
-                    System.IO.StreamWriter file = new System.IO.StreamWriter(filename);
-                    string hdr = "Last successful port:";
-                    string port_string = String.Format("{0}", port);
-                    file.WriteLine(hdr);
-                    file.WriteLine(port_string);
-                    file.Close();
-
-                    log.Info("Wrote to file:" + hdr + port_string);
+                    File.AppendAllLines(filename, lines);
+                    log.Info("Wrote to file: " + String.Join("\n",lines));
                 }
                 catch (Exception e)
                 {
                     log.Info("Error: " + e.Message);
+                }
+            }
+
+            public static void WritePortToLine(int port, int line, string filename)
+            {
+
+                try
+                {
+                    string []linesFromFile = File.ReadAllLines(filename);
+
+                    if (line < linesFromFile.Length)
+                    {
+                        linesFromFile[line] = port.ToString();
+                    }
+                    else
+                    {
+                        List<string> stringList = new List<string>(linesFromFile);
+                        stringList.Add(port.ToString());
+
+                        linesFromFile = stringList.ToArray();
+                    }
+                    File.WriteAllLines(filename, linesFromFile);
+
+                    log.Info("Wrote port to file: " + port.ToString());
+                }
+                catch (Exception e)
+                {
+                    log.Error("Could not write port " + port.ToString() + "to line " + line.ToString() + "of file " + filename + ": " + e.Message);       
                 }
             }
 

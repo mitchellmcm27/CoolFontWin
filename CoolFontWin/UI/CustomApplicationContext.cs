@@ -46,7 +46,10 @@ namespace CoolFont
             SetConsoleCtrlHandler(handler, true);
             InitializeContext();
             Cfw = new CoolFontWin(NotifyIcon, args);
-            Cfw.StartService();
+            var devicesCol = Properties.Settings.Default.ConnectedDevices;
+            string[] devices = new string[devicesCol.Count];
+            devicesCol.CopyTo(devices, 0);
+            Cfw.StartServices(devices);
         }
 
         private System.ComponentModel.IContainer Components;
