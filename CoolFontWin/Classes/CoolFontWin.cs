@@ -42,7 +42,6 @@ namespace CoolFont
         {
             ProcessArgs();
             int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
-            tryport = tryport == 0 ? 5678 : tryport; // default
             sock = new UdpListener(tryport);
             
             Port = sock.Port;
