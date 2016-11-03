@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ComponentModel;
+using SharpDX.XInput;
 using WindowsInput;
 using vJoyInterfaceWrap;
 
 // using SharpDX.XInput;
 
 using CoolFont.Utils;
+using CoolFont.IO;
 using log4net;
 
 namespace CoolFont
@@ -407,7 +409,7 @@ namespace CoolFont
                 valsf[9] = valsf[9] * VirtualDevice.MouseSens;
 
                 return valsf;
-            }
+            }     
 
             static private double ThreshRun = 0.1;
             static private double ThreshWalk = 0.1;
@@ -418,16 +420,19 @@ namespace CoolFont
                 switch (Mode)
                 {
                     case SimulatorMode.ModeWASD:
-                     //   KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
-
+                        //   KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
                         if (valsf[0] > VirtualDevice.ThreshRun)
                         {
-                            KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
+                            
+                            SendInputWrapper.KeyDown(SendInputWrapper.ScanCodeShort.KEY_W);
+                            //KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = true;
+                            Console.WriteLine("W DOWN");
                         }
-                        else
+                        else if (valsf[0] <= VirtualDevice.ThreshRun)
                         {
-                            KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
+                            SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
+                            //KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
                             UserIsRunning = false;
                         }
 
@@ -608,18 +613,18 @@ namespace CoolFont
                 return true;
             }
 
-            /*
+            
             public void AddControllerState(State state)
             {
-                LX += state.Gamepad.LeftThumbX;
-                LY -= state.Gamepad.LeftThumbY; // inverted 
-                RX += state.Gamepad.RightThumbX;
-                RY += state.Gamepad.RightThumbY;
+                LX += state.Gamepad.LeftThumbX/2;
+                LY -= state.Gamepad.LeftThumbY/2; // inverted 
+                RX += state.Gamepad.RightThumbX/2;
+                RY += state.Gamepad.RightThumbY/2;
                 LZ += state.Gamepad.LeftTrigger; // not the right scale
                 RZ += state.Gamepad.RightTrigger; // not the right scale
                 Buttons = (short)state.Gamepad.Buttons;
             }
-            */
+            
 
             public void FeedVJoy()
             {

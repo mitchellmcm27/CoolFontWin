@@ -6,8 +6,7 @@ using System.Threading;
 using System.Drawing;
 using System.Collections.Generic;
 
-
-// using SharpDX.XInput; // removed
+using SharpDX.XInput;
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
@@ -27,7 +26,7 @@ namespace CoolFont
 
         private bool LogRcvd = false;
         private bool Verbose = false;
-        private bool InterceptXInputDevice = false;
+        private bool InterceptXInputDevice = true;
         private string[] args;
         private UdpListener[] socks;
 
@@ -119,10 +118,10 @@ namespace CoolFont
             /* Intercept xInput devices functionality disabled
              * Removed reference to SharpDX.dll
              * */
-            /*
-             Controller xDevice;
+            
+            Controller xDevice;
 
-            if (InterceptXInputDevice)
+            if (this.InterceptXInputDevice)
             {
                 XInputDeviceManager devMan = new XInputDeviceManager();
                 xDevice = devMan.getController();
@@ -131,7 +130,7 @@ namespace CoolFont
             {
                 xDevice = null;
             }
-            */
+            
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
@@ -161,6 +160,11 @@ namespace CoolFont
                     log.Info("!! Waiting for data...");
                 }
 
+                    /* Tell vDev whether to fill in missing data */
+                    if (gapSize > maxGapSize)
+                    {
+                        VDevice.ShouldInterpolate = false;                        
+                    }
                 // Tell vDev whether to fill in missing data 
                 if (gapSize > maxGapSize)
                 {
@@ -168,14 +172,14 @@ namespace CoolFont
                     continue;
                 }
 
-                //Get data from connected XInput device, add to vDev
-        
-                if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
-                {
-                    State state = xDevice.GetState();
-                    VDevice.AddControllerState(state);
-                }
-                */
+                    // Get data from connected XInput device, add to vDev
+                   
+                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
+                    {
+                        State state = xDevice.GetState();
+                        VDevice.AddControllerState(state);
+                    }
+                
 
                 VDevice.FeedVJoy();
                 VDevice.ResetValues();
