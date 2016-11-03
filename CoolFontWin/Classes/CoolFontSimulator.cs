@@ -588,14 +588,20 @@ namespace CoolFont
 
                 Mode = (SimulatorMode)mode;
                 OldMode = Mode;
-                this.CurrentModeIsFromPhone = true;  
+                this.CurrentModeIsFromPhone = true;
+                log.Info("Obtained mode from phone: " + Mode.ToString());  
             }
 
             public bool ClickedMode(int mode)
             {
-                if(!CheckMode(mode)) { return false; }
+                if(!CheckMode(mode))
+                {
+                    log.Debug("Seleted mode not available. vJoy not enabled? "+ Mode.ToString());
+                    return false;
+                }
                 Mode = (SimulatorMode)mode;
                 this.CurrentModeIsFromPhone = false;
+                log.Info("Obtained mode from CFW menu: " + Mode.ToString());
                 return true;
                 
             }
@@ -611,8 +617,7 @@ namespace CoolFont
 
                 return true;
             }
-
-            
+         
             public void AddControllerState(State state)
             {
                 LX += state.Gamepad.LeftThumbX/2;
@@ -635,7 +640,7 @@ namespace CoolFont
                 /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
                 if (!Joystick.UpdateVJD(Id, ref iReport))
                 {
-                   // Console.WriteLine("vJoy device {0} not enabled. Enable, then press Enter. \n", Id);
+                   log.Error(String.Format("vJoy device {0} not enabled. Enable, then press Enter. \n", Id));
                    // Console.ReadKey(true);
                    // Joystick.AcquireVJD(Id);
                     return;
