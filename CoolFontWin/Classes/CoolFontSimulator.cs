@@ -50,7 +50,7 @@ namespace CoolFont
         public class VirtualDevice
         {
             private static readonly ILog log =
-    LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+                LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
             private long MaxLX = 1;
             private long MinLX = 1;

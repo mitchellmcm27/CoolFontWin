@@ -1,6 +1,7 @@
 ﻿
 using System;
 using SharpDX.XInput;
+using log4net;
 
 namespace CoolFont
 {
@@ -8,22 +9,24 @@ namespace CoolFont
     { 
         class XInputDeviceManager
         {
+            private static readonly ILog log =
+                LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
             public Controller Controller { get; set; }
             private Controller[] controllers;
 
             public XInputDeviceManager()
             {
-                Console.WriteLine("Initializing xinput Controller");
+                log.Info("Initializing xinput Controller.");
                 // Initialize XInput
                 Controller = null;
-                Console.WriteLine("Controller is null");
                 controllers = new[] {
                     new Controller(UserIndex.One),
                     new Controller(UserIndex.Two),
                     new Controller(UserIndex.Three),
                     new Controller(UserIndex.Four),
                 };
-                Console.WriteLine("Controller array controllers[] is filled with 4 Controllers");
+                log.Info("Controller array initialized.");
             }
 
             public Controller getController ()
@@ -33,19 +36,20 @@ namespace CoolFont
                     if (selectController.IsConnected)
                     {
                         Controller = selectController;
+                        log.Info("Found Controller.");
                         break;
                     }
                 }
 
                 if (Controller == null)
                 {
-                    Console.WriteLine("No XInput controller installed");
+                    log.Info("No XInput controller installed");
                 }
 
                 else
                 {
-                    Console.WriteLine("Found a XInput controller available");
-                    Console.WriteLine(Controller.GetCapabilities(DeviceQueryType.Any));
+                    log.Info("Found a XInput controller available");
+                    log.Info(Controller.GetCapabilities(DeviceQueryType.Any));
                 }
 
                 return Controller;
