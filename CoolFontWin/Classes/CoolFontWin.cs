@@ -26,7 +26,7 @@ namespace CoolFont
 
         private bool LogRcvd = false;
         private bool Verbose = false;
-        private bool InterceptXInputDevice = true;
+        private volatile bool InterceptXInputDevice = false;
         private string[] args;
         private UdpListener[] socks;
 
@@ -115,22 +115,8 @@ namespace CoolFont
 
         private void ReceiveService()
         {
-            /* Intercept xInput devices functionality disabled
-             * Removed reference to SharpDX.dll
-             * */
-            
-            Controller xDevice;
-
-            if (this.InterceptXInputDevice)
-            {
-                XInputDeviceManager devMan = new XInputDeviceManager();
-                xDevice = devMan.getController();
-            }
-            else
-            {
-                xDevice = null;
-            }
-            
+            XInputDeviceManager devMan = new XInputDeviceManager();
+            Controller xDevice = devMan.getController();
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
@@ -144,8 +130,7 @@ namespace CoolFont
             while (true)
             {
 
-                /* get data from iPhone socket, add to vDev */
-
+                // get data from iPhone socket, add to vDev
                 bool res = false;
                 for (int i = 0; i < socks.Length; i++)
                 {
@@ -154,33 +139,33 @@ namespace CoolFont
                 }
 
                 gapSize = (res == true) ? 0 : gapSize + 1;
-                /*
+                
                 if (gapSize == maxGapSize)
                 {
                     log.Info("!! Waiting for data...");
                 }
 
-                    /* Tell vDev whether to fill in missing data */
-                    if (gapSize > maxGapSize)
-                    {
-                        VDevice.ShouldInterpolate = false;                        
-                    }
                 // Tell vDev whether to fill in missing data 
                 if (gapSize > maxGapSize)
                 {
                     // VDevice.ShouldInterpolate = false;
-                    continue;
+                    // continue;
                 }
 
-                    // Get data from connected XInput device, add to vDev
-                   
-                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
+                // Get data from connected XInput device, add to vDev 
+                if (InterceptXInputDevice)
+                {
+                    try
                     {
                         State state = xDevice.GetState();
                         VDevice.AddControllerState(state);
                     }
+                    catch
+                    {
+                        InterceptXInputDevice = false;
+                    }
+                }
                 
-
                 VDevice.FeedVJoy();
                 VDevice.ResetValues();
                 T++;
@@ -283,7 +268,7 @@ namespace CoolFont
             }
         }
 
-        private void AddDevice_Click(object sender, EventArgs e)
+        private void addIPhone_Click(object sender, EventArgs e)
         {
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
             devicesCol.Add("Secondary");
@@ -293,6 +278,11 @@ namespace CoolFont
             Properties.Settings.Default.ConnectedDevices = devicesCol;
             Properties.Settings.Default.Save();
 
+        }
+
+        private void addXInput_Click(object sender, EventArgs e)
+        {
+            InterceptXInputDevice = !InterceptXInputDevice;
         }
 
         /**
@@ -308,12 +298,12 @@ namespace CoolFont
 #else
             int numModes = (int)SimulatorMode.ModeCountRelease;
 #endif
-            for (int i=0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode value
                 item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Regular);
-                if (i==(int)VDevice.Mode)
+                if (i == (int)VDevice.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_white_16dp;
@@ -323,7 +313,7 @@ namespace CoolFont
 
             // vJoy config and monitor
             ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
-            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;     
+            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
             flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
 
@@ -350,8 +340,15 @@ namespace CoolFont
             smoothingHalfItem.Image = Properties.Resources.ic_line_style_white_18dp;
 
             // Connect to multiple devices, add device
-            ToolStripMenuItem addDeviceItem = ToolStripMenuItemWithHandler(String.Format("Add device ({0})", socks.Length), AddDevice_Click);
-            addDeviceItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
+            ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
+            deviceSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+
+            ToolStripMenuItem addIPhone = ToolStripMenuItemWithHandler(String.Format("Add another iPhone ({0})", socks.Length), addIPhone_Click);
+            addIPhone.Image = Properties.Resources.ic_settings_cell_white_18dp;
+            ToolStripMenuItem addXboxController = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
+            addXboxController.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
+
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhone, addXboxController });
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
@@ -362,7 +359,7 @@ namespace CoolFont
                     smoothingDoubleItem,
                     smoothingHalfItem,
                     new ToolStripSeparator(),
-                    addDeviceItem,
+                    deviceSubMenu,
                 });          
         }
 
