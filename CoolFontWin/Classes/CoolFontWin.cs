@@ -268,6 +268,7 @@ namespace CoolFont
             }
         }
 
+        private bool WillAddIPhoneOnRestart = false;
         private void addIPhone_Click(object sender, EventArgs e)
         {
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
@@ -277,6 +278,8 @@ namespace CoolFont
 
             Properties.Settings.Default.ConnectedDevices = devicesCol;
             Properties.Settings.Default.Save();
+
+            WillAddIPhoneOnRestart = true;
 
         }
 
@@ -343,12 +346,12 @@ namespace CoolFont
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
             deviceSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
-            ToolStripMenuItem addIPhone = ToolStripMenuItemWithHandler(String.Format("Add another iPhone ({0})", socks.Length), addIPhone_Click);
-            addIPhone.Image = Properties.Resources.ic_settings_cell_white_18dp;
-            ToolStripMenuItem addXboxController = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
-            addXboxController.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
+            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), addIPhone_Click);
+            addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
+            ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
+            addXboxControllerItem.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhone, addXboxController });
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
@@ -361,6 +364,11 @@ namespace CoolFont
                     new ToolStripSeparator(),
                     deviceSubMenu,
                 });          
+        }
+
+        private string AddIPhoneItemString()
+        {
+            return WillAddIPhoneOnRestart ? "Restart requried" : String.Format("Add another iPhone ({0})", socks.Length);
         }
 
         public static string GetDescription(Enum value)
