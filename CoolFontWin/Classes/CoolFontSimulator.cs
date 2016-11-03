@@ -192,7 +192,7 @@ namespace CoolFont
                 if (!ShouldInterpolate)
                 {
                     log.Info("!! Began receiving.");
-                    ShouldInterpolate = true;
+                   // ShouldInterpolate = true;
                 }
                 return true;
             }
@@ -283,10 +283,10 @@ namespace CoolFont
 
             public void ResetValues()
             {
-                LX = (int)MaxLX / 2;
-                LY = (int)MaxLY / 2;
-                RX = (int)MaxRX / 2;
-                RY = (int)MaxRY / 2;
+                LX = 0;
+                LY = 0;
+                RX = 0;
+                RY = 0;
                 LZ = 0;
                 RZ = 0;
                 Pov = -1; // neutral state
@@ -536,6 +536,15 @@ namespace CoolFont
                 }
             }
 
+            public void AddJoystickConstants()
+            {
+                LX += (int)MaxLX / 2;
+                LY += (int)MaxLY / 2;
+                RX += (int)MaxRX / 2;
+                RY += (int)MaxLY / 2;
+                LZ += (int)MaxLZ / 2;
+                RZ += (int)MaxRZ / 2;
+            }
             private void AddButtons(int buttonsDown)
             {
                 switch (Mode)

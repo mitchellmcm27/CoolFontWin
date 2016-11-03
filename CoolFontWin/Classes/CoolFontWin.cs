@@ -116,15 +116,17 @@ namespace CoolFont
         private void ReceiveService()
         {
             XInputDeviceManager devMan = new XInputDeviceManager();
+            // could repeat this in a try/catch block to find new controllers
             Controller xDevice = devMan.getController();
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
-            int gapSize = maxGapSize + 1;
+            int gapSize = 0;
             string[] rcvds = new string[socks.Length];
 
             // VDevice.LogOutput = true;
-            LogRcvd = true;
+            LogRcvd = false;
+            VDevice.LogOutput = true;
 
             log.Info("!! Ready to receive data.");
             while (true)
@@ -132,11 +134,16 @@ namespace CoolFont
 
                 // get data from iPhone socket, add to vDev
                 bool res = false;
+                
                 for (int i = 0; i < socks.Length; i++)
                 {
                     rcvds[i] = socks[i].Poll();
-                    res = VDevice.HandleNewData(rcvds[i]);
+                    
+                    res = res | VDevice.HandleNewData(rcvds[i]);
+                    
                 }
+
+                VDevice.AddJoystickConstants();
 
                 gapSize = (res == true) ? 0 : gapSize + 1;
                 
@@ -144,11 +151,11 @@ namespace CoolFont
                 {
                     log.Info("!! Waiting for data...");
                 }
-
+                
                 // Tell vDev whether to fill in missing data 
                 if (gapSize > maxGapSize)
                 {
-                    // VDevice.ShouldInterpolate = false;
+                    VDevice.ShouldInterpolate = false;
                     // continue;
                 }
 
