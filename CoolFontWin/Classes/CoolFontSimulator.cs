@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Windows.Forms;
-using Microsoft.DirectX.DirectInput;
+using SharpDX.XInput;
 using WindowsInput;
 using vJoyInterfaceWrap;
 
@@ -613,18 +612,18 @@ namespace CoolFont
                 return true;
             }
 
-            /*
+            
             public void AddControllerState(State state)
             {
-                LX += state.Gamepad.LeftThumbX;
-                LY -= state.Gamepad.LeftThumbY; // inverted 
-                RX += state.Gamepad.RightThumbX;
-                RY += state.Gamepad.RightThumbY;
+                LX += state.Gamepad.LeftThumbX/2;
+                LY -= state.Gamepad.LeftThumbY/2; // inverted 
+                RX += state.Gamepad.RightThumbX/2;
+                RY += state.Gamepad.RightThumbY/2;
                 LZ += state.Gamepad.LeftTrigger; // not the right scale
                 RZ += state.Gamepad.RightTrigger; // not the right scale
                 Buttons = (short)state.Gamepad.Buttons;
             }
-            */
+            
 
             public void FeedVJoy()
             {

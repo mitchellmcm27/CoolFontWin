@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Drawing;
 
-// using SharpDX.XInput; // removed
+using SharpDX.XInput;
 using CoolFont.IO;
 using CoolFont.Network;
 using CoolFont.Simulator;
@@ -23,7 +23,7 @@ namespace CoolFont
 
         private bool LogRcvd = false;
         private bool Verbose = false;
-        private bool InterceptXInputDevice = false;
+        private bool InterceptXInputDevice = true;
         private string[] args;
 
         public VirtualDevice VDevice;
@@ -82,10 +82,10 @@ namespace CoolFont
             /* Intercept xInput devices functionality disabled
              * Removed reference to SharpDX.dll
              * */
-            /*
-             Controller xDevice;
+            
+            Controller xDevice;
 
-            if (InterceptXInputDevice)
+            if (this.InterceptXInputDevice)
             {
                 XInputDeviceManager devMan = new XInputDeviceManager();
                 xDevice = devMan.getController();
@@ -94,7 +94,7 @@ namespace CoolFont
             {
                 xDevice = null;
             }
-            */
+            
 
             VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
@@ -111,7 +111,7 @@ namespace CoolFont
                 while (true)
                 {
 
-                /* get data from iPhone socket, add to vDev */
+                    /* get data from iPhone socket, add to vDev */
                     string rcvd = sock.Poll();
                     bool res = VDevice.HandleNewData(rcvd);
                     gapSize = (res == true) ? 0 : gapSize + 1;
@@ -121,21 +121,20 @@ namespace CoolFont
                         log.Info("!! Waiting for data...");
                     }
 
-                /* Tell vDev whether to fill in missing data */
+                    /* Tell vDev whether to fill in missing data */
                     if (gapSize > maxGapSize)
                     {
-                        VDevice.ShouldInterpolate = false;
-                    continue;
+                        VDevice.ShouldInterpolate = false;                        
                     }
 
-                /* Get data from connected XInput device, add to vDev*/
-                /*      
-                if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
-                {
-                    State state = xDevice.GetState();
-                    VDevice.AddControllerState(state);
-                }
-                */
+                    // Get data from connected XInput device, add to vDev
+                   
+                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
+                    {
+                        State state = xDevice.GetState();
+                        VDevice.AddControllerState(state);
+                    }
+                
 
                     VDevice.FeedVJoy();
                     T++;
