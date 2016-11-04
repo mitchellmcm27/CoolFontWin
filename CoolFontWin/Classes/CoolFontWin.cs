@@ -156,15 +156,22 @@ namespace CoolFont
                 // Get data from connected XInput device, add to vDev 
                 if (InterceptXInputDevice)
                 {
-                    try
-                    {
-                        State state = xDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }
-                    catch
+                    if (VDevice.Mode == SimulatorMode.ModeWASD)
                     {
                         InterceptXInputDevice = false;
-                        System.Media.SystemSounds.Beep.Play();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            State state = xDevice.GetState();
+                            VDevice.AddControllerState(state);
+                        }
+                        catch
+                        {
+                            InterceptXInputDevice = false;
+                            System.Media.SystemSounds.Beep.Play();
+                        }
                     }
                 }
                 
@@ -351,6 +358,7 @@ namespace CoolFont
             ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), null);
             addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
+            addXboxControllerItem.Enabled = VDevice.Mode == SimulatorMode.ModeWASD ? false : true;
             addXboxControllerItem.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
 
             deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
