@@ -250,6 +250,12 @@
     <Compile Include="UI\Success.Designer.cs">
       <DependentUpon>Success.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\UpdateNotes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\UpdateNotes.Designer.cs">
+      <DependentUpon>UpdateNotes.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -337,6 +343,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Success.resx">
       <DependentUpon>Success.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\UpdateNotes.resx">
+      <DependentUpon>UpdateNotes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

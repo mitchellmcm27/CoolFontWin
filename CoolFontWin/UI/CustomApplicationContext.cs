@@ -61,6 +61,7 @@ namespace CoolFont
             {
                 log.Info("First run after install");
                 ShowSuccessfulInstallForm();
+                // ShowUpdateNotesForm();
                 
                 Properties.Settings.Default.FirstInstall = false;
                 Properties.Settings.Default.Save();
@@ -152,6 +153,7 @@ namespace CoolFont
         #region child forms
 
         private SuccessForm SuccessForm;
+        private UpdateNotes UpdateNotes;
 
         private void ShowSuccessfulInstallForm()
         {
@@ -161,7 +163,16 @@ namespace CoolFont
             SuccessForm.Show();
         }
 
+        private void ShowUpdateNotesForm()
+        {
+            if (UpdateNotes == null)
+                UpdateNotes = new UpdateNotes();
+            UpdateNotes.Closed += UpdateNotes_Closed;
+            UpdateNotes.Show();
+        }
+
         private void SucessForm_Closed(object sender, EventArgs e) { SuccessForm = null; }
+        private void UpdateNotes_Closed(object sender, EventArgs e) { UpdateNotes = null; }
 
         #endregion
 
