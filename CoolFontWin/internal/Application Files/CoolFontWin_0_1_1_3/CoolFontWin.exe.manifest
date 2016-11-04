@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
+  <asmv1:assemblyIdentity name="CoolFontWin.exe" version="0.1.1.3" publicKeyToken="2b86faf177443f5c" language="neutral" processorArchitecture="amd64" type="win32" />
+  <description asmv2:iconFile="Assets\tray-icon.ico" xmlns="urn:schemas-microsoft-com:asm.v1" />
+  <application />
+  <entryPoint>
+    <assemblyIdentity name="CoolFontWin" version="0.1.6152.18691" language="neutral" processorArchitecture="amd64" />
+    <commandLine file="CoolFontWin.exe" parameters="" />
+  </entryPoint>
+  <trustInfo>
+    <security>
+      <applicationRequestMinimum>
+        <PermissionSet version="1" class="System.Security.NamedPermissionSet" Name="Internet" Description="Default rights given to Internet applications" Unrestricted="true" ID="Custom" SameSite="site" />
+        <defaultAssemblyRequest permissionSetReference="Custom" />
+      </applicationRequestMinimum>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <!-- UAC Manifest Options
+             If you want to change the Windows User Account Control level replace the 
+             requestedExecutionLevel node with one of the following.
+
+        <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
+        <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
+        <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
+
+            Specifying requestedExecutionLevel element will disable file and registry virtualization. 
+            Remove this element if your application requires this virtualization for backwards
+            compatibility.
+        -->
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+  <dependency>
+    <dependentOS>
+      <osVersionInfo>
+        <os majorVersion="5" minorVersion="1" buildNumber="2600" servicePackMajor="0" />
+      </osVersionInfo>
+    </dependentOS>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="preRequisite" allowDelayedBinding="true">
+      <assemblyIdentity name="Microsoft.Windows.CommonLanguageRuntime" version="4.0.30319.0" />
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="CoolFontWin.exe" size="8177088">
+      <assemblyIdentity name="CoolFontWin" version="0.1.6152.18691" language="neutral" processorArchitecture="amd64" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>VkbNoqnXie1nMcpT0AlmjXslCjdPDgZb9tx5gtrPCc4=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="log4net.dll" size="304640">
+      <assemblyIdentity name="log4net" version="1.2.15.0" publicKeyToken="669E0DDF0BB1AA2A" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>Z2OH/G3Np/KCcKz6vWX3mAW7f2In5+tcvgojRgIx0rc=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Microsoft.DirectX.dll" size="223232">
+      <assemblyIdentity name="Microsoft.DirectX" version="1.0.2902.0" publicKeyToken="31BF3856AD364E35" language="neutral" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>lC6Y8UI3NUdJPxOxThYDskIIUa/wE9MIW62ntrIhTZw=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Microsoft.DirectX.DirectInput.dll" size="159232">
+      <assemblyIdentity name="Microsoft.DirectX.DirectInput" version="1.0.2902.0" publicKeyToken="31BF3856AD364E35" language="neutral" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>DuKiw3GpGMq8hRQyAoZNDDpKvxuTpQKQgaYi4Kzxerc=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Mono.Zeroconf.dll" size="14336">
+      <assemblyIdentity name="Mono.Zeroconf" version="4.0.0.90" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>sGD2TlZsdBfQv7244CDiC5Rs5mmtNVWszj4K4Ts2Z+0=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Mono.Zeroconf.Providers.Bonjour.dll" size="24064">
+      <assemblyIdentity name="Mono.Zeroconf.Providers.Bonjour" version="4.0.0.90" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>+NhNjoJvrQNtufpFqNYkEYLJVf4FwivdZZGWVZ5xneU=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Ookii.Dialogs.dll" size="133296">
+      <assemblyIdentity name="Ookii.Dialogs" version="1.0.0.0" publicKeyToken="0C15020868FD6249" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>xStxkzRub222+YAzZ0IuMhwmjTPg/ZVvyvxDdQwnbNc=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SharpDX.dll" size="262144">
+      <assemblyIdentity name="SharpDX" version="3.0.2.0" publicKeyToken="B4DCF0F35E5521F1" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>n3MMVgmwy7bXniJsEIjvVH0xG4n2TJXaoe50jhgGec8=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SharpDX.XInput.dll" size="13824">
+      <assemblyIdentity name="SharpDX.XInput" version="3.0.2.0" publicKeyToken="B4DCF0F35E5521F1" language="neutral" processorArchitecture="msil" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>V21s+0SrBoS0Nxum2fen1K3QD0io5+8BfmiSdzIfvnM=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <dependency>
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="vJoyInterfaceWrap.dll" size="13312">
+      <assemblyIdentity name="vJoyInterfaceWrap" version="0.2.1.6" language="neutral" processorArchitecture="amd64" />
+      <hash>
+        <dsig:Transforms>
+          <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+        </dsig:Transforms>
+        <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+        <dsig:DigestValue>ZkemUs7IyYEhrxPzVqQMw7BLsZrT7WAqO9CnqlOmWso=</dsig:DigestValue>
+      </hash>
+    </dependentAssembly>
+  </dependency>
+  <file name="Assets\tray-icon.ico" size="2676174">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>jjf0fQLrsqpDOqwMS3lha9UYBX7FTIFbwNBMUX0EVXU=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="CoolFontWin.exe.config" size="4241">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>jqJMq/xjdk36vu4CUg+NU5cL0pfVVIrwfwgKVZW7SQY=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="vJoyInterface.dll" size="178176">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
+      <dsig:DigestValue>INtBQU1jSQBgOXFt/lqs7S7fxNPEBin8m3Uz93vRGsM=</dsig:DigestValue>
+    </hash>
+  </file>
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- A list of the Windows versions that this application has been tested on and is
+           is designed to work with. Uncomment the appropriate elements and Windows will 
+           automatically selected the most compatible environment. -->
+      <!-- Windows Vista -->
+      <!--<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}" />-->
+      <!-- Windows 7 -->
+      <!--<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}" />-->
+      <!-- Windows 8 -->
+      <!--<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />-->
+      <!-- Windows 8.1 -->
+      <!--<supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />-->
+      <!-- Windows 10 -->
+      <!--<supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />-->
+    </application>
+  </compatibility>
+<publisherIdentity name="E=mitchellmcm27@gmail.com, CN=&quot;Open Source Developer, Mitchell McMillan&quot;, O=Open Source Developer, C=US" issuerKeyHash="c07bb4c8b76e56a709489af8724fd7d7242c363e" /><Signature Id="StrongNameSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>tcBAFH5BVsTE2qu+fqX3jW8jAVKKLkQpdFd103wskoU=</DigestValue></Reference></SignedInfo><SignatureValue>U5j76rxTKaLCul2KmIoC2lg+bdE5bopjBXWYP18w5HinzUUOx0XR4flH8++0l4OZvPkGuGmrrw4dV2D36C9vpeYsvpCLcZjku9z1AJERd6Cbq0jgc0WOU/cfV4RTmSOI1FcIad+tlbC4wVik7dSuo0M0aC0dHs7j77MqnQEt9Vc+v7Uh1kGBVSoeReivzgCCO73uXHHKp78zXu2u6DePQze7R9SPULFH9VfWobZiW0C+YtpBKwQFXY8SouVyvMNEaFyTvoYBZQFndmxfQzKIAa7jz9xckLlET4H8sLVp5ewa87ww4hX/bC0DwfoB3P/cxK77u+YrKDj7aTpL56C9gg==</SignatureValue><KeyInfo Id="StrongNameKeyInfo"><KeyValue><RSAKeyValue><Modulus>k80lfFUvhoe4tFQ+qMPvYFE3UPHQ3yEOG8PhZSvZXxa7Tgz7jCz30zfFbg3IJBkHdOePbbPunRFukbT992gsz4zFFtzMG0FMhFRNGHV1n/duOThl6Xd/yv7gtNSrITLspCm4yLZcGVTlC5NyRirCT34qExMNKT4+jJUgfX6sobn5ajdctie/fVuqeC7VkaYTpk8uRgv7t9ClelTMQzO58pXC6qLtgv+1yZ2wjogR3m85IOaMflFBqVmXxMOAdW8sUX3yeBWNPSgkf58bcVGQnHTzWysA5ttRw1WjqAP6Ii0H+Vk8ss00Zxl96SU/t05I6MXDgiNeTEHDUiqZZUB+tw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><msrel:RelData xmlns:msrel="http://schemas.microsoft.com/windows/rel/2005/reldata"><r:license xmlns:r="urn:mpeg:mpeg21:2003:01-REL-R-NS" xmlns:as="http://schemas.microsoft.com/windows/pki/2005/Authenticode"><r:grant><as:ManifestInformation Hash="85922c7cd375577429442e8a5201236f8df7a57ebeabdac4c456417e1440c0b5" Description="" Url=""><as:assemblyIdentity name="CoolFontWin.exe" version="0.1.1.3" publicKeyToken="2b86faf177443f5c" language="neutral" processorArchitecture="amd64" type="win32" /></as:ManifestInformation><as:SignedBy /><as:AuthenticodePublisher><as:X509SubjectName>E=mitchellmcm27@gmail.com, CN="Open Source Developer, Mitchell McMillan", O=Open Source Developer, C=US</as:X509SubjectName></as:AuthenticodePublisher></r:grant><r:issuer><Signature Id="AuthenticodeSignature" xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /><SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha256" /><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" /><Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" /></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" /><DigestValue>K6GmKxR1qs8ePr8IyKY1B5eMtvytQkbsaL9P/YnCKQ0=</DigestValue></Reference></SignedInfo><SignatureValue>MYkDCgyMaohdxybZ4VrGfdc+8VpFz7XEIEmfdfS25jSmy/AKfbEU0lYGmy9gGrcSOgwLdMjmjllNPklPbctq+3h7/AyQ24bn4tVUT0RjZb/cWzcLIigfyorS+2Gf8JVaW8XJh8h7Q+CaaQPSYmPU5GYe6Hzh9rkxTetNbc3Gh39+NcdUyuCnevsSFxuJbU1FX2vGER1z6WWcVAm/gusmawmzZiq7KwZ6IF03CKAqueH7B8rhOCBUXbhTub6zPStBK1CqbyL11GhiOb9NJ9AGoCfMsccKf2QuMxpxKeKkKUc5Q2CiqRMCFAlPJyXX4qvf30DMpCubXYmYdShhPl3JQw==</SignatureValue><KeyInfo><KeyValue><RSAKeyValue><Modulus>k80lfFUvhoe4tFQ+qMPvYFE3UPHQ3yEOG8PhZSvZXxa7Tgz7jCz30zfFbg3IJBkHdOePbbPunRFukbT992gsz4zFFtzMG0FMhFRNGHV1n/duOThl6Xd/yv7gtNSrITLspCm4yLZcGVTlC5NyRirCT34qExMNKT4+jJUgfX6sobn5ajdctie/fVuqeC7VkaYTpk8uRgv7t9ClelTMQzO58pXC6qLtgv+1yZ2wjogR3m85IOaMflFBqVmXxMOAdW8sUX3yeBWNPSgkf58bcVGQnHTzWysA5ttRw1WjqAP6Ii0H+Vk8ss00Zxl96SU/t05I6MXDgiNeTEHDUiqZZUB+tw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue></KeyValue><X509Data><X509Certificate>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</X509Certificate><X509Certificate>MIIE3jCCA8agAwIBAgIQazJqDwMo03odUwv9I71I4jANBgkqhkiG9w0BAQsFADB+MQswCQYDVQQGEwJQTDEiMCAGA1UEChMZVW5pemV0byBUZWNobm9sb2dpZXMgUy5BLjEnMCUGA1UECxMeQ2VydHVtIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MSIwIAYDVQQDExlDZXJ0dW0gVHJ1c3RlZCBOZXR3b3JrIENBMB4XDTE1MTAyOTExMzAyOVoXDTI3MDYwOTExMzAyOVowgYAxCzAJBgNVBAYTAlBMMSIwIAYDVQQKDBlVbml6ZXRvIFRlY2hub2xvZ2llcyBTLkEuMScwJQYDVQQLDB5DZXJ0dW0gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxJDAiBgNVBAMMG0NlcnR1bSBDb2RlIFNpZ25pbmcgQ0EgU0hBMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALfbqNjI47za2oO6ub/W1VdTQbdAuhcMRJXU6WY7f7S+kKOUCaWtISAXgEa0QyY+jksaZOwOQDJD/IKf/0ot6pTdWhE2i2Hv7BbUSQPY513DZVvyTgsrw8FT+kAtwqszJAWBcH7Ih0yf0YDCGHsOFL1OA0PLKEiwLeY23xs9i8OMnTee4QbXJVDfeT3at1/rRr52KDa4AgBGA9A0G3i0KMdRx8iVP26NiRjcSfHCDxr0gYHHbdQEd8Uhoy5T+XfP3Kmbw8Hl1WcvMbzAwmicSpblH/HzSDUO9uSxxe+HgDrigAw0nfoUZHHkHKGqss8Ap+M3cvlArZ4olQINzpDjW8UCAwEAAaOCAVMwggFPMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFMB7tMi3blanCUia+HJP19ckLDY+MB8GA1UdIwQYMBaAFAh2zcsH/yT2xc3tu5C84oQ3RnX3MA4GA1UdDwEB/wQEAwIBBjATBgNVHSUEDDAKBggrBgEFBQcDAzAvBgNVHR8EKDAmMCSgIqAghh5odHRwOi8vY3JsLmNlcnR1bS5wbC9jdG5jYS5jcmwwawYIKwYBBQUHAQEEXzBdMCgGCCsGAQUFBzABhhxodHRwOi8vc3ViY2Eub2NzcC1jZXJ0dW0uY29tMDEGCCsGAQUFBzAChiVodHRwOi8vcmVwb3NpdG9yeS5jZXJ0dW0ucGwvY3RuY2EuY2VyMDkGA1UdIAQyMDAwLgYEVR0gADAmMCQGCCsGAQUFBwIBFhhodHRwOi8vd3d3LmNlcnR1bS5wbC9DUFMwDQYJKoZIhvcNAQELBQADggEBAKrlP3ZUAkxwDimpOZYGDzG3C/Gmi1L7EI9PQluMvTEjAWad6CmhTcNQ+vf4RQ4dgtf8/qYyBHP9cezMiA+jkgjFgVgC/QtpO824P0k90I0cExRoLpsNmq2wGeKe0nw5d4hvI/17hPxEbbW6a3CSVWyUsdg3/alZHbRjstwTzXiOJTXBmo83hC7URczj9cyNc6jjOm3nlZRwV5FQtm3vc3JPLwKHYOLqIqHtPv3Ri2aNLnJtT8ZdNe6TqJjSZ2rp2hnNAoP5dPxfehgEKB7dIjM7dmxHBV3VUv4OunbzgxDHbjBfp2DH+nQnMZsog+0hihvxI1KE7ZW8rTqlo0IBnbw=</X509Certificate></X509Data></KeyInfo><Object><as:Timestamp>MIIJIAYJKoZIhvcNAQcCoIIJETCCCQ0CAQExDTALBglghkgBZQMEAgEwggETBgkqhkiG9w0BBwGg
+ggEEBIIBADGJAwoMjGqIXccm2eFaxn3XPvFaRc+1xCBJn3X0tuY0psvwCn2xFNJWBpsvYBq3EjoM
+C3TI5o5ZTT5JT23Lavt4e/wMkNuG5+LVVE9EY2W/3Fs3CyIoH8qK0vthn/CVWlvFyYfIe0PgmmkD
+0mJj1ORmHuh84fa5MU3rTW3Nxod/fjXHVMrgp3r7EhcbiW1NRV9rxhEdc+llnFQJv4LrJmsJs2Yq
+uysGeiBdNwigKrnh+wfK4TggVF24U7m+sz0rQStQqm8i9dRoYjm/TSfQBqAnzLHHCn9kLjMacSni
+pClHOUNgoqkTAhQJTycl1+Kr399AzKQrm12JmHUoYT5dyUOgggTgMIIE3DCCA8SgAwIBAgIRAP5n
+5PFaJOPGDVR8oCDCdnAwDQYJKoZIhvcNAQELBQAwfjELMAkGA1UEBhMCUEwxIjAgBgNVBAoTGVVu
+aXpldG8gVGVjaG5vbG9naWVzIFMuQS4xJzAlBgNVBAsTHkNlcnR1bSBDZXJ0aWZpY2F0aW9uIEF1
+dGhvcml0eTEiMCAGA1UEAxMZQ2VydHVtIFRydXN0ZWQgTmV0d29yayBDQTAeFw0xNjAzMDgxMzEw
+NDNaFw0yNzA1MzAxMzEwNDNaMHcxCzAJBgNVBAYTAlBMMSIwIAYDVQQKDBlVbml6ZXRvIFRlY2hu
+b2xvZ2llcyBTLkEuMScwJQYDVQQLDB5DZXJ0dW0gQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkxGzAZ
+BgNVBAMMEkNlcnR1bSBFViBUU0EgU0hBMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+AL9Xi7yRM1ouVzF/JVf0W1NYaiWq6IEgzA0dRzhwGqMWN523RHS1GoEk+vUYSjhLC6C6xb80b+qM
+9Z1CGtAxqFbdqCUOtDwlxazGy1zjgJLqo68tAEBAfNJBKB8rCOhR0F2JcCJsaXbQdhI8LksHKSbp
++AHh0OUo9iTDFfqmkIR0hVyDLA7E2nhJlGodJIaX6SLAxgw14HQyqj27Adh+zBNMIMeVLUn28S0X
+vMYp9/hVdpx9Fdze4UKVk2CZ90PFlEIhvZisHLNm3P14YEQ/PcSVaWfuYcva0LnmdvehPwT00+dx
+ryECXhHaU6SmtZF42ZARW7Sh7qduCtlzpDgFUiMCAwEAAaOCAVowggFWMAwGA1UdEwEB/wQCMAAw
+HQYDVR0OBBYEFPM1yo5GCA05jd9BxzNuZOQWO5grMB8GA1UdIwQYMBaAFAh2zcsH/yT2xc3tu5C8
+4oQ3RnX3MA4GA1UdDwEB/wQEAwIHgDAWBgNVHSUBAf8EDDAKBggrBgEFBQcDCDAvBgNVHR8EKDAm
+MCSgIqAghh5odHRwOi8vY3JsLmNlcnR1bS5wbC9jdG5jYS5jcmwwawYIKwYBBQUHAQEEXzBdMCgG
+CCsGAQUFBzABhhxodHRwOi8vc3ViY2Eub2NzcC1jZXJ0dW0uY29tMDEGCCsGAQUFBzAChiVodHRw
+Oi8vcmVwb3NpdG9yeS5jZXJ0dW0ucGwvY3RuY2EuY2VyMEAGA1UdIAQ5MDcwNQYLKoRoAYb2dwIF
+AQswJjAkBggrBgEFBQcCARYYaHR0cDovL3d3dy5jZXJ0dW0ucGwvQ1BTMA0GCSqGSIb3DQEBCwUA
+A4IBAQDKdOQ4vTLJGjz6K1jFVy01UwuQ3i0FsvEzMkAblv8iRYc5rgzwGc7B0DJEGjMMgOs9Myt8
+eTROxoFENFhWujkN8OSzA6w3dcB667dA9pr8foBtqbRViT2YSMpW9FWkLunh0361OJGVxM+7ph51
+a1ZQm26n69Gc4XEg1dWmWKvh5SldgfEEteQbZEKhOHE9e3NkxmnUIjCWsCTDAlsRqDw0YntnZ+FG
+hld86IqfkLs4W9m1ieoDKNuNt1sHbTK7h3/cJs4uXujWq9vmptDiGQIS+aDbPp1SxEy9V4XteO3B
+lkTNRrDOZdVXcjokxhDhsHPEj1qDrPbGcpT5cnf/AdUhMYIC/DCCAvgCAQEwgZMwfjELMAkGA1UE
+BhMCUEwxIjAgBgNVBAoTGVVuaXpldG8gVGVjaG5vbG9naWVzIFMuQS4xJzAlBgNVBAsTHkNlcnR1
+bSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eTEiMCAGA1UEAxMZQ2VydHVtIFRydXN0ZWQgTmV0d29y
+ayBDQQIRAP5n5PFaJOPGDVR8oCDCdnAwDQYJYIZIAWUDBAIBBQCgggE5MBoGCSqGSIb3DQEJAzEN
+BgsqhkiG9w0BCRABBDAcBgkqhkiG9w0BCQUxDxcNMTYxMTA0MTUyMzA2WjAvBgkqhkiG9w0BCQQx
+IgQgVmVtI+G3PwDcFmgnXRhOvIVFK84zN27jHrscyB7iqfIwgcsGCyqGSIb3DQEJEAIMMYG7MIG4
+MIG1MIGyBBRPjUxIBklCau+LhtTV/Hky5xQthTCBmTCBg6SBgDB+MQswCQYDVQQGEwJQTDEiMCAG
+A1UEChMZVW5pemV0byBUZWNobm9sb2dpZXMgUy5BLjEnMCUGA1UECxMeQ2VydHVtIENlcnRpZmlj
+YXRpb24gQXV0aG9yaXR5MSIwIAYDVQQDExlDZXJ0dW0gVHJ1c3RlZCBOZXR3b3JrIENBAhEA/mfk
+8Vok48YNVHygIMJ2cDANBgkqhkiG9w0BAQEFAASCAQAOWCKRYAt/2Qd04aiBTSTOvggPUnrUg9P9
+nq96+5lMpPXY2AeZ3azXk+oVbtwL59WxylOu1anZTaKHItp/EB5xlfChxttKmI5smHuzmtb768IK
+hLxWAtgGM3WyJ+5vufOghq/JSAEAEmFmfG+ZBECAWry7iNSyMefY80hGmoY0wOP36WIHDcIKgz6h
+aXRcMy1/2yisAvakEzWEOGPBpyLCF9/ZbubImsatPUmkhnXBLhPlcntgfr9SJBhCUkPLc63citrj
+RMpSerNOMSOWH3FLIuPcBloBkCHYtt2m6ArttKczWUULaVuAU4B7hqGruEpqE8QV4AqPsfxBUsRh
+qrzq
+</as:Timestamp></Object></Signature></r:issuer></r:license></msrel:RelData></KeyInfo></Signature></asmv1:assembly>
