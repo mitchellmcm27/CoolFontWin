@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Threading;
 using System.Drawing;
+using System.Collections.Generic;
 
 using SharpDX.XInput;
 using CoolFont.IO;
@@ -18,44 +19,23 @@ namespace CoolFont
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private int Port;
+        ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
+        ManualResetEvent _pauseEvent = new ManualResetEvent(true);
+
         private readonly NotifyIcon NotifyIcon;
 
         private bool LogRcvd = false;
         private bool Verbose = false;
-        private bool InterceptXInputDevice = true;
+        private volatile bool InterceptXInputDevice = false;
         private string[] args;
+        private UdpListener[] socks;
 
         public VirtualDevice VDevice;
-        public UdpListener sock;
-        private bool servicePublished;
 
         public CoolFontWin(NotifyIcon notifyIcon, string[] args)
         {
             this.NotifyIcon = notifyIcon;
             this.args = args;
-        }
-
-        static public string PortFile = "last-port.txt";
-
-        public void StartService()
-        {
-            ProcessArgs();
-            int tryport = FileManager.TryToReadPortFromFile(CoolFontWin.PortFile); // returns 0 if none
-            sock = new UdpListener(tryport);
-            
-            Port = sock.Port;
-
-            if (Port > 0 & sock.IsBound)
-            {
-                // write successful port to file for next time
-                FileManager.WritePortToFile(Port, CoolFontWin.PortFile);
-            }
-
-            /* Register DNS service through Mono.Zeroconf */
-            servicePublished = sock.PublishOnPort((short)Port);
-
-            ReceiveService(sock);
         }
 
         private void ProcessArgs()
@@ -75,85 +55,143 @@ namespace CoolFont
                     InterceptXInputDevice = true;
                 }
             }
+
         }
-        
-        private void ReceiveService(UdpListener sock)
+
+        static public string PortFile = "last-port.txt";
+
+        public void StartServices()
         {
-            /* Intercept xInput devices functionality disabled
-             * Removed reference to SharpDX.dll
-             * */
-            
-            Controller xDevice;
+            this.StartServices(new string[] { "" });
+        }
 
-            if (this.InterceptXInputDevice)
-            {
-                XInputDeviceManager devMan = new XInputDeviceManager();
-                xDevice = devMan.getController();
-            }
-            else
-            {
-                xDevice = null;
-            }
-            
+        public void StartServices(string[] names)
+        {
+            ProcessArgs();
 
-            VDevice = new VirtualDevice(1, sock.SocketPollInterval); // will change Mode if necessary
+            socks = new UdpListener[names.Length];
+            bool[] servicePublished = new bool[names.Length];
+            int[] tryports = new int[names.Length];
+
+            List<int> portsFromFile = FileManager.TryToReadPortsFromFile(CoolFontWin.PortFile); // returns 0 if none
+
+            for (int i = 0; i < tryports.Length; i++)
+            {
+                try
+                {
+                    tryports[i] = portsFromFile[i];
+                }
+                catch
+                {
+                    tryports[i] = 0;
+                }
+            }
+
+            for (int i = 0; i < socks.Length; i++)
+            {
+                socks[i] = new UdpListener(tryports[i]);
+
+                if (socks[i].Port > 0 && socks[i].IsBound)
+                {
+                    // write successful port to file for next time
+                    FileManager.WritePortToLine(socks[i].Port, i, CoolFontWin.PortFile);
+                }
+            }
+
+
+            /* Register DNS service through Mono.Zeroconf */
+            for (int i = 0; i < socks.Length; i++)
+            {
+                servicePublished[i] = socks[i].PublishOnPort((short)socks[i].Port, names[i]);
+            }
+
+            VDevice = new VirtualDevice(1, socks[0].SocketPollInterval); // will change Mode if necessary
             VDevice.LogOutput = Verbose; // T or F
+
+            Thread ReceiveThread = new Thread(ReceiveService);
+
+            ReceiveThread.Start();
+        }
+
+        private void ReceiveService()
+        {
+            XInputDeviceManager devMan = new XInputDeviceManager();
+            // could repeat this in a try/catch block to find new controllers
+            Controller xDevice = devMan.getController();
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
-            int gapSize = maxGapSize + 1;
+            int gapSize = 0;
+            string[] rcvds = new string[socks.Length];
 
             // VDevice.LogOutput = true;
-         
-            new Thread(() =>
+            LogRcvd = false;
+            VDevice.LogOutput = true;
+
+            log.Info("!! Ready to receive data.");
+            while (true)
             {
-                log.Info("!! Ready to receive data.");
-                while (true)
+
+                // get data from iPhone socket, add to vDev
+                bool res = false;
+                
+                for (int i = 0; i < socks.Length; i++)
                 {
+                    rcvds[i] = socks[i].Poll();
+                    
+                    res = res | VDevice.HandleNewData(rcvds[i]);
+                    
+                }
 
-                    /* get data from iPhone socket, add to vDev */
-                    string rcvd = sock.Poll();
-                    bool res = VDevice.HandleNewData(rcvd);
-                    gapSize = (res == true) ? 0 : gapSize + 1;
+                VDevice.AddJoystickConstants();
 
-                    if (gapSize == maxGapSize)
-                    {
-                        log.Info("!! Waiting for data...");
-                    }
+                gapSize = (res == true) ? 0 : gapSize + 1;
+                
+                if (gapSize == maxGapSize)
+                {
+                    log.Info("!! Waiting for data...");
+                }
+                
+                // Tell vDev whether to fill in missing data 
+                if (gapSize > maxGapSize)
+                {
+                    VDevice.ShouldInterpolate = false;
+                    // continue;
+                }
 
-                    /* Tell vDev whether to fill in missing data */
-                    if (gapSize > maxGapSize)
-                    {
-                        VDevice.ShouldInterpolate = false;                        
-                    }
-
-                    // Get data from connected XInput device, add to vDev
-                   
-                    if (InterceptXInputDevice && xDevice != null && xDevice.IsConnected)
+                // Get data from connected XInput device, add to vDev 
+                if (InterceptXInputDevice)
+                {
+                    try
                     {
                         State state = xDevice.GetState();
                         VDevice.AddControllerState(state);
                     }
+                    catch
+                    {
+                        InterceptXInputDevice = false;
+                    }
+                }
                 
+                VDevice.FeedVJoy();
+                VDevice.ResetValues();
+                T++;
 
-                    VDevice.FeedVJoy();
-                    T++;
-
-                    if (LogRcvd && (T % 1 == 0))
-                        Console.Write("{0}\n", rcvd);
-
-                    if (VDevice.LogOutput) // simulator will write some stuff, then...
-                    Console.Write("({0})\n", gapSize);
+                if (LogRcvd && (T % 10 == 0))
+                {
+                    Console.Write("\n" + rcvds.Length.ToString());
+                    Console.Write("{0}\n", string.Join(".....", rcvds));
                 }
 
-            }).Start();
-            
-  
+                if (VDevice.LogOutput) // simulator will write some stuff, then...
+                    Console.Write("({0})\n", gapSize);
+            }
         }
+
+
         #region WinForms
         public void KillOpenProcesses()
         {
-            if (servicePublished) { sock.Service.Dispose(); }
         }
 
         /*
@@ -237,6 +275,26 @@ namespace CoolFont
             }
         }
 
+        private bool WillAddIPhoneOnRestart = false;
+        private void addIPhone_Click(object sender, EventArgs e)
+        {
+            var devicesCol = Properties.Settings.Default.ConnectedDevices;
+            devicesCol.Add("Secondary");
+            string[] devices = new string[devicesCol.Count];
+            devicesCol.CopyTo(devices, 0);
+
+            Properties.Settings.Default.ConnectedDevices = devicesCol;
+            Properties.Settings.Default.Save();
+
+            WillAddIPhoneOnRestart = true;
+
+        }
+
+        private void addXInput_Click(object sender, EventArgs e)
+        {
+            InterceptXInputDevice = !InterceptXInputDevice;
+        }
+
         /**
          * Build the main context menu items and submenus
          * */
@@ -250,12 +308,12 @@ namespace CoolFont
 #else
             int numModes = (int)SimulatorMode.ModeCountRelease;
 #endif
-            for (int i=0; i < numModes; i++)
+            for (int i = 0; i < numModes; i++)
             {
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode value
                 item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Regular);
-                if (i==(int)VDevice.Mode)
+                if (i == (int)VDevice.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_white_16dp;
@@ -265,7 +323,7 @@ namespace CoolFont
 
             // vJoy config and monitor
             ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
-            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;     
+            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
             flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
 
@@ -291,6 +349,17 @@ namespace CoolFont
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
             smoothingHalfItem.Image = Properties.Resources.ic_line_style_white_18dp;
 
+            // Connect to multiple devices, add device
+            ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
+            deviceSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+
+            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), addIPhone_Click);
+            addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
+            ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
+            addXboxControllerItem.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
+
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
+
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
@@ -298,8 +367,15 @@ namespace CoolFont
                     vJoySubMenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
-                   smoothingHalfItem,
+                    smoothingHalfItem,
+                    new ToolStripSeparator(),
+                    deviceSubMenu,
                 });          
+        }
+
+        private string AddIPhoneItemString()
+        {
+            return WillAddIPhoneOnRestart ? "Restart requried" : String.Format("Add another iPhone ({0})", socks.Length);
         }
 
         public static string GetDescription(Enum value)
