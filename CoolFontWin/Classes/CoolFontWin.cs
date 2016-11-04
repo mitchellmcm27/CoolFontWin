@@ -124,10 +124,6 @@ namespace CoolFont
             int gapSize = 0;
             string[] rcvds = new string[socks.Length];
 
-            // VDevice.LogOutput = true;
-            LogRcvd = false;
-            VDevice.LogOutput = true;
-
             log.Info("!! Ready to receive data.");
             while (true)
             {
@@ -168,6 +164,7 @@ namespace CoolFont
                     catch
                     {
                         InterceptXInputDevice = false;
+                        System.Media.SystemSounds.Beep.Play();
                     }
                 }
                 
