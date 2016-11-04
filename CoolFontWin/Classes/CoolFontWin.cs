@@ -353,7 +353,7 @@ namespace CoolFont
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
             deviceSubMenu.Image = VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
-            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), addIPhone_Click);
+            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), null);
             addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
             addXboxControllerItem.Image = InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
@@ -375,7 +375,7 @@ namespace CoolFont
 
         private string AddIPhoneItemString()
         {
-            return WillAddIPhoneOnRestart ? "Restart requried" : String.Format("Add another iPhone ({0})", socks.Length);
+            return WillAddIPhoneOnRestart ? "Restart requried" : String.Format("Add another iPhone ({0}) - Coming soon", socks.Length);
         }
 
         public static string GetDescription(Enum value)
