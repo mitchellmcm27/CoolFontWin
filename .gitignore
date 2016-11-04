@@ -148,6 +148,7 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+internal/
 beta/
 
 # Publish Web Output
