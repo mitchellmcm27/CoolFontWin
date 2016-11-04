@@ -192,7 +192,7 @@ namespace CoolFont
                 if (!ShouldInterpolate)
                 {
                     log.Info("!! Began receiving.");
-                   // ShouldInterpolate = true;
+                    ShouldInterpolate = true;
                 }
                 return true;
             }

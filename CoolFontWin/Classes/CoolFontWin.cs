@@ -137,10 +137,8 @@ namespace CoolFont
                 
                 for (int i = 0; i < socks.Length; i++)
                 {
-                    rcvds[i] = socks[i].Poll();
-                    
-                    res = res | VDevice.HandleNewData(rcvds[i]);
-                    
+                    rcvds[i] = socks[i].Poll();           
+                    res = res | VDevice.HandleNewData(rcvds[i]);              
                 }
 
                 VDevice.AddJoystickConstants();
