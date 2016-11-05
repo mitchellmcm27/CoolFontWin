@@ -311,29 +311,48 @@ namespace CoolFont
 
             public static void WritePortToLine(int port, int line, string filename)
             {
+                string[] linesFromFile;
+                if(!File.Exists(filename))
+                {
+                    log.Info("Port file doesn't exist. Creating file: " + filename);
+                    File.Create(filename).Dispose();
 
+                }
                 try
                 {
-                    string []linesFromFile = File.ReadAllLines(filename);
+                    log.Info("Port file exists, reading all lines.");
+                    linesFromFile = File.ReadAllLines(filename);
+                }       
+                catch (Exception ex)
+                {
+                    log.Error(ex.Message);
+                    log.Error("Did not write any port to file.");
+                    return;
+                }
 
-                    if (line < linesFromFile.Length)
-                    {
-                        linesFromFile[line] = port.ToString();
-                    }
-                    else
-                    {
-                        List<string> stringList = new List<string>(linesFromFile);
-                        stringList.Add(port.ToString());
+                // assume 1 port per line
+                if (line < linesFromFile.Length)
+                {
+                    // update port found at line
+                    linesFromFile[line] = port.ToString();
+                }
+                else
+                {
+                    // append line to list of ports
+                    List<string> stringList = new List<string>(linesFromFile);
+                    stringList.Add(port.ToString());
+                    linesFromFile = stringList.ToArray();
+                }
 
-                        linesFromFile = stringList.ToArray();
-                    }
+                // write updated list of ports to file
+                try
+                {
                     File.WriteAllLines(filename, linesFromFile);
-
                     log.Info("Wrote port to file: " + port.ToString());
                 }
                 catch (Exception e)
                 {
-                    log.Error("Could not write port " + port.ToString() + "to line " + line.ToString() + "of file " + filename + ": " + e.Message);       
+                    log.Error("Could not write port " + port.ToString() + "to line " + line.ToString() + "of file " + filename + ": " + e.Message);
                 }
             }
 
