@@ -31,8 +31,7 @@ namespace CoolFont
 
         private static readonly string RollingLogFilename = rootAppender != null ? rootAppender.File : string.Empty;
         private static readonly string LastLogFilename = lastAppender != null ? lastAppender.File : string.Empty;
-
-
+        
         public static bool EmailLogFile()
         {
             log.Info("Will attempt to email file: " + RollingLogFilename);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Windows.Forms;
 using SharpDX.XInput;
 using WindowsInput;
 using vJoyInterfaceWrap;
@@ -647,14 +648,6 @@ namespace CoolFont
                     return;
                 }
 
-                /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
-                if (!Joystick.UpdateVJD(Id, ref iReport))
-                {
-                   log.Error(String.Format("vJoy device {0} not enabled. Enable, then press Enter. \n", Id));
-                   // Console.ReadKey(true);
-                   // Joystick.AcquireVJD(Id);
-                    return;
-                }
                 iReport.bDevice = (byte)Id;
 
                 iReport.AxisX = LX;
@@ -671,6 +664,18 @@ namespace CoolFont
                 {
                     iReport.bHats = ((uint)Pov);
                     //iReport.bHats = 0xFFFFFFFF; // Neutral state
+                }
+
+                /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
+                if (!Joystick.UpdateVJD(Id, ref iReport))
+                {
+                    log.Error(String.Format("vJoy device {0} not enabled. Enable, then press Enter. \n", Id));
+                    // Console.ReadKey(true);
+                    // Joystick.AcquireVJD(Id);
+
+                    MessageBox.Show("Enable vJoy to use this mode", "Unable to switch modes. Defaulting to Keyboard mode", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Mode = SimulatorMode.ModeWASD;
+                    return;
                 }
             }
 

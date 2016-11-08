@@ -121,7 +121,7 @@ namespace CoolFont
 
             int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
-            int gapSize = 0;
+            int gapSize = maxGapSize + 1;
             string[] rcvds = new string[socks.Length];
 
             log.Info("!! Ready to receive data.");
