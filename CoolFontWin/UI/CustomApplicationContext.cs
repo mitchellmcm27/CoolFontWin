@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.Deployment;
 using System.Deployment.Application;
 using CoolFont.UI;
-using CoolFont.Firewall;
+
 using System.ComponentModel;
 using log4net;
 
@@ -19,7 +19,7 @@ namespace CoolFont
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
-        private CoolFontWin Cfw;
+        private static readonly string CurrentInstallLocation = Assembly.GetExecutingAssembly().Location;
 
         string _Ver;
         public string Ver
@@ -41,6 +41,8 @@ namespace CoolFont
             set { Ver = value; }
         }
 
+        private CoolFontWin Cfw;
+
         public CustomApplicationContext(string[] args)
         {
             InitializeContext();
@@ -59,14 +61,24 @@ namespace CoolFont
         {
             if (Properties.Settings.Default.FirstInstall)
             {
-                log.Info("First run after install");
-                log.Info("Install location " + Assembly.GetExecutingAssembly().Location);
+                log.Info("First launch after fresh install");
+                log.Info("Install location " + CurrentInstallLocation);
 
-                AuthorizeFirewall();
                 ShowSuccessfulInstallForm();
                 // ShowUpdateNotesForm();
                 
                 Properties.Settings.Default.FirstInstall = false;
+                Properties.Settings.Default.Save();
+            }
+
+            if (Properties.Settings.Default.JustUpdated)
+            {
+                log.Info("First launch with latest version.");
+                log.Info("Install location " + CurrentInstallLocation);
+
+                AddFirewallRule(CurrentInstallLocation);
+
+                Properties.Settings.Default.JustUpdated = false;
                 Properties.Settings.Default.Save();
             }
 
@@ -86,25 +98,42 @@ namespace CoolFont
             
         }
 
-        private void AuthorizeFirewall()
+        private void AddFirewallRule(string path)
         {
-            log.Info("Will try to open firewall for this installation.");
-            FirewallHelper.Instance.GrantAuthorization(Assembly.GetExecutingAssembly().Location, "CoolFontWin");
- 
-
-            bool res = false;
-            log.Info("Checking firewall status.");
-            res = FirewallHelper.Instance.HasAuthorization(Assembly.GetExecutingAssembly().Location);
-
-            if (res)
+            if (!ApplicationDeployment.IsNetworkDeployed)
             {
-                log.Info(FirewallHelper.Instance.GetAuthorizedAppPaths());
-                log.Info("Firewall authorization granted");
+                return;
             }
-            else
+
+            log.Info("Authorize firewall via netsh command");
+
+            string arguments = "advfirewall firewall add rule name=\"CoolFontWin\" dir=in action=allow program=\"" + path + "\" enable=yes";
+            log.Info("netsh " + arguments);
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
+            procStartInfo.RedirectStandardOutput = false;
+            procStartInfo.UseShellExecute = true;
+            procStartInfo.CreateNoWindow = true;
+            procStartInfo.Verb = "runas";
+            Process.Start(procStartInfo);
+        }
+
+        private void DeleteFirewallRule(string path)
+        {
+            if (!ApplicationDeployment.IsNetworkDeployed)
             {
-                log.Error("Firewall authorization not granted");
+                return;
             }
+
+            log.Info("Delete firewall rule via netsh command");
+
+            string arguments = "advfirewall firewall delete rule name=\"CoolFontWin\" program=\"" + path + "\"";
+            log.Info("netsh " + arguments);
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
+            procStartInfo.RedirectStandardOutput = false;
+            procStartInfo.UseShellExecute = true;
+            procStartInfo.CreateNoWindow = true;
+            procStartInfo.Verb = "runas";
+            Process.Start(procStartInfo);
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -221,7 +250,12 @@ namespace CoolFont
 
         protected override void ExitThreadCore()
         {
-            //if (GraphForm != null) { GraphForm.Close(); }
+            // If next launch will be a new version
+            if (Properties.Settings.Default.JustUpdated)
+            {
+                DeleteFirewallRule(CurrentInstallLocation);
+            }
+
             Cfw.KillOpenProcesses();
             NotifyIcon.Visible = false;
             Dispose(true);
@@ -309,6 +343,9 @@ namespace CoolFont
                 log.Error("Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
                 return;
             }
+
+            Properties.Settings.Default.JustUpdated = true;
+            Properties.Settings.Default.Save();
 
             // update will apply on next startup                 
         }

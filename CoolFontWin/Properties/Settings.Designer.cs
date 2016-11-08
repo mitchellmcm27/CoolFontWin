@@ -72,5 +72,17 @@ namespace CoolFont.Properties {
                 this["ConnectedDevices"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool JustUpdated {
+            get {
+                return ((bool)(this["JustUpdated"]));
+            }
+            set {
+                this["JustUpdated"] = value;
+            }
+        }
     }
 }
