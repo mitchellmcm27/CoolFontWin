@@ -47,7 +47,7 @@ namespace CoolFont
             client.Credentials = new NetworkCredential("coolfontwin.crash@gmail.com", "emailpassword212");
             mail.Subject = "Crash Report for " + Environment.UserName;
             mail.Body = System.IO.File.ReadAllText(LastLogFilename);
-            client.Timeout = 2000;
+            client.Timeout = 10000; // ms
             mail.Attachments.Add(new Attachment(RollingLogFilename));
 
             try
