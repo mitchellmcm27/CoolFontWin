@@ -76,7 +76,15 @@ namespace CoolFont
                 log.Info("First launch with latest version.");
                 log.Info("Install location " + CurrentInstallLocation);
 
-                AddFirewallRule(CurrentInstallLocation);
+                try
+                {
+                    ForceFirewallWindow();
+                }
+                catch (Exception e)
+                {
+                    log.Error("Unable to open temp TCP socket because: " + e.Message);
+                    log.Info("Windows Firewall should prompt on the next startup.");
+                }
 
                 Properties.Settings.Default.JustUpdated = false;
                 Properties.Settings.Default.Save();
@@ -97,9 +105,22 @@ namespace CoolFont
             NotifyIcon.MouseUp += NotifyIcon_MouseUp;
             
         }
+        private void ForceFirewallWindow()
+        {
+            log.Info("Opening, closing TCP socket so that Windows Firewall prompt appears...");
+
+            System.Net.IPAddress ipAddress = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
+            log.Info("Address: " + ipAddress.ToString());
+            System.Net.IPEndPoint ipLocalEndPoint = new System.Net.IPEndPoint(ipAddress, 12345);
+
+            System.Net.Sockets.TcpListener t = new System.Net.Sockets.TcpListener(ipLocalEndPoint);
+            t.Start();
+            t.Stop();
+        }
 
         private void AddFirewallRule(string path)
         {
+            // Not used currently
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
                 return;
@@ -119,6 +140,7 @@ namespace CoolFont
 
         private void DeleteFirewallRule(string path)
         {
+            // Not used currently
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
                 return;
@@ -253,7 +275,7 @@ namespace CoolFont
             // If next launch will be a new version
             if (Properties.Settings.Default.JustUpdated)
             {
-                DeleteFirewallRule(CurrentInstallLocation);
+               // DeleteFirewallRule(CurrentInstallLocation);
             }
 
             Cfw.KillOpenProcesses();
