@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Deployment;
 using System.Deployment.Application;
 using CoolFont.UI;
+using CoolFont.Firewall;
 using System.ComponentModel;
 using log4net;
 
@@ -42,10 +43,9 @@ namespace CoolFont
 
         public CustomApplicationContext(string[] args)
         {
-            handler = new ConsoleEventDelegate(ConsoleEventCallback);
-            SetConsoleCtrlHandler(handler, true);
             InitializeContext();
             Cfw = new CoolFontWin(NotifyIcon, args);
+
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
             string[] devices = new string[devicesCol.Count];
             devicesCol.CopyTo(devices, 0);
@@ -60,6 +60,9 @@ namespace CoolFont
             if (Properties.Settings.Default.FirstInstall)
             {
                 log.Info("First run after install");
+                log.Info("Install location " + Assembly.GetExecutingAssembly().Location);
+
+                AuthorizeFirewall();
                 ShowSuccessfulInstallForm();
                 // ShowUpdateNotesForm();
                 
@@ -81,6 +84,27 @@ namespace CoolFont
             NotifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             NotifyIcon.MouseUp += NotifyIcon_MouseUp;
             
+        }
+
+        private void AuthorizeFirewall()
+        {
+            log.Info("Will try to open firewall for this installation.");
+            FirewallHelper.Instance.GrantAuthorization(Assembly.GetExecutingAssembly().Location, "CoolFontWin");
+ 
+
+            bool res = false;
+            log.Info("Checking firewall status.");
+            res = FirewallHelper.Instance.HasAuthorization(Assembly.GetExecutingAssembly().Location);
+
+            if (res)
+            {
+                log.Info(FirewallHelper.Instance.GetAuthorizedAppPaths());
+                log.Info("Firewall authorization granted");
+            }
+            else
+            {
+                log.Error("Firewall authorization not granted");
+            }
         }
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
@@ -186,13 +210,6 @@ namespace CoolFont
             }
             return false;
         }
-
-        static ConsoleEventDelegate handler;   // Keeps it from getting garbage collected
-                                               
-        private delegate bool ConsoleEventDelegate(int eventType);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool SetConsoleCtrlHandler(ConsoleEventDelegate callback, bool add);
 
         protected override void Dispose(bool disposing) 
         {
