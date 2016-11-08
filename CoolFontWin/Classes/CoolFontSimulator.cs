@@ -643,7 +643,7 @@ namespace CoolFont
 
             public void FeedVJoy()
             {
-                if (Mode == (SimulatorMode.ModeMouse | SimulatorMode.ModePaused | SimulatorMode.ModeWASD))
+                if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD)
                 {
                     return;
                 }
@@ -671,10 +671,17 @@ namespace CoolFont
                 {
                     log.Error(String.Format("vJoy device {0} not enabled. Enable, then press Enter. \n", Id));
                     // Console.ReadKey(true);
-                    // Joystick.AcquireVJD(Id);
+                    
 
-                    MessageBox.Show("Enable vJoy to use this mode", "Unable to switch modes. Defaulting to Keyboard mode", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    Mode = SimulatorMode.ModeWASD;
+                    var result = MessageBox.Show("Enable vJoy and click OK, or cancel to Keyboard mode", "Unable to switch modes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    if (result == DialogResult.OK)
+                    {
+                        Joystick.AcquireVJD(Id);
+                    }
+                    else
+                    {
+                        Mode = SimulatorMode.ModeWASD;
+                    }
                     return;
                 }
             }
