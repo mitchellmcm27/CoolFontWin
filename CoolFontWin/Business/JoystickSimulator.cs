@@ -109,12 +109,12 @@ namespace CoolFont.Business
 
         public double RCFilterStrength;
 
-        public VirtualDevice(uint id, int updateInterval)
+        public VirtualDevice(uint id)
         {               
             Mode = SimulatorMode.ModeDefault;
             OldMode = Mode;
 
-            this.UpdateInterval = updateInterval;
+            this.UpdateInterval = 8000;
             this.Id = id;
 
             // assuming socketPollInterval = 8,000:

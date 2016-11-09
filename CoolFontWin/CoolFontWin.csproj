@@ -205,7 +205,7 @@
     <Compile Include="Business\FileManager.cs" />
     <Compile Include="Business\SendInputWrapper.cs" />
     <Compile Include="Business\LogFileManager.cs" />
-    <Compile Include="Business\UdpListener.cs" />
+    <Compile Include="Business\UdpSocketManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Business\XInputDevice.cs" />
     <Compile Include="Business\JoystickSimulator.cs" />
