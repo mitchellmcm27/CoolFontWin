@@ -201,37 +201,39 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\SendInputWrapper.cs" />
-    <Compile Include="Classes\LogFileManager.cs" />
+    <Compile Include="Business\Algorithm.cs" />
+    <Compile Include="Business\FileManager.cs" />
+    <Compile Include="Business\SendInputWrapper.cs" />
+    <Compile Include="Business\LogFileManager.cs" />
+    <Compile Include="Business\UdpListener.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Classes\XInputDevice.cs" />
-    <Compile Include="Classes\CoolFontSimulator.cs" />
-    <Compile Include="Classes\CoolFont.cs" />
-    <Compile Include="Classes\InputSimulator\IInputDeviceStateAdaptor.cs" />
-    <Compile Include="Classes\InputSimulator\IInputMessageDispatcher.cs" />
-    <Compile Include="Classes\InputSimulator\IInputSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\IKeyboardSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\IMouseSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\InputBuilder.cs" />
-    <Compile Include="Classes\InputSimulator\InputSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\KeyboardSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\MouseButton.cs" />
-    <Compile Include="Classes\InputSimulator\MouseSimulator.cs" />
-    <Compile Include="Classes\InputSimulator\WindowsInputDeviceStateAdaptor.cs" />
-    <Compile Include="Classes\InputSimulator\WindowsInputMessageDispatcher.cs" />
-    <Compile Include="Classes\InputSimulator\Native\HARDWAREINPUT.cs" />
-    <Compile Include="Classes\InputSimulator\Native\INPUT.cs" />
-    <Compile Include="Classes\InputSimulator\Native\InputType.cs" />
-    <Compile Include="Classes\InputSimulator\Native\KEYBDINPUT.cs" />
-    <Compile Include="Classes\InputSimulator\Native\KeyboardFlag.cs" />
-    <Compile Include="Classes\InputSimulator\Native\MouseFlag.cs" />
-    <Compile Include="Classes\InputSimulator\Native\MOUSEINPUT.cs" />
-    <Compile Include="Classes\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
-    <Compile Include="Classes\InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="Classes\CoolFontWin.cs" />
+    <Compile Include="Business\XInputDevice.cs" />
+    <Compile Include="Business\JoystickSimulator.cs" />
+    <Compile Include="Business\InputSimulator\IInputDeviceStateAdaptor.cs" />
+    <Compile Include="Business\InputSimulator\IInputMessageDispatcher.cs" />
+    <Compile Include="Business\InputSimulator\IInputSimulator.cs" />
+    <Compile Include="Business\InputSimulator\IKeyboardSimulator.cs" />
+    <Compile Include="Business\InputSimulator\IMouseSimulator.cs" />
+    <Compile Include="Business\InputSimulator\InputBuilder.cs" />
+    <Compile Include="Business\InputSimulator\InputSimulator.cs" />
+    <Compile Include="Business\InputSimulator\KeyboardSimulator.cs" />
+    <Compile Include="Business\InputSimulator\MouseButton.cs" />
+    <Compile Include="Business\InputSimulator\MouseSimulator.cs" />
+    <Compile Include="Business\InputSimulator\WindowsInputDeviceStateAdaptor.cs" />
+    <Compile Include="Business\InputSimulator\WindowsInputMessageDispatcher.cs" />
+    <Compile Include="Business\InputSimulator\Native\HARDWAREINPUT.cs" />
+    <Compile Include="Business\InputSimulator\Native\INPUT.cs" />
+    <Compile Include="Business\InputSimulator\Native\InputType.cs" />
+    <Compile Include="Business\InputSimulator\Native\KEYBDINPUT.cs" />
+    <Compile Include="Business\InputSimulator\Native\KeyboardFlag.cs" />
+    <Compile Include="Business\InputSimulator\Native\MouseFlag.cs" />
+    <Compile Include="Business\InputSimulator\Native\MOUSEINPUT.cs" />
+    <Compile Include="Business\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
+    <Compile Include="Business\InputSimulator\Native\NativeMethods.cs" />
+    <Compile Include="Business\CoolFontWin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Classes\InputSimulator\Native\VirtualKeyCode.cs" />
-    <Compile Include="Classes\InputSimulator\Native\XButton.cs" />
+    <Compile Include="Business\InputSimulator\Native\VirtualKeyCode.cs" />
+    <Compile Include="Business\InputSimulator\Native\XButton.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -242,19 +244,19 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="UI\Colors.cs" />
-    <Compile Include="UI\CustomApplicationContext.cs" />
-    <Compile Include="UI\CustomContextMenuRenderer.cs" />
-    <Compile Include="UI\Success.cs">
+    <Compile Include="Business\Colors.cs" />
+    <Compile Include="Business\CustomApplicationContext.cs" />
+    <Compile Include="Business\CustomContextMenuRenderer.cs" />
+    <Compile Include="Forms\Success.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\Success.Designer.cs">
+    <Compile Include="Forms\Success.Designer.cs">
       <DependentUpon>Success.cs</DependentUpon>
     </Compile>
-    <Compile Include="UI\UpdateNotes.cs">
+    <Compile Include="Forms\UpdateNotes.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="UI\UpdateNotes.Designer.cs">
+    <Compile Include="Forms\UpdateNotes.Designer.cs">
       <DependentUpon>UpdateNotes.cs</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -342,10 +344,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\Success.resx">
+    <EmbeddedResource Include="Forms\Success.resx">
       <DependentUpon>Success.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\UpdateNotes.resx">
+    <EmbeddedResource Include="Forms\UpdateNotes.resx">
       <DependentUpon>UpdateNotes.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>

@@ -6,7 +6,7 @@ using log4net;
 
 //using MutexManager;
 
-namespace CoolFont
+namespace CoolFont.Business
 {
     static class Program
     {
@@ -32,7 +32,7 @@ namespace CoolFont
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var applicationContext = new CustomApplicationContext(args);
+            var applicationContext = new CustomApplicationContext();
 
             applicationContext.CheckForUpdates();
 

@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CoolFont.UI
+namespace CoolFont.Forms
 {
     public partial class SuccessForm : Form
     {

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 /* https://github.com/RobinPerris/DarkUI */
 
-namespace CoolFont.UI
+namespace CoolFont.Business
 {
     public class CustomContextMenuRenderer : ToolStripRenderer
     {

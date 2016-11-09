@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace CoolFont.UI
+namespace CoolFont.Forms
 {
     partial class SuccessForm
     {

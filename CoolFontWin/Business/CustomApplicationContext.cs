@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Deployment;
 using System.Deployment.Application;
-using CoolFont.UI;
+using CoolFont.Forms;
 
 using System.ComponentModel;
 using log4net;
 
-namespace CoolFont
+namespace CoolFont.Business
 {
     public class CustomApplicationContext : ApplicationContext
     {
@@ -43,10 +43,10 @@ namespace CoolFont
 
         private CoolFontWin Cfw;
 
-        public CustomApplicationContext(string[] args)
+        public CustomApplicationContext()
         {
             InitializeContext();
-            Cfw = new CoolFontWin(NotifyIcon, args);
+            Cfw = new CoolFontWin(NotifyIcon);
 
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
             string[] devices = new string[devicesCol.Count];
@@ -68,7 +68,6 @@ namespace CoolFont
                 // ShowUpdateNotesForm();
                 
                 Properties.Settings.Default.FirstInstall = false;
-                Properties.Settings.Default.Save();
             }
 
             if (Properties.Settings.Default.JustUpdated)
@@ -87,8 +86,10 @@ namespace CoolFont
                 }
 
                 Properties.Settings.Default.JustUpdated = false;
-                Properties.Settings.Default.Save();
+
             }
+
+            Properties.Settings.Default.Save();
 
             Components = new System.ComponentModel.Container();
             NotifyIcon = new NotifyIcon(Components)
@@ -105,6 +106,7 @@ namespace CoolFont
             NotifyIcon.MouseUp += NotifyIcon_MouseUp;
             
         }
+
         private void ForceFirewallWindow()
         {
             log.Info("Opening, closing TCP socket so that Windows Firewall prompt appears...");

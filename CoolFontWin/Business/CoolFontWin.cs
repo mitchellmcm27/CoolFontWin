@@ -7,55 +7,25 @@ using System.Drawing;
 using System.Collections.Generic;
 
 using SharpDX.XInput;
-using CoolFont.IO;
-using CoolFont.Network;
-using CoolFont.Simulator;
 using log4net;
 
-namespace CoolFont
+namespace CoolFont.Business
 {
     public class CoolFontWin
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        ManualResetEvent _shutdownEvent = new ManualResetEvent(false);
-        ManualResetEvent _pauseEvent = new ManualResetEvent(true);
-
         private readonly NotifyIcon NotifyIcon;
 
-        private bool LogRcvd = false;
-        private bool Verbose = false;
         private volatile bool InterceptXInputDevice = false;
-        private string[] args;
-        private UdpListener[] socks;
 
+        private UdpListener[] socks;
         public VirtualDevice VDevice;
 
-        public CoolFontWin(NotifyIcon notifyIcon, string[] args)
+        public CoolFontWin(NotifyIcon notifyIcon)
         {
             this.NotifyIcon = notifyIcon;
-            this.args = args;
-        }
-
-        private void ProcessArgs()
-        {
-            foreach (string arg in args)
-            {
-                if (arg.Equals("log"))
-                {
-                    LogRcvd = true;
-                }
-                if (arg.Equals("verbose"))
-                {
-                    Verbose = true;
-                }
-                if (arg.Equals("intercept"))
-                {
-                    InterceptXInputDevice = true;
-                }
-            }
-
         }
 
         static public string PortFile = "last-port.txt";
@@ -67,13 +37,12 @@ namespace CoolFont
 
         public void StartServices(string[] names)
         {
-            ProcessArgs();
 
             socks = new UdpListener[names.Length];
             bool[] servicePublished = new bool[names.Length];
             int[] tryports = new int[names.Length];
 
-            List<int> portsFromFile = FileManager.TryToReadPortsFromFile(CoolFontWin.PortFile); // returns 0 if none
+            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(CoolFontWin.PortFile)); // returns 0 if none
 
             for (int i = 0; i < tryports.Length; i++)
             {
@@ -106,7 +75,6 @@ namespace CoolFont
             }
 
             VDevice = new VirtualDevice(1, socks[0].SocketPollInterval); // will change Mode if necessary
-            VDevice.LogOutput = Verbose; // T or F
 
             Thread ReceiveThread = new Thread(ReceiveService);
 
@@ -115,11 +83,10 @@ namespace CoolFont
 
         private void ReceiveService()
         {
-            XInputDeviceManager devMan = new XInputDeviceManager();
             // could repeat this in a try/catch block to find new controllers
+            XInputDeviceManager devMan = new XInputDeviceManager();
             Controller xDevice = devMan.getController();
 
-            int T = 0; // total time
             int maxGapSize = 90; // set to -1 to always interpolate data
             int gapSize = maxGapSize + 1;
             string[] rcvds = new string[socks.Length];
@@ -177,16 +144,17 @@ namespace CoolFont
                 
                 VDevice.FeedVJoy();
                 VDevice.ResetValues();
-                T++;
 
-                if (LogRcvd && (T % 10 == 0))
+                if (false)
                 {
                     Console.Write("\n" + rcvds.Length.ToString());
                     Console.Write("{0}\n", string.Join(".....", rcvds));
                 }
 
-                if (VDevice.LogOutput) // simulator will write some stuff, then...
+                if (false) // simulator will write some stuff, then...
+                {
                     Console.Write("({0})\n", gapSize);
+                }
             }
         }
 
