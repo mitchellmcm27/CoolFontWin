@@ -26,6 +26,8 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        static readonly object locker = new object();
+
         // devices
         private VirtualDevice VDevice;
         private XInputDeviceManager XMgr;
@@ -85,7 +87,7 @@ namespace CFW.Business
         public static DeviceManager Instance
         {
             get
-            {
+            { 
                 return lazy.Value;
             }
         }
@@ -168,48 +170,51 @@ namespace CFW.Business
         /// <param name="data">Array of bytes representing UTF8 encoded string.</param>
         public void PassDataToDevices(byte[] data)
         {
-            // give data to virtual device
-            if (VDevice.HandleNewData(data))
+            lock (locker)
             {
-                // returns false if data is empty
-                VDevice.ShouldInterpolate = true;
-                TimerCount = 0;
-            }
-
-            // determine whether to keep interpolating
-            if (TimerCount >= MaxInterpolateCount)
-            {
-                VDevice.ShouldInterpolate = false;
-            }
-
-            // xbox controller handling
-            if (InterceptXInputDevice)
-            {
-                if (VDevice.Mode == SimulatorMode.ModeWASD)
+                // give data to virtual device
+                if (VDevice.HandleNewData(data))
                 {
-                    // do not allow xbox controller in Keyboard mode
-                    InterceptXInputDevice = false;
+                    // returns false if data is empty
+                    VDevice.ShouldInterpolate = true;
+                    TimerCount = 0;
                 }
-                else
+
+                // determine whether to keep interpolating
+                if (TimerCount >= MaxInterpolateCount)
                 {
-                    try
+                    VDevice.ShouldInterpolate = false;
+                }
+
+                // xbox controller handling
+                if (InterceptXInputDevice)
+                {
+                    if (VDevice.Mode == SimulatorMode.ModeWASD)
                     {
-                        State state = XDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }
-                    catch
-                    {
-                        // controller probably not connected
+                        // do not allow xbox controller in Keyboard mode
                         InterceptXInputDevice = false;
-                        XInputDeviceConnected = false;
-                        System.Media.SystemSounds.Beep.Play();
+                    }
+                    else
+                    {
+                        try
+                        {
+                            State state = XDevice.GetState();
+                            VDevice.AddControllerState(state);
+                        }
+                        catch
+                        {
+                            // controller probably not connected
+                            InterceptXInputDevice = false;
+                            XInputDeviceConnected = false;
+                            System.Media.SystemSounds.Beep.Play();
+                        }
                     }
                 }
-            }
 
-            // update virtual device
-            VDevice.FeedVJoy();
-            VDevice.ResetValues();
+                // update virtual device
+                VDevice.FeedVJoy();
+                VDevice.ResetValues();
+            }
         }
     }
 }
