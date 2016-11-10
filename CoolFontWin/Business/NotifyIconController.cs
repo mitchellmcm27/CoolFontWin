@@ -178,36 +178,28 @@ namespace CFW.Business
             }
         }
 
-        private bool WillAddIPhoneOnRestart = false;
-
-        private void addIPhone_Click(object sender, EventArgs e)
+        private string AddRemoveLegString()
         {
-            var devicesCol = Properties.Settings.Default.ConnectedDevices;
-
-            string name;
-            switch (devicesCol.Count)
+            if (DeviceNames.Count > 1)
             {
-                case 0:
-                    name = "Primary";
-                    break;
-                case 1:
-                    name = "Secondary";
-                    break;
-                default:
-                    name = "Device " + (devicesCol.Count+1).ToString();
-                    break;
+                return "Remove Secondary Leg";
             }
-
-            AddService(name);
-
-            devicesCol.Add(name);
-            Properties.Settings.Default.ConnectedDevices = devicesCol;
-            Properties.Settings.Default.Save();
+            else
+            {
+                return "Add Secondary Leg";
+            }
         }
 
-        private void removeIphone_Click(object sender, EventArgs e)
+        private void addRemoveSecondaryLeg_Click(object sender, EventArgs e)
         {
-            RemoveLastService();
+            if (DeviceNames.Count > 1)
+            {
+                RemoveLastService();
+            }
+            else
+            {
+                AddService("Secondary");
+            }
         }
 
         private void addXInput_Click(object sender, EventArgs e)
@@ -278,13 +270,8 @@ namespace CFW.Business
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
             deviceSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
-            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler("Add Secondary Leg", addIPhone_Click);
-            addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
-            addIPhoneItem.Enabled = DeviceNames.Count > 1 ? false : true;
-
-            ToolStripMenuItem removeIPhoneItem = ToolStripMenuItemWithHandler("Remove Secondary Leg", removeIphone_Click);
-            removeIPhoneItem.Image = null;
-            removeIPhoneItem.Enabled = DeviceNames.Count > 1 ? true: false;
+            ToolStripMenuItem addRemoveSecondaryLegItem = ToolStripMenuItemWithHandler(AddRemoveLegString(), addRemoveSecondaryLeg_Click);
+            addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? null : Properties.Resources.ic_settings_cell_white_18dp;
 
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
             if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
@@ -293,7 +280,7 @@ namespace CFW.Business
             }
             addXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, removeIPhoneItem, addXboxControllerItem });
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveSecondaryLegItem, addXboxControllerItem });
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
