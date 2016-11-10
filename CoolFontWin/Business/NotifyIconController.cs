@@ -182,11 +182,11 @@ namespace CFW.Business
         {
             if (DeviceNames.Count > 1)
             {
-                return "Remove Secondary Leg";
+                return "Remove secondary leg";
             }
             else
             {
-                return "Add Secondary Leg";
+                return "Add secondary leg";
             }
         }
 
@@ -202,7 +202,19 @@ namespace CFW.Business
             }
         }
 
-        private void addXInput_Click(object sender, EventArgs e)
+        private string AddRemoveXboxControllerString()
+        {
+            if (!SharedDeviceManager.InterceptXInputDevice)
+            {
+                return "Use Xbox controller";
+            }
+            else
+            {
+                return "Release Xbox controller";
+            }
+        }
+
+        private void addRemoveXboxController_Click(object sender, EventArgs e)
         {
             if (!SharedDeviceManager.InterceptXInputDevice)
             {
@@ -239,6 +251,10 @@ namespace CFW.Business
             }
 
             // vJoy config and monitor
+            ToolStripMenuItem fwdKeyItem = ToolStripMenuItemWithHandler("Rebind forward key", null);
+            fwdKeyItem.Image = Properties.Resources.ic_gamepad_white_18dp;
+            fwdKeyItem.Enabled = false;
+
             ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
             flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
@@ -253,6 +269,7 @@ namespace CFW.Business
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
             vJoySubMenu.Image = Properties.Resources.ic_settings_white_18dp;
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
+                fwdKeyItem,
                 flipXItem,
                 flipYItem,
                 new ToolStripSeparator(),
@@ -271,16 +288,16 @@ namespace CFW.Business
             deviceSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
             ToolStripMenuItem addRemoveSecondaryLegItem = ToolStripMenuItemWithHandler(AddRemoveLegString(), addRemoveSecondaryLeg_Click);
-            addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? null : Properties.Resources.ic_settings_cell_white_18dp;
+            addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
 
-            ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
+            ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
             if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
             {
-                addXboxControllerItem.Enabled = false;
+                addRemoveXboxControllerItem.Enabled = false;
             }
-            addXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
+            addRemoveXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_clear_white_18dp : Properties.Resources.ic_videogame_asset_white_18dp;
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveSecondaryLegItem, addXboxControllerItem });
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveSecondaryLegItem, addRemoveXboxControllerItem });
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(

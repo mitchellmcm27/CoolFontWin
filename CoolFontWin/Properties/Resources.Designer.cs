@@ -83,9 +83,29 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_clear_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_clear_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_done_white_16dp {
             get {
                 object obj = ResourceManager.GetObject("ic_done_white_16dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_gamepad_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_gamepad_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -153,9 +173,49 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_phonelink_erase_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_phonelink_erase_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_phonelink_ring_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_phonelink_ring_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_power_settings_new_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_power_settings_new_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_radio_button_checked_white_24dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_radio_button_checked_white_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_radio_button_unchecked_white_24dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_radio_button_unchecked_white_24dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -206,6 +266,16 @@ namespace CFW.Properties {
         internal static System.Drawing.Bitmap ic_swap_vert_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_swap_vert_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_videogame_asset_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_videogame_asset_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

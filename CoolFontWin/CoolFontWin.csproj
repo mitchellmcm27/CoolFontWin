@@ -320,6 +320,14 @@
     <None Include="Resources\ic_settings_applications_white_18dp.png" />
     <None Include="Resources\ic_settings_white_18dp.png" />
     <None Include="Resources\ic_link_white_18dp.png" />
+    <None Include="Resources\ic_phonelink_erase_white_18dp.png" />
+    <None Include="Resources\ic_phonelink_ring_white_18dp.png" />
+    <None Include="Resources\ic_videogame_asset_white_18dp.png" />
+    <None Include="Resources\ic_radio_button_checked_white_24dp.png" />
+    <None Include="Resources\ic_radio_button_unchecked_white_24dp.png" />
+    <None Include="Resources\ic_clear_white_18dp.png" />
+    <None Include="Resources\ic_keyboard_white_18pt_2x.png" />
+    <None Include="Resources\ic_gamepad_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
