@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace CoolFont.Forms
+namespace CFW.Forms
 {
     partial class SuccessForm
     {
@@ -139,7 +139,7 @@ namespace CoolFont.Forms
             // 
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.pictureBox1.Image = global::CoolFont.Properties.Resources.circle_tilted_01;
+            this.pictureBox1.Image = global::CFW.Properties.Resources.circle_tilted_01;
             this.pictureBox1.Location = new System.Drawing.Point(505, 100);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(149, 48);
@@ -154,7 +154,7 @@ namespace CoolFont.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.BackgroundImage = global::CoolFont.Properties.Resources.lil_dued_in_space_unplugged_smaller_01;
+            this.BackgroundImage = global::CFW.Properties.Resources.lil_dued_in_space_unplugged_smaller_01;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.ClientSize = new System.Drawing.Size(665, 292);
             this.Controls.Add(this.pictureBox1);

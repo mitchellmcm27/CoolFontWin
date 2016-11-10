@@ -6,7 +6,7 @@ using log4net;
 
 //using MutexManager;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     static class Program
     {

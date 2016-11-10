@@ -9,7 +9,7 @@ using log4net;
 using log4net.Appender;
 using log4net.Repository.Hierarchy;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     static class LogFileManager
     {

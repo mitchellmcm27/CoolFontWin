@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public class SendInputWrapper
     {

@@ -10,7 +10,7 @@ using vJoyInterfaceWrap;
 
 using log4net;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
 
 

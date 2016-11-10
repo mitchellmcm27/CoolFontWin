@@ -6,12 +6,12 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Deployment;
 using System.Deployment.Application;
-using CoolFont.Forms;
+using CFW.Forms;
 
 using System.ComponentModel;
 using log4net;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public class CustomApplicationContext : ApplicationContext
     {

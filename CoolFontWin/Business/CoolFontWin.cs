@@ -11,7 +11,7 @@ using SharpDX.XInput;
 using log4net;
 using System.Net.Sockets;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public class CoolFontWin
     {
@@ -21,6 +21,7 @@ namespace CoolFont.Business
         private readonly NotifyIcon NotifyIcon;
         private UdpSocketManager SocketManager;
         private UDPServer Server;
+        private DeviceManager SharedDeviceManager = DeviceManager.Instance;
 
         static public string PortFile = "last-port.txt";
 
@@ -54,6 +55,7 @@ namespace CoolFont.Business
 
             Server = new UDPServer(tryport);
             Server.Start();
+
             int port = Server.port;
             FileManager.WritePortToLine(port, 0, CoolFontWin.PortFile);
 
@@ -74,18 +76,19 @@ namespace CoolFont.Business
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
-            Server.DevManager.VDevice.RCFilterStrength *= 2;
+            SharedDeviceManager.SmoothingFactor *= 2;
         }
 
         private void SmoothingHalf_Click(object sender, EventArgs e)
         {
-            Server.DevManager.VDevice.RCFilterStrength /= 2;
+            SharedDeviceManager.SmoothingFactor /= 2;
         }
 
         private void SelectedMode_Click(object sender, EventArgs e)
         {
             log.Debug(sender);
-            bool res = Server.DevManager.VDevice.ClickedMode((int)((ToolStripMenuItem)sender).Tag);
+            bool res = SharedDeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
+
             if (!res)
             {
                 MessageBox.Show("Enable vJoy and restart to use this mode", "Unable to switch modes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
@@ -135,17 +138,17 @@ namespace CoolFont.Business
 
         private void FlipX_Click(object sender, EventArgs e)
         {
-            if (Server.DevManager.VDevice != null)
+            if (SharedDeviceManager.VJoyDeviceConnected)
             {
-                Server.DevManager.VDevice.signX = -Server.DevManager.VDevice.signX;
+                SharedDeviceManager.FlipAxis(Axis.AxisX);
             }
         }
 
         private void FlipY_Click(object sender, EventArgs e)
         {
-            if (Server.DevManager.VDevice != null)
+            if (SharedDeviceManager.VJoyDeviceConnected)
             {
-                Server.DevManager.VDevice.signY = -Server.DevManager.VDevice.signY;
+                SharedDeviceManager.FlipAxis(Axis.AxisY);
             }
         }
 
@@ -166,7 +169,7 @@ namespace CoolFont.Business
 
         private void addXInput_Click(object sender, EventArgs e)
         {
-            Server.DevManager.InterceptXInputDevice = !Server.DevManager.InterceptXInputDevice;
+            SharedDeviceManager.InterceptXInputDevice = !SharedDeviceManager.InterceptXInputDevice;
         }
 
         /**
@@ -175,8 +178,8 @@ namespace CoolFont.Business
         public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
         {
             // Mode submenu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(Server.DevManager.VDevice.Mode)));
-            modeSubMenu.Image = Server.DevManager.VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(SharedDeviceManager.Mode)));
+            modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -187,7 +190,7 @@ namespace CoolFont.Business
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode value
                 item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Regular);
-                if (i == (int)Server.DevManager.VDevice.Mode)
+                if (i == (int)SharedDeviceManager.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_white_16dp;
@@ -225,15 +228,15 @@ namespace CoolFont.Business
 
             // Connect to multiple devices, add device
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
-            deviceSubMenu.Image = Server.DevManager.VDevice.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+            deviceSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
             ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), null);
             addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
             addIPhoneItem.Enabled = false;
 
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
-            addXboxControllerItem.Enabled = Server.DevManager.VDevice.Mode == SimulatorMode.ModeWASD ? false : true;
-            addXboxControllerItem.Image = Server.DevManager.InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
+            addXboxControllerItem.Enabled = SharedDeviceManager.Mode == SimulatorMode.ModeWASD ? false : true;
+            addXboxControllerItem.Image = SharedDeviceManager.XInputDeviceConnected ? Properties.Resources.ic_done_white_16dp : null;
 
             deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
 
@@ -273,51 +276,5 @@ namespace CoolFont.Business
         }
 
         #endregion
-    }
-
-    public class DeviceManager
-    {
-        public VirtualDevice VDevice; 
-        private XInputDeviceManager XboxMan = new XInputDeviceManager();
-        private Controller XDevice;
-        public bool InterceptXInputDevice = false;
-
-        public DeviceManager()
-        {
-            XDevice = XboxMan.getController();
-            VDevice = new VirtualDevice(1);
-        }
-
-        public void PassDataToDevices(byte[] data)
-        {
-            string rcvd = System.Text.Encoding.UTF8.GetString(data);
-
-            VDevice.HandleNewData(rcvd);
-            VDevice.AddJoystickConstants();
-
-            if (InterceptXInputDevice)
-            {
-                if (VDevice.Mode == SimulatorMode.ModeWASD)
-                {
-                    InterceptXInputDevice = false;
-                }
-                else
-                {
-                    try
-                    {
-                        State state = XDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }
-                    catch
-                    {
-                        InterceptXInputDevice = false;
-                        System.Media.SystemSounds.Beep.Play();
-                    }
-                }
-            }
-
-            VDevice.FeedVJoy();
-            VDevice.ResetValues();
-        }
     }
 }

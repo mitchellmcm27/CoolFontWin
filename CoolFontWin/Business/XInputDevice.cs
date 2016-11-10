@@ -2,7 +2,7 @@
 using SharpDX.XInput;
 using log4net;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
 
     class XInputDeviceManager

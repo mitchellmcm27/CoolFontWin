@@ -1,4 +1,4 @@
-﻿namespace CoolFont
+﻿namespace CFW
 {
     partial class UpdateNotes
     {

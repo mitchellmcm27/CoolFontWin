@@ -5,7 +5,7 @@ using System.IO;
 
 using log4net;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public static class FileManager
     {

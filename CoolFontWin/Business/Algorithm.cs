@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public static class Algorithm
     {

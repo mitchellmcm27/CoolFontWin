@@ -10,7 +10,7 @@ using Mono.Zeroconf;
 using log4net;
 using System.Collections;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public class UdpSocketManager
     {
@@ -146,7 +146,7 @@ namespace CoolFont.Business
         private List<Tuple<EndPoint, byte[]>> dataList = new List<Tuple<EndPoint, byte[]>>();
         private byte[] byteData = new byte[1024];
 
-        public DeviceManager DevManager;
+        private DeviceManager SharedDeviceManager = DeviceManager.Instance;
 
         public int port = 4242;
 
@@ -159,7 +159,6 @@ namespace CoolFont.Business
         public UDPServer(int port)
         {
             this.port = port;
-            this.DevManager = new DeviceManager();
         }
 
         public void Start()
@@ -199,7 +198,7 @@ namespace CoolFont.Business
 
                 //DataList.Add(Tuple.Create(clientEP, data));
                 //log.Info(data.ToString());
-                DevManager.PassDataToDevices(data);
+                SharedDeviceManager.PassDataToDevices(data);
             }
             catch (ObjectDisposedException)
             {

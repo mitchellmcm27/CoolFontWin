@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace CoolFont.Business
+namespace CFW.Business
 {
     public sealed class Colors
     {

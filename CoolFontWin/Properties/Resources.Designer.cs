@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CoolFont.Properties {
+namespace CFW.Properties {
     using System;
     
     
