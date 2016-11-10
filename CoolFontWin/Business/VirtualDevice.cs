@@ -191,7 +191,6 @@ namespace CFW.Business
             // received packet after a long delay
             if (!ShouldInterpolate)
             {
-                log.Info("!! Began receiving.");
                 ShouldInterpolate = true;
             }
             return true;
@@ -525,8 +524,8 @@ namespace CFW.Business
                 case SimulatorMode.ModeMouse:
                     /* vel, X, Y, RX, RY, Z, RZ, POV, dY, dX, */
                     // Control mouse on screen
-                    KbM.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
-                                            -(int)valsf[8]); // dx, dy (pixels)
+                    KbM.Mouse.MoveMouseBy(-(int)valsf[9]*5, // negative because device is not assumed upside down
+                                            -(int)valsf[8]*5); // dx, dy (pixels)
                     if (LogOutput)
                     {
                         Console.Write("dx:{0} dy:{1}", (int)valsf[9], (int)valsf[9]);

@@ -41,12 +41,12 @@ namespace CFW.Business
             set { Ver = value; }
         }
 
-        private CoolFontWin Cfw;
+        private NotifyIconController Cfw;
 
         public CustomApplicationContext()
         {
             InitializeContext();
-            Cfw = new CoolFontWin(NotifyIcon);
+            Cfw = new NotifyIconController(NotifyIcon);
 
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
             string[] devices = new string[devicesCol.Count];

@@ -13,22 +13,23 @@ using System.Net.Sockets;
 
 namespace CFW.Business
 {
-    public class CoolFontWin
+    public class NotifyIconController
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly NotifyIcon NotifyIcon;
-        private UdpSocketManager SocketManager;
+        private DNSNetworkService NetworkService;
         private UDPServer Server;
         private DeviceManager SharedDeviceManager = DeviceManager.Instance;
+        private string[] DeviceNames;
 
         static public string PortFile = "last-port.txt";
 
-        public CoolFontWin(NotifyIcon notifyIcon)
+        public NotifyIconController(NotifyIcon notifyIcon)
         {
             this.NotifyIcon = notifyIcon;
-            this.SocketManager = new UdpSocketManager();
+            this.NetworkService = new DNSNetworkService();
         }
 
         public void StartServices()
@@ -37,11 +38,11 @@ namespace CFW.Business
         }
         public void StartServices(string[] names)
         {
+            this.DeviceNames = names;
 
+            bool[] servicePublished = new bool[DeviceNames.Length];
 
-            bool[] servicePublished = new bool[names.Length];
-
-            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(CoolFontWin.PortFile)); // returns 0 if none
+            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(NotifyIconController.PortFile)); // returns 0 if none
 
             int tryport;
             try
@@ -57,11 +58,11 @@ namespace CFW.Business
             Server.Start();
 
             int port = Server.port;
-            FileManager.WritePortToLine(port, 0, CoolFontWin.PortFile);
+            FileManager.WritePortToLine(port, 0, NotifyIconController.PortFile);
 
-            for (int i = 0; i < names.Length; i++)
+            for (int i = 0; i < DeviceNames.Length; i++)
             {
-                SocketManager.Publish(port, names[i]);
+                NetworkService.Publish(port, DeviceNames[i]);
             }
         }
 
@@ -255,7 +256,7 @@ namespace CFW.Business
 
         private string AddIPhoneItemString()
         {
-            return WillAddIPhoneOnRestart ? "Restart requried" : String.Format("Add another iPhone ({0}) - Coming soon", SocketManager.ListenList.Count);
+            return WillAddIPhoneOnRestart ? "Restart required" : String.Format("Add another iPhone ({0}) - Coming soon", this.DeviceNames.Length);
         }
 
         public static string GetDescription(Enum value)

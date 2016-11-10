@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -12,7 +9,7 @@ using System.Collections;
 
 namespace CFW.Business
 {
-    public class UdpSocketManager
+    public class DNSNetworkService
     {
         /**<summary>
          * Implements a UDP socket to listen on a given port, defaults to 5555.
@@ -26,22 +23,14 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private UdpClient Listener;
         public RegisterService Service;
-        public ArrayList ListenList;
-        public List<int> ListenPorts;
-
-        private byte[] RcvBytes = new byte[256];
-        private IPEndPoint SenderEP; // network End Point for the device sending packets
-
         public string[] LocalAddrs;
 
-        public UdpSocketManager()
+        public DNSNetworkService()
         {
-            // Calls method to choose best address of local network interface
+            // Choose best address of local network interface
             // Supports IPv4 and v6
             // Tries Ethernet first, and then WiFi
-
             LocalAddrs = GetAllLocalIPv4(NetworkInterfaceType.Ethernet);
 
             if (LocalAddrs.Length == 0)
@@ -54,8 +43,6 @@ namespace CFW.Business
                 throw new WebException("Must have a reachable network address.");
             }
 
-            ListenList = new ArrayList();
-            ListenPorts = new List<int>();
         }
 
         public bool Publish(int port, string appendToName)
@@ -133,105 +120,6 @@ namespace CFW.Business
                 }
             }
             return ipAddrList.ToArray();
-        }
-    } // end of class UDPListener
-
-    public class UDPServer
-    {
-        private static readonly ILog log =
-            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
-        private Socket serverSocket = null;
-        private List<EndPoint> clientList = new List<EndPoint>();
-        private List<Tuple<EndPoint, byte[]>> dataList = new List<Tuple<EndPoint, byte[]>>();
-        private byte[] byteData = new byte[1024];
-
-        private DeviceManager SharedDeviceManager = DeviceManager.Instance;
-
-        public int port = 4242;
-
-        public List<Tuple<EndPoint, byte[]>> DataList
-        {
-            private set { this.dataList = value; }
-            get { return (this.dataList); }
-        }
-
-        public UDPServer(int port)
-        {
-            this.port = port;
-        }
-
-        public void Start()
-        {
-            this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            this.serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            this.serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port));
-            this.port = ((IPEndPoint)this.serverSocket.LocalEndPoint).Port;
-            EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-            this.serverSocket.BeginReceiveFrom(this.byteData, 0, this.byteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
-        }
-
-        private void DoReceiveFrom(IAsyncResult iar)
-        {
-            try
-            {
-                EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
-                int dataLen = 0;
-                byte[] data = null;
-                try
-                {
-                    dataLen = this.serverSocket.EndReceiveFrom(iar, ref clientEP);
-                    data = new byte[dataLen];
-                    Array.Copy(this.byteData, data, dataLen);
-                }
-                catch (Exception e)
-                {
-                }
-                finally
-                {
-                    EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-                    this.serverSocket.BeginReceiveFrom(this.byteData, 0, this.byteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
-                }
-
-                if (!this.clientList.Any(client => client.Equals(clientEP)))
-                    this.clientList.Add(clientEP);
-
-                //DataList.Add(Tuple.Create(clientEP, data));
-                //log.Info(data.ToString());
-                SharedDeviceManager.PassDataToDevices(data);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
-        }
-
-        public void SendTo(byte[] data, EndPoint clientEP)
-        {
-            try
-            {
-                this.serverSocket.SendTo(data, clientEP);
-            }
-            catch (System.Net.Sockets.SocketException)
-            {
-                this.clientList.Remove(clientEP);
-            }
-        }
-
-        public void SendToAll(byte[] data)
-        {
-            foreach (var client in this.clientList)
-            {
-                this.SendTo(data, client);
-            }
-        }
-
-        public void Stop()
-        {
-            this.serverSocket.Close();
-            this.serverSocket = null;
-
-            this.dataList.Clear();
-            this.clientList.Clear();
         }
     }
 }

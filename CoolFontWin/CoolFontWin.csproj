@@ -7,7 +7,7 @@
     <ProjectGuid>{BA180A90-96C9-422D-916D-4A07643E8558}</ProjectGuid>
     <!--<OutputType>Exe</OutputType>-->
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CoolFont</RootNamespace>
+    <RootNamespace>CFW</RootNamespace>
     <AssemblyName>CoolFontWin</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -206,10 +206,11 @@
     <Compile Include="Business\FileManager.cs" />
     <Compile Include="Business\SendInputWrapper.cs" />
     <Compile Include="Business\LogFileManager.cs" />
-    <Compile Include="Business\UdpSocketManager.cs" />
+    <Compile Include="Business\UDPServer.cs" />
+    <Compile Include="Business\DNSNetworkService.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Business\XInputDevice.cs" />
-    <Compile Include="Business\JoystickSimulator.cs" />
+    <Compile Include="Business\VirtualDevice.cs" />
     <Compile Include="Business\InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="Business\InputSimulator\IInputMessageDispatcher.cs" />
     <Compile Include="Business\InputSimulator\IInputSimulator.cs" />
@@ -231,7 +232,7 @@
     <Compile Include="Business\InputSimulator\Native\MOUSEINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="Business\CoolFontWin.cs" />
+    <Compile Include="Business\NotifyIconController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Business\InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="Business\InputSimulator\Native\XButton.cs" />

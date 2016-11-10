@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 using SharpDX.XInput;
 using log4net;
-using System.Net.Sockets;
+
 
 namespace CFW.Business
 {
@@ -71,7 +72,11 @@ namespace CFW.Business
                 return lazy.Value;
             }
         }
-  
+
+        private Timer VDeviceUpdateTimer;
+        private int TimerCount = 0;
+        private static int MaxInterpolateCount;
+
         private DeviceManager()
         {
             XMgr = new XInputDeviceManager();
@@ -84,6 +89,17 @@ namespace CFW.Business
 
             VDevice = new VirtualDevice((uint)Properties.Settings.Default.VJoyID);
             VJoyDeviceConnected = true;
+
+            InitializeTimer();
+        }
+
+        private void InitializeTimer()
+        {
+            VDeviceUpdateTimer = new Timer(16); // elaps every 1/60 sec , appx 16 ms.
+            VDeviceUpdateTimer.Elapsed += new ElapsedEventHandler(TimerElapsed); //define a handler
+            VDeviceUpdateTimer.Enabled = false; //enable the timer.
+            VDeviceUpdateTimer.AutoReset = true;
+            MaxInterpolateCount = (int)Math.Floor(1 / VDeviceUpdateTimer.Interval * 1000 / 2); // = approx 0.5 sec
         }
 
         public bool TryMode(int mode)
@@ -105,12 +121,27 @@ namespace CFW.Business
             }
         }
 
+        private void TimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            TimerCount++;
+            PassDataToDevices(new byte[] { });
+            if (TimerCount > MaxInterpolateCount)
+            {
+                VDeviceUpdateTimer.Stop();
+                VDevice.ShouldInterpolate = false;
+            }
+        }
+
         public void PassDataToDevices(byte[] data)
         {
             string rcvd = System.Text.Encoding.UTF8.GetString(data);
+            
 
             if (VDevice.HandleNewData(rcvd))
             {
+                TimerCount = 0;
+                VDevice.ShouldInterpolate = true;
+                
                 VDevice.AddJoystickConstants();
             }
 
@@ -138,6 +169,7 @@ namespace CFW.Business
 
             VDevice.FeedVJoy();
             VDevice.ResetValues();
+            VDeviceUpdateTimer.Start();
         }
         
     }
