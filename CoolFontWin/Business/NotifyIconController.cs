@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Forms;
-using System.Threading;
+using System.Linq;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Collections;
@@ -10,6 +10,7 @@ using System.Collections;
 using SharpDX.XInput;
 using log4net;
 using System.Net.Sockets;
+using System.Collections.Specialized;
 
 namespace CFW.Business
 {
@@ -22,7 +23,7 @@ namespace CFW.Business
         private DNSNetworkService NetworkService;
         private UDPServer Server;
         private DeviceManager SharedDeviceManager = DeviceManager.Instance;
-        private string[] DeviceNames;
+        private List<string> DeviceNames;
 
         static public string PortFile = "last-port.txt";
 
@@ -34,15 +35,15 @@ namespace CFW.Business
 
         public void StartServices()
         {
-            this.StartServices(new string[] { "" });
+            this.StartServices(new List<string> { "" });
         }
-        public void StartServices(string[] names)
+        public void StartServices(List<string> names)
         {
             this.DeviceNames = names;
 
-            bool[] servicePublished = new bool[DeviceNames.Length];
+            bool[] servicePublished = new bool[DeviceNames.Count];
 
-            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(NotifyIconController.PortFile)); // returns 0 if none
+            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(PortFile)); // returns 0 if none
 
             int tryport;
             try
@@ -58,12 +59,36 @@ namespace CFW.Business
             Server.Start();
 
             int port = Server.port;
-            FileManager.WritePortToLine(port, 0, NotifyIconController.PortFile);
+            FileManager.WritePortToLine(port, 0, PortFile);
 
-            for (int i = 0; i < DeviceNames.Length; i++)
+            for (int i = 0; i < DeviceNames.Count; i++)
             {
                 NetworkService.Publish(port, DeviceNames[i]);
             }
+        }
+
+        public void AddService(string name)
+        {
+            NetworkService.Publish(Server.port, name);
+            this.DeviceNames.Add(name);
+
+            StringCollection collection = new StringCollection();
+            collection.AddRange(DeviceNames.ToArray());
+            Properties.Settings.Default.ConnectedDevices = collection;
+            Properties.Settings.Default.Save();
+        }
+
+        public void RemoveLastService()
+        {
+            string name = DeviceNames.Last();
+            this.DeviceNames.Remove(name);
+
+            NetworkService.Unpublish(name);
+
+            StringCollection collection = new StringCollection();
+            collection.AddRange(DeviceNames.ToArray());
+            Properties.Settings.Default.ConnectedDevices = collection;
+            Properties.Settings.Default.Save();
         }
 
         #region WinForms
@@ -154,18 +179,35 @@ namespace CFW.Business
         }
 
         private bool WillAddIPhoneOnRestart = false;
+
         private void addIPhone_Click(object sender, EventArgs e)
         {
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
-            devicesCol.Add("Secondary");
-            string[] devices = new string[devicesCol.Count];
-            devicesCol.CopyTo(devices, 0);
 
+            string name;
+            switch (devicesCol.Count)
+            {
+                case 0:
+                    name = "Primary";
+                    break;
+                case 1:
+                    name = "Secondary";
+                    break;
+                default:
+                    name = "Device " + (devicesCol.Count+1).ToString();
+                    break;
+            }
+
+            AddService(name);
+
+            devicesCol.Add(name);
             Properties.Settings.Default.ConnectedDevices = devicesCol;
             Properties.Settings.Default.Save();
+        }
 
-            WillAddIPhoneOnRestart = true;
-
+        private void removeIphone_Click(object sender, EventArgs e)
+        {
+            RemoveLastService();
         }
 
         private void addXInput_Click(object sender, EventArgs e)
@@ -236,9 +278,13 @@ namespace CFW.Business
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
             deviceSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
 
-            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler(AddIPhoneItemString(), null);
+            ToolStripMenuItem addIPhoneItem = ToolStripMenuItemWithHandler("Add Secondary Leg", addIPhone_Click);
             addIPhoneItem.Image = Properties.Resources.ic_settings_cell_white_18dp;
-            addIPhoneItem.Enabled = false;
+            addIPhoneItem.Enabled = DeviceNames.Count > 1 ? false : true;
+
+            ToolStripMenuItem removeIPhoneItem = ToolStripMenuItemWithHandler("Remove Secondary Leg", removeIphone_Click);
+            removeIPhoneItem.Image = null;
+            removeIPhoneItem.Enabled = DeviceNames.Count > 1 ? true: false;
 
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
             if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
@@ -247,7 +293,7 @@ namespace CFW.Business
             }
             addXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, removeIPhoneItem, addXboxControllerItem });
 
             // Add to Context Menu Strip
             contextMenuStrip.Items.AddRange(
@@ -260,11 +306,6 @@ namespace CFW.Business
                     new ToolStripSeparator(),
                     deviceSubMenu,
                 });          
-        }
-
-        private string AddIPhoneItemString()
-        {
-            return WillAddIPhoneOnRestart ? "Restart required" : String.Format("Add another iPhone ({0}) - Coming soon", this.DeviceNames.Length);
         }
 
         public static string GetDescription(Enum value)

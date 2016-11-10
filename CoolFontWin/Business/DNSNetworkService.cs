@@ -23,7 +23,7 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public RegisterService Service;
+        public List<RegisterService> Services = new List<RegisterService>();
         public string[] LocalAddrs;
 
         public DNSNetworkService()
@@ -47,9 +47,7 @@ namespace CFW.Business
 
         public bool Publish(int port, string appendToName)
         {
-            bool res = false;
-
-            Service = new RegisterService();
+            var service = new RegisterService();
             string name;
 
             try
@@ -63,22 +61,46 @@ namespace CFW.Business
 
             name += (" - " + appendToName);
 
-            Service.Name = name;
-            Service.RegType = "_IAmTheBirdman._udp";
-            Service.ReplyDomain = "local.";
-            Service.Port = (short)port;
+            service.Name = name;
+            service.RegType = "_IAmTheBirdman._udp";
+            service.ReplyDomain = "local.";
+            service.Port = (short)port;
 
             TxtRecord record = null;
 
             log.Info(String.Format("!! Registering name = '{0}', type = '{1}', domain = '{2}'",
-                Service.Name,
-                Service.RegType,
-                Service.ReplyDomain));
+                service.Name,
+                service.RegType,
+                service.ReplyDomain));
 
-            Service.Response += OnRegisterServiceResponse;
-            Service.Register();
-            res = true;
-            return res;
+            service.Response += OnRegisterServiceResponse;
+            service.Register();
+
+            Services.Add(service);
+  
+            return true;
+        }
+
+        public void Unpublish(string appendToName)
+        {
+            // do not allow first service to be unpublished
+            if (Services.Count == 1) return;
+
+            RegisterService serviceToDelete = null;
+            foreach (var service in Services)
+            {
+                if (service.Name.ToLower().Contains(appendToName.ToLower()))
+                {
+                    serviceToDelete = service;
+                    break;
+                }
+            }
+
+            if(serviceToDelete!=null)
+            {
+                serviceToDelete.Dispose();
+                Services.Remove(serviceToDelete);
+            }
         }
 
         private void OnRegisterServiceResponse(object o, RegisterServiceEventArgs args)

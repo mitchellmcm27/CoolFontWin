@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
-using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Deployment;
 using System.Deployment.Application;
-using CFW.Forms;
-
 using System.ComponentModel;
 using log4net;
+
+using CFW.Forms;
 
 namespace CFW.Business
 {
@@ -49,9 +48,7 @@ namespace CFW.Business
             Cfw = new NotifyIconController(NotifyIcon);
 
             var devicesCol = Properties.Settings.Default.ConnectedDevices;
-            string[] devices = new string[devicesCol.Count];
-            devicesCol.CopyTo(devices, 0);
-            Cfw.StartServices(devices);
+            Cfw.StartServices(devicesCol.Cast<string>().ToList());
         }
 
         private System.ComponentModel.IContainer Components;
