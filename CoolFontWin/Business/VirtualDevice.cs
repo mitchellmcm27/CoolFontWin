@@ -43,8 +43,9 @@ namespace CFW.Business
         ModeDefault = ModeWASD,
     };
 
-        
-
+    /// <summary>
+    /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
+    /// </summary>
     public class VirtualDevice
     {
         private static readonly ILog log =

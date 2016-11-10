@@ -9,6 +9,10 @@ using System.Collections;
 
 namespace CFW.Business
 {
+
+    /// <summary>
+    /// Manages DNS Services through Mono.Zeroconf. Works with and requires Bonjour.
+    /// </summary>
     public class DNSNetworkService
     {
         /**<summary>

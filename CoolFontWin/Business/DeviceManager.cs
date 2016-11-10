@@ -17,15 +17,27 @@ namespace CFW.Business
         AxisY,
     }
 
+    /// <summary>
+    /// Thread-safe singleton class for managing connected and virtual devices.
+    /// Updates vJoy device with data from socket, optionally including an XInput device.
+    /// </summary>
     public sealed class DeviceManager
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        // devices
         private VirtualDevice VDevice;
         private XInputDeviceManager XMgr;
         private Controller XDevice;
 
+        // timer for updating devices
+        private Timer VDeviceUpdateTimer;
+        private int TimerCount = 0;
+        private static int MaxInterpolateCount;
+
+        // the following properties allow access to the underlying devices:
+        // joystick smoothing 
         public double SmoothingFactor
         {
             get
@@ -38,6 +50,7 @@ namespace CFW.Business
             }
         }
 
+        // get mode
         public SimulatorMode Mode
         {
             get
@@ -46,6 +59,7 @@ namespace CFW.Business
             }
         }
 
+        // get source of current mode
         public bool CurrentModeIsFromPhone
         {
             get
@@ -54,17 +68,20 @@ namespace CFW.Business
             }
         }
 
+        // which devices are connected and which should be updated
         public bool InterceptXInputDevice = false;
         public bool XInputDeviceConnected = false;
         public bool VJoyDeviceConnected = false;
 
-        // private lazy instantiation of singleton
-        // static: execute only once
+
+        // Lazy instantiation of singleton class.
+        // Executes only once because static.
         private static readonly Lazy<DeviceManager> lazy = 
             new Lazy<DeviceManager>(() => new DeviceManager());
         
-        // public getter for the instance
-        // static: triggers private constructor on first access
+        /// <summary>
+        /// Public getter for the singleton instance.
+        /// </summary>
         public static DeviceManager Instance
         {
             get
@@ -73,10 +90,7 @@ namespace CFW.Business
             }
         }
 
-        private Timer VDeviceUpdateTimer;
-        private int TimerCount = 0;
-        private static int MaxInterpolateCount;
-
+        // Private initialization for the singleton class.
         private DeviceManager()
         {
             XMgr = new XInputDeviceManager();
@@ -88,6 +102,10 @@ namespace CFW.Business
             InitializeTimer();
         }
 
+        /// <summary>
+        /// Allows XInput devices to be re-plugged and acquired.
+        /// </summary>
+        /// <returns>Returns boolean indicating if a controller was acquired.</returns>
         public bool AcquireXInputDevice()
         {
             XInputDeviceConnected = false;
@@ -102,7 +120,7 @@ namespace CFW.Business
 
         private void InitializeTimer()
         {
-            VDeviceUpdateTimer = new Timer(16); // elaps every 1/60 sec , appx 16 ms.
+            VDeviceUpdateTimer = new Timer(16); // elapse every 1/60 sec, approx 16 ms
             VDeviceUpdateTimer.Elapsed += new ElapsedEventHandler(TimerElapsed); //define a handler
             VDeviceUpdateTimer.Enabled = true; //enable the timer.
             VDeviceUpdateTimer.AutoReset = true;
@@ -110,11 +128,20 @@ namespace CFW.Business
             log.Info("Started timer to update VDevice with interval " + VDeviceUpdateTimer.Interval.ToString() + "ms, max of " + MaxInterpolateCount.ToString() + " times.");
         }
 
+        /// <summary>
+        /// Pass along selected mode to the virtual device, which will decide whether to switch.
+        /// </summary>
+        /// <param name="mode">A valid SimulatorMode cast as int.</param>
+        /// <returns>Returns a bool indicating whether the mode switched.</returns>
         public bool TryMode(int mode)
         {
             return VDevice.ClickedMode(mode);
         }
 
+        /// <summary>
+        /// Invert an axis on the virutal device.
+        /// </summary>
+        /// <param name="axis">A valid Axis enum item.</param>
         public void FlipAxis(Axis axis)
         {
             switch (axis)
@@ -125,33 +152,42 @@ namespace CFW.Business
                 case Axis.AxisY:
                     VDevice.signY = -VDevice.signY;
                     break;
-
             }
         }
 
+        // Executes when the timer elapses.
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             TimerCount++;
             PassDataToDevices(new byte[] { });
         }
 
+        /// <summary>
+        /// Pass data from socket to virtual device, and determine if interpolation should occur.
+        /// </summary>
+        /// <param name="data">Array of bytes representing UTF8 encoded string.</param>
         public void PassDataToDevices(byte[] data)
         {
+            // give data to virtual device
             if (VDevice.HandleNewData(data))
             {
+                // returns false if data is empty
                 VDevice.ShouldInterpolate = true;
                 TimerCount = 0;
             }
 
+            // determine whether to keep interpolating
             if (TimerCount >= MaxInterpolateCount)
             {
                 VDevice.ShouldInterpolate = false;
             }
 
+            // xbox controller handling
             if (InterceptXInputDevice)
             {
                 if (VDevice.Mode == SimulatorMode.ModeWASD)
                 {
+                    // do not allow xbox controller in Keyboard mode
                     InterceptXInputDevice = false;
                 }
                 else
@@ -163,6 +199,7 @@ namespace CFW.Business
                     }
                     catch
                     {
+                        // controller probably not connected
                         InterceptXInputDevice = false;
                         XInputDeviceConnected = false;
                         System.Media.SystemSounds.Beep.Play();
@@ -170,6 +207,7 @@ namespace CFW.Business
                 }
             }
 
+            // update virtual device
             VDevice.FeedVJoy();
             VDevice.ResetValues();
         }

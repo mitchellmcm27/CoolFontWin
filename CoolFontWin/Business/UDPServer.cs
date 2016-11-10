@@ -7,6 +7,10 @@ using log4net;
 
 namespace CFW.Business
 {
+
+    /// <summary>
+    /// Asynchronous UDP listen server. Passes data to DeviceManager.
+    /// </summary>
     public class UDPServer
     {
         private static readonly ILog log =

@@ -5,6 +5,9 @@ using log4net;
 namespace CFW.Business
 {
 
+    /// <summary>
+    /// Finds and returns connected XInput devices using SharpDX.
+    /// </summary>
     class XInputDeviceManager
     {
         private static readonly ILog log =
@@ -13,6 +16,9 @@ namespace CFW.Business
         public Controller Controller { get; set; }
         private Controller[] controllers;
 
+        /// <summary>
+        /// Initializes an array with 4 slots for XInput devices and sets Controller to null.
+        /// </summary>
         public XInputDeviceManager()
         {
             log.Info("Initializing xinput Controller.");
@@ -27,6 +33,10 @@ namespace CFW.Business
             log.Info("Controller array initialized.");
         }
 
+        /// <summary>
+        /// Loop through device IDs and check if controllers are connected.
+        /// </summary>
+        /// <returns>Returns first connected Controller or null.</returns>
         public Controller getController ()
         {
             foreach (Controller selectController in controllers)
