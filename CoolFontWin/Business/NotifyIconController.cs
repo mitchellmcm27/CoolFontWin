@@ -170,6 +170,11 @@ namespace CFW.Business
 
         private void addXInput_Click(object sender, EventArgs e)
         {
+            if (!SharedDeviceManager.InterceptXInputDevice)
+            {
+                bool found = SharedDeviceManager.AcquireXInputDevice();
+                if (!found) SharedDeviceManager.InterceptXInputDevice = false;
+            }
             SharedDeviceManager.InterceptXInputDevice = !SharedDeviceManager.InterceptXInputDevice;
         }
 
@@ -236,8 +241,11 @@ namespace CFW.Business
             addIPhoneItem.Enabled = false;
 
             ToolStripMenuItem addXboxControllerItem = ToolStripMenuItemWithHandler("Intercept XBox controller", addXInput_Click);
-            addXboxControllerItem.Enabled = SharedDeviceManager.Mode == SimulatorMode.ModeWASD ? false : true;
-            addXboxControllerItem.Image = SharedDeviceManager.XInputDeviceConnected ? Properties.Resources.ic_done_white_16dp : null;
+            if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
+            {
+                addXboxControllerItem.Enabled = false;
+            }
+            addXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_done_white_16dp : null;
 
             deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addIPhoneItem, addXboxControllerItem });
 

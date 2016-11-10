@@ -73,6 +73,7 @@ namespace CFW.Business
 
                 //DataList.Add(Tuple.Create(clientEP, data));
                 //log.Info(data.ToString());
+
                 SharedDeviceManager.PassDataToDevices(data);
             }
             catch (ObjectDisposedException)

@@ -132,15 +132,17 @@ namespace CFW.Business
             ResetValues();
         }
   
-        public bool HandleNewData(string rcvd)
+        public bool HandleNewData(byte[] data)
         {
 
-            if (rcvd.Length == 0)
+            if (data.Length == 0)
             {
                 if (ShouldInterpolate) { InterpolateData(); }
                 //need to reset vjoy ?
                 return false;
             }
+
+            string rcvd = System.Text.Encoding.UTF8.GetString(data);
 
             // packet number goes from 0 to 99 (MaxPacketNumber)
             // when packet number reaches 99, it resets to 0
@@ -184,7 +186,7 @@ namespace CFW.Business
                 valsf[i] = Algorithm.LowPassFilter(valsf[i], this.Valsf[i], RCFilterStrength, dt); // filter vals last
             }
             this.Valsf = valsf;
-                
+
             AddValues(this.Valsf);
             AddButtons(Buttons);
 
@@ -200,7 +202,6 @@ namespace CFW.Business
         {
             /* given no new data, create some from previously received data */
             /* Could be more complex but right now just returns the last good values */
-
             AddValues(Valsf);
             AddButtons(Buttons);
         }
@@ -290,6 +291,7 @@ namespace CFW.Business
             RZ = 0;
             Pov = -1; // neutral state
             // Joystick.ResetVJD(); // need to reset vjoy?
+            AddJoystickConstants();
         }
 
         private double[] ProcessValues(double[] valsf)

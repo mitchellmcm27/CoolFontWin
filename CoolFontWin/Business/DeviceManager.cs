@@ -80,12 +80,7 @@ namespace CFW.Business
         private DeviceManager()
         {
             XMgr = new XInputDeviceManager();
-            XDevice = XMgr.getController();
-
-            if (XDevice != null && XDevice.IsConnected)
-            {
-                XInputDeviceConnected = true;
-            }
+            AcquireXInputDevice();
 
             VDevice = new VirtualDevice((uint)Properties.Settings.Default.VJoyID);
             VJoyDeviceConnected = true;
@@ -93,13 +88,26 @@ namespace CFW.Business
             InitializeTimer();
         }
 
+        public bool AcquireXInputDevice()
+        {
+            XInputDeviceConnected = false;
+            XDevice = XMgr.getController();
+
+            if (XDevice != null && XDevice.IsConnected)
+            {
+                XInputDeviceConnected = true;
+            }
+            return XInputDeviceConnected;
+        }
+
         private void InitializeTimer()
         {
             VDeviceUpdateTimer = new Timer(16); // elaps every 1/60 sec , appx 16 ms.
             VDeviceUpdateTimer.Elapsed += new ElapsedEventHandler(TimerElapsed); //define a handler
-            VDeviceUpdateTimer.Enabled = false; //enable the timer.
+            VDeviceUpdateTimer.Enabled = true; //enable the timer.
             VDeviceUpdateTimer.AutoReset = true;
             MaxInterpolateCount = (int)Math.Floor(1 / VDeviceUpdateTimer.Interval * 1000 / 2); // = approx 0.5 sec
+            log.Info("Started timer to update VDevice with interval " + VDeviceUpdateTimer.Interval.ToString() + "ms, max of " + MaxInterpolateCount.ToString() + " times.");
         }
 
         public bool TryMode(int mode)
@@ -125,24 +133,19 @@ namespace CFW.Business
         {
             TimerCount++;
             PassDataToDevices(new byte[] { });
-            if (TimerCount > MaxInterpolateCount)
-            {
-                VDeviceUpdateTimer.Stop();
-                VDevice.ShouldInterpolate = false;
-            }
         }
 
         public void PassDataToDevices(byte[] data)
         {
-            string rcvd = System.Text.Encoding.UTF8.GetString(data);
-            
-
-            if (VDevice.HandleNewData(rcvd))
+            if (VDevice.HandleNewData(data))
             {
-                TimerCount = 0;
                 VDevice.ShouldInterpolate = true;
-                
-                VDevice.AddJoystickConstants();
+                TimerCount = 0;
+            }
+
+            if (TimerCount >= MaxInterpolateCount)
+            {
+                VDevice.ShouldInterpolate = false;
             }
 
             if (InterceptXInputDevice)
@@ -169,8 +172,6 @@ namespace CFW.Business
 
             VDevice.FeedVJoy();
             VDevice.ResetValues();
-            VDeviceUpdateTimer.Start();
         }
-        
     }
 }

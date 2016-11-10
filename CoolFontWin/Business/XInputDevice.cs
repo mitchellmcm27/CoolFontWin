@@ -43,13 +43,21 @@ namespace CFW.Business
             {
                 log.Info("No XInput controller connected");
             }
-
             else
             {
                 log.Info("Found XInput controller available");
-                log.Info(Controller.GetCapabilities(DeviceQueryType.Any));
+                try
+                {
+                    log.Info("Will try to get controller capabilities:");
+                    log.Info(Controller.GetCapabilities(DeviceQueryType.Any));
+                }
+                catch (SharpDX.SharpDXException ex)
+                {
+                    log.Info("Getting capabilities failed: " + ex.Message);
+                    log.Info("Returning null");
+                    Controller = null;
+                }
             }
-
             return Controller;
         }
     }
