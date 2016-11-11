@@ -215,7 +215,7 @@ namespace CFW.Business
             }
             this.Valsf = valsf;
 
-            Leg currentLeg = ParseLeg(instring_sep[4]);
+            Leg currentLeg = Leg.Primary;  // ParseLeg(instring_sep[4]); // temporary
             switch (currentLeg)
             {
                 case Leg.Primary:
