@@ -21,7 +21,7 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public sealed class DeviceManager
+    public sealed class DeviceManager : IDisposable
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -215,6 +215,11 @@ namespace CFW.Business
                 VDevice.FeedVJoy();
                 VDevice.ResetValues();
             }
+        }
+
+        public void Dispose()
+        {
+            VDevice.Dispose();
         }
     }
 }

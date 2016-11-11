@@ -92,8 +92,9 @@ namespace CFW.Business
         }
 
         #region WinForms
-        public void KillOpenProcesses()
+        public void Dispose()
         {
+            SharedDeviceManager.Dispose();
         }
 
         /*

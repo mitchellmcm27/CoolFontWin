@@ -277,7 +277,7 @@ namespace CFW.Business
                // DeleteFirewallRule(CurrentInstallLocation);
             }
 
-            Cfw.KillOpenProcesses();
+            Cfw.Dispose();
             NotifyIcon.Visible = false;
             Dispose(true);
             base.ExitThreadCore();
