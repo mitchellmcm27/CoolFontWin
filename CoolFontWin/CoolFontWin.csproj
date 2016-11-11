@@ -203,11 +203,18 @@
   <ItemGroup>
     <Compile Include="Business\Algorithm.cs" />
     <Compile Include="Business\DeviceManager.cs" />
+    <Compile Include="Business\Drawing.cs" />
     <Compile Include="Business\FileManager.cs" />
     <Compile Include="Business\SendInputWrapper.cs" />
     <Compile Include="Business\LogFileManager.cs" />
     <Compile Include="Business\UDPServer.cs" />
     <Compile Include="Business\DNSNetworkService.cs" />
+    <Compile Include="Forms\Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Business\XInputDevice.cs" />
     <Compile Include="Business\VirtualDevice.cs" />
@@ -328,6 +335,7 @@
     <None Include="Resources\ic_clear_white_18dp.png" />
     <None Include="Resources\ic_keyboard_white_18pt_2x.png" />
     <None Include="Resources\ic_gamepad_white_18dp.png" />
+    <None Include="Resources\ic_error_outline_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -350,6 +358,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

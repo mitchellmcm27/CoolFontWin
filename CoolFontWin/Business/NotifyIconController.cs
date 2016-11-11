@@ -22,8 +22,9 @@ namespace CFW.Business
         private readonly NotifyIcon NotifyIcon;
         private DNSNetworkService NetworkService;
         private UDPServer Server;
-        private DeviceManager SharedDeviceManager = DeviceManager.Instance;
+        private DeviceManager SharedDeviceManager;
         private List<string> DeviceNames;
+        private bool UDPServerRunning = false;
 
         static public string PortFile = "last-port.txt";
 
@@ -31,60 +32,87 @@ namespace CFW.Business
         {
             this.NotifyIcon = notifyIcon;
             this.NetworkService = new DNSNetworkService();
+            this.Server = new UDPServer();
+            this.SharedDeviceManager = DeviceManager.Instance;
         }
 
+        /// <summary>
+        /// Starts network services (DNS and UDP server) for each device in Default Settings.
+        /// </summary>
         public void StartServices()
         {
-            this.StartServices(new List<string> { "" });
+            // get list of default devices
+            var devicesCol = Properties.Settings.Default.ConnectedDevices;
+            StartServices(devicesCol.Cast<string>().ToList());
         }
+
+        /// <summary>
+        /// Starts network services (DNS and UDP server) for each device by name.
+        /// </summary>
+        /// <param name="names">List of strings represting device names.</param>
         public void StartServices(List<string> names)
         {
             this.DeviceNames = names;
 
-            bool[] servicePublished = new bool[DeviceNames.Count];
+            // read past-used ports from file
+            // returns 0 if file not found or other error
+            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(PortFile));
 
-            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(PortFile)); // returns 0 if none
-
-            int tryport;
-            try
+            int tryport = 0;
+            foreach(int p in portsFromFile)
             {
-                tryport = portsFromFile[0];
-            }
-            catch
-            {
-                tryport = 0;
+                try
+                {
+                    tryport = p;
+                    break;
+                }
+                catch { }
             }
 
-            Server = new UDPServer(tryport);
-            Server.Start();
+            Server.Start(tryport);
 
-            int port = Server.port;
+            // get whatever port finally worked
+            int port = Server.Port;
             FileManager.WritePortToLine(port, 0, PortFile);
 
+            // publish one service for each device
             for (int i = 0; i < DeviceNames.Count; i++)
             {
                 NetworkService.Publish(port, DeviceNames[i]);
             }
+
+            UDPServerRunning = true;
         }
 
+        /// <summary>
+        /// Publish a new network service on the same port.
+        /// </summary>
+        /// <param name="name">Name to append to the service (device name).</param>
         public void AddService(string name)
         {
-            NetworkService.Publish(Server.port, name);
+            NetworkService.Publish(Server.Port, name);
             this.DeviceNames.Add(name);
 
+            // update Defaults with this name
             StringCollection collection = new StringCollection();
             collection.AddRange(DeviceNames.ToArray());
             Properties.Settings.Default.ConnectedDevices = collection;
             Properties.Settings.Default.Save();
         }
 
+        /// <summary>
+        /// Remove the last service that was published.
+        /// </summary>
         public void RemoveLastService()
         {
+            // get last-added device name
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
 
+            // unpublish service containing this name
             NetworkService.Unpublish(name);
 
+            // update Defaults 
             StringCollection collection = new StringCollection();
             collection.AddRange(DeviceNames.ToArray());
             Properties.Settings.Default.ConnectedDevices = collection;
@@ -94,7 +122,7 @@ namespace CFW.Business
         #region WinForms
         public void Dispose()
         {
-            SharedDeviceManager.Dispose();
+            SharedDeviceManager.Dispose(); // Relinquish devices
         }
 
         /*
@@ -225,11 +253,31 @@ namespace CFW.Business
             SharedDeviceManager.InterceptXInputDevice = !SharedDeviceManager.InterceptXInputDevice;
         }
 
+        private void deviceID_Click(object sender, EventArgs e)
+        {
+            int id = (int)((ToolStripMenuItem)sender).Tag;
+            if (id==0)
+            {
+                SharedDeviceManager.RelinquishCurrentDevice();
+                Properties.Settings.Default.VJoyID = id;
+                Properties.Settings.Default.Save();
+            }
+
+            if (SharedDeviceManager.AcquireVJoyDevice((uint)id))
+            {
+                Properties.Settings.Default.VJoyID = id;
+                Properties.Settings.Default.Save();
+            }
+        }
+
         /**
          * Build the main context menu items and submenus
          * */
         public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
         {
+            // Get needed defaults once.
+            int currentVJoyDeviceID = Properties.Settings.Default.VJoyID;
+
             // Mode submenu
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(SharedDeviceManager.Mode)));
             modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
@@ -278,6 +326,44 @@ namespace CFW.Business
                 vJoyMonItem,
             });
 
+            ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select a vJoy device", Properties.Settings.Default.VJoyID));
+            if (currentVJoyDeviceID == 0)
+            {
+                vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_white_18dp;
+            }
+            else
+            {
+                vJoySelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+                vJoySelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
+                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(currentVJoyDeviceID.ToString(), Color.White);
+            }
+
+            ToolStripItem[] deviceIDItems = new ToolStripItem[17];
+            for (int i = 0; i < 17; i++)
+            {
+                // valid vjoy IDs are 1-16
+
+                var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
+                item.Tag = i;
+                item.Enabled = SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
+
+                // 0 is to remove vJoy devices
+                if (i == 0)
+                {
+                    item.Text = "None";
+                    item.Enabled = true;
+                }
+
+                if (i == currentVJoyDeviceID)
+                {
+                    item.Font = new Font(item.Font, modeSubMenu.Font.Style | FontStyle.Bold);
+                    item.Image = Properties.Resources.ic_done_white_16dp;
+                }
+
+                deviceIDItems[i] = item;
+            }
+            vJoySelectSubMenu.DropDownItems.AddRange(deviceIDItems);
+
             // Smoothing factor adjustment
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
             smoothingDoubleItem.Image = Properties.Resources.ic_line_weight_white_18dp;
@@ -306,6 +392,7 @@ namespace CFW.Business
                 new ToolStripItem[] {
                     modeSubMenu,
                     vJoySubMenu,
+                    vJoySelectSubMenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
                     smoothingHalfItem,

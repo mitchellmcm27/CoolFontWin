@@ -20,10 +20,10 @@ namespace CFW.Forms
             Rectangle workingArea = Screen.GetWorkingArea(this);
             this.Location = new Point(workingArea.Right - Size.Width,
                                       workingArea.Bottom - Size.Height);
-            FadeIn(this, 31);
+            FadeIn(this, 10);
         }
 
-        private async void FadeIn(Form o, int interval = 80)
+        private async void FadeIn(Form o, int interval = 20)
         {
             //Object is not fully invisible. Fade it in
             while (o.Opacity < 1.0)
@@ -34,7 +34,7 @@ namespace CFW.Forms
             o.Opacity = 1; //make fully visible       
         }
 
-        private async void FadeOut(Form o, int interval = 80)
+        private async void FadeOut(Form o, int interval = 20)
         {
             //Object is fully visible. Fade it out
             while (o.Opacity > 0.0)

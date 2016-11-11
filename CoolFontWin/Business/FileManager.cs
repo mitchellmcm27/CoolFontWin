@@ -107,6 +107,12 @@ namespace CFW.Business
             }
         }
 
+        /// <summary>
+        /// Searches directory for executable file, launching if found.
+        /// </summary>
+        /// <param name="dir">Path to directory to search within.</param>
+        /// <param name="fname">Exectuable file name.</param>
+        /// <returns>Returns bool indicating if process started.</returns>
         public static bool FindAndLaunch(string dir, string fname)
         {
             log.Info("Searching in " + dir + " for " + fname);
@@ -122,6 +128,12 @@ namespace CFW.Business
             }
         }
 
+        /// <summary>
+        /// Searches given directory and subdirectories for file matching given string.
+        /// </summary>
+        /// <param name="dir">Path to directory to search within.</param>
+        /// <param name="template">File name to match.</param>
+        /// <returns>Returns path to file if found, empty string if not.</returns>
         public static string FirstOcurrenceOfFile(string dir, string template)
         {
             try

@@ -46,9 +46,7 @@ namespace CFW.Business
         {
             InitializeContext();
             Cfw = new NotifyIconController(NotifyIcon);
-
-            var devicesCol = Properties.Settings.Default.ConnectedDevices;
-            Cfw.StartServices(devicesCol.Cast<string>().ToList());
+            Cfw.StartServices();
         }
 
         private System.ComponentModel.IContainer Components;

@@ -16,35 +16,42 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private Socket serverSocket = null;
-        private List<EndPoint> clientList = new List<EndPoint>();
-        private List<Tuple<EndPoint, byte[]>> dataList = new List<Tuple<EndPoint, byte[]>>();
-        private byte[] byteData = new byte[1024];
+        private Socket ServerSocket;
+        private List<EndPoint> ClientList;
+        private byte[] ByteData = new byte[1024];
+        private DeviceManager SharedDeviceManager;
+        public int Port;
 
-        private DeviceManager SharedDeviceManager = DeviceManager.Instance;
-
-        public int port = 4242;
-
-        public List<Tuple<EndPoint, byte[]>> DataList
+        public UDPServer()
         {
-            private set { this.dataList = value; }
-            get { return (this.dataList); }
+            ServerSocket = null;
+            ClientList = new List<EndPoint>();
+            Port = 0;
+            SharedDeviceManager = DeviceManager.Instance;
         }
 
-        public UDPServer(int port)
-        {
-            this.port = port;
-        }
-
+        /// <summary>
+        /// Start listening for UDP packets on a random port.
+        /// </summary>
         public void Start()
         {
-            this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            this.serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            this.serverSocket.Bind(new IPEndPoint(IPAddress.Any, this.port));
-            this.port = ((IPEndPoint)this.serverSocket.LocalEndPoint).Port;
+            Start(0);
+        }
+
+        /// <summary>
+        /// Start listening for UDP packets on given port.
+        /// </summary>
+        /// <param name="port">Port to bind to socket.</param>
+        public void Start(int port)
+        {
+            this.Port = port;
+            this.ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            this.ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            this.ServerSocket.Bind(new IPEndPoint(IPAddress.Any, this.Port));
+            this.Port = ((IPEndPoint)this.ServerSocket.LocalEndPoint).Port;
             EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
             log.Info("!! Ready to receive data.");
-            this.serverSocket.BeginReceiveFrom(this.byteData, 0, this.byteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
+            this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
         }
 
         private void DoReceiveFrom(IAsyncResult iar)
@@ -56,9 +63,9 @@ namespace CFW.Business
                 byte[] data = null;
                 try
                 {
-                    dataLen = this.serverSocket.EndReceiveFrom(iar, ref clientEP);
+                    dataLen = this.ServerSocket.EndReceiveFrom(iar, ref clientEP);
                     data = new byte[dataLen];
-                    Array.Copy(this.byteData, data, dataLen);
+                    Array.Copy(this.ByteData, data, dataLen);
                 }
                 catch (Exception e)
                 {
@@ -66,13 +73,13 @@ namespace CFW.Business
                 finally
                 {
                     EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-                    this.serverSocket.BeginReceiveFrom(this.byteData, 0, this.byteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
+                    this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
                 }
 
-                if (!this.clientList.Any(client => client.Equals(clientEP)))
+                if (!this.ClientList.Any(client => client.Equals(clientEP)))
                 {
                     log.Info("!! Began receiving from device " + clientEP.ToString());
-                    this.clientList.Add(clientEP);
+                    this.ClientList.Add(clientEP);
                 }
 
                 //DataList.Add(Tuple.Create(clientEP, data));
@@ -89,17 +96,17 @@ namespace CFW.Business
         {
             try
             {
-                this.serverSocket.SendTo(data, clientEP);
+                this.ServerSocket.SendTo(data, clientEP);
             }
             catch (System.Net.Sockets.SocketException)
             {
-                this.clientList.Remove(clientEP);
+                this.ClientList.Remove(clientEP);
             }
         }
 
         public void SendToAll(byte[] data)
         {
-            foreach (var client in this.clientList)
+            foreach (var client in this.ClientList)
             {
                 this.SendTo(data, client);
             }
@@ -107,11 +114,10 @@ namespace CFW.Business
 
         public void Stop()
         {
-            this.serverSocket.Close();
-            this.serverSocket = null;
+            this.ServerSocket.Close();
+            this.ServerSocket = null;
 
-            this.dataList.Clear();
-            this.clientList.Clear();
+            this.ClientList.Clear();
         }
     }
 }

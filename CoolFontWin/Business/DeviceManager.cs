@@ -73,8 +73,28 @@ namespace CFW.Business
         // which devices are connected and which should be updated
         public bool InterceptXInputDevice = false;
         public bool XInputDeviceConnected = false;
-        public bool VJoyDeviceConnected = false;
+        public bool VJoyEnabled
+        {
+            get
+            {
+                return VDevice.vJoyEnabled;
+            }
+        }
+        public bool VJoyDeviceConnected
+        {
+            get
+            {
+                return VDevice.vJoyAcquired;
+            }
+        }
 
+        public List<int> EnabledVJoyDevicesList
+        {
+            get
+            {
+                return VDevice.GetEnabledDevices();
+            }
+        }
 
         // Lazy instantiation of singleton class.
         // Executes only once because static.
@@ -98,8 +118,13 @@ namespace CFW.Business
             XMgr = new XInputDeviceManager();
             AcquireXInputDevice();
 
-            VDevice = new VirtualDevice((uint)Properties.Settings.Default.VJoyID);
-            VJoyDeviceConnected = true;
+            VDevice = new VirtualDevice();
+
+            if (AcquireDefaultVJoyDevice())
+            {
+                Properties.Settings.Default.VJoyID = (int)VDevice.Id;
+                Properties.Settings.Default.Save();
+            }
 
             InitializeTimer();
         }
@@ -118,6 +143,26 @@ namespace CFW.Business
                 XInputDeviceConnected = true;
             }
             return XInputDeviceConnected;
+        }
+
+        /// <summary>
+        /// Aquire vJoy device according to Default setting.
+        /// </summary>
+        /// <returns>Bool indicating whether device was acquired.</returns>
+        public bool AcquireDefaultVJoyDevice()
+        {
+            return VDevice.TryVJoyDevice((uint)Properties.Settings.Default.VJoyID);
+        }
+
+        public bool AcquireVJoyDevice(uint id)
+        {
+            bool res = VDevice.TryVJoyDevice(id);
+            return res;
+        }
+
+        public void RelinquishCurrentDevice()
+        {
+            VDevice.RelinquishCurrentDevice();
         }
 
         private void InitializeTimer()

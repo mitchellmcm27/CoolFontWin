@@ -9,6 +9,7 @@ using vJoyInterfaceWrap;
 // using SharpDX.XInput;
 
 using log4net;
+using System.Collections.Generic;
 
 namespace CFW.Business
 {
@@ -114,15 +115,18 @@ namespace CFW.Business
         private int PacketNumber;
         private static int MaxPacketNumber = 999;
         private int UpdateInterval;
-        private uint Id;
+        
 
         private bool LogOutput = false;
 
-        /* public properties */
+        // public properties
+        public uint Id;
+
         public bool ShouldInterpolate;
             
         public bool UserIsRunning = true;
         public bool vJoyEnabled = false;
+        public bool vJoyAcquired = false;
         public bool CurrentModeIsFromPhone = false;
         public int signX = -1;
         public int signY = -1;
@@ -133,13 +137,12 @@ namespace CFW.Business
 
         public double RCFilterStrength;
 
-        public VirtualDevice(uint id)
+        public VirtualDevice()
         {               
             Mode = SimulatorMode.ModeDefault;
             OldMode = Mode;
 
             this.UpdateInterval = 8000;
-            this.Id = id;
 
             // assuming socketPollInterval = 8,000:
             // 0.05 good for mouse movement, 0.15 was a little too smooth
@@ -148,12 +151,87 @@ namespace CFW.Business
             RCFilterStrength = 0.1;
                 
             ShouldInterpolate = false;
-            ConfigureVJoy(this.Id);
-            vJoyEnabled = StartVJoy(this.Id);
-            if (vJoyEnabled == true) { SetUpVJoy(this.Id); }
+            
             KbM = new InputSimulator();
+            Joystick = new vJoy();
+            vJoyEnabled = false;
+            vJoyAcquired = false;
+            iReport = new vJoy.JoystickState();
 
             ResetValues();
+        }
+
+        public bool TryVJoyDevice(uint id)
+        {
+            log.Info("Will try to acquire device " + id.ToString());
+            if(vJoyAcquired)
+            {
+                log.Info("First, relinquishing device " + this.Id.ToString());
+                Joystick.ResetVJD(this.Id);
+                Joystick.RelinquishVJD(this.Id);
+                vJoyAcquired = false;
+            }
+
+            if (id < 1)
+            {
+                log.Debug("Device index was 0.");
+                return false;
+            }
+
+            if (!IsVJoyDriverEnabled())
+            {
+                vJoyEnabled = false;
+                log.Debug("vJoy not enabled. I can try to enable it...");
+                return false;
+            }
+
+            vJoyEnabled = true;
+
+            if (!IsVJoyDeviceOwnedOrFree(id))
+            {
+                log.Debug("Chosen device is is not free!");
+                return false;
+               // return AcquireUnusedVJoyDevice();
+            }
+
+            if (AcquireVJoyDevice(id))
+            {
+                log.Info("Successfully acquired device " + id);
+                this.Id = id;
+                vJoyAcquired = true;
+                GetJoystickProperties(id);
+                return true;
+            }
+            return false;
+        }
+
+        private bool AcquireUnusedVJoyDevice()
+        {
+            log.Info("Will acquire first available vJoy device");
+            vJoyAcquired = false;
+
+            // find a disabled device
+            for (int i = 1; i <= 16; i++)
+            {
+                if(IsVJoyDeviceDisabled((uint)i))
+                {
+                    // acquire device
+                    if(EnableDefaultVJoyDevice((uint)i))
+                    {
+                        if (AcquireVJoyDevice((uint)i))
+                        {
+                            log.Info("Acquired device " + i);
+                            this.Id = (uint)i;
+                            vJoyAcquired = true;
+                            GetJoystickProperties((uint)i);
+                            return true;
+                        }
+                    }
+
+                }
+
+            }
+            return false;
         }
 
         public bool HandleNewData(byte[] data)
@@ -674,7 +752,7 @@ namespace CFW.Business
                 mode != (int)SimulatorMode.ModePaused &&
                 mode != (int)SimulatorMode.ModeMouse)
             {
-                return vJoyEnabled;
+                return vJoyAcquired; // successful if vjoy device has been acquired
             }
 
             return true;
@@ -691,7 +769,6 @@ namespace CFW.Business
             Buttons = (short)state.Gamepad.Buttons;
         }
             
-
         public void FeedVJoy()
         {
             if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD)
@@ -720,75 +797,13 @@ namespace CFW.Business
             /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
             if (!Joystick.UpdateVJD(Id, ref iReport))
             {
-                log.Error(String.Format("vJoy device {0} not enabled. Enable, then press Enter. \n", Id));
-                // Console.ReadKey(true);
-                    
-
-                var result = MessageBox.Show("Enable vJoy and click OK, or cancel to Keyboard mode", "Unable to switch modes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-                if (result == DialogResult.OK)
-                {
-                    Joystick.AcquireVJD(Id);
-                }
-                else
-                {
-                    Mode = SimulatorMode.ModeWASD;
-                }
-                return;
             }
         }
 
-        private void ConfigureVJoy(uint id)
+
+
+        private bool IsVJoyDriverEnabled()
         {
-            /* Enable and Configure a vJoy device by calling 2 external processes
-                * Requires path to the vJoy dll directory */
-            String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
-            String enableArgs = "enable on";
-            String createArgs = String.Format("{0}", id);
-            String configArgs = String.Format("{0} -f -a x y rx ry z rz -b 14 -p 1", id);
-
-            ProcessStartInfo[] infos = new ProcessStartInfo[]
-            {
-                /* 
-                    * leads to a bug at the moment
-                    * Not safe with an Xbox controller plugged in
-                    * For now, rely on the vJoy Config GUI 
-                    */
-
-                //  new ProcessStartInfo(filename, enableArgs),
-                //  new ProcessStartInfo(filename, configArgs),
-                //  new ProcessStartInfo(filename, createArgs),
-            };
-
-            Process vJoyConfigProc;
-            foreach (ProcessStartInfo info in infos)
-            {
-                //Vista or higher check
-                if (Environment.OSVersion.Version.Major >= 6)
-                {
-                    info.Verb = "runas";
-                }
-
-                info.UseShellExecute = true;
-                info.RedirectStandardError = false;
-                info.RedirectStandardOutput = false;
-                info.CreateNoWindow = true;
-                vJoyConfigProc = Process.Start(info);
-                vJoyConfigProc.WaitForExit();
-            }
-        }
-
-        private bool StartVJoy(uint id)
-        {
-            // Create one joystick object and a position structure.
-            Joystick = new vJoy();
-            iReport = new vJoy.JoystickState();
-
-            if (id <= 0 || id > 16)
-            {
-                log.Info(String.Format("Illegal device ID {0}\nExit!", id));
-                return false;
-            }
-
             // Get the driver attributes (Vendor ID, Product ID, Version Number)
             if (!Joystick.vJoyEnabled())
             {
@@ -798,6 +813,16 @@ namespace CFW.Business
             else
             {
                 log.Info(String.Format("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString()));
+            }
+            return true;
+        }
+
+        private bool IsVJoyDeviceOwnedOrFree(uint id)
+        {
+            if (id <= 0 || id > 16)
+            {
+                log.Info(String.Format("Illegal device ID {0}\nExit!", id));
+                return false;
             }
 
             // Get the state of the requested device
@@ -820,6 +845,44 @@ namespace CFW.Business
                     log.Info(String.Format("vJoy Device {0} general error\nCannot continue\n", id));
                     return false;
             };
+            return true;
+        }
+
+        private bool IsVJoyDeviceDisabled(uint id)
+        {
+            // Get the state of the requested device
+            VjdStat status = Joystick.GetVJDStatus(id);
+            switch (status)
+            {
+                case VjdStat.VJD_STAT_OWN:
+                    log.Info(String.Format("vJoy Device {0} is already owned by this feeder\n", id));
+                    return false;
+                case VjdStat.VJD_STAT_FREE:
+                    log.Info(String.Format("vJoy Device {0} is free\n", id));
+                    return false;
+                case VjdStat.VJD_STAT_BUSY:
+                    log.Info(String.Format("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id));
+                    return false;
+                case VjdStat.VJD_STAT_MISS:
+                    log.Info(String.Format("vJoy Device {0} is not installed or disabled\nCannot continue\n", id));
+                    break;
+                default:
+                    log.Info(String.Format("vJoy Device {0} general error\nCannot continue\n", id));
+                    return false;
+            };
+            return true;
+        }
+
+
+        private bool AcquireVJoyDevice(uint id)
+        {
+            if (id <= 0 || id > 16)
+            {
+                log.Info(String.Format("Illegal device ID {0}\nExit!", id));
+                return false;
+            }
+
+            VjdStat status = Joystick.GetVJDStatus(id);
 
             // Check which axes are supported
             bool AxisX = Joystick.GetVJDAxisExist(id, HID_USAGES.HID_USAGE_X);
@@ -869,8 +932,7 @@ namespace CFW.Business
 
             return true;
         }
-
-        private void SetUpVJoy(UInt32 id)
+        private void GetJoystickProperties(UInt32 id)
         {
             // pov = new byte[4]; // discrete pov hat directions
 
@@ -896,18 +958,92 @@ namespace CFW.Business
             ContPovNumber = Joystick.GetVJDContPovNumber(id);
         }
 
-        public void DisableVJoy(uint id)
+        public List<int> GetEnabledDevices()
+        {
+            List<int> enabled = new List<int>();
+
+            if (!Joystick.vJoyEnabled()) return enabled;
+
+            for (int i = 1; i <= 16; i++)
+            {
+               if(Joystick.isVJDExists((uint)i))
+                {
+                    enabled.Add(i);
+                }
+            }
+            return enabled;
+        }
+
+        public bool EnableDefaultVJoyDevice(uint id)
         {
             /* Enable and Configure a vJoy device by calling 2 external processes
                 * Requires path to the vJoy dll directory */
-            String filename = "C:\\Program Files\\vJoy\\x64\\vJoyConfig";
-            String disableArgs = "enable off";
-            String deleteArgs = String.Format("-d {0}", id);
+            string fname = "vJoyConfig.exe";
+            string path = FileManager.FirstOcurrenceOfFile(Properties.Settings.Default.VJoyDir, fname);
+
+            if (path.Length < 1)
+            {
+                return false;
+            }
+
+            string enableArgs = "enable on";
+            string configArgs = String.Format("{0} -f -a x y rx ry z rz -b 17 -p 1", id);
+            string createArgs = String.Format("{0}", id);
 
             ProcessStartInfo[] infos = new ProcessStartInfo[]
             {
-            new ProcessStartInfo(filename, deleteArgs),
-            new ProcessStartInfo(filename, disableArgs),
+                /* 
+                    * leads to a bug at the moment
+                    * Not safe with an Xbox controller plugged in
+                    * For now, rely on the vJoy Config GUI 
+                    */
+
+                new ProcessStartInfo(path, enableArgs),
+                new ProcessStartInfo(path, configArgs),
+                new ProcessStartInfo(path, createArgs),
+            };
+
+            Process vJoyConfigProc;
+            foreach (ProcessStartInfo info in infos)
+            {
+                //Vista or higher check
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    info.Verb = "runas";
+                }
+
+                info.UseShellExecute = true;
+                info.RedirectStandardError = false;
+                info.RedirectStandardOutput = false;
+                info.CreateNoWindow = true;
+                vJoyConfigProc = Process.Start(info);
+                vJoyConfigProc.WaitForExit();
+            }
+            return true;
+        }
+
+        public void RelinquishCurrentDevice()
+        {
+            Joystick.ResetVJD(this.Id);
+            Joystick.RelinquishVJD(this.Id);
+            vJoyAcquired = false;
+        }
+
+        public void DeleteVJoyDevice(uint id)
+        {
+            string fname = "vJoyConfig.exe";
+            string path = FileManager.FirstOcurrenceOfFile(Properties.Settings.Default.VJoyDir, fname);
+
+            if (path.Length < 1)
+            {
+                return;
+            }
+
+            string deleteArgs = String.Format("-d {0}", id);
+
+            ProcessStartInfo[] infos = new ProcessStartInfo[]
+            {
+            new ProcessStartInfo(path, deleteArgs),
             };
 
             Process vJoyConfigProc;
@@ -930,6 +1066,7 @@ namespace CFW.Business
         public void Dispose()
         {
             log.Info("Relinquish VJD " + Id.ToString());
+            Joystick.ResetVJD(this.Id);
             Joystick.RelinquishVJD(Id);
         }
     }
