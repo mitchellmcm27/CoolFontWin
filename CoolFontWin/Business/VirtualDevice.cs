@@ -12,8 +12,6 @@ using log4net;
 
 namespace CFW.Business
 {
-
-
     public enum SimulatorMode
     {
         // Controls how the character moves in-game
@@ -42,11 +40,16 @@ namespace CFW.Business
         ModeCountRelease = 4,
         ModeDefault = ModeWASD,
     };
+    public enum Leg
+    {
+        Primary,
+        Secondary
+    }
 
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
-    public class VirtualDevice
+    public class VirtualDevice : IDisposable
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -75,6 +78,24 @@ namespace CFW.Business
 
         private InputSimulator KbM;
 
+        private struct PhoneInput
+        {
+            public int LX;
+            public int LY;
+            public int RX;
+            public int RY;
+            public int LZ;
+            public int RZ;
+            public int Pov;
+            public int Buttons;
+            public bool ready;
+        }
+
+        private PhoneInput PrimaryInput;
+        private PhoneInput SecondaryInput;
+        private PhoneInput XboxInput;
+        private PhoneInput CombinedInput;
+        /*
         private int LX;
         private int LY;
         private int RX;
@@ -82,7 +103,9 @@ namespace CFW.Business
         private int LZ;
         private int RZ;
         private int Pov;
+        */
         private int Buttons;
+        
 
         private bool LeftMouseButtonDown = false;
         private bool RightMoustButtonDown = false;  
@@ -132,7 +155,7 @@ namespace CFW.Business
 
             ResetValues();
         }
-  
+
         public bool HandleNewData(byte[] data)
         {
 
@@ -144,12 +167,15 @@ namespace CFW.Business
             }
 
             string rcvd = System.Text.Encoding.UTF8.GetString(data);
+            string[] instring_sep = rcvd.Split('$');
+
+            int packetNumber = ParsePacketNumber(instring_sep[3]);
 
             // packet number goes from 0 to 99 (MaxPacketNumber)
             // when packet number reaches 99, it resets to 0
             // we want to check if we received an outdated packet
-            /*
-            int packetNumber = ParsePacketNumber(rcvd);
+            
+
 
             // if new packet # is smaller than previous 
             // and if it's not just the number resetting to 0
@@ -158,7 +184,7 @@ namespace CFW.Business
             // e.g. have 99, received 98 ->   1 -> true
             // e.g. have 0, received 95  -> -95 -> true
             // e.g. have 10, received 98 -> -88 -> true
-               
+            /*  
             if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
             {
                 if (ShouldInterpolate) { InterpolateData(); }
@@ -168,12 +194,13 @@ namespace CFW.Business
 
             // this.PacketNumber = packetNumber;
 
-            double[] valsf = ParseString(rcvd);
+            double[] valsf = ParseVals(instring_sep[1]);
 
             if (this.Valsf == null) { this.Valsf = valsf; }
 
-            Buttons = ParseButtons(rcvd);
-            int modeIn = ParseMode(rcvd, (int)Mode); // mode is a fallback
+            this.Buttons = ParseButtons(instring_sep[2]);
+
+            int modeIn = ParseMode(instring_sep[0], (int)Mode); // mode is a fallback
             UpdateMode(modeIn);
 
             valsf = ProcessValues(valsf); // converts ints to doubles in generic units
@@ -181,15 +208,28 @@ namespace CFW.Business
             valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
 
             double dt = UpdateInterval / 1000.0 / 1000.0; // s
-            for (int i=0; i < valsf.Length; i++)
+            for (int i = 0; i < valsf.Length; i++)
             {
                 if (i == 7) { continue; }// do not filter POV
                 valsf[i] = Algorithm.LowPassFilter(valsf[i], this.Valsf[i], RCFilterStrength, dt); // filter vals last
             }
             this.Valsf = valsf;
 
-            AddValues(this.Valsf);
-            AddButtons(Buttons);
+            Leg currentLeg = ParseLeg(instring_sep[4]);
+            switch (currentLeg)
+            {
+                case Leg.Primary:
+                    this.PrimaryInput = AddValues(this.Valsf);
+                    this.PrimaryInput.ready = true;
+                    break;
+                case Leg.Secondary:
+                    this.SecondaryInput = AddValues(this.Valsf);
+                    this.SecondaryInput.ready = true;
+                    break;
+            }
+
+            CombineInputs();
+            AddButtons(this.Buttons);
 
             // received packet after a long delay
             if (!ShouldInterpolate)
@@ -203,18 +243,17 @@ namespace CFW.Business
         {
             /* given no new data, create some from previously received data */
             /* Could be more complex but right now just returns the last good values */
-            AddValues(Valsf);
+            this.PrimaryInput = AddValues(Valsf);
+            CombineInputs();
             AddButtons(Buttons);
+
         }
 
-        private int ParsePacketNumber(string instring)
+        private int ParsePacketNumber(string packetNumberString)
         {
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Packet number int is the 3rd string */
-
-            string[] instring_sep = instring.Split('$');
-            string packetNumberString = instring_sep[3];
             try
             {
                 return int.Parse(packetNumberString);
@@ -225,16 +264,12 @@ namespace CFW.Business
             }
         }
 
-        private double[] ParseString(string instring)
+        private double[] ParseVals(string axes_string)
         {
             /* Given a string representation of ints, split it into ints */
             /* Return int array */
 
-            //Console.WriteLine(instring);
-            string[] instring_sep = instring.Split('$');
-            string axes_string = instring_sep[1];
             string[] axes_sep = axes_string.Split(':');
-
             double[] parsed = new double[axes_sep.Length];
 
             for (int i = 0; i < axes_sep.Length; i++)
@@ -245,15 +280,11 @@ namespace CFW.Business
             return parsed;
         }
 
-        private int ParseButtons(string instring)
+        private int ParseButtons(string button_string)
         {
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Button bitmask is the (2nd string starting from 0)*/
-
-            string[] instring_sep = instring.Split('$');
-            string button_string = instring_sep[2];
-
             try
             {
                 return int.Parse(button_string);
@@ -264,14 +295,11 @@ namespace CFW.Business
             }
         }
 
-        private int ParseMode(string instring, int mode_old)
+        private int ParseMode(string mode_string, int mode_old)
         {
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Mode bitmask is the 0th string */
-
-            string[] instring_sep = instring.Split('$');
-            string mode_string = instring_sep[0];
             try
             {
                 return int.Parse(mode_string);
@@ -282,17 +310,34 @@ namespace CFW.Business
             }
         }
 
+        private Leg ParseLeg(string leg_string)
+        {
+            if (leg_string.ToLower().Equals("p"))
+            {
+                return Leg.Primary;
+            }
+            else
+            {
+                return Leg.Secondary;
+            }
+        }
+
         public void ResetValues()
         {
-            LX = 0;
-            LY = 0;
-            RX = 0;
-            RY = 0;
-            LZ = 0;
-            RZ = 0;
-            Pov = -1; // neutral state
-            // Joystick.ResetVJD(); // need to reset vjoy?
+            PrimaryInput.LX = 0;
+            PrimaryInput.LY = 0;
+            PrimaryInput.RX = 0;
+            PrimaryInput.RY = 0;
+            PrimaryInput.LZ = 0;
+            PrimaryInput.RZ = 0;
+            PrimaryInput.Pov = -1; // neutral state
+            PrimaryInput.ready = false;
+
+            SecondaryInput = PrimaryInput;
+            CombinedInput = PrimaryInput;
+
             AddJoystickConstants();
+            // Joystick.ResetVJD(); // need to reset vjoy?
         }
 
         private double[] ProcessValues(double[] valsf)
@@ -416,16 +461,17 @@ namespace CFW.Business
         static private double ThreshRun = 0.1;
         static private double ThreshWalk = 0.1;
 
-        private void AddValues(double[] valsf)
+        private PhoneInput AddValues(double[] valsf)
         {
+
+            PhoneInput temp = new PhoneInput();
+
             /* Simply update joystick with vals */
             switch (Mode)
             {
                 case SimulatorMode.ModeWASD:
-                    //   KbM.Mouse.MoveMouseBy((int)valsf[9], 0); // dx, dy (pixels)
                     if (valsf[0] > VirtualDevice.ThreshRun)
-                    {
-                            
+                    {   
                         SendInputWrapper.KeyDown(SendInputWrapper.ScanCodeShort.KEY_W);
                         //KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = true;
@@ -456,51 +502,40 @@ namespace CFW.Business
                 case SimulatorMode.ModeJoystickCoupled:
 
                     /* no strafing */
-                    LX += 0;
-                    LY += signY*(int)valsf[0];
-                    RX += 0;
-                    RY += 0;
-                    Pov = (int)valsf[7];
+                    temp.LY += signY*(int)valsf[0];
+                    temp.Pov = (int)valsf[7];
 
                     if (LogOutput)
                     {
-                        Console.Write("Y:{0}", LY);
+                        Console.Write("Y:{0}", temp.LY);
                     }
                     break;
 
                 case SimulatorMode.ModeJoystickDecoupled:
 
                     /* strafing but no turning*/
-                    LX += signX*(int)valsf[1];
-                    LY += signY*(int)valsf[2];
-
-                    RX += 0;
-                    RY += 0;
-                    Pov = (int)valsf[7];
+                    temp.LX += signX*(int)valsf[1];
+                    temp.LY += signY*(int)valsf[2];
+                    temp.Pov = (int)valsf[7];
 
                     if (LogOutput)
                     {
-                        Console.WriteLine("X:{0} Y:{1}", LX, LY);
+                        Console.WriteLine("X:{0} Y:{1}", temp.LX, temp.LY);
                     }
                     break;
 
                 case SimulatorMode.ModeJoystickTurn:
 
                     // still in testing
-
-                    LX += 0; // no strafing
-                    LY += signY*(int)valsf[0];
-
-                    RX += 0; // look left/right, currently handled by mouse
-                    RY += 0; // look up/down
-                    Pov = (int)valsf[7];
+                    temp.LY += signY*(int)valsf[0];
+                    temp.Pov = (int)valsf[7];
 
                     KbM.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
                                             0); // dx, dy (pixels)
 
                     if (LogOutput)
                     {
-                        Console.Write("Y:{0} dX:{1}", LY, -(int)valsf[9]);
+                        Console.Write("Y:{0} dX:{1}", temp.LY, -(int)valsf[9]);
                     }
                     break;
 
@@ -510,17 +545,17 @@ namespace CFW.Business
                     // Full gamepad simulation
                     // NOT FINISHED YET
 
-                    LX += -signX*(int)valsf[1];
-                    LY += signY*(int)valsf[2];
-                    RX += (int)valsf[3];
-                    RY += -(int)valsf[4];
-                    LZ += (int)valsf[6];
-                    RZ += (int)valsf[5];
-                    Pov = (int)valsf[7];
+                    temp.LX += -signX*(int)valsf[1];
+                    temp.LY += signY*(int)valsf[2];
+                    temp.RX += (int)valsf[3];
+                    temp.RY += -(int)valsf[4];
+                    temp.LZ += (int)valsf[6];
+                    temp.RZ += (int)valsf[5];
+                    temp.Pov = (int)valsf[7];
 
                     if (LogOutput)
                     {
-                        Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5} POV{6}", LX, LY, RX, RY, LZ, RZ, Pov);
+                        Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5} POV{6}", temp.LX, temp.LY, temp.RX, temp.RY, temp.LZ, temp.RZ, temp.Pov);
                     }
                     break;
 
@@ -536,17 +571,32 @@ namespace CFW.Business
 
                     break;
             }
+
+            temp.ready = true;
+            return temp;
+        }
+
+        public void CombineInputs()
+        {
+            CombinedInput.LX += PrimaryInput.LX + SecondaryInput.LX;
+            CombinedInput.LY += PrimaryInput.LY + SecondaryInput.LY;
+            CombinedInput.RX += PrimaryInput.RX + SecondaryInput.RX;
+            CombinedInput.RY += PrimaryInput.RY + SecondaryInput.RY;
+            CombinedInput.LZ += PrimaryInput.LZ + SecondaryInput.LZ;
+            CombinedInput.RZ += PrimaryInput.RZ + SecondaryInput.RZ;
+            CombinedInput.Pov = PrimaryInput.Pov;
         }
 
         public void AddJoystickConstants()
         {
-            LX += (int)MaxLX / 2;
-            LY += (int)MaxLY / 2;
-            RX += (int)MaxRX / 2;
-            RY += (int)MaxLY / 2;
-            LZ += (int)MaxLZ / 2;
-            RZ += (int)MaxRZ / 2;
+            CombinedInput.LX += (int)MaxLX / 2;
+            CombinedInput.LY += (int)MaxLY / 2;
+            CombinedInput.RX += (int)MaxRX / 2;
+            CombinedInput.RY += (int)MaxLY / 2;
+            CombinedInput.LZ += (int)MaxLZ / 2;
+            CombinedInput.RZ += (int)MaxRZ / 2;
         }
+
         private void AddButtons(int buttonsDown)
         {
             switch (Mode)
@@ -632,12 +682,12 @@ namespace CFW.Business
          
         public void AddControllerState(State state)
         {
-            LX += state.Gamepad.LeftThumbX/2;
-            LY -= state.Gamepad.LeftThumbY/2; // inverted 
-            RX += state.Gamepad.RightThumbX/2;
-            RY += state.Gamepad.RightThumbY/2;
-            LZ += state.Gamepad.LeftTrigger; // not the right scale
-            RZ += state.Gamepad.RightTrigger; // not the right scale
+            CombinedInput.LX += state.Gamepad.LeftThumbX/2;
+            CombinedInput.LY -= state.Gamepad.LeftThumbY/2; // inverted 
+            CombinedInput.RX += state.Gamepad.RightThumbX/2;
+            CombinedInput.RY += state.Gamepad.RightThumbY/2;
+            CombinedInput.LZ += state.Gamepad.LeftTrigger; // not the right scale
+            CombinedInput.RZ += state.Gamepad.RightTrigger; // not the right scale
             Buttons = (short)state.Gamepad.Buttons;
         }
             
@@ -651,19 +701,19 @@ namespace CFW.Business
 
             iReport.bDevice = (byte)Id;
 
-            iReport.AxisX = LX;
-            iReport.AxisY = LY;
-            iReport.AxisXRot = RX;
-            iReport.AxisYRot = RY;
-            iReport.AxisZ = LZ;
-            iReport.AxisZRot = RZ;
+            iReport.AxisX = CombinedInput.LX;
+            iReport.AxisY = CombinedInput.LY;
+            iReport.AxisXRot = CombinedInput.RX;
+            iReport.AxisYRot = CombinedInput.RY;
+            iReport.AxisZ = CombinedInput.LZ;
+            iReport.AxisZRot = CombinedInput.RZ;
 
             // Press/Release Buttons
             iReport.Buttons = (uint)(Buttons);
 
             if (ContPovNumber > 0)
             {
-                iReport.bHats = ((uint)Pov);
+                iReport.bHats = ((uint)CombinedInput.Pov);
                 //iReport.bHats = 0xFFFFFFFF; // Neutral state
             }
 
@@ -876,6 +926,11 @@ namespace CFW.Business
                 vJoyConfigProc = Process.Start(info);
                 vJoyConfigProc.WaitForExit();
             }
+        }
+        public void Dispose()
+        {
+            log.Info("Relinquish VJD " + Id.ToString());
+            Joystick.RelinquishVJD(Id);
         }
     }
     
