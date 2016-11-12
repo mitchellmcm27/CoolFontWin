@@ -22,8 +22,8 @@ namespace CFW.Business
             catch (Exception e)
             {
                 log.Error("Unable to read port file: " + e.Message);
-                log.Info("Returning null");
-                return null;
+                log.Info("Returning 0");
+                return new List<string> { "0" }; // return 0
             }
         }
 
@@ -37,9 +37,9 @@ namespace CFW.Business
                 {
                     ints.Add(Convert.ToInt32(line));
                 }
-                catch (FormatException fe)
+                catch (Exception e) // catch any exception and return 0
                 {
-                    log.Error("Unable to convert to int: " + fe.Message);
+                    log.Error("Unable to convert to int: " + e.Message);
                     log.Info("Setting port to 0");
                     ints.Add(0);
                 }
