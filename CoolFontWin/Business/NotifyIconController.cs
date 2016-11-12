@@ -154,7 +154,14 @@ namespace CFW.Business
         {
             string fname = "vJoyConf.exe";
             bool launched = FileManager.FindAndLaunch(Properties.Settings.Default.VJoyDir, fname);
-            if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Configure vJoy"); }
+            if (launched)
+            {
+                SharedDeviceManager.RelinquishCurrentDevice();
+            }
+            else
+            {
+                ShowVJoyNotFoundMessageBox(fname, "Configure vJoy");
+            }
 
         }
 
@@ -275,8 +282,6 @@ namespace CFW.Business
          * */
         public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
         {
-            // Get needed defaults once.
-            int currentVJoyDeviceID = Properties.Settings.Default.VJoyID;
 
             // Mode submenu
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(SharedDeviceManager.Mode)));
@@ -327,7 +332,7 @@ namespace CFW.Business
             });
 
             ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select a vJoy device", Properties.Settings.Default.VJoyID));
-            if (currentVJoyDeviceID == 0)
+            if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_white_18dp;
             }
@@ -335,7 +340,7 @@ namespace CFW.Business
             {
                 vJoySelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 vJoySelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
-                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(currentVJoyDeviceID.ToString(), Color.White);
+                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(SharedDeviceManager.CurrentDeviceID.ToString(), Color.White);
             }
 
             ToolStripItem[] deviceIDItems = new ToolStripItem[17];
@@ -354,7 +359,7 @@ namespace CFW.Business
                     item.Enabled = true;
                 }
 
-                if (i == currentVJoyDeviceID)
+                if (i == SharedDeviceManager.CurrentDeviceID)
                 {
                     item.Font = new Font(item.Font, modeSubMenu.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_white_16dp;

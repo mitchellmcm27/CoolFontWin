@@ -1026,6 +1026,7 @@ namespace CFW.Business
         {
             Joystick.ResetVJD(this.Id);
             Joystick.RelinquishVJD(this.Id);
+            this.Id = 0;
             vJoyAcquired = false;
         }
 

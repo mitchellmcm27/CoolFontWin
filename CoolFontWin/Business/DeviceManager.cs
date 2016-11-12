@@ -88,6 +88,13 @@ namespace CFW.Business
             }
         }
 
+        public uint CurrentDeviceID
+        {
+            get
+            {
+                return VDevice.Id;
+            }
+        }
         public List<int> EnabledVJoyDevicesList
         {
             get
@@ -120,11 +127,7 @@ namespace CFW.Business
 
             VDevice = new VirtualDevice();
 
-            if (AcquireDefaultVJoyDevice())
-            {
-                Properties.Settings.Default.VJoyID = (int)VDevice.Id;
-                Properties.Settings.Default.Save();
-            }
+            AcquireDefaultVJoyDevice();
 
             InitializeTimer();
         }
@@ -264,6 +267,8 @@ namespace CFW.Business
 
         public void Dispose()
         {
+            Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
+            Properties.Settings.Default.Save();
             VDevice.Dispose();
         }
     }
