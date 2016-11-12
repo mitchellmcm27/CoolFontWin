@@ -348,6 +348,10 @@ namespace CFW.Business
                 // get ready for next round
                 DevicesReady.Clear();
             }
+            else
+            {
+                InterpolateData();
+            }
 
             // Received packet after a long delay, begin interpolating again
             if (!ShouldInterpolate)
