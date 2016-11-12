@@ -210,7 +210,7 @@ namespace CFW.Business
         /// <returns>Returns a bool indicating whether the mode switched.</returns>
         public bool TryMode(int mode)
         {
-            return VDevice.ClickedMode(mode);
+            return VDevice.ClickedMode((SimulatorMode)mode);
         }
 
         /// <summary>

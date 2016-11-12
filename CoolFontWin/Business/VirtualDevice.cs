@@ -255,20 +255,14 @@ namespace CFW.Business
             // Split on $ for main categories
             string[] instring_sep = rcvd.Split('$');
 
-            // We have to know which device we are talking to in order to do anything 
-            int deviceNumber;
-            try
+            // We have to know which device we are talking to in order to do anything
+            int deviceNumber = 0;
+            if (instring_sep.Length > 4)
             {
-                deviceNumber = int.Parse(instring_sep[4]); // temporary
+                deviceNumber = int.Parse(instring_sep[4]);
             }
-            catch (IndexOutOfRangeException ex)
-            {
-                // For backwards compatibility with older versions of PocketStrafe:
-                // Older versions do not send this string.
-                // Default to primary device (0).
-                deviceNumber = 0;
-            }      
 
+            
             DeviceList[deviceNumber].PacketNumber = ParsePacketNumber(instring_sep[3]);
 
             // packet number goes from 0 to 999 (MaxPacketNumber)
@@ -302,7 +296,7 @@ namespace CFW.Business
             if (deviceNumber == 0)
             {
                 int modeIn = ParseMode(instring_sep[0], (int)Mode); // Mode is a fallback
-                UpdateMode(modeIn);
+                UpdateMode((SimulatorMode)modeIn);
             }
 
             // Main joystic axis values
@@ -368,14 +362,8 @@ namespace CFW.Business
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Packet number int is the 3rd string */
-            try
-            {
-                return int.Parse(packetNumberString);
-            }
-            catch
-            {
-                return 0;
-            }
+           return int.Parse(packetNumberString);
+
         }
 
         private double[] ParseVals(string axes_string)
@@ -399,14 +387,8 @@ namespace CFW.Business
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Button bitmask is the (2nd string starting from 0)*/
-            try
-            {
-                return int.Parse(button_string);
-            }
-            catch
-            {
-                return 0; // no buttons pressed
-            }
+            return int.Parse(button_string);
+
         }
 
         private int ParseMode(string mode_string, int mode_old)
@@ -414,14 +396,8 @@ namespace CFW.Business
             /* Parse string representation of bitmask (unsigned int) 
                 * String array is separated by "$"
                 * Mode bitmask is the 0th string */
-            try
-            {
-                return int.Parse(mode_string);
-            }
-            catch
-            {
-                return mode_old; // current mode
-            }
+            return int.Parse(mode_string);
+
         }
 
         private double[] ProcessValues(double[] valsf)
@@ -693,38 +669,37 @@ namespace CFW.Business
 
         }
 
-        public void UpdateMode(int mode)
+        public void UpdateMode(SimulatorMode mode)
         {
-            if (mode == (int)Mode) { return; } // mode is the same as current
-            if (mode == (int)OldMode) { return; } // mode incoming from phone is outdated
+            if (mode == Mode || mode == OldMode) { return; } // mode is the same as current
 
             if (!CheckMode(mode)) { return; }
 
-            Mode = (SimulatorMode)mode;
-            OldMode = Mode;
+            this.Mode = mode;
+            this.OldMode = Mode;
             this.CurrentModeIsFromPhone = true;
             log.Info("Obtained mode from phone: " + Mode.ToString());  
         }
 
-        public bool ClickedMode(int mode)
+        public bool ClickedMode(SimulatorMode mode)
         {
             if(!CheckMode(mode))
             {
                 log.Debug("Seleted mode not available. vJoy not enabled? "+ Mode.ToString());
                 return false;
             }
-            Mode = (SimulatorMode)mode;
+            this.Mode = mode;
             this.CurrentModeIsFromPhone = false;
             log.Info("Obtained mode from CFW menu: " + Mode.ToString());
             return true;
                 
         }
 
-        private bool CheckMode(int mode)
+        private bool CheckMode(SimulatorMode mode)
         {
-            if (mode != (int)SimulatorMode.ModeWASD &&
-                mode != (int)SimulatorMode.ModePaused &&
-                mode != (int)SimulatorMode.ModeMouse)
+            if (mode != SimulatorMode.ModeWASD &&
+                mode != SimulatorMode.ModePaused &&
+                mode != SimulatorMode.ModeMouse)
             {
                 return vJoyAcquired; // successful if vjoy device has been acquired
             }
