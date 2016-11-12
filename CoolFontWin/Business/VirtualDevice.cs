@@ -142,7 +142,7 @@ namespace CFW.Business
             Mode = SimulatorMode.ModeDefault;
             OldMode = Mode;
 
-            this.UpdateInterval = 8000;
+            this.UpdateInterval = 66667; // microseconds, should match interval that FeedVjoy() is called
 
             // assuming socketPollInterval = 8,000:
             // 0.05 good for mouse movement, 0.15 was a little too smooth
