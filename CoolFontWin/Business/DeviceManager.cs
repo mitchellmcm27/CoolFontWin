@@ -28,10 +28,10 @@ namespace CFW.Business
 
         static readonly object locker = new object();
 
-        // devices
-        private VirtualDevice VDevice;
+        // Devices
+        private VirtualDevice VDevice; // single vjoy device, combines multiple mobile device inputs
         private XInputDeviceManager XMgr;
-        private Controller XDevice;
+        private Controller XDevice; // single xbox controller
 
         // timer for updating devices
         private Timer VDeviceUpdateTimer;
@@ -73,6 +73,7 @@ namespace CFW.Business
         // which devices are connected and which should be updated
         public bool InterceptXInputDevice = false;
         public bool XInputDeviceConnected = false;
+
         public bool VJoyEnabled
         {
             get
@@ -80,6 +81,7 @@ namespace CFW.Business
                 return VDevice.vJoyEnabled;
             }
         }
+
         public bool VJoyDeviceConnected
         {
             get
@@ -95,6 +97,7 @@ namespace CFW.Business
                 return VDevice.Id;
             }
         }
+
         public List<int> EnabledVJoyDevicesList
         {
             get
@@ -102,6 +105,28 @@ namespace CFW.Business
                 return VDevice.GetEnabledDevices();
             }
         }
+
+        /// <summary>
+        /// Tells Virtual Device how many different input streams to expect.
+        /// </summary>
+        public int MobileDevicesCount
+        {
+            get
+            {
+                return _MobileDevicesCount;
+            }
+            set
+            {
+                _MobileDevicesCount = value;
+                VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
+                for (int i=0; i<value; i++)
+                {
+                    VDevice.DeviceList.Add(new MobileDevice());
+                }
+                VDevice.DevicesReady = new List<int>();
+            }
+        }
+        private int _MobileDevicesCount;
 
         // Lazy instantiation of singleton class.
         // Executes only once because static.
@@ -154,12 +179,12 @@ namespace CFW.Business
         /// <returns>Bool indicating whether device was acquired.</returns>
         public bool AcquireDefaultVJoyDevice()
         {
-            return VDevice.TryVJoyDevice((uint)Properties.Settings.Default.VJoyID);
+            return VDevice.SwapToVJoyDevice((uint)Properties.Settings.Default.VJoyID);
         }
 
         public bool AcquireVJoyDevice(uint id)
         {
-            bool res = VDevice.TryVJoyDevice(id);
+            bool res = VDevice.SwapToVJoyDevice(id);
             return res;
         }
 
@@ -260,6 +285,7 @@ namespace CFW.Business
                 }
 
                 // update virtual device
+                VDevice.AddJoystickConstants();
                 VDevice.FeedVJoy();
                 VDevice.ResetValues();
             }

@@ -53,6 +53,7 @@ namespace CFW.Business
         public void StartServices(List<string> names)
         {
             this.DeviceNames = names;
+            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
             // read past-used ports from file
             // returns 0 if file not found or other error
@@ -93,6 +94,8 @@ namespace CFW.Business
             NetworkService.Publish(Server.Port, name);
             this.DeviceNames.Add(name);
 
+            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
+
             // update Defaults with this name
             StringCollection collection = new StringCollection();
             collection.AddRange(DeviceNames.ToArray());
@@ -108,6 +111,8 @@ namespace CFW.Business
             // get last-added device name
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
+
+            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
             // unpublish service containing this name
             NetworkService.Unpublish(name);
@@ -381,7 +386,7 @@ namespace CFW.Business
 
             ToolStripMenuItem addRemoveSecondaryLegItem = ToolStripMenuItemWithHandler(AddRemoveLegString(), addRemoveSecondaryLeg_Click);
             addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
-            addRemoveSecondaryLegItem.Enabled = false; // temporary
+            addRemoveSecondaryLegItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
             if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)

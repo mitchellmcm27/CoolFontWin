@@ -41,10 +41,24 @@ namespace CFW.Business
         ModeCountRelease = 4,
         ModeDefault = ModeWASD,
     };
-    public enum Leg
+
+    /// <summary>
+    /// Corresponds to indexes of Valsf[] of joystick axes values
+    /// </summary>
+    /// vel, X, Y, RX, RY, Z, RZ, POV, dY, dX
+    public enum JoystickVal
     {
-        Primary,
-        Secondary
+        ValVelocity = 0,
+        ValX,
+        ValY,
+        ValRX,
+        ValRY,
+        ValZ,
+        ValRZ,
+        ValPOV,
+        ValMouseDY,
+        ValMouseDX,
+        ValCount
     }
 
     /// <summary>
@@ -77,50 +91,20 @@ namespace CFW.Business
         private vJoy.JoystickState iReport;
         private int ContPovNumber;
 
+        private int UpdateInterval;
+
         private InputSimulator KbM;
 
-        private struct PhoneInput
-        {
-            public int LX;
-            public int LY;
-            public int RX;
-            public int RY;
-            public int LZ;
-            public int RZ;
-            public int Pov;
-            public int Buttons;
-            public bool ready;
-        }
-
-        private PhoneInput PrimaryInput;
-        private PhoneInput SecondaryInput;
-        private PhoneInput XboxInput;
-        private PhoneInput CombinedInput;
-        /*
-        private int LX;
-        private int LY;
-        private int RX;
-        private int RY;
-        private int LZ;
-        private int RZ;
-        private int Pov;
-        */
-        private int Buttons;
-        
+        private MobileDevice CombinedDevice;
 
         private bool LeftMouseButtonDown = false;
         private bool RightMoustButtonDown = false;  
 
-        private double[] Valsf;
-        private int PacketNumber;
-        private static int MaxPacketNumber = 999;
-        private int UpdateInterval;
-        
-
-        private bool LogOutput = false;
-
         // public properties
-        public uint Id;
+        public uint Id; // vJoy ID
+
+        public List<MobileDevice> DeviceList; // Mobile devices to expect
+        public List<int> DevicesReady; // Keeps track of which devices we've recvd input from
 
         public bool ShouldInterpolate;
             
@@ -128,12 +112,13 @@ namespace CFW.Business
         public bool vJoyEnabled = false;
         public bool vJoyAcquired = false;
         public bool CurrentModeIsFromPhone = false;
-        public int signX = -1;
+
+        public int signX = -1; // allows axis inversion
         public int signY = -1;
-            
-        // getter and setter allows for future event handling
-        public SimulatorMode Mode { get; set; }
-        public SimulatorMode OldMode;
+
+        
+        public SimulatorMode Mode;
+        private SimulatorMode OldMode;
 
         public double RCFilterStrength;
 
@@ -144,24 +129,37 @@ namespace CFW.Business
 
             this.UpdateInterval = 66667; // microseconds, should match interval that FeedVjoy() is called
 
-            // assuming socketPollInterval = 8,000:
             // 0.05 good for mouse movement, 0.15 was a little too smooth
             // 0.05 probably good for VR, where you don't have to aim with the phone
             // 0.00 is good for when you have to aim slowly/precisely
             RCFilterStrength = 0.1;
-                
-            ShouldInterpolate = false;
-            
+
             KbM = new InputSimulator();
             Joystick = new vJoy();
+            iReport = new vJoy.JoystickState();
+            CombinedDevice = new MobileDevice();
+
+            // DeviceManager will fill this list as needed
+            DeviceList = new List<MobileDevice>();
+
+            // We will manage this list ourselves
+            DevicesReady = new List<int>();
+
+            // Default boolean states
             vJoyEnabled = false;
             vJoyAcquired = false;
-            iReport = new vJoy.JoystickState();
+            ShouldInterpolate = false;
 
+            // Zero out iReport
             ResetValues();
         }
 
-        public bool TryVJoyDevice(uint id)
+        /// <summary>
+        /// Tries to acquire given vJoy device, relinquishing current device if necessary.
+        /// </summary>
+        /// <param name="id">vJoy device ID (1-16)</param>
+        /// <returns>Boolean indicating if device was acquired.</returns>
+        public bool SwapToVJoyDevice(uint id)
         {
             log.Info("Will try to acquire device " + id.ToString());
             if(vJoyAcquired)
@@ -172,16 +170,16 @@ namespace CFW.Business
                 vJoyAcquired = false;
             }
 
-            if (id < 1)
+            if (id < 1 || id > 16)
             {
-                log.Debug("Device index was 0.");
+                log.Debug("Device index was invalid.");
                 return false;
             }
 
             if (!IsVJoyDriverEnabled())
             {
                 vJoyEnabled = false;
-                log.Debug("vJoy not enabled. I can try to enable it...");
+                log.Debug("vJoy not enabled. I could try to enable it in the future.");
                 return false;
             }
 
@@ -205,6 +203,10 @@ namespace CFW.Business
             return false;
         }
 
+        /// <summary>
+        /// Loop through vJoy devices, find the first disabled device. Enable, config, and acquire it.
+        /// </summary>
+        /// <returns>Bool indicating if device was found, enabled, created, and acquired. </returns>
         private bool AcquireUnusedVJoyDevice()
         {
             log.Info("Will acquire first available vJoy device");
@@ -227,33 +229,51 @@ namespace CFW.Business
                             return true;
                         }
                     }
-
                 }
-
             }
             return false;
         }
 
+        /// <summary>
+        /// Main method for handling raw data from socket.
+        /// </summary>
+        /// <param name="data">Byte array representing UTF8 string.</param>
+        /// <returns>Bool indicating whether data was ingested.</returns>
         public bool HandleNewData(byte[] data)
         {
 
+            // Handle empty data case
             if (data.Length == 0)
             {
                 if (ShouldInterpolate) { InterpolateData(); }
-                //need to reset vjoy ?
                 return false;
             }
 
+
             string rcvd = System.Text.Encoding.UTF8.GetString(data);
+
+            // Split on $ for main categories
             string[] instring_sep = rcvd.Split('$');
 
-            int packetNumber = ParsePacketNumber(instring_sep[3]);
+            // We have to know which device we are talking to in order to do anything 
+            int deviceNumber;
+            try
+            {
+                deviceNumber = int.Parse(instring_sep[4]); // temporary
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                // For backwards compatibility with older versions of PocketStrafe:
+                // Older versions do not send this string.
+                // Default to primary device (0).
+                deviceNumber = 0;
+            }      
 
-            // packet number goes from 0 to 99 (MaxPacketNumber)
-            // when packet number reaches 99, it resets to 0
+            DeviceList[deviceNumber].PacketNumber = ParsePacketNumber(instring_sep[3]);
+
+            // packet number goes from 0 to 999 (MaxPacketNumber)
+            // when packet number reaches 999, it resets to 0
             // we want to check if we received an outdated packet
-            
-
 
             // if new packet # is smaller than previous 
             // and if it's not just the number resetting to 0
@@ -262,6 +282,9 @@ namespace CFW.Business
             // e.g. have 99, received 98 ->   1 -> true
             // e.g. have 0, received 95  -> -95 -> true
             // e.g. have 10, received 98 -> -88 -> true
+
+            // Not implemented on a per-device basis yet!
+
             /*  
             if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
             {
@@ -272,59 +295,72 @@ namespace CFW.Business
 
             // this.PacketNumber = packetNumber;
 
+            // Buttons
+            DeviceList[deviceNumber].Buttons = ParseButtons(instring_sep[2]);
+
+            // Mode from primary device only!
+            if (deviceNumber == 0)
+            {
+                int modeIn = ParseMode(instring_sep[0], (int)Mode); // Mode is a fallback
+                UpdateMode(modeIn);
+            }
+
+            // Main joystic axis values
             double[] valsf = ParseVals(instring_sep[1]);
-
-            if (this.Valsf == null) { this.Valsf = valsf; }
-
-            this.Buttons = ParseButtons(instring_sep[2]);
-
-            int modeIn = ParseMode(instring_sep[0], (int)Mode); // mode is a fallback
-            UpdateMode(modeIn);
-
             valsf = ProcessValues(valsf); // converts ints to doubles in generic units
-
             valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
 
+            // Filtering
             double dt = UpdateInterval / 1000.0 / 1000.0; // s
             for (int i = 0; i < valsf.Length; i++)
             {
-                if (i == 7) { continue; }// do not filter POV
-                valsf[i] = Algorithm.LowPassFilter(valsf[i], this.Valsf[i], RCFilterStrength, dt); // filter vals last
+                if (i == (int)JoystickVal.ValPOV) { continue; }// do not filter POV
+                valsf[i] = Algorithm.LowPassFilter(valsf[i], DeviceList[deviceNumber].Valsf[i], RCFilterStrength, dt); // filter vals last
             }
-            this.Valsf = valsf;
 
-            Leg currentLeg = Leg.Primary;  // ParseLeg(instring_sep[4]); // temporary
-            switch (currentLeg)
+            // Update MobileDevice with fully processed vals
+            DeviceList[deviceNumber].Valsf = valsf;
+
+            // Add device to list if necessary
+            if(!DevicesReady.Contains(deviceNumber))
             {
-                case Leg.Primary:
-                    this.PrimaryInput = AddValues(this.Valsf);
-                    this.PrimaryInput.ready = true;
-                    break;
-                case Leg.Secondary:
-                    this.SecondaryInput = AddValues(this.Valsf);
-                    this.SecondaryInput.ready = true;
-                    break;
+                DevicesReady.Add(deviceNumber);
             }
 
-            CombineInputs();
-            AddButtons(this.Buttons);
+            // If we have input from all expected devices, we can update vJoy
+            // Otherwise, devices will keep overwriting themselves until the other devices come in
+            if (DevicesReady.Count == DeviceList.Count)
+            {
+                // Initialize main Vlasf array with primary device
+                CombinedDevice.Valsf = DeviceList[0].Valsf;
+                CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[0].Buttons;
 
-            // received packet after a long delay
+                // Add vals and buttons from other devices
+                for (int i=1; i < DeviceList.Count; i++)
+                {
+                    for (int j=0; j < CombinedDevice.Valsf.Length; j++)
+                    {
+                        CombinedDevice.Valsf[j] += DeviceList[i].Valsf[j];
+                    }
+                    CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
+                }
+
+                // Add values to iReport for vJoy
+                AddValues(CombinedDevice.Valsf);
+                AddButtons(CombinedDevice.Buttons);
+                
+                // We are now ready to feed vJoy, but DeviceManager will call FeedVJoy()
+
+                // get ready for next round
+                DevicesReady.Clear();
+            }
+
+            // Received packet after a long delay, begin interpolating again
             if (!ShouldInterpolate)
             {
                 ShouldInterpolate = true;
             }
             return true;
-        }
-
-        private void InterpolateData()
-        {
-            /* given no new data, create some from previously received data */
-            /* Could be more complex but right now just returns the last good values */
-            this.PrimaryInput = AddValues(Valsf);
-            CombineInputs();
-            AddButtons(Buttons);
-
         }
 
         private int ParsePacketNumber(string packetNumberString)
@@ -388,36 +424,6 @@ namespace CFW.Business
             }
         }
 
-        private Leg ParseLeg(string leg_string)
-        {
-            if (leg_string.ToLower().Equals("p"))
-            {
-                return Leg.Primary;
-            }
-            else
-            {
-                return Leg.Secondary;
-            }
-        }
-
-        public void ResetValues()
-        {
-            PrimaryInput.LX = 0;
-            PrimaryInput.LY = 0;
-            PrimaryInput.RX = 0;
-            PrimaryInput.RY = 0;
-            PrimaryInput.LZ = 0;
-            PrimaryInput.RZ = 0;
-            PrimaryInput.Pov = -1; // neutral state
-            PrimaryInput.ready = false;
-
-            SecondaryInput = PrimaryInput;
-            CombinedInput = PrimaryInput;
-
-            AddJoystickConstants();
-            // Joystick.ResetVJD(); // need to reset vjoy?
-        }
-
         private double[] ProcessValues(double[] valsf)
         {
 
@@ -436,12 +442,12 @@ namespace CFW.Business
 
             valsf[0] = valsf[0] / 1000.0; // 0 to 1
 
-            if ( valsf[0] > 0.1)
+            if (valsf[0] > 0.1)
             {
             }
 
             valsf[7] = Algorithm.WrapAngle(valsf[7] / 1000.0); // 0 to 360, do not Clamp
-                
+
 
             if (Mode == SimulatorMode.ModeJoystickDecoupled)
             {
@@ -511,8 +517,8 @@ namespace CFW.Business
             // 3 axes
             if (Mode == SimulatorMode.ModeJoystickDecoupled)
             {
-                valsf[1] = valsf[1] * MaxLX/2;
-                valsf[2] = valsf[2] * MaxLY/2;
+                valsf[1] = valsf[1] * MaxLX / 2;
+                valsf[2] = valsf[2] * MaxLY / 2;
             }
             else
             {
@@ -534,16 +540,32 @@ namespace CFW.Business
             valsf[9] = valsf[9] * VirtualDevice.MouseSens;
 
             return valsf;
-        }     
+        }
+
+        private void InterpolateData()
+        {
+            /* given no new data, create some from previously received data */
+            /* Could be more complex but right now just returns the last good values */
+            AddValues(CombinedDevice.Valsf);
+            AddButtons(CombinedDevice.Buttons);
+        }
+
+        public void ResetValues()
+        {
+            iReport.bDevice = (byte)Id;
+            iReport.AxisX = 0;
+            iReport.AxisY = 0;
+            iReport.AxisXRot = 0;
+            iReport.AxisYRot = 0;
+            iReport.AxisZ = 0;
+            iReport.AxisZRot = 0;
+        }
 
         static private double ThreshRun = 0.1;
         static private double ThreshWalk = 0.1;
 
-        private PhoneInput AddValues(double[] valsf)
+        private void AddValues(double[] valsf)
         {
-
-            PhoneInput temp = new PhoneInput();
-
             /* Simply update joystick with vals */
             switch (Mode)
             {
@@ -553,7 +575,6 @@ namespace CFW.Business
                         SendInputWrapper.KeyDown(SendInputWrapper.ScanCodeShort.KEY_W);
                         //KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = true;
-                        Console.WriteLine("W DOWN");
                     }
                     else if (valsf[0] <= VirtualDevice.ThreshRun)
                     {
@@ -566,55 +587,31 @@ namespace CFW.Business
                     {
                         KbM.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
-
-                    if (LogOutput)
-                    {
-                        Console.Write("W?: {0} Mouse: {1} Val:{2:.#}/{3}",
-                            KbM.InputDeviceState.IsKeyDown(WindowsInput.Native.VirtualKeyCode.VK_W),
-                            (int)valsf[9],
-                            valsf[0],
-                            VirtualDevice.ThreshRun * MaxLY/2);
-                    }
                     break;
 
                 case SimulatorMode.ModeJoystickCoupled:
 
                     /* no strafing */
-                    temp.LY += signY*(int)valsf[0];
-                    temp.Pov = (int)valsf[7];
-
-                    if (LogOutput)
-                    {
-                        Console.Write("Y:{0}", temp.LY);
-                    }
+                    iReport.AxisY += signY*(int)valsf[0];
+                    iReport.bHats += (uint)valsf[7] / (uint)DeviceList.Count;
                     break;
 
                 case SimulatorMode.ModeJoystickDecoupled:
 
                     /* strafing but no turning*/
-                    temp.LX += signX*(int)valsf[1];
-                    temp.LY += signY*(int)valsf[2];
-                    temp.Pov = (int)valsf[7];
-
-                    if (LogOutput)
-                    {
-                        Console.WriteLine("X:{0} Y:{1}", temp.LX, temp.LY);
-                    }
+                    iReport.AxisX += signX*(int)valsf[1];
+                    iReport.AxisY += signY*(int)valsf[2];
+                    iReport.bHats = (uint)valsf[7];
                     break;
 
                 case SimulatorMode.ModeJoystickTurn:
 
                     // still in testing
-                    temp.LY += signY*(int)valsf[0];
-                    temp.Pov = (int)valsf[7];
+                    iReport.AxisY += signY*(int)valsf[0];
+                    iReport.bHats = (uint)valsf[7];
 
                     KbM.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
                                             0); // dx, dy (pixels)
-
-                    if (LogOutput)
-                    {
-                        Console.Write("Y:{0} dX:{1}", temp.LY, -(int)valsf[9]);
-                    }
                     break;
 
                 case SimulatorMode.ModeGamepad:
@@ -623,18 +620,13 @@ namespace CFW.Business
                     // Full gamepad simulation
                     // NOT FINISHED YET
 
-                    temp.LX += -signX*(int)valsf[1];
-                    temp.LY += signY*(int)valsf[2];
-                    temp.RX += (int)valsf[3];
-                    temp.RY += -(int)valsf[4];
-                    temp.LZ += (int)valsf[6];
-                    temp.RZ += (int)valsf[5];
-                    temp.Pov = (int)valsf[7];
-
-                    if (LogOutput)
-                    {
-                        Console.Write("X:{0} Y:{1} RX:{2} RY:{3} Z:{4} RZ{5} POV{6}", temp.LX, temp.LY, temp.RX, temp.RY, temp.LZ, temp.RZ, temp.Pov);
-                    }
+                    iReport.AxisX += -signX*(int)valsf[1];
+                    iReport.AxisY += signY*(int)valsf[2];
+                    iReport.AxisXRot += (int)valsf[3];
+                    iReport.AxisYRot += -(int)valsf[4];
+                    iReport.AxisZ += (int)valsf[6];
+                    iReport.AxisZRot += (int)valsf[5];
+                    iReport.bHats = (uint)valsf[7];
                     break;
 
                 case SimulatorMode.ModeMouse:
@@ -642,37 +634,18 @@ namespace CFW.Business
                     // Control mouse on screen
                     KbM.Mouse.MoveMouseBy(-(int)valsf[9]*5, // negative because device is not assumed upside down
                                             -(int)valsf[8]*5); // dx, dy (pixels)
-                    if (LogOutput)
-                    {
-                        Console.Write("dx:{0} dy:{1}", (int)valsf[9], (int)valsf[9]);
-                    }
-
                     break;
             }
-
-            temp.ready = true;
-            return temp;
-        }
-
-        public void CombineInputs()
-        {
-            CombinedInput.LX += PrimaryInput.LX + SecondaryInput.LX;
-            CombinedInput.LY += PrimaryInput.LY + SecondaryInput.LY;
-            CombinedInput.RX += PrimaryInput.RX + SecondaryInput.RX;
-            CombinedInput.RY += PrimaryInput.RY + SecondaryInput.RY;
-            CombinedInput.LZ += PrimaryInput.LZ + SecondaryInput.LZ;
-            CombinedInput.RZ += PrimaryInput.RZ + SecondaryInput.RZ;
-            CombinedInput.Pov = PrimaryInput.Pov;
         }
 
         public void AddJoystickConstants()
         {
-            CombinedInput.LX += (int)MaxLX / 2;
-            CombinedInput.LY += (int)MaxLY / 2;
-            CombinedInput.RX += (int)MaxRX / 2;
-            CombinedInput.RY += (int)MaxLY / 2;
-            CombinedInput.LZ += (int)MaxLZ / 2;
-            CombinedInput.RZ += (int)MaxRZ / 2;
+            iReport.AxisX += (int)MaxLX / 2;
+            iReport.AxisY += (int)MaxLY / 2;
+            iReport.AxisXRot += (int)MaxRX / 2;
+            iReport.AxisYRot += (int)MaxLY / 2;
+            iReport.AxisZ += (int)MaxLZ / 2;
+            iReport.AxisZRot += (int)MaxRZ / 2;
         }
 
         private void AddButtons(int buttonsDown)
@@ -689,7 +662,7 @@ namespace CFW.Business
                         buttonsDown = (short.MinValue | buttonsDown & ~32768); // Y button pressed in terms of XInput
                     }
 
-                    Buttons = Buttons | buttonsDown;
+                    CombinedDevice.Buttons = CombinedDevice.Buttons | buttonsDown;
                     break;
 
                 case SimulatorMode.ModeMouse:
@@ -716,6 +689,7 @@ namespace CFW.Business
                     }
                     break;
             }
+            iReport.Buttons = (uint)CombinedDevice.Buttons;
 
         }
 
@@ -760,47 +734,26 @@ namespace CFW.Business
          
         public void AddControllerState(State state)
         {
-            CombinedInput.LX += state.Gamepad.LeftThumbX/2;
-            CombinedInput.LY -= state.Gamepad.LeftThumbY/2; // inverted 
-            CombinedInput.RX += state.Gamepad.RightThumbX/2;
-            CombinedInput.RY += state.Gamepad.RightThumbY/2;
-            CombinedInput.LZ += state.Gamepad.LeftTrigger; // not the right scale
-            CombinedInput.RZ += state.Gamepad.RightTrigger; // not the right scale
-            Buttons = (short)state.Gamepad.Buttons;
+            iReport.AxisX += state.Gamepad.LeftThumbX/2;
+            iReport.AxisY -= state.Gamepad.LeftThumbY/2; // inverted 
+            iReport.AxisXRot += state.Gamepad.RightThumbX/2;
+            iReport.AxisYRot += state.Gamepad.RightThumbY/2;
+            iReport.AxisZ += state.Gamepad.LeftTrigger; // not the right scale
+            iReport.AxisZRot += state.Gamepad.RightTrigger; // not the right scale
+            iReport.Buttons = iReport.Buttons | (uint)state.Gamepad.Buttons;
         }
-            
+
         public void FeedVJoy()
         {
             if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD)
             {
                 return;
             }
-
-            iReport.bDevice = (byte)Id;
-
-            iReport.AxisX = CombinedInput.LX;
-            iReport.AxisY = CombinedInput.LY;
-            iReport.AxisXRot = CombinedInput.RX;
-            iReport.AxisYRot = CombinedInput.RY;
-            iReport.AxisZ = CombinedInput.LZ;
-            iReport.AxisZRot = CombinedInput.RZ;
-
-            // Press/Release Buttons
-            iReport.Buttons = (uint)(Buttons);
-
-            if (ContPovNumber > 0)
-            {
-                iReport.bHats = ((uint)CombinedInput.Pov);
-                //iReport.bHats = 0xFFFFFFFF; // Neutral state
-            }
-
             /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
             if (!Joystick.UpdateVJD(Id, ref iReport))
             {
             }
         }
-
-
 
         private bool IsVJoyDriverEnabled()
         {
@@ -873,7 +826,6 @@ namespace CFW.Business
             return true;
         }
 
-
         private bool AcquireVJoyDevice(uint id)
         {
             if (id <= 0 || id > 16)
@@ -932,6 +884,7 @@ namespace CFW.Business
 
             return true;
         }
+
         private void GetJoystickProperties(UInt32 id)
         {
             // pov = new byte[4]; // discrete pov hat directions
@@ -1064,6 +1017,7 @@ namespace CFW.Business
                 vJoyConfigProc.WaitForExit();
             }
         }
+
         public void Dispose()
         {
             log.Info("Relinquish VJD " + Id.ToString());
