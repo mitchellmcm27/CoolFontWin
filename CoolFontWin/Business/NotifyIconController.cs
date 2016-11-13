@@ -56,18 +56,18 @@ namespace CFW.Business
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
             Server.Start(Properties.Settings.Default.LastPort);
+            UDPServerRunning = true;
 
             // get whatever port finally worked and save it
             int port = Server.Port;
             Properties.Settings.Default.LastPort = port;
             Properties.Settings.Default.Save();
 
+            // publish 1 network service for each device
             for (int i = 0; i < DeviceNames.Count; i++)
             {
                 NetworkService.Publish(port, DeviceNames[i]);
             }
-
-            UDPServerRunning = true;
         }
 
         /// <summary>
@@ -109,15 +109,16 @@ namespace CFW.Business
             Properties.Settings.Default.Save();
         }
 
-        #region WinForms
         public void Dispose()
         {
-            SharedDeviceManager.Dispose(); // Relinquish devices
+            // Close socket
+            Server.Stop();
+
+            // Relinquish connected devices
+            SharedDeviceManager.Dispose();
         }
 
-        /*
-         * Context menu methods
-         */ 
+        #region ContextMenuStrip handlers and creation
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
@@ -136,7 +137,7 @@ namespace CFW.Business
 
             if (!res)
             {
-                MessageBox.Show("Enable vJoy and restart to use this mode", "Unable to switch modes", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                MessageBox.Show("Select a vJoy device to use this mode.", "Unable to Switch Modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -162,17 +163,22 @@ namespace CFW.Business
             if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Monitor vJoy"); }
         }
 
+        /// <summary>
+        /// Dialog box for navigating to vJoy installation directory.
+        /// </summary>
         private void VJoyOK_Click()
         {
-            // drop-in replacement for default dialog
-            Ookii.Dialogs.VistaFolderBrowserDialog fbd = new Ookii.Dialogs.VistaFolderBrowserDialog();
-            fbd.Description = "Select vJoy Folder (usually C:\\Program Files\\vJoy)";
-            fbd.UseDescriptionForTitle = true;
-            fbd.ShowNewFolderButton = false;
-            DialogResult result = fbd.ShowDialog();
-            if (!string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            // Ookii: drop-in replacement for default dialog
+            Ookii.Dialogs.VistaFolderBrowserDialog folderBrowser = new Ookii.Dialogs.VistaFolderBrowserDialog();
+            folderBrowser.Description = "Select vJoy Folder (usually C:\\Program Files\\vJoy)";
+            folderBrowser.UseDescriptionForTitle = true;
+            folderBrowser.ShowNewFolderButton = false;
+
+            DialogResult result = folderBrowser.ShowDialog();
+
+            if (!string.IsNullOrWhiteSpace(folderBrowser.SelectedPath))
             {
-                Properties.Settings.Default.VJoyDir = fbd.SelectedPath;
+                Properties.Settings.Default.VJoyDir = folderBrowser.SelectedPath;
                 Properties.Settings.Default.Save();
             }
         }
@@ -180,7 +186,7 @@ namespace CFW.Business
         private void ShowVJoyNotFoundMessageBox(string fname, string description)
         {
             string title = "vJoy not found in default directory";
-            string message = String.Format("If vJoy is installed, you can launch the '{0}' app for Windows or just browse to the vJoy install location manually. \n \n Browse to vJoy folder manually?", description);
+            string message = String.Format("If vJoy is installed, you can launch the '{0}' app for Windows, or just browse to the vJoy install location manually. \n \n Browse to vJoy folder manually?", description);
             DialogResult clicked = MessageBox.Show(message, title, MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             if (clicked == DialogResult.OK)
             {
@@ -204,7 +210,7 @@ namespace CFW.Business
             }
         }
 
-        private string AddRemoveLegString()
+        private string AddRemoveMobileDeviceString()
         {
             if (DeviceNames.Count > 1)
             {
@@ -216,7 +222,7 @@ namespace CFW.Business
             }
         }
 
-        private void addRemoveSecondaryLeg_Click(object sender, EventArgs e)
+        private void addRemoveMobileDevice_Click(object sender, EventArgs e)
         {
             if (DeviceNames.Count > 1)
             {
@@ -267,14 +273,15 @@ namespace CFW.Business
             }
         }
 
-        /**
-         * Build the main context menu items and submenus
-         * */
+        /// <summary>
+        /// Build most of the ContextMenuStrip items and add to menu.
+        /// </summary>
+        /// <param name="contextMenuStrip">ContextMenuStrip to add items to.</param>
         public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
         {
 
-            // Mode submenu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(SharedDeviceManager.Mode)));
+            // Mode submenu - Display current mode and change modes in dropdown menu
+            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
             modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
@@ -294,7 +301,7 @@ namespace CFW.Business
                 modeSubMenu.DropDownItems.Add(item);
             }
 
-            // vJoy config and monitor
+            // vJoy config menu - Change keybinds, monitor/config vJoy, flip axes...
             ToolStripMenuItem fwdKeyItem = ToolStripMenuItemWithHandler("Rebind forward key", null);
             fwdKeyItem.Image = Properties.Resources.ic_gamepad_white_18dp;
             fwdKeyItem.Enabled = false;
@@ -321,6 +328,7 @@ namespace CFW.Business
                 vJoyMonItem,
             });
 
+            // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select a vJoy device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
@@ -361,7 +369,7 @@ namespace CFW.Business
             }
             vJoySelectSubMenu.DropDownItems.AddRange(deviceIDItems);
 
-            // Smoothing factor adjustment
+            // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
             smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
             smoothingDoubleItem.ImageAlign = ContentAlignment.MiddleCenter;
@@ -371,13 +379,13 @@ namespace CFW.Business
             smoothingHalfItem.ImageAlign = ContentAlignment.MiddleCenter;
             smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
-            // Connect to multiple devices, add device
+            // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
             deviceSubMenu.Image = Properties.Resources.ic_phonelink_white_18dp;
 
-            ToolStripMenuItem addRemoveSecondaryLegItem = ToolStripMenuItemWithHandler(AddRemoveLegString(), addRemoveSecondaryLeg_Click);
-            addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
-            addRemoveSecondaryLegItem.Enabled = true;
+            ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
+            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
+            addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
             if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
@@ -394,9 +402,9 @@ namespace CFW.Business
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_videogame_asset_white_18dp;
             }
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveSecondaryLegItem, addRemoveXboxControllerItem });
+            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
 
-            // Add to Context Menu Strip
+            // Add all of these to the Context Menu Strip
             contextMenuStrip.Items.AddRange(
                 new ToolStripItem[] {
                     modeSubMenu,
@@ -410,6 +418,11 @@ namespace CFW.Business
                 });          
         }
 
+        /// <summary>
+        /// Get description from a decorated enum.
+        /// </summary>
+        /// <param name="value">Enum value</param>
+        /// <returns>String of description</returns>
         public static string GetDescription(Enum value)
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
@@ -419,6 +432,12 @@ namespace CFW.Business
             return (attributes.Length > 0) ? attributes[0].Description : value.ToString();
         }
 
+        /// <summary>
+        /// Helper method to create a handler with a toolstrip menu item.
+        /// </summary>
+        /// <param name="displayText">Item's display text</param>
+        /// <param name="eventHandler">Handler for Click event</param>
+        /// <returns>ToolStripMenuItem</returns>
         public ToolStripMenuItem ToolStripMenuItemWithHandler(string displayText, EventHandler eventHandler)
         {
             var item = new ToolStripMenuItem(displayText);

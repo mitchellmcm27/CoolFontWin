@@ -117,7 +117,6 @@ namespace CFW.Business
         {
             this.ServerSocket.Close();
             this.ServerSocket = null;
-
             this.ClientList.Clear();
         }
     }
