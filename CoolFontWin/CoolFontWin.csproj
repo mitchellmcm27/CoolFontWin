@@ -202,6 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Business\Algorithm.cs" />
+    <Compile Include="Business\ResourceSoundPlayer.cs" />
     <Compile Include="Business\DeviceManager.cs" />
     <Compile Include="Business\Drawing.cs" />
     <Compile Include="Business\FileManager.cs" />
@@ -347,6 +348,8 @@
     <None Include="Resources\ic_error_outline_white_18dp1.png" />
     <None Include="Resources\ic_error_outline_orange_18dp.png" />
     <None Include="Resources\ic_build_white_18dp.png" />
+    <None Include="Resources\beep-bad.wav" />
+    <None Include="Resources\beep-good.wav" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -251,15 +251,6 @@ namespace CFW.Business
 
         #region exit handling
 
-        bool ConsoleEventCallback(int eventType)
-        {
-            if (eventType == 2)
-            {
-                ExitThread();
-            }
-            return false;
-        }
-
         protected override void Dispose(bool disposing) 
         {
             if (disposing && Components != null)
@@ -299,6 +290,7 @@ namespace CFW.Business
 
         public void CheckForUpdates()
         {
+
             if (ApplicationDeployment.IsNetworkDeployed)
             {
                 log.Info("CoolFontWin Version " + Ver);
@@ -364,6 +356,7 @@ namespace CFW.Business
                 return;
             }
 
+            log.Info("Update completed.");
             Properties.Settings.Default.JustUpdated = true;
             Properties.Settings.Default.Save();
 

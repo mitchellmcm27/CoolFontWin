@@ -182,10 +182,10 @@ namespace CFW.Business
             if (XDevice != null && XDevice.IsConnected)
             {
                 XInputDeviceConnected = true;
-                System.Media.SystemSounds.Asterisk.Play();
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
                 return true;
             }
-            System.Media.SystemSounds.Exclamation.Play();
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             return false;
         }
 
@@ -203,11 +203,11 @@ namespace CFW.Business
             bool res = VDevice.SwapToVJoyDevice(id);
             if (res)
             {
-                System.Media.SystemSounds.Asterisk.Play();
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             }
             else
             {
-                System.Media.SystemSounds.Exclamation.Play();
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             }
             return res;
         }
@@ -215,6 +215,7 @@ namespace CFW.Business
         public void RelinquishCurrentDevice()
         {
             VDevice.RelinquishCurrentDevice();
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
         private void InitializeTimer()
