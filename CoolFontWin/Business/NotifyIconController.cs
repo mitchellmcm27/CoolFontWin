@@ -76,6 +76,7 @@ namespace CFW.Business
         /// <param name="name">Name to append to the service (device name).</param>
         public void AddService(string name)
         {
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             NetworkService.Publish(Server.Port, name);
             this.DeviceNames.Add(name);
 
@@ -93,6 +94,8 @@ namespace CFW.Business
         /// </summary>
         public void RemoveLastService()
         {
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+            
             // get last-added device name
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
