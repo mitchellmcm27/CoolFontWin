@@ -83,6 +83,16 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_clear_orange_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_clear_orange_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_clear_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_clear_white_18dp", resourceCulture);
@@ -93,9 +103,39 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_desktop_windows_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_desktop_windows_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_done_blue_16dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_done_blue_16dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_done_white_16dp {
             get {
                 object obj = ResourceManager.GetObject("ic_done_white_16dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_error_outline_orange_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_error_outline_orange_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -203,6 +243,16 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_phonelink_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_phonelink_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_power_settings_new_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_power_settings_new_white_18dp", resourceCulture);
@@ -246,6 +296,16 @@ namespace CFW.Properties {
         internal static System.Drawing.Bitmap ic_settings_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_settings_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_show_chart_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_show_chart_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

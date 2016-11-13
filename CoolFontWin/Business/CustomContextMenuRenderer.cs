@@ -14,9 +14,9 @@ namespace CFW.Business
         {
             base.Initialize(toolStrip);
 
-            toolStrip.BackColor = Colors.GreyBackground;
+            toolStrip.BackColor = Colors.FlatBlackDark;
             toolStrip.ForeColor = Colors.LightText;
-            toolStrip.ShowItemToolTips = true;
+            toolStrip.ShowItemToolTips = true;           
         }
 
         protected override void InitializeItem(ToolStripItem item)
@@ -27,7 +27,7 @@ namespace CFW.Business
 
             if (item.GetType() == typeof(ToolStripSeparator))
             {
-                item.Margin = new Padding(0, 0, 0, 1);
+                item.Margin = new Padding(0, 0, 0, 0);
             }
         }
 
@@ -39,7 +39,7 @@ namespace CFW.Business
         protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
         {
             var g = e.Graphics;
-            using (var b = new SolidBrush(Colors.DarkBlueBackground))
+            using (var b = new SolidBrush(Colors.FlatBlackDark))
             {
                 g.FillRectangle(b, e.AffectedBounds);
             }
@@ -84,7 +84,7 @@ namespace CFW.Business
 
             var rect = new Rectangle(1, 3, e.Item.Width, 1);
 
-            using (var b = new SolidBrush(Colors.DarkBorder))
+            using (var b = new SolidBrush(Colors.FlatBlack))
             {
                 g.FillRectangle(b, rect);
             }
@@ -104,16 +104,25 @@ namespace CFW.Business
             var g = e.Graphics;
 
             e.Item.ForeColor = e.Item.Enabled ? Colors.LightText : Colors.DisabledText;
+            if (e.Item.Font.Bold)
+            {
+                e.Item.ForeColor = Colors.IconBlue;
+            }
+            if (e.Item.Tag!=null && e.Item.Tag.Equals("alert"))
+            {
+                e.Item.ForeColor = Colors.IconOrangeInnerCircle;
+            }
+
 
             if (e.Item.Enabled)
             {
                 // Normal item
                 if (e.Item.Selected)
                 {
-                    e.Item.ForeColor = Colors.LightText; // Highlight mouse-over text
-                    var rect = new Rectangle(2, 0, e.Item.Width - 3, e.Item.Height);
+                   // e.Item.ForeColor = Color.White; // Highlight mouse-over text
+                    var rect = new Rectangle(0, 0, e.Item.Width, e.Item.Height);
 
-                    using (var b = new SolidBrush(Colors.BlueSelection))
+                    using (var b = new SolidBrush(Colors.FlatBlack))
                     {
                         g.FillRectangle(b, rect); // fill or do not fill selected item bg
                     }
@@ -124,9 +133,9 @@ namespace CFW.Business
                 {
                     if (((ToolStripMenuItem)e.Item).DropDown.Visible && e.Item.IsOnDropDown == false)
                     {
-                        var rect = new Rectangle(2, 0, e.Item.Width - 3, e.Item.Height);
+                        var rect = new Rectangle(0, 0, e.Item.Width - 0, e.Item.Height);
 
-                        using (var b = new SolidBrush(Colors.GreySelection))
+                        using (var b = new SolidBrush(Colors.FlatBlack))
                         {
                             g.FillRectangle(b, rect);
                         }

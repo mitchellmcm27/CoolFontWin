@@ -4,6 +4,31 @@ namespace CFW.Business
 {
     public sealed class Colors
     {
+        public static Color CoolFontRed
+        {
+            get { return Color.FromArgb(216, 47, 37); }
+        }
+
+        public static Color IconOrangeInnerCircle
+        {
+            get { return Color.FromArgb(242, 110, 37); }
+        }
+
+        public static Color IconBlue
+        {
+            get { return Color.FromArgb(0, 195, 255); }
+        }
+
+        public static Color FlatBlack
+        {
+            get { return Color.FromArgb(43, 43, 43); }
+        }
+
+        public static Color FlatBlackDark
+        {
+            get { return Color.FromArgb(38, 38, 38); }
+        }
+
         public static Color GreyBackground
         {
             get { return Color.FromArgb(60, 63, 65); }

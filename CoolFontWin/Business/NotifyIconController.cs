@@ -290,7 +290,7 @@ namespace CFW.Business
 
             // Mode submenu
             ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode ({0})", GetDescription(SharedDeviceManager.Mode)));
-            modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+            modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -304,7 +304,7 @@ namespace CFW.Business
                 if (i == (int)SharedDeviceManager.Mode)
                 {
                     item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
-                    item.Image = Properties.Resources.ic_done_white_16dp;
+                    item.Image = Properties.Resources.ic_done_blue_16dp;
                 }
                 modeSubMenu.DropDownItems.Add(item);
             }
@@ -339,7 +339,9 @@ namespace CFW.Business
             ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select a vJoy device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
-                vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_white_18dp;
+                vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
+                vJoySelectSubMenu.Tag = "alert";
+                
             }
             else
             {
@@ -367,7 +369,7 @@ namespace CFW.Business
                 if (i == SharedDeviceManager.CurrentDeviceID)
                 {
                     item.Font = new Font(item.Font, modeSubMenu.Font.Style | FontStyle.Bold);
-                    item.Image = Properties.Resources.ic_done_white_16dp;
+                    item.Image = Properties.Resources.ic_done_blue_16dp;
                 }
 
                 deviceIDItems[i] = item;
@@ -376,13 +378,17 @@ namespace CFW.Business
 
             // Smoothing factor adjustment
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
-            smoothingDoubleItem.Image = Properties.Resources.ic_line_weight_white_18dp;
+            smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            smoothingDoubleItem.ImageAlign = ContentAlignment.MiddleCenter;
+            smoothingDoubleItem.Image = Drawing.CreateBitmapImage("+", Color.White);
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
-            smoothingHalfItem.Image = Properties.Resources.ic_line_style_white_18dp;
+            smoothingHalfItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            smoothingHalfItem.ImageAlign = ContentAlignment.MiddleCenter;
+            smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
             // Connect to multiple devices, add device
             ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
-            deviceSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_link_white_18dp;
+            deviceSubMenu.Image = Properties.Resources.ic_phonelink_white_18dp;
 
             ToolStripMenuItem addRemoveSecondaryLegItem = ToolStripMenuItemWithHandler(AddRemoveLegString(), addRemoveSecondaryLeg_Click);
             addRemoveSecondaryLegItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
@@ -393,7 +399,15 @@ namespace CFW.Business
             {
                 addRemoveXboxControllerItem.Enabled = false;
             }
-            addRemoveXboxControllerItem.Image = SharedDeviceManager.InterceptXInputDevice ? Properties.Resources.ic_clear_white_18dp : Properties.Resources.ic_videogame_asset_white_18dp;
+            if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
+            {
+                addRemoveXboxControllerItem.Image = Properties.Resources.ic_clear_orange_18dp;
+                addRemoveXboxControllerItem.Tag = "alert";
+            }
+            else
+            {
+                addRemoveXboxControllerItem.Image = Properties.Resources.ic_videogame_asset_white_18dp;
+            }
 
             deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveSecondaryLegItem, addRemoveXboxControllerItem });
 
