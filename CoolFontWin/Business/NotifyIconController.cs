@@ -255,7 +255,16 @@ namespace CFW.Business
 
         private void deviceID_Click(object sender, EventArgs e)
         {
-            int id = (int)((ToolStripMenuItem)sender).Tag;
+            int id;
+            if (((ToolStripMenuItem)sender).Tag.Equals("alert"))
+            {
+                id = 0;
+            }
+            else
+            {
+                id = (int)((ToolStripMenuItem)sender).Tag;
+            }
+
             if (id==0)
             {
                 SharedDeviceManager.RelinquishCurrentDevice();
@@ -337,7 +346,7 @@ namespace CFW.Business
             {
                 vJoySelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 vJoySelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
-                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(SharedDeviceManager.CurrentDeviceID.ToString(), Color.White);
+                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(SharedDeviceManager.CurrentDeviceID.ToString(), Colors.IconBlue);
             }
 
             ToolStripItem[] deviceIDItems = new ToolStripItem[17];
@@ -353,13 +362,14 @@ namespace CFW.Business
                 if (i == 0)
                 {
                     item.Text = "None";
+                    item.Tag = "alert";
                     item.Enabled = true;
                 }
 
                 if (i == SharedDeviceManager.CurrentDeviceID)
                 {
                     item.Font = new Font(item.Font, modeSubMenu.Font.Style | FontStyle.Bold);
-                    item.Image = Properties.Resources.ic_done_blue_16dp;
+                    item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_done_blue_16dp;
                 }
 
                 deviceIDItems[i] = item;
