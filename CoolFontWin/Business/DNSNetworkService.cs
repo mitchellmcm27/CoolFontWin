@@ -5,7 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using Mono.Zeroconf;
 using log4net;
-using System.Collections;
+using System.Windows.Forms;
 
 namespace CFW.Business
 {
@@ -27,7 +27,7 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public List<RegisterService> Services = new List<RegisterService>();
+        public List<RegisterService> PublishedServices = new List<RegisterService>();
         public List<string> LocalAddrs;
 
         public DNSNetworkService()
@@ -71,9 +71,26 @@ namespace CFW.Business
 
         public bool Publish(int port, string appendToName)
         {
-            var service = new RegisterService();
-            string name;
+            RegisterService service;
+            try
+            {
+                service = new RegisterService();
+            }
+            catch (Exception e)
+            {
+                log.Error("Unable to register service: " + e.Message);
+                System.Media.SystemSounds.Exclamation.Play();
+                DialogResult res = MessageBox.Show("Bonjour for Windows is required. Please download Bonjour from Apple. \n\n Go to download page?", "Bonjour not Installed", MessageBoxButtons.YesNo);
+                if (res == DialogResult.Yes)
+                {
+                    // go to website
+                    System.Diagnostics.Process.Start("https://support.apple.com/kb/DL999?locale=en_US");
+                }
 
+                return false;
+            }
+
+            string name;
             try
             {
                 name = Environment.MachineName.ToLower();
@@ -98,20 +115,22 @@ namespace CFW.Business
                 service.ReplyDomain));
 
             service.Response += OnRegisterServiceResponse;
+
             service.Register();
 
-            Services.Add(service);
-  
+            PublishedServices.Add(service);
+
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             return true;
         }
 
         public void Unpublish(string appendToName)
         {
             // do not allow first service to be unpublished
-            if (Services.Count == 1) return;
+            if (PublishedServices.Count == 1) return;
 
             RegisterService serviceToDelete = null;
-            foreach (var service in Services)
+            foreach (var service in PublishedServices)
             {
                 if (service.Name.ToLower().Contains(appendToName.ToLower()))
                 {
@@ -122,8 +141,9 @@ namespace CFW.Business
 
             if(serviceToDelete!=null)
             {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 serviceToDelete.Dispose();
-                Services.Remove(serviceToDelete);
+                PublishedServices.Remove(serviceToDelete);
             }
         }
 
