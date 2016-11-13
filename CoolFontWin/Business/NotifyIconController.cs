@@ -211,11 +211,11 @@ namespace CFW.Business
         {
             if (DeviceNames.Count > 1)
             {
-                return "Remove secondary iPhone";
+                return "Remove secondary phone";
             }
             else
             {
-                return "Add another iPhone: 2 legs!";
+                return "Use 2 phones at once";
             }
         }
 
