@@ -102,17 +102,23 @@ namespace CFW.Business
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
             var g = e.Graphics;
-
-            e.Item.ForeColor = e.Item.Enabled ? Colors.LightText : Colors.DisabledText;
-            if (e.Item.Font.Bold)
+            
+            if (e.Item.Enabled && e.Item.Font.Bold)
             {
                 e.Item.ForeColor = Colors.IconBlue;
             }
-            if (e.Item.Tag!=null && e.Item.Tag.Equals("alert"))
+            else if (e.Item.Enabled && e.Item.Tag!=null && e.Item.Tag.Equals("alert"))
             {
                 e.Item.ForeColor = Colors.IconOrangeInnerCircle;
             }
-
+            else if (e.Item.Enabled)
+            {
+                e.Item.ForeColor = Colors.LightText;
+            }
+            else
+            {
+                e.Item.ForeColor = Colors.DisabledText;
+            }
 
             if (e.Item.Enabled)
             {
