@@ -122,7 +122,7 @@ namespace CFW.Business
                    // e.Item.ForeColor = Color.White; // Highlight mouse-over text
                     var rect = new Rectangle(0, 0, e.Item.Width, e.Item.Height);
 
-                    using (var b = new SolidBrush(Colors.FlatBlack))
+                    using (var b = new SolidBrush(Colors.FlatBlackLight))
                     {
                         g.FillRectangle(b, rect); // fill or do not fill selected item bg
                     }

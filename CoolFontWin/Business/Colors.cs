@@ -11,12 +11,17 @@ namespace CFW.Business
 
         public static Color IconOrangeInnerCircle
         {
-            get { return Color.FromArgb(242, 110, 37); }
+            get { return Color.FromArgb(255, 110, 37); } // originally 242, 110, 37
         }
 
         public static Color IconBlue
         {
             get { return Color.FromArgb(0, 195, 255); }
+        }
+
+        public static Color FlatBlackLight
+        {
+            get { return Color.FromArgb(50, 50, 50); }
         }
 
         public static Color FlatBlack
