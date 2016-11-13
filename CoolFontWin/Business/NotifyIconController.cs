@@ -26,7 +26,7 @@ namespace CFW.Business
         private List<string> DeviceNames;
         private bool UDPServerRunning = false;
 
-        static public string PortFile = "last-port.txt";
+        //static public string PortFile = "last-port.txt";
 
         public NotifyIconController(NotifyIcon notifyIcon)
         {
@@ -55,28 +55,13 @@ namespace CFW.Business
             this.DeviceNames = names;
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
-            // read past-used ports from file
-            // returns 0 if file not found or other error
-            List<int> portsFromFile = FileManager.LinesToInts(FileManager.TryToReadLinesFromFile(PortFile));
+            Server.Start(Properties.Settings.Default.LastPort);
 
-            int tryport = 0;
-            foreach(int p in portsFromFile)
-            {
-                try
-                {
-                    tryport = p;
-                    break;
-                }
-                catch { }
-            }
-
-            Server.Start(tryport);
-
-            // get whatever port finally worked
+            // get whatever port finally worked and save it
             int port = Server.Port;
-            FileManager.WritePortToLine(port, 0, PortFile);
+            Properties.Settings.Default.LastPort = port;
+            Properties.Settings.Default.Save();
 
-            // publish one service for each device
             for (int i = 0; i < DeviceNames.Count; i++)
             {
                 NetworkService.Publish(port, DeviceNames[i]);

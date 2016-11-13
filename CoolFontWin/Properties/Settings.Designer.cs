@@ -96,5 +96,17 @@ namespace CFW.Properties {
                 this["VJoyID"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LastPort {
+            get {
+                return ((int)(this["LastPort"]));
+            }
+            set {
+                this["LastPort"] = value;
+            }
+        }
     }
 }
