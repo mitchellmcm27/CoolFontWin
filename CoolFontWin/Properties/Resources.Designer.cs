@@ -141,6 +141,16 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_directions_run_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_directions_run_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_done_blue_16dp {
             get {
                 object obj = ResourceManager.GetObject("ic_done_blue_16dp", resourceCulture);

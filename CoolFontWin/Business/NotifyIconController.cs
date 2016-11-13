@@ -111,9 +111,6 @@ namespace CFW.Business
 
         public void Dispose()
         {
-            // Close socket
-            Server.Stop();
-
             // Relinquish connected devices
             SharedDeviceManager.Dispose();
         }
@@ -214,11 +211,11 @@ namespace CFW.Business
         {
             if (DeviceNames.Count > 1)
             {
-                return "Remove secondary leg";
+                return "Remove secondary iPhone";
             }
             else
             {
-                return "Add secondary leg";
+                return "Add another iPhone: 2 legs!";
             }
         }
 
@@ -384,7 +381,7 @@ namespace CFW.Business
             deviceSubMenu.Image = Properties.Resources.ic_phonelink_white_18dp;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
-            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_phonelink_ring_white_18dp;
+            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_directions_run_white_18dp;
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
