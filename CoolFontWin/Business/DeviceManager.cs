@@ -161,7 +161,7 @@ namespace CFW.Business
         private DeviceManager()
         {
             XMgr = new XInputDeviceManager();
-            AcquireXInputDevice();
+            //AcquireXInputDevice();
 
             VDevice = new VirtualDevice();
 
@@ -182,8 +182,11 @@ namespace CFW.Business
             if (XDevice != null && XDevice.IsConnected)
             {
                 XInputDeviceConnected = true;
+                System.Media.SystemSounds.Asterisk.Play();
+                return true;
             }
-            return XInputDeviceConnected;
+            System.Media.SystemSounds.Exclamation.Play();
+            return false;
         }
 
         /// <summary>
@@ -198,6 +201,14 @@ namespace CFW.Business
         public bool AcquireVJoyDevice(uint id)
         {
             bool res = VDevice.SwapToVJoyDevice(id);
+            if (res)
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+            }
+            else
+            {
+                System.Media.SystemSounds.Exclamation.Play();
+            }
             return res;
         }
 
@@ -275,19 +286,17 @@ namespace CFW.Business
                 // xbox controller handling
                 if (InterceptXInputDevice)
                 {
-                    try
+                    if (XDevice.IsConnected)
                     {
                         State state = XDevice.GetState();
                         VDevice.AddControllerState(state);
-                    }
-                    catch
+                    }      
+                    else
                     {
-                        // controller probably not connected
+                        log.Debug("Xbox controller was expected but not found.");
                         InterceptXInputDevice = false;
                         XInputDeviceConnected = false;
-                        System.Media.SystemSounds.Beep.Play();
                     }
-               
                 }
 
                 // update virtual device
