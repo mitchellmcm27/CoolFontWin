@@ -103,13 +103,14 @@ namespace CFW.Business
         {
             var g = e.Graphics;
             
-            if (e.Item.Enabled && e.Item.Font.Bold)
-            {
-                e.Item.ForeColor = Colors.IconBlue;
-            }
-            else if (e.Item.Enabled && e.Item.Tag!=null && e.Item.Tag.Equals("alert"))
+            // comment these out if you don't want special text colors
+            if (e.Item.Enabled && e.Item.Tag != null && e.Item.Tag.Equals("alert"))
             {
                 e.Item.ForeColor = Colors.IconOrangeInnerCircle;
+            }
+            else if (e.Item.Enabled && e.Item.Font.Bold)
+            {
+                e.Item.ForeColor = Colors.IconBlue;
             }
             else if (e.Item.Enabled)
             {
