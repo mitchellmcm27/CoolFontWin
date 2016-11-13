@@ -539,6 +539,8 @@ namespace CFW.Business
             iReport.AxisYRot = 0;
             iReport.AxisZ = 0;
             iReport.AxisZRot = 0;
+
+            iReport.Buttons = 0;
         }
 
         static private double ThreshRun = 0.1;

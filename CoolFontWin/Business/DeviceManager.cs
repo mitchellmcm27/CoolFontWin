@@ -71,7 +71,19 @@ namespace CFW.Business
         }
 
         // which devices are connected and which should be updated
-        public bool InterceptXInputDevice = false;
+        public bool InterceptXInputDevice
+        {
+            get
+            {
+                return _InterceptXInputDevice;
+            }
+            set
+            {
+                if (VDevice.Mode==SimulatorMode.ModeWASD) { _InterceptXInputDevice = false; }
+                else { _InterceptXInputDevice = AcquireXInputDevice(); }
+            }
+        }
+        private bool _InterceptXInputDevice = false;
         public bool XInputDeviceConnected = false;
 
         public bool VJoyEnabled
@@ -262,26 +274,19 @@ namespace CFW.Business
                 // xbox controller handling
                 if (InterceptXInputDevice)
                 {
-                    if (VDevice.Mode == SimulatorMode.ModeWASD)
+                    try
                     {
-                        // do not allow xbox controller in Keyboard mode
+                        State state = XDevice.GetState();
+                        VDevice.AddControllerState(state);
+                    }
+                    catch
+                    {
+                        // controller probably not connected
                         InterceptXInputDevice = false;
+                        XInputDeviceConnected = false;
+                        System.Media.SystemSounds.Beep.Play();
                     }
-                    else
-                    {
-                        try
-                        {
-                            State state = XDevice.GetState();
-                            VDevice.AddControllerState(state);
-                        }
-                        catch
-                        {
-                            // controller probably not connected
-                            InterceptXInputDevice = false;
-                            XInputDeviceConnected = false;
-                            System.Media.SystemSounds.Beep.Play();
-                        }
-                    }
+               
                 }
 
                 // update virtual device
