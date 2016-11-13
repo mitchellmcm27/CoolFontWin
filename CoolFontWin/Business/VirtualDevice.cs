@@ -161,7 +161,7 @@ namespace CFW.Business
         /// <returns>Boolean indicating if device was acquired.</returns>
         public bool SwapToVJoyDevice(uint id)
         {
-            log.Info("Will try to acquire device " + id.ToString());
+            log.Info("Will try to acquire device " + id.ToString() + " and return result.");
             if(vJoyAcquired)
             {
                 log.Info("First, relinquishing device " + this.Id.ToString());
@@ -172,14 +172,14 @@ namespace CFW.Business
 
             if (id < 1 || id > 16)
             {
-                log.Debug("Device index was invalid.");
+                log.Debug("Device index " + id + " was invalid. Returning false.");
                 return false;
             }
 
             if (!IsVJoyDriverEnabled())
             {
                 vJoyEnabled = false;
-                log.Debug("vJoy not enabled. I could try to enable it in the future.");
+                log.Debug("vJoy not enabled. I could try to enable it in the future. Returning false.");
                 return false;
             }
 
@@ -187,14 +187,14 @@ namespace CFW.Business
 
             if (!IsVJoyDeviceOwnedOrFree(id))
             {
-                log.Debug("Chosen device is is not free!");
+                log.Debug("Chosen device is is not free! Returning false");
                 return false;
                // return AcquireUnusedVJoyDevice();
             }
 
             if (AcquireVJoyDevice(id))
             {
-                log.Info("Successfully acquired device " + id);
+                log.Info("Successfully acquired device " + id + ". Returning true.");
                 this.Id = id;
                 vJoyAcquired = true;
                 GetJoystickProperties(id);

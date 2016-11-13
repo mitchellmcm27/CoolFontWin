@@ -44,13 +44,14 @@ namespace CFW.Business
         /// <param name="port">Port to bind to socket.</param>
         public void Start(int port)
         {
+            log.Info("Starting UDP server given port " + port.ToString());
             this.Port = port;
             this.ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             this.ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             this.ServerSocket.Bind(new IPEndPoint(IPAddress.Any, this.Port));
             this.Port = ((IPEndPoint)this.ServerSocket.LocalEndPoint).Port;
             EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-            log.Info("!! Ready to receive data.");
+            log.Info("!! Ready to receive on port " + this.Port.ToString());
             this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
         }
 
