@@ -326,7 +326,7 @@ namespace CFW.Business
             vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
             ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
-            vJoySubMenu.Image = Properties.Resources.ic_settings_white_18dp;
+            vJoySubMenu.Image = Properties.Resources.ic_build_white_18dp;
             vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
                 fwdKeyItem,
                 flipXItem,

@@ -346,6 +346,7 @@
     <None Include="Resources\ic_error_outline_white_18dp.png" />
     <None Include="Resources\ic_error_outline_white_18dp1.png" />
     <None Include="Resources\ic_error_outline_orange_18dp.png" />
+    <None Include="Resources\ic_build_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
