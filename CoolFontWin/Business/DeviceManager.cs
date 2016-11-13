@@ -80,7 +80,8 @@ namespace CFW.Business
             set
             {
                 if (VDevice.Mode==SimulatorMode.ModeWASD) { _InterceptXInputDevice = false; }
-                else { _InterceptXInputDevice = AcquireXInputDevice(); }
+                else if (value==true){ _InterceptXInputDevice = AcquireXInputDevice(); }
+                else { _InterceptXInputDevice = value; }
             }
         }
         private bool _InterceptXInputDevice = false;
