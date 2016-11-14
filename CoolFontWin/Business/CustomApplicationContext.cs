@@ -60,7 +60,7 @@ namespace CFW.Business
                 log.Info("Install location " + CurrentInstallLocation);
 
                 ShowSuccessfulInstallForm();
-                // ShowUpdateNotesForm();
+                
                 
                 Properties.Settings.Default.FirstInstall = false;
             }
@@ -69,6 +69,8 @@ namespace CFW.Business
             {
                 log.Info("First launch with latest version.");
                 log.Info("Install location " + CurrentInstallLocation);
+
+                ShowUpdateNotesForm();
 
                 try
                 {

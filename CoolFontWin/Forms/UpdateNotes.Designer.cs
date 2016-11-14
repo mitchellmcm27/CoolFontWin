@@ -37,18 +37,20 @@
             this.webBrowser1.Location = new System.Drawing.Point(0, 0);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.Size = new System.Drawing.Size(526, 413);
+            this.webBrowser1.Size = new System.Drawing.Size(711, 442);
             this.webBrowser1.TabIndex = 0;
-            this.webBrowser1.Url = new System.Uri("http://www.coolfont.co/dev-blog", System.UriKind.Absolute);
+            this.webBrowser1.Url = new System.Uri("http://www.coolfont.co/dev-blog/2016/11/13/coolfontwin-v02-use-two-devices-for-tw" +
+        "o-legs", System.UriKind.Absolute);
             // 
             // UpdateNotes
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(526, 413);
+            this.ClientSize = new System.Drawing.Size(711, 442);
             this.Controls.Add(this.webBrowser1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Name = "UpdateNotes";
-            this.Text = "UpdateNotes";
+            this.Text = "CoolFontWin was Updated";
             this.ResumeLayout(false);
 
         }
