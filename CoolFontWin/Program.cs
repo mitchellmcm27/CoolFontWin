@@ -17,12 +17,11 @@ namespace CFW.Business
         static void Main(string[] args)
         {
             log.Info("===APP STARTUP===");
-            
-            log.Debug(args.ToString());
 
             Mutex mutex = AcquireMutex();
             if (mutex == null)
             {
+                log.Warn("Application was already running.");
                 return;
             }
 
@@ -34,7 +33,7 @@ namespace CFW.Business
 
             var applicationContext = new CustomApplicationContext();
 
-            applicationContext.CheckForUpdates();
+            //applicationContext.CheckForUpdates();
 
             try
             {

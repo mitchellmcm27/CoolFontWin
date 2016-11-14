@@ -29,7 +29,7 @@
     <PublisherName>CoolFont</PublisherName>
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>19</ApplicationRevision>
+    <ApplicationRevision>31</ApplicationRevision>
     <ApplicationVersion>0.2.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -210,6 +210,7 @@
     <Compile Include="Business\LogFileManager.cs" />
     <Compile Include="Business\UDPServer.cs" />
     <Compile Include="Business\DNSNetworkService.cs" />
+    <Compile Include="Business\SilentUpdater.cs" />
     <Compile Include="Forms\Settings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -352,6 +353,7 @@
     <None Include="Resources\ic_directions_run_white_18dp.png" />
     <None Include="Resources\ic_refresh_white_18dp.png" />
     <None Include="Resources\ic_refresh_white_18dp1.png" />
+    <None Include="Resources\reverb-good.wav" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

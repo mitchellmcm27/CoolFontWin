@@ -38,7 +38,7 @@ namespace CFW.Business
             }
         }
 
-        private bool UpdateCompleted = false;
+        public SilentUpdater Updater { get; private set; }
 
         private NotifyIconController Cfw;
 
@@ -47,6 +47,19 @@ namespace CFW.Business
             InitializeContext();
             Cfw = new NotifyIconController(NotifyIcon);
             Cfw.StartServices();
+
+            Updater = new SilentUpdater(); // starts 20 min timer
+            Updater.Completed += Updater_Completed;
+            Updater.PropertyChanged += Updater_PropertyChanged;
+        }
+
+        private void Updater_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+        }
+
+        private void Updater_Completed(object sender, EventArgs e)
+        {
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
         }
 
         private System.ComponentModel.IContainer Components;
@@ -148,12 +161,12 @@ namespace CFW.Business
 
         private string VersionItemString()
         {
-            return this.UpdateCompleted ? "Updated - Restart to Apply" : "CoolFontWin " + VersionDescription;
+            return Updater.UpdateAvailable ? "Updated - Restart to Apply" : "CoolFontWin " + VersionDescription;
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
         {
-            if (this.UpdateCompleted)
+            if (Updater.UpdateAvailable)
             {
                 Application.Restart();
             }
@@ -167,7 +180,7 @@ namespace CFW.Business
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
             ToolStripMenuItem versionItem = new ToolStripMenuItem(VersionItemString());
-            if (this.UpdateCompleted)
+            if (Updater.UpdateAvailable)
             {
                 versionItem.Enabled = true;
                 versionItem.Click += VersionItem_Click;
@@ -314,80 +327,5 @@ namespace CFW.Business
             Application.Restart();
         }
         #endregion
-
-        #region updating
-
-        public void CheckForUpdates()
-        {
-
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                log.Info("CoolFontWin Version " + VersionDescription);
-                log.Info("Checking for updates...");
-                ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
-                ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
-                ad.CheckForUpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_CheckForUpdateProgressChanged);
-
-                ad.CheckForUpdateAsync();
-            }
-        }
-
-        void ad_CheckForUpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {       
-        }
-
-        void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
-        {
-            log.Info("Done checking for updates.");
-            
-            if (e.Error != null)
-            {
-               log.Error("Could not retrieve new version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
-                return;
-            }
-            else if (e.Cancelled == true)
-            {
-               log.Info("The update was cancelled.");
-            }
-
-            if (e.UpdateAvailable)
-            {
-                log.Info("Update available. Beginning... ");
-                BeginUpdate();
-            }
-        }
-
-        private void BeginUpdate()
-        {
-            ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
-            ad.UpdateCompleted += new AsyncCompletedEventHandler(ad_UpdateCompleted);
-
-            // Indicate progress in the application's status bar.
-            ad.UpdateProgressChanged += new DeploymentProgressChangedEventHandler(ad_UpdateProgressChanged);
-            ad.UpdateAsync();
-        }
-
-        void ad_UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {         
-        }
-
-        void ad_UpdateCompleted(object sender, AsyncCompletedEventArgs e)
-        {     
-            if (e.Cancelled)
-            {
-                log.Info("The update of the application's latest version was cancelled.");
-                return;
-            }
-            else if (e.Error != null)
-            {
-                log.Error("Could not install the latest version of the application. Reason: \n" + e.Error.Message + "\nPlease report this error to the system administrator.");
-                return;
-            }
-
-            log.Info("Update completed, will apply on next startup");
-            this.UpdateCompleted = true;
-        }
-        #endregion
-    
     }
 }
