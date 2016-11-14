@@ -190,6 +190,7 @@ namespace CFW.Business
             else
             {
                 versionItem.Enabled = false;
+                versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
             }
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
 

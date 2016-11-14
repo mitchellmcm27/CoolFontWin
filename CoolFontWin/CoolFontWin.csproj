@@ -354,6 +354,7 @@
     <None Include="Resources\ic_refresh_white_18dp.png" />
     <None Include="Resources\ic_refresh_white_18dp1.png" />
     <None Include="Resources\reverb-good.wav" />
+    <None Include="Resources\ic_cloud_done_white_18dp.png" />
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
