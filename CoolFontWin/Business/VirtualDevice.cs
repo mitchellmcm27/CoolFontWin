@@ -198,6 +198,9 @@ namespace CFW.Business
                 this.Id = id;
                 vJoyAcquired = true;
                 GetJoystickProperties(id);
+                ResetValues();
+                AddJoystickConstants();
+                Joystick.UpdateVJD(Id, ref iReport);
                 return true;
             }
             return false;
@@ -226,7 +229,9 @@ namespace CFW.Business
                             this.Id = (uint)i;
                             vJoyAcquired = true;
                             GetJoystickProperties((uint)i);
-                            return true;
+                            ResetValues();
+                            AddJoystickConstants();
+                            Joystick.UpdateVJD(Id, ref iReport);
                         }
                     }
                 }
@@ -626,6 +631,7 @@ namespace CFW.Business
             iReport.AxisY += (int)MaxLY / 2;
             iReport.AxisXRot += (int)MaxRX / 2;
             iReport.AxisYRot += (int)MaxLY / 2;
+
             iReport.AxisZ += (int)MaxLZ / 2;
             iReport.AxisZRot += (int)MaxRZ / 2;
         }
@@ -734,6 +740,7 @@ namespace CFW.Business
             if (!Joystick.UpdateVJD(Id, ref iReport))
             {
             }
+
         }
 
         private bool IsVJoyDriverEnabled()
