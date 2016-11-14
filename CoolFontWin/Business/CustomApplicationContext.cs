@@ -20,8 +20,8 @@ namespace CFW.Business
         private static readonly string DefaultTooltip = "Pocket Strafe Companion";
         private static readonly string CurrentInstallLocation = Assembly.GetExecutingAssembly().Location;
 
-        string _Ver;
-        public string Ver
+        private string _Ver;
+        public string VersionDescription
         {
             get
             {
@@ -29,16 +29,16 @@ namespace CFW.Business
                 if (ApplicationDeployment.IsNetworkDeployed)
                 {
                     version = ApplicationDeployment.CurrentDeployment.CurrentVersion;
-                    _Ver = version.ToString();
+                    return version.ToString();
                 }
                 else
                 {
-                    _Ver = "Debug";
+                    return "Debug";
                 }
-                return _Ver;
             }
-            set { Ver = value; }
         }
+
+        private bool UpdateCompleted = false;
 
         private NotifyIconController Cfw;
 
@@ -146,6 +146,19 @@ namespace CFW.Business
             Process.Start(procStartInfo);
         }
 
+        private string VersionItemString()
+        {
+            return this.UpdateCompleted ? "Updated - Restart to Apply" : "CoolFontWin " + VersionDescription;
+        }
+
+        private void VersionItem_Click(object sender, EventArgs e)
+        {
+            if (this.UpdateCompleted)
+            {
+                Application.Restart();
+            }
+        }
+
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
 
@@ -153,8 +166,18 @@ namespace CFW.Business
 
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
-            ToolStripMenuItem versionItem = new ToolStripMenuItem("Current version: " + Ver);
-            versionItem.Enabled = false;
+            ToolStripMenuItem versionItem = new ToolStripMenuItem(VersionItemString());
+            if (this.UpdateCompleted)
+            {
+                versionItem.Enabled = true;
+                versionItem.Click += VersionItem_Click;
+                versionItem.Font = new System.Drawing.Font(versionItem.Font, (versionItem.Font.Style | System.Drawing.FontStyle.Bold));
+                versionItem.Image = Properties.Resources.ic_refresh_blue_18dp;
+            }
+            else
+            {
+                versionItem.Enabled = false;
+            }
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
 
             Cfw.AddToContextMenu(NotifyIcon.ContextMenuStrip);
@@ -299,7 +322,7 @@ namespace CFW.Business
 
             if (ApplicationDeployment.IsNetworkDeployed)
             {
-                log.Info("CoolFontWin Version " + Ver);
+                log.Info("CoolFontWin Version " + VersionDescription);
                 log.Info("Checking for updates...");
                 ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;
                 ad.CheckForUpdateCompleted += new CheckForUpdateCompletedEventHandler(ad_CheckForUpdateCompleted);
@@ -310,8 +333,7 @@ namespace CFW.Business
         }
 
         void ad_CheckForUpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
-        {
-            
+        {       
         }
 
         void ad_CheckForUpdateCompleted(object sender, CheckForUpdateCompletedEventArgs e)
@@ -362,7 +384,8 @@ namespace CFW.Business
                 return;
             }
 
-            log.Info("Update completed, will apply on next startup");  
+            log.Info("Update completed, will apply on next startup");
+            this.UpdateCompleted = true;
         }
         #endregion
     

@@ -321,6 +321,26 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_refresh_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_refresh_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_refresh_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_refresh_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_settings_cell_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_settings_cell_white_18dp", resourceCulture);
