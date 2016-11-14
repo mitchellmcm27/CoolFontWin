@@ -54,39 +54,19 @@ namespace CFW.Business
 
         private void InitializeContext()
         {
-            if (Properties.Settings.Default.FirstInstall)
+
+            ShowSuccessfulInstallForm();
+            ShowUpdateNotesForm();
+
+            try
             {
-                log.Info("First launch after fresh install");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                ShowSuccessfulInstallForm();
-                
-                
-                Properties.Settings.Default.FirstInstall = false;
+                ForceFirewallWindow();
             }
-
-            if (Properties.Settings.Default.JustUpdated)
+            catch (Exception e)
             {
-                log.Info("First launch with latest version.");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                ShowUpdateNotesForm();
-
-                try
-                {
-                    ForceFirewallWindow();
-                }
-                catch (Exception e)
-                {
-                    log.Error("Unable to open temp TCP socket because: " + e.Message);
-                    log.Info("Windows Firewall should prompt on the next startup.");
-                }
-
-                Properties.Settings.Default.JustUpdated = false;
-
+                log.Error("Unable to open temp TCP socket because: " + e.Message);
+                log.Info("Windows Firewall should prompt on the next startup.");
             }
-
-            Properties.Settings.Default.Save();
 
             Components = new System.ComponentModel.Container();
             NotifyIcon = new NotifyIcon(Components)
@@ -104,6 +84,9 @@ namespace CFW.Business
             
         }
 
+        /// <summary>
+        /// Should force Windows Firewall prompt to show.
+        /// </summary>
         private void ForceFirewallWindow()
         {
             log.Info("Opening, closing TCP socket so that Windows Firewall prompt appears...");
@@ -117,9 +100,12 @@ namespace CFW.Business
             t.Stop();
         }
 
+        /// <summary>
+        /// Not used. Open and close TCP port instead.
+        /// </summary>
+        /// <param name="path"></param>
         private void AddFirewallRule(string path)
         {
-            // Not used currently
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
                 return;
@@ -137,9 +123,12 @@ namespace CFW.Business
             Process.Start(procStartInfo);
         }
 
+        /// <summary>
+        /// Not used. Open and close TCP port instead.
+        /// </summary>
+        /// <param name="path"></param>
         private void DeleteFirewallRule(string path)
         {
-            // Not used currently
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
                 return;
@@ -232,16 +221,37 @@ namespace CFW.Business
 
         private void ShowSuccessfulInstallForm()
         {
+            if (!ApplicationDeployment.IsNetworkDeployed) return;
+            if (!Properties.Settings.Default.FirstInstall) return;
+
+            log.Info("First launch after fresh install");
+            log.Info("Install location " + CurrentInstallLocation);
+
+            Properties.Settings.Default.FirstInstall = false;
+            Properties.Settings.Default.Save();
+
             if (SuccessForm == null)
+            {
                 SuccessForm = new SuccessForm();
+            }
+
             SuccessForm.Closed += SucessForm_Closed;
             SuccessForm.Show();
         }
 
         private void ShowUpdateNotesForm()
         {
+            if (!ApplicationDeployment.IsNetworkDeployed) return;
+            if (!ApplicationDeployment.CurrentDeployment.IsFirstRun) return;
+
+            log.Info("First launch with latest version.");
+            log.Info("Install location " + CurrentInstallLocation);
+
             if (UpdateNotes == null)
+            {
                 UpdateNotes = new UpdateNotes();
+            }
+
             UpdateNotes.Closed += UpdateNotes_Closed;
             UpdateNotes.Show();
         }
@@ -263,12 +273,6 @@ namespace CFW.Business
 
         protected override void ExitThreadCore()
         {
-            // If next launch will be a new version
-            if (Properties.Settings.Default.JustUpdated)
-            {
-               // DeleteFirewallRule(CurrentInstallLocation);
-            }
-
             Cfw.Dispose();
             NotifyIcon.Visible = false;
             Dispose(true);
@@ -358,11 +362,7 @@ namespace CFW.Business
                 return;
             }
 
-            log.Info("Update completed.");
-            Properties.Settings.Default.JustUpdated = true;
-            Properties.Settings.Default.Save();
-
-            // update will apply on next startup                 
+            log.Info("Update completed, will apply on next startup");  
         }
         #endregion
     
