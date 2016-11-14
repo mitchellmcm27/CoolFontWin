@@ -71,6 +71,7 @@ namespace CFW.Business
         }
 
         // which devices are connected and which should be updated
+        private bool _InterceptXInputDevice = false;
         public bool InterceptXInputDevice
         {
             get
@@ -79,13 +80,25 @@ namespace CFW.Business
             }
             set
             {
-                if (VDevice.Mode==SimulatorMode.ModeWASD) { _InterceptXInputDevice = false; }
-                else if (value==true){ _InterceptXInputDevice = AcquireXInputDevice(); }
-                else { _InterceptXInputDevice = value; }
+                if (VDevice.Mode==SimulatorMode.ModeWASD)
+                {
+                    _InterceptXInputDevice = false;
+                }
+                else if (value==true)
+                {
+                    // acquire device
+                    _InterceptXInputDevice = AcquireXInputDevice();
+                }
+                else
+                {
+                    // give up device
+                    ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+                    _InterceptXInputDevice = false;
+                }
             }
         }
-        private bool _InterceptXInputDevice = false;
-        public bool XInputDeviceConnected = false;
+        
+        public bool XInputDeviceConnected { get; private set; }
 
         public bool VJoyEnabled
         {

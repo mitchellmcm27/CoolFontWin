@@ -684,8 +684,9 @@ namespace CFW.Business
         public void UpdateMode(SimulatorMode mode)
         {
             if (mode == Mode || mode == OldMode) { return; } // mode is the same as current
-
             if (!CheckMode(mode)) { return; }
+
+            NeutralizeCurrentVJoyDevice();
 
             this.Mode = mode;
             this.OldMode = Mode;
@@ -700,25 +701,36 @@ namespace CFW.Business
                 log.Debug("Seleted mode not available. vJoy not enabled? "+ Mode.ToString());
                 return false;
             }
+
+            NeutralizeCurrentVJoyDevice();
+
             this.Mode = mode;
             this.CurrentModeIsFromPhone = false;
             log.Info("Obtained mode from CFW menu: " + Mode.ToString());
             return true;
-                
         }
 
         private bool CheckMode(SimulatorMode mode)
         {
+            // Must have a vJoy device acquired if trying to switch to Joystick mode
             if (mode != SimulatorMode.ModeWASD &&
                 mode != SimulatorMode.ModePaused &&
                 mode != SimulatorMode.ModeMouse)
             {
-                return vJoyAcquired; // successful if vjoy device has been acquired
+                return vJoyAcquired;
             }
-
             return true;
         }
-         
+
+        private void NeutralizeCurrentVJoyDevice()
+        {
+            log.Info("Feeding vJoy device with neutral values.");
+            ResetValues();
+            AddJoystickConstants();
+            FeedVJoy();
+            ResetValues();
+        }
+
         public void AddControllerState(State state)
         {
             iReport.AxisX += state.Gamepad.LeftThumbX/2;

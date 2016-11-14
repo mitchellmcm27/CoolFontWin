@@ -119,8 +119,6 @@ namespace CFW.Business
             service.Register();
 
             PublishedServices.Add(service);
-
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             return true;
         }
 

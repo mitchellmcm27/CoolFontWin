@@ -76,9 +76,13 @@ namespace CFW.Business
         /// <param name="name">Name to append to the service (device name).</param>
         public void AddService(string name)
         {
+
+            if (NetworkService.Publish(Server.Port, name))
+            {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
+                this.DeviceNames.Add(name);
+            }
             
-            NetworkService.Publish(Server.Port, name);
-            this.DeviceNames.Add(name);
 
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
@@ -236,9 +240,14 @@ namespace CFW.Business
 
         private string AddRemoveXboxControllerString()
         {
+            if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
+            {
+                return "Joystick mode only";
+            }
+
             if (!SharedDeviceManager.InterceptXInputDevice)
             {
-                return "Use Xbox controller";
+                return "Capture Xbox controller input";
             }
             else
             {
@@ -248,11 +257,6 @@ namespace CFW.Business
 
         private void addRemoveXboxController_Click(object sender, EventArgs e)
         {
-            if (!SharedDeviceManager.InterceptXInputDevice)
-            {
-                bool found = SharedDeviceManager.AcquireXInputDevice();
-                if (!found) SharedDeviceManager.InterceptXInputDevice = false;
-            }
             SharedDeviceManager.InterceptXInputDevice = !SharedDeviceManager.InterceptXInputDevice;
         }
 
