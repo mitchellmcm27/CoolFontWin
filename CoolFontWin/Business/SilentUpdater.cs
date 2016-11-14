@@ -70,7 +70,10 @@ namespace CFW.Business
                 processing = true;
                 try
                 {
-                    if (Deployment.CheckForUpdate(false))
+                    // bool: Persist update to disk?
+                    // false: Apply update silently
+                    // true: Show prompt and allow user to skip update (not desired)
+                    if (Deployment.CheckForUpdate(false)) 
                         Deployment.UpdateAsync();
                     else
                         processing = false;
