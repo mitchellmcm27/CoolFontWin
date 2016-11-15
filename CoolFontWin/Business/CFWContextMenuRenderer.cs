@@ -44,7 +44,7 @@ namespace CFW.Business
             {
                 toolStrip.ImageScalingSize = new Size(16, 16);
             }
-            toolStrip.BackColor = Colors.FlatBlackLight;
+            toolStrip.BackColor = Colors.FlatBlack;
             toolStrip.ForeColor = Colors.LightText;
             toolStrip.ShowItemToolTips = true;           
         }
@@ -69,7 +69,7 @@ namespace CFW.Business
         protected override void OnRenderToolStripBackground(ToolStripRenderEventArgs e)
         {
             var g = e.Graphics;
-            using (var b = new SolidBrush(Colors.FlatBlackLight))
+            using (var b = new SolidBrush(Colors.FlatBlack))
             {
                 g.FillRectangle(b, e.AffectedBounds);
             }
@@ -114,7 +114,7 @@ namespace CFW.Business
 
             var rect = new Rectangle(1, 3, e.Item.Width, 1);
 
-            using (var b = new SolidBrush(Colors.FlatBlackLight))
+            using (var b = new SolidBrush(Colors.FlatBlack))
             {
                 g.FillRectangle(b, rect);
             }
@@ -161,7 +161,7 @@ namespace CFW.Business
                    // e.Item.ForeColor = Color.White; // Highlight mouse-over text
                     var rect = new Rectangle(0, 0, e.Item.Width, e.Item.Height);
 
-                    using (var b = new SolidBrush(Colors.FlatBlack))
+                    using (var b = new SolidBrush(Colors.FlatBlackLight))
                     {
                         g.FillRectangle(b, rect); // fill or do not fill selected item bg
                     }
@@ -174,7 +174,7 @@ namespace CFW.Business
                     {
                         var rect = new Rectangle(0, 0, e.Item.Width - 0, e.Item.Height);
 
-                        using (var b = new SolidBrush(Colors.FlatBlackLight))
+                        using (var b = new SolidBrush(Colors.FlatBlack))
                         {
                             g.FillRectangle(b, rect);
                         }
