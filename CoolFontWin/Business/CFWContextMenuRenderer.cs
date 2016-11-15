@@ -27,7 +27,7 @@ namespace CFW.Business
                     this.Font = new Font("Verdana", 8F);
                     break;
                 case UIStyle.UIStyleVR:
-                    this.Font = new Font("Verdana", 18F);
+                    this.Font = new Font("Verdana", 14F);
                     break;
             }
             this.Style = style;
