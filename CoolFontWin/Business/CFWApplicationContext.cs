@@ -12,7 +12,7 @@ using CFW.Forms;
 
 namespace CFW.Business
 {
-    public class CustomApplicationContext : ApplicationContext
+    public class CFWApplicationContext : ApplicationContext
     {
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -42,7 +42,7 @@ namespace CFW.Business
 
         private NotifyIconController Cfw;
 
-        public CustomApplicationContext()
+        public CFWApplicationContext()
         {
             InitializeContext();
             Cfw = new NotifyIconController(NotifyIcon);
@@ -86,10 +86,10 @@ namespace CFW.Business
             {
                 ContextMenuStrip = new ContextMenuStrip(),
                 Icon = Properties.Resources.tray_icon,
-                Text = CustomApplicationContext.DefaultTooltip,
+                Text = CFWApplicationContext.DefaultTooltip,
                 Visible = true
             };
-            NotifyIcon.ContextMenuStrip.Renderer = new CustomContextMenuRenderer();
+            NotifyIcon.ContextMenuStrip.Renderer = CustomRendererNormal;
             NotifyIcon.ContextMenuStrip.ShowItemToolTips = true;
 
             NotifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
@@ -172,6 +172,9 @@ namespace CFW.Business
             }
         }
 
+        private static CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
+        private static CFWContextMenuRenderer CustomRendererNormal = new CFWContextMenuRenderer(UIStyle.UIStyleNormal);
+
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
@@ -180,14 +183,14 @@ namespace CFW.Business
             // http://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running
 
             bool steamVRRunning =  Process.GetProcessesByName("VRServer").Length>0;
-            bool oculusHomeRunning = Process.GetProcessesByName("OculusVR").Length>0;
+            bool oculusHomeRunning = Process.GetProcessesByName("OculusVR").Length>0; // correct process name?
             if (steamVRRunning || oculusHomeRunning)
             {
-                NotifyIcon.ContextMenuStrip.Font = new System.Drawing.Font(NotifyIcon.ContextMenuStrip.Font.Name, 18F);
+                NotifyIcon.ContextMenuStrip.Renderer = CustomRendererVR;
             }
             else
             {
-                NotifyIcon.ContextMenuStrip.Font = new System.Drawing.Font(NotifyIcon.ContextMenuStrip.Font.Name, 9F);
+                NotifyIcon.ContextMenuStrip.Renderer = CustomRendererNormal;
             }
 
             NotifyIcon.ContextMenuStrip.Items.Clear();
@@ -237,18 +240,6 @@ namespace CFW.Business
                 log.Error("Error opening Log.txt: " + ex);
             }
         }
-
-        // removed ZedGraph.dll reference
-        /*
-        [Conditional("DEBUG")]
-        private void AddDebugMenuItems()
-        {
-            ToolStripMenuItem graphItem = Cfw.ToolStripMenuItemWithHandler("Show graph (debug only)", ShowGraphFormItem_Clicked);
-
-            NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), graphItem });
-        }
-        */
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
         {

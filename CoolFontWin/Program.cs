@@ -31,7 +31,7 @@ namespace CFW.Business
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            var applicationContext = new CustomApplicationContext();
+            var applicationContext = new CFWApplicationContext();
 
             //applicationContext.CheckForUpdates();
 

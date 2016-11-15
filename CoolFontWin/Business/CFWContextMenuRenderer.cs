@@ -6,13 +6,40 @@ using System.Windows.Forms;
 
 namespace CFW.Business
 {
-    public class CustomContextMenuRenderer : ToolStripRenderer
+    public enum UIStyle
+    {
+        UIStyleNormal,
+        UIStyleVR,
+    }
+    public class CFWContextMenuRenderer : ToolStripRenderer
     {
         #region Initialisation Region
+
+        public Font Font;
+        private UIStyle Style;
+
+        public CFWContextMenuRenderer (UIStyle style)
+        {
+            switch(style)
+            {
+                case UIStyle.UIStyleNormal:
+                    this.Font = new Font(Control.DefaultFont.Name, 9F);
+                    break;
+                case UIStyle.UIStyleVR:
+                    this.Font = new Font(Control.DefaultFont.Name, 18F);
+                    break;
+            }
+            this.Style = style;
+        }
 
         protected override void Initialize(ToolStrip toolStrip)
         {
             base.Initialize(toolStrip);
+
+            if (this.Style==UIStyle.UIStyleVR)
+            {
+                toolStrip.ImageScalingSize = new Size(32, 32);
+            }
 
             toolStrip.BackColor = Colors.FlatBlackLight;
             toolStrip.ForeColor = Colors.LightText;
@@ -24,7 +51,7 @@ namespace CFW.Business
             base.InitializeItem(item);
 
             item.ForeColor = Colors.LightText;
-
+            
             if (item.GetType() == typeof(ToolStripSeparator))
             {
                 item.Margin = new Padding(0, 0, 0, 0);
@@ -102,7 +129,9 @@ namespace CFW.Business
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
             var g = e.Graphics;
-            
+
+            e.Item.Font = this.Font;
+
             // comment these out if you don't want special text colors
             if (e.Item.Enabled && e.Item.Tag != null && e.Item.Tag.Equals("alert"))
             {

@@ -257,8 +257,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Business\Colors.cs" />
-    <Compile Include="Business\CustomApplicationContext.cs" />
-    <Compile Include="Business\CustomContextMenuRenderer.cs" />
+    <Compile Include="Business\CFWApplicationContext.cs" />
+    <Compile Include="Business\CFWContextMenuRenderer.cs" />
     <Compile Include="Forms\Success.cs">
       <SubType>Form</SubType>
     </Compile>

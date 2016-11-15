@@ -289,8 +289,8 @@ namespace CFW.Business
         /// <summary>
         /// Build most of the ContextMenuStrip items and add to menu.
         /// </summary>
-        /// <param name="contextMenuStrip">ContextMenuStrip to add items to.</param>
-        public void AddToContextMenu(ContextMenuStrip contextMenuStrip)
+        /// <param name="cms">ContextMenuStrip to add items to.</param>
+        public void AddToContextMenu(ContextMenuStrip cms)
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
@@ -304,11 +304,11 @@ namespace CFW.Business
             for (int i = 0; i < numModes; i++)
             {
                 var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
-                item.Tag = i; // = SimulatorMode value
-                item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Regular);
+                item.Tag = i; // = SimulatorMode enum value
+                item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
                 if (i == (int)SharedDeviceManager.Mode)
                 {
-                    item.Font = new Font(modeSubMenu.Font, modeSubMenu.Font.Style | FontStyle.Bold);
+                    item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_blue_16dp;
                 }
                 modeSubMenu.DropDownItems.Add(item);
@@ -375,7 +375,7 @@ namespace CFW.Business
                 if (i == SharedDeviceManager.CurrentDeviceID)
                 {
                     if (i==0) item.Tag = "alert";
-                    item.Font = new Font(item.Font, modeSubMenu.Font.Style | FontStyle.Bold);
+                    item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
                     item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_done_blue_16dp;
                 }
 
@@ -419,7 +419,7 @@ namespace CFW.Business
             deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
 
             // Add all of these to the Context Menu Strip
-            contextMenuStrip.Items.AddRange(
+            cms.Items.AddRange(
                 new ToolStripItem[] {
                     modeSubMenu,
                     vJoySubMenu,
