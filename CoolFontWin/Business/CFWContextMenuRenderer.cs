@@ -40,7 +40,10 @@ namespace CFW.Business
             {
                 toolStrip.ImageScalingSize = new Size(32, 32);
             }
-
+            else
+            {
+                toolStrip.ImageScalingSize = new Size(16, 16);
+            }
             toolStrip.BackColor = Colors.FlatBlackLight;
             toolStrip.ForeColor = Colors.LightText;
             toolStrip.ShowItemToolTips = true;           
