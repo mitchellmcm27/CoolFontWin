@@ -174,8 +174,21 @@ namespace CFW.Business
 
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
             e.Cancel = false;
+
+            // TODO:
+            // http://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running
+
+            bool steamVRRunning =  Process.GetProcessesByName("VRServer").Length>0;
+            bool oculusHomeRunning = Process.GetProcessesByName("OculusVR").Length>0;
+            if (steamVRRunning || oculusHomeRunning)
+            {
+                NotifyIcon.ContextMenuStrip.Font = new System.Drawing.Font(NotifyIcon.ContextMenuStrip.Font.Name, 18F);
+            }
+            else
+            {
+                NotifyIcon.ContextMenuStrip.Font = new System.Drawing.Font(NotifyIcon.ContextMenuStrip.Font.Name, 9F);
+            }
 
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
@@ -192,6 +205,7 @@ namespace CFW.Business
                 versionItem.Enabled = false;
                 versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
             }
+
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
 
             Cfw.AddToContextMenu(NotifyIcon.ContextMenuStrip);
