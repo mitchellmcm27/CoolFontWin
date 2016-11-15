@@ -346,7 +346,7 @@ namespace CFW.Business
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
-                vJoySelectSubMenu.Tag = "alert";
+                //vJoySelectSubMenu.Tag = "alert";
                 
             }
             else
@@ -374,7 +374,7 @@ namespace CFW.Business
 
                 if (i == SharedDeviceManager.CurrentDeviceID)
                 {
-                    if (i==0) item.Tag = "alert";
+                    //if (i==0) item.Tag = "alert";
                     item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
                     item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_done_blue_16dp;
                 }
@@ -409,7 +409,7 @@ namespace CFW.Business
             if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_clear_orange_18dp;
-                addRemoveXboxControllerItem.Tag = "alert";
+                //addRemoveXboxControllerItem.Tag = "alert";
             }
             else
             {

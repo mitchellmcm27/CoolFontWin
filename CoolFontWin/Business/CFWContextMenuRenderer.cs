@@ -20,13 +20,14 @@ namespace CFW.Business
 
         public CFWContextMenuRenderer (UIStyle style)
         {
-            switch(style)
+
+            switch (style)
             {
                 case UIStyle.UIStyleNormal:
-                    this.Font = new Font(Control.DefaultFont.Name, 9F);
+                    this.Font = new Font("Verdana", 8F);
                     break;
                 case UIStyle.UIStyleVR:
-                    this.Font = new Font(Control.DefaultFont.Name, 18F);
+                    this.Font = new Font("Verdana", 18F);
                     break;
             }
             this.Style = style;
@@ -46,7 +47,8 @@ namespace CFW.Business
             }
             toolStrip.BackColor = Colors.FlatBlack;
             toolStrip.ForeColor = Colors.LightText;
-            toolStrip.ShowItemToolTips = true;           
+            toolStrip.ShowItemToolTips = true;
+            toolStrip.Font = this.Font;       
         }
 
         protected override void InitializeItem(ToolStripItem item)

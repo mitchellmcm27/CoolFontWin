@@ -216,7 +216,7 @@ namespace CFW.Business
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("&Quit", Exit_Click);
             quitItem.Image = Properties.Resources.ic_clear_orange_18dp;
-            quitItem.Tag = "alert"; // changes font color to orange
+            //quitItem.Tag = "alert"; // changes font color to orange
 
             ToolStripMenuItem logItem = Cfw.ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
             logItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
