@@ -17,6 +17,7 @@ namespace CFW.Business
 
         public Font Font;
         private UIStyle Style;
+        private System.Drawing.Text.TextRenderingHint TextRenderingHint;
 
         public CFWContextMenuRenderer (UIStyle style)
         {
@@ -25,9 +26,11 @@ namespace CFW.Business
             {
                 case UIStyle.UIStyleNormal:
                     this.Font = new Font("Verdana", 8F);
+                    this.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
                     break;
                 case UIStyle.UIStyleVR:
                     this.Font = new Font("Verdana", 14F);
+                    this.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
                     break;
             }
             this.Style = style;
@@ -48,7 +51,7 @@ namespace CFW.Business
             toolStrip.BackColor = Colors.FlatBlack;
             toolStrip.ForeColor = Colors.LightText;
             toolStrip.ShowItemToolTips = true;
-            toolStrip.Font = this.Font;       
+            toolStrip.Font = this.Font;
         }
 
         protected override void InitializeItem(ToolStripItem item)
@@ -134,7 +137,7 @@ namespace CFW.Business
         protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
         {
             var g = e.Graphics;
-
+            g.TextRenderingHint = this.TextRenderingHint;
             e.Item.Font = this.Font;
 
             // comment these out if you don't want special text colors
