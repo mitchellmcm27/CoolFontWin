@@ -62,7 +62,7 @@ namespace CFW.Business
             CheckForUpdate(null, null); // check when initialized
         }
 
-        private void CheckForUpdate(object sender, EventArgs eventargs)
+        public void CheckForUpdate(object sender, EventArgs eventargs)
         {
             {
                 if (processing)
@@ -85,6 +85,7 @@ namespace CFW.Business
                 }
             };
         }
+
         private void BeginUpdate()
         {
             ApplicationDeployment ad = ApplicationDeployment.CurrentDeployment;

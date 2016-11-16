@@ -9,6 +9,7 @@ using System.ComponentModel;
 using log4net;
 
 using CFW.Forms;
+using System.Collections.Generic;
 
 namespace CFW.Business
 {
@@ -54,6 +55,7 @@ namespace CFW.Business
             Updater.Completed += Updater_Completed;
             Updater.PropertyChanged += Updater_PropertyChanged;
 
+            NotifyIcon.Text = VersionItemString();
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
             {
                 log.Info("First launch after fresh install");
@@ -87,6 +89,7 @@ namespace CFW.Business
         private void Updater_Completed(object sender, EventArgs e)
         {
             // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
+            NotifyIcon.Text = VersionItemString();
         }
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
@@ -116,7 +119,7 @@ namespace CFW.Business
             {
                 ContextMenuStrip = new ContextMenuStrip(),
                 Icon = Properties.Resources.tray_icon,
-                Text = CFWApplicationContext.DefaultTooltip,
+                Text = "CoolFontWin",
                 Visible = true
             };
             
@@ -136,7 +139,12 @@ namespace CFW.Business
         {
             log.Info("Opening, closing TCP socket so that Windows Firewall prompt appears...");
 
-            System.Net.IPAddress ipAddress = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
+
+            //System.Net.IPAddress ipAddress = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
+            List<System.Net.IPAddress> localAddrs = DNSNetworkService.GetValidLocalAddresses();
+
+            System.Net.IPAddress ipAddress = localAddrs.FirstOrDefault();
+
             log.Info("Address: " + ipAddress.ToString());
             System.Net.IPEndPoint ipLocalEndPoint = new System.Net.IPEndPoint(ipAddress, 12345);
 
@@ -193,7 +201,7 @@ namespace CFW.Business
 
         private string VersionItemString()
         {
-            return Updater.UpdateAvailable ? "Updated - Restart to Apply" : "CoolFontWin " + VersionDescription;
+            return Updater.UpdateAvailable ? "Restart to apply update" : "CoolFontWin - " + VersionDescription;
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
@@ -239,6 +247,7 @@ namespace CFW.Business
             {
                 versionItem.Enabled = false;
                 versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
+                versionItem.Text = "Currently up-to-date";
             }
 
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);

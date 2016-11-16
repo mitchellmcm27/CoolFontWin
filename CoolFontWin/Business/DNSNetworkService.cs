@@ -28,30 +28,33 @@ namespace CFW.Business
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public List<RegisterService> PublishedServices = new List<RegisterService>();
-        public List<string> LocalAddrs;
 
         public DNSNetworkService()
+        {
+        }
+
+        public static List<IPAddress> GetValidLocalAddresses()
         {
             // Choose best address of local network interface
             // Supports IPv4 and v6
             // Tries Ethernet first, and then WiFi
 
-            LocalAddrs = new List<string>();
+            List<IPAddress> localAddrs = new List<IPAddress>();
 
             try
             {
-                
+
                 log.Info("Will search for LAN IPv4 addresses for this computer...");
-                LocalAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetwork));
+                localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetwork));
 
                 log.Info("Will search for WiFi IPv4 addresses...");
-                LocalAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetwork));
+                localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetwork));
 
                 log.Info("Will search for LAN IPv6 addresses for this computer...");
-                LocalAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetworkV6));
+                localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetworkV6));
 
                 log.Info("Will search for WiFi IPv6 addresses...");
-                LocalAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetworkV6));
+                localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetworkV6));
             }
             catch (Exception e)
             {
@@ -59,14 +62,14 @@ namespace CFW.Business
                 log.Warn("Something went wrong getting addresses: " + e);
             }
 
-            if (LocalAddrs.Count == 0)
+            if (localAddrs.Count == 0)
             {
                 log.Error("No addresses found!");
                 log.Error("Must have reachable network address!");
             }
 
-            log.Info("Found " + LocalAddrs.Count.ToString() + " addresses.");
-
+            log.Info("Found " + localAddrs.Count.ToString() + " addresses.");
+            return localAddrs;
         }
 
         public bool Publish(int port, string appendToName)
@@ -162,19 +165,25 @@ namespace CFW.Business
             }
         }
 
-        private List<string> GetAddresses(NetworkInterfaceType type, AddressFamily family)
+        private static List<IPAddress> GetAddresses(NetworkInterfaceType type, AddressFamily family)
         {
             // Helper method to choose a local IP address
             // Device may have multiple interfaces/addresses, including IPv6 addresses 
             // Return string array
 
-            List<string> ipAddrList = new List<string>();
+            List<IPAddress> ipAddrList = new List<IPAddress>();
             log.Info("Try to get " + family.ToString() + " addresses on interface " + type.ToString()+".");
             foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (item.NetworkInterfaceType == type && item.OperationalStatus == OperationalStatus.Up)
                 {
                     log.Info("Found operational item: " + item.Name);
+                    if (item.Name.Equals("Hamachi"))
+                    {
+                        log.Info("Skipping Hamachi interface");
+                        continue;
+                    }
+
                     foreach (UnicastIPAddressInformation ip in item.GetIPProperties().UnicastAddresses)
                     {
                         if (ip.Address.AddressFamily == family)
@@ -182,7 +191,7 @@ namespace CFW.Business
                             log.Info("ADDRESS");
                             log.Info("Inforamation:\n" + "...Address: " + ip.Address.ToString() + "\n...IPv4 Mask: " + ip.IPv4Mask.ToString());
                             log.Info("...DNS Eligible?: " + ip.IsDnsEligible.ToString() + "\n...DHCP Lifetime: " + ip.DhcpLeaseLifetime.ToString());
-                            ipAddrList.Add(ip.Address.ToString());
+                            ipAddrList.Add(ip.Address);
                         }
                     }
                 }
