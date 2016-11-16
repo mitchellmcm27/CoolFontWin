@@ -39,18 +39,45 @@ namespace CFW.Business
         }
 
         public SilentUpdater Updater { get; private set; }
-
         private NotifyIconController Cfw;
+        private System.ComponentModel.IContainer Components;
+        private NotifyIcon NotifyIcon;
 
         public CFWApplicationContext()
         {
             InitializeContext();
-            Cfw = new NotifyIconController(NotifyIcon);
-            Cfw.StartServices();
 
-            Updater = new SilentUpdater(); // starts 20 min timer
+            Cfw = new NotifyIconController(NotifyIcon);         
+            Cfw.StartServices();
+            
+            Updater = new SilentUpdater(); // checks immediately then starts 20 min timer
             Updater.Completed += Updater_Completed;
             Updater.PropertyChanged += Updater_PropertyChanged;
+
+            if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
+            {
+                log.Info("First launch after fresh install");
+                log.Info("Install location " + CurrentInstallLocation);
+
+                NotifyIcon.ShowBalloonTip(
+                    30000,
+                    "CoolFontWin successfully installed",
+                    "Get more information at www.coolfont.co",
+                    ToolTipIcon.Info);
+                Properties.Settings.Default.FirstInstall = false;
+                Properties.Settings.Default.Save();
+            }
+            else if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun)
+            {
+                log.Info("First launch with latest version.");
+                log.Info("Install location " + CurrentInstallLocation);
+
+                NotifyIcon.ShowBalloonTip(
+                    30000,
+                    "CoolFontWin updated",
+                    "Get update notes at www.coolfont.co",
+                    ToolTipIcon.Info);
+            }
         }
 
         private void Updater_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -59,17 +86,20 @@ namespace CFW.Business
 
         private void Updater_Completed(object sender, EventArgs e)
         {
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
+            // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
         }
 
-        private System.ComponentModel.IContainer Components;
-        private NotifyIcon NotifyIcon;
+        private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
+        {
+            Process.Start("http://www.coolfont.co");
+        }
 
         private void InitializeContext()
         {
-
-            ShowSuccessfulInstallForm();
-            ShowUpdateNotesForm();
+            // if... 
+            //ShowSuccessfulInstallForm();
+            //ShowUpdateNotesForm();
+            // save defaults
 
             try
             {
@@ -89,12 +119,14 @@ namespace CFW.Business
                 Text = CFWApplicationContext.DefaultTooltip,
                 Visible = true
             };
+            
             NotifyIcon.ContextMenuStrip.Renderer = CustomRendererNormal;
             NotifyIcon.ContextMenuStrip.ShowItemToolTips = true;
 
             NotifyIcon.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
             NotifyIcon.MouseUp += NotifyIcon_MouseUp;
-            
+
+            NotifyIcon.BalloonTipClicked += new EventHandler(NotifyIcon_BalloonTipClicked);
         }
 
         /// <summary>
@@ -263,15 +295,6 @@ namespace CFW.Business
 
         private void ShowSuccessfulInstallForm()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed) return;
-            if (!Properties.Settings.Default.FirstInstall) return;
-
-            log.Info("First launch after fresh install");
-            log.Info("Install location " + CurrentInstallLocation);
-
-            Properties.Settings.Default.FirstInstall = false;
-            Properties.Settings.Default.Save();
-
             if (SuccessForm == null)
             {
                 SuccessForm = new SuccessForm();
@@ -283,12 +306,6 @@ namespace CFW.Business
 
         private void ShowUpdateNotesForm()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed) return;
-            if (!ApplicationDeployment.CurrentDeployment.IsFirstRun) return;
-
-            log.Info("First launch with latest version.");
-            log.Info("Install location " + CurrentInstallLocation);
-
             if (UpdateNotes == null)
             {
                 UpdateNotes = new UpdateNotes();
