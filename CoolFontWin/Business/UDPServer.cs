@@ -77,6 +77,7 @@ namespace CFW.Business
                 byte[] data = null;
                 try
                 {
+                    // get the received message
                     dataLen = this.ServerSocket.EndReceiveFrom(iar, ref clientEP);
                     data = new byte[dataLen];
                     Array.Copy(this.ByteData, data, dataLen);
@@ -86,6 +87,7 @@ namespace CFW.Business
                 }
                 finally
                 {
+                    // start listening for a new message
                     EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
                     this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
                 }
@@ -97,9 +99,7 @@ namespace CFW.Business
                     OnClientAdded();
                 }
 
-                //DataList.Add(Tuple.Create(clientEP, data));
-                //log.Info(data.ToString());
-
+                // send data to device manager singleton (vjoy etc)
                 SharedDeviceManager.PassDataToDevices(data);
             }
             catch (ObjectDisposedException)
