@@ -40,10 +40,8 @@ namespace CFW.Business
             // Tries Ethernet first, and then WiFi
 
             List<IPAddress> localAddrs = new List<IPAddress>();
-
             try
-            {
-
+            { 
                 log.Info("Will search for LAN IPv4 addresses for this computer...");
                 localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetwork));
 

@@ -139,15 +139,16 @@ namespace CFW.Business
         {
             log.Info("Opening, closing TCP socket so that Windows Firewall prompt appears...");
 
-
+            // old way, get first IP address found
             //System.Net.IPAddress ipAddress = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
-            List<System.Net.IPAddress> localAddrs = DNSNetworkService.GetValidLocalAddresses();
 
+            // new way, write function that avoids Hamachi network interfaces
+            List<System.Net.IPAddress> localAddrs = DNSNetworkService.GetValidLocalAddresses();
             System.Net.IPAddress ipAddress = localAddrs.FirstOrDefault();
 
             log.Info("Address: " + ipAddress.ToString());
-            System.Net.IPEndPoint ipLocalEndPoint = new System.Net.IPEndPoint(ipAddress, 12345);
 
+            System.Net.IPEndPoint ipLocalEndPoint = new System.Net.IPEndPoint(ipAddress, 12345);
             System.Net.Sockets.TcpListener t = new System.Net.Sockets.TcpListener(ipLocalEndPoint);
             t.Start();
             t.Stop();
