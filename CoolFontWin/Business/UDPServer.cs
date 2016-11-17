@@ -11,16 +11,23 @@ namespace CFW.Business
     /// <summary>
     /// Asynchronous UDP listen server. Passes data to DeviceManager.
     /// </summary>
-    public class UDPServer : INotifyProperty
+    public class UDPServer
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
+        public event EventHandler<EventArgs> ClientAdded;
 
         private Socket ServerSocket;
         private List<EndPoint> ClientList;
         private byte[] ByteData = new byte[1024];
         private DeviceManager SharedDeviceManager;
         public int Port;
+
+        private void OnClientAdded()
+        {
+            ClientAdded?.Invoke(this, null);
+        }
 
         public UDPServer()
         {
@@ -52,7 +59,6 @@ namespace CFW.Business
             this.ServerSocket.DualMode = true; // default is false
             this.ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             this.ServerSocket.EnableBroadcast = true; // default is false
-            this.ServerSocket.DontFragment = true; // default is true
 
             this.ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, this.Port));
             this.Port = ((IPEndPoint)this.ServerSocket.LocalEndPoint).Port;
@@ -88,6 +94,7 @@ namespace CFW.Business
                 {
                     log.Info("!! Began receiving from device " + clientEP.ToString());
                     this.ClientList.Add(clientEP);
+                    OnClientAdded();
                 }
 
                 //DataList.Add(Tuple.Create(clientEP, data));

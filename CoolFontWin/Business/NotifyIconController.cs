@@ -56,6 +56,7 @@ namespace CFW.Business
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
             Server.Start(Properties.Settings.Default.LastPort);
+            Server.ClientAdded += Server_ClientAdded;
             UDPServerRunning = true;
 
             // get whatever port finally worked and save it
@@ -68,6 +69,11 @@ namespace CFW.Business
             {
                 NetworkService.Publish(port, DeviceNames[i]);
             }
+        }
+
+        private void Server_ClientAdded(object sender, EventArgs e)
+        {
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
         }
 
         /// <summary>
