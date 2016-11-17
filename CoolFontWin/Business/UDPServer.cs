@@ -11,7 +11,7 @@ namespace CFW.Business
     /// <summary>
     /// Asynchronous UDP listen server. Passes data to DeviceManager.
     /// </summary>
-    public class UDPServer
+    public class UDPServer : INotifyProperty
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -46,11 +46,17 @@ namespace CFW.Business
         {
             log.Info("Starting UDP server given port " + port.ToString());
             this.Port = port;
+
+            // create IPv6 socket, and enable dual mode so that it supports IPv4
             this.ServerSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-            this.ServerSocket.DualMode = true;
+            this.ServerSocket.DualMode = true; // default is false
             this.ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            this.ServerSocket.EnableBroadcast = true; // default is false
+            this.ServerSocket.DontFragment = true; // default is true
+
             this.ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, this.Port));
             this.Port = ((IPEndPoint)this.ServerSocket.LocalEndPoint).Port;
+
             EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
             log.Info("!! Ready to receive on port " + this.Port.ToString());
             this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
@@ -60,7 +66,7 @@ namespace CFW.Business
         {
             try
             {
-                EndPoint clientEP = new IPEndPoint(IPAddress.Any, 0);
+                EndPoint clientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
                 int dataLen = 0;
                 byte[] data = null;
                 try
@@ -74,7 +80,7 @@ namespace CFW.Business
                 }
                 finally
                 {
-                    EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
+                    EndPoint newClientEP = new IPEndPoint(IPAddress.IPv6Any, 0);
                     this.ServerSocket.BeginReceiveFrom(this.ByteData, 0, this.ByteData.Length, SocketFlags.None, ref newClientEP, DoReceiveFrom, newClientEP);
                 }
 
