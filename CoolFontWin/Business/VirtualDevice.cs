@@ -43,22 +43,30 @@ namespace CFW.Business
     };
 
     /// <summary>
-    /// Corresponds to indexes of Valsf[] of joystick axes values
+    /// Gives indexes of Valsf[] of joystick axes values
     /// </summary>
     /// vel, X, Y, RX, RY, Z, RZ, POV, dY, dX
-    public enum PacketIndexVal
+    public static class IndexOf
     {
-        ValVelocity = 0,
-        ValX,
-        ValY,
-        ValRX,
-        ValRY,
-        ValZ,
-        ValRZ,
-        ValPOV,
-        ValMouseDY,
-        ValMouseDX,
-        ValCount,
+        // Index of data after separating string by $
+        public static readonly int DataMode = 0;
+        public static readonly int DataVals = 1;
+        public static readonly int DataButtons = 2;
+        public static readonly int DataPacketNumber = 3;
+        public static readonly int DataDeviceNumber = 4;
+
+        // Index of vals after separating DataVals by :
+        public static readonly int ValVelocity = 0;
+        public static readonly int ValX = 1;
+        public static readonly int ValY = 2;
+        public static readonly int ValRX = 3;
+        public static readonly int ValRY = 4;
+        public static readonly int ValZ = 5;
+        public static readonly int ValRZ = 6;
+        public static readonly int ValPOV = 7;
+        public static readonly int ValMouseDY = 8;
+        public static readonly int ValMouseDX = 9;
+        public static readonly int ValCount = 10;
     };
 
     /// <summary>
@@ -69,6 +77,7 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        #region Init
         private long MaxLX = 1;
         private long MinLX = 1;
         private long MaxLY = 1;
@@ -90,11 +99,7 @@ namespace CFW.Business
         private vJoy Joystick;
         private vJoy.JoystickState iReport;
         private int ContPovNumber;
-
-        private int UpdateInterval;
-
         private InputSimulator KbM;
-
         private MobileDevice CombinedDevice;
 
         private bool LeftMouseButtonDown = false;
@@ -102,11 +107,9 @@ namespace CFW.Business
 
         // public properties
         public uint Id; // vJoy ID
+        public TimeSpan UpdateInterval;
 
         public List<MobileDevice> DeviceList; // Mobile devices to expect
-        public List<int> DevicesReady; // Keeps track of which devices we've recvd input from
-
-        public bool ShouldInterpolate;
             
         public bool UserIsRunning = true;
         public bool vJoyEnabled = false;
@@ -115,19 +118,18 @@ namespace CFW.Business
 
         public int signX = -1; // allows axis inversion
         public int signY = -1;
-
         
         public SimulatorMode Mode;
         private SimulatorMode OldMode;
 
         public double RCFilterStrength;
 
-        public VirtualDevice()
+        public VirtualDevice(TimeSpan updateInterval)
         {               
             Mode = SimulatorMode.ModeDefault;
             OldMode = Mode;
 
-            this.UpdateInterval = 66667; // microseconds, should match interval that FeedVjoy() is called
+            UpdateInterval = updateInterval;
 
             // 0.05 good for mouse movement, 0.15 was a little too smooth
             // 0.05 probably good for VR, where you don't have to aim with the phone
@@ -142,103 +144,16 @@ namespace CFW.Business
             // DeviceManager will fill this list as needed
             DeviceList = new List<MobileDevice>();
 
-            // We will manage this list ourselves
-            DevicesReady = new List<int>();
-
             // Default boolean states
             vJoyEnabled = false;
             vJoyAcquired = false;
-            ShouldInterpolate = false;
 
             // Zero out iReport
             ResetValues();
         }
+        #endregion
 
-        /// <summary>
-        /// Tries to acquire given vJoy device, relinquishing current device if necessary.
-        /// </summary>
-        /// <param name="id">vJoy device ID (1-16)</param>
-        /// <returns>Boolean indicating if device was acquired.</returns>
-        public bool SwapToVJoyDevice(uint id)
-        {
-            log.Info("Will try to acquire device " + id.ToString() + " and return result.");
-            if(vJoyAcquired)
-            {
-                log.Info("First, relinquishing device " + this.Id.ToString());
-                Joystick.ResetVJD(this.Id);
-                Joystick.RelinquishVJD(this.Id);
-                vJoyAcquired = false;
-            }
-
-            if (id < 1 || id > 16)
-            {
-                log.Debug("Device index " + id + " was invalid. Returning false.");
-                return false;
-            }
-
-            if (!IsVJoyDriverEnabled())
-            {
-                vJoyEnabled = false;
-                log.Debug("vJoy not enabled. I could try to enable it in the future. Returning false.");
-                return false;
-            }
-
-            vJoyEnabled = true;
-
-            if (!IsVJoyDeviceOwnedOrFree(id))
-            {
-                log.Debug("Chosen device is is not free! Returning false");
-                return false;
-               // return AcquireUnusedVJoyDevice();
-            }
-
-            if (AcquireVJoyDevice(id))
-            {
-                log.Info("Successfully acquired device " + id + ". Returning true.");
-                this.Id = id;
-                vJoyAcquired = true;
-                GetJoystickProperties(id);
-                ResetValues();
-                AddJoystickConstants();
-                Joystick.UpdateVJD(Id, ref iReport);
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Loop through vJoy devices, find the first disabled device. Enable, config, and acquire it.
-        /// </summary>
-        /// <returns>Bool indicating if device was found, enabled, created, and acquired. </returns>
-        private bool AcquireUnusedVJoyDevice()
-        {
-            log.Info("Will acquire first available vJoy device");
-            vJoyAcquired = false;
-
-            // find a disabled device
-            for (int i = 1; i <= 16; i++)
-            {
-                if(IsVJoyDeviceDisabled((uint)i))
-                {
-                    // acquire device
-                    if(EnableDefaultVJoyDevice((uint)i))
-                    {
-                        if (AcquireVJoyDevice((uint)i))
-                        {
-                            log.Info("Acquired device " + i);
-                            this.Id = (uint)i;
-                            vJoyAcquired = true;
-                            GetJoystickProperties((uint)i);
-                            ResetValues();
-                            AddJoystickConstants();
-                            Joystick.UpdateVJD(Id, ref iReport);
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
+        #region Input data handling
         /// <summary>
         /// Main method for handling raw data from socket.
         /// </summary>
@@ -250,10 +165,8 @@ namespace CFW.Business
             // Handle empty data case
             if (data.Length == 0)
             {
-                if (ShouldInterpolate) { InterpolateData(); }
                 return false;
             }
-
 
             string rcvd = System.Text.Encoding.UTF8.GetString(data);
 
@@ -262,13 +175,12 @@ namespace CFW.Business
 
             // We have to know which device we are talking to in order to do anything
             int deviceNumber = 0;
-            if (instring_sep.Length > 4)
+            if (instring_sep.Length > IndexOf.DataDeviceNumber)
             {
-                deviceNumber = int.Parse(instring_sep[4]);
+                deviceNumber = int.Parse(instring_sep[IndexOf.DataDeviceNumber]);
             }
 
-            
-            DeviceList[deviceNumber].PacketNumber = ParsePacketNumber(instring_sep[3]);
+            DeviceList[deviceNumber].PacketNumber = int.Parse(instring_sep[IndexOf.DataPacketNumber]);
 
             // packet number goes from 0 to 999 (MaxPacketNumber)
             // when packet number reaches 999, it resets to 0
@@ -295,89 +207,63 @@ namespace CFW.Business
             // this.PacketNumber = packetNumber;
 
             // Buttons
-            DeviceList[deviceNumber].Buttons = ParseButtons(instring_sep[2]);
+            DeviceList[deviceNumber].Buttons = int.Parse(instring_sep[IndexOf.DataButtons]);
 
             // Mode from primary device only!
             if (deviceNumber == 0)
             {
-                int modeIn = ParseMode(instring_sep[0], (int)Mode); // Mode is a fallback
+                int modeIn = int.Parse(instring_sep[IndexOf.DataMode]); // Mode is a fallback
                 UpdateMode((SimulatorMode)modeIn);
             }
 
-            // Main joystic axis values
-            double[] valsf = ParseVals(instring_sep[1]);
-            valsf = ProcessValues(valsf); // converts ints to doubles in generic units
-            valsf = TranslateValues(valsf); // converts units for specific device (e.g. vJoy)  
+            // Main joystick axis values
+            double[] valsf = ParseVals(instring_sep[IndexOf.DataVals]);
 
-            // Filtering
-            double dt = UpdateInterval / 1000.0 / 1000.0; // s
-            for (int i = 0; i < valsf.Length; i++)
-            {
-                if (i == (int)PacketIndexVal.ValPOV) { continue; }// do not filter POV
-                valsf[i] = Algorithm.LowPassFilter(valsf[i], DeviceList[deviceNumber].Valsf[i], RCFilterStrength, dt); // filter vals last
-            }
-
-            // Update MobileDevice with fully processed vals
+            // Update MobileDevice with processed vals
             DeviceList[deviceNumber].Valsf = valsf;
-
-            // Add device to list if necessary
-            if(!DevicesReady.Contains(deviceNumber))
-            {
-                DevicesReady.Add(deviceNumber);
-            }
-            /*
-            // If we have input from all expected devices, we can update vJoy
-            // Otherwise, devices will keep overwriting themselves until the other devices come in
-            if (DevicesReady.Count == DeviceList.Count)
-            {
-                CombineVals();
-                // We are now ready to feed vJoy, but DeviceManager will call FeedVJoy()
-
-                // get ready for next round
-                DevicesReady.Clear();
-            }
-            else
-            {
-                // Add combined-device values
-                InterpolateData();
-            }
-            */
-            // Received packet after a long delay, begin interpolating again
-            if (!ShouldInterpolate)
-            {
-                ShouldInterpolate = true;
-            }
+            DeviceList[deviceNumber].Count++;
             return true;
         }
 
-        public void CombineVals()
+        public void UpdateMode(SimulatorMode mode)
         {
-            // Initialize main Vlasf array with primary device
-            CombinedDevice.Valsf = DeviceList[0].Valsf;
-            CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[0].Buttons;
+            if (mode == Mode || mode == OldMode) { return; } // mode is the same as current
+            if (!CheckMode(mode)) { return; }
 
-            // Add vals and buttons from other devices
-            for (int i = 1; i < DeviceList.Count; i++)
-            {
-                for (int j = 0; j < CombinedDevice.Valsf.Length; j++)
-                {
-                    CombinedDevice.Valsf[j] += DeviceList[i].Valsf[j];
-                }
-                CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
-            }
+            NeutralizeCurrentVJoyDevice();
 
-            // Add values to iReport for vJoy
-            AddValues(CombinedDevice.Valsf);
-            AddButtons(CombinedDevice.Buttons);
+            this.Mode = mode;
+            this.OldMode = Mode;
+            this.CurrentModeIsFromPhone = true;
+            log.Info("Obtained mode from phone: " + Mode.ToString());
         }
 
-        private int ParsePacketNumber(string packetNumberString)
+        public bool ClickedMode(SimulatorMode mode)
         {
-            /* Parse string representation of bitmask (unsigned int) 
-                * String array is separated by "$"
-                * Packet number int is the 3rd string */
-           return int.Parse(packetNumberString);
+            if (!CheckMode(mode))
+            {
+                log.Debug("Seleted mode not available. vJoy not enabled? " + Mode.ToString());
+                return false;
+            }
 
+            NeutralizeCurrentVJoyDevice();
+
+            this.Mode = mode;
+            this.CurrentModeIsFromPhone = false;
+            log.Info("Obtained mode from CFW menu: " + Mode.ToString());
+            return true;
+        }
+
+        private bool CheckMode(SimulatorMode mode)
+        {
+            // Must have a vJoy device acquired if trying to switch to Joystick mode
+            if (mode != SimulatorMode.ModeWASD &&
+                mode != SimulatorMode.ModePaused &&
+                mode != SimulatorMode.ModeMouse)
+            {
+                return vJoyAcquired;
+            }
+            return true;
         }
 
         private double[] ParseVals(string axes_string)
@@ -395,23 +281,58 @@ namespace CFW.Business
 
             return parsed;
         }
+        #endregion
 
-        private int ParseButtons(string button_string)
+        #region Data preparation (Main Class Logic)
+        /// <summary>
+        /// Combine all Ready MobileDevices into a single input and get ready for vJoy
+        /// </summary>
+        public void CombineMobileDevices()
         {
-            /* Parse string representation of bitmask (unsigned int) 
-                * String array is separated by "$"
-                * Button bitmask is the (2nd string starting from 0)*/
-            return int.Parse(button_string);
+            ResetValues();
 
-        }
+            double avgPOV = 0;
+            int avgCount = 0;
+            double[] valsf = new double[IndexOf.ValCount];
 
-        private int ParseMode(string mode_string, int mode_old)
-        {
-            /* Parse string representation of bitmask (unsigned int) 
-                * String array is separated by "$"
-                * Mode bitmask is the 0th string */
-            return int.Parse(mode_string);
+            // Add vals and buttons from Ready devices
+            for (int i = 0; i < DeviceList.Count; i++)
+            {    
+                if (!DeviceList[i].Ready) continue;
+               
+                valsf[IndexOf.ValVelocity] += DeviceList[i].Valsf[IndexOf.ValVelocity];
+                valsf[IndexOf.ValX] += DeviceList[i].Valsf[IndexOf.ValX];
+                valsf[IndexOf.ValY] += DeviceList[i].Valsf[IndexOf.ValY];
+                CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
 
+                // rolling average of POV, no need to know beforehand how many devices are Ready
+                avgCount++;
+                avgPOV = avgPOV * (avgCount-1) / avgCount + DeviceList[i].Valsf[IndexOf.ValPOV] / avgCount;
+            }
+
+            valsf[IndexOf.ValPOV] = avgPOV;
+
+            valsf = TranslateValuesForVJoy(ProcessValues(valsf)); // converts units for specific device (e.g. vJoy)  
+
+            // Filtering
+            for (int i = 0; i < IndexOf.ValCount; i++)
+            {
+                if (i == IndexOf.ValPOV) { continue; } // do not filter POV because of angle problems
+
+                valsf[i] = Algorithm.LowPassFilter (
+                    valsf[i],                   // new data
+                    CombinedDevice.Valsf[i],    // last data
+                    RCFilterStrength,           // strength
+                    UpdateInterval.TotalSeconds // delta-t in seconds
+                    ); 
+            }
+            
+            // Update CombinedDevice
+            CombinedDevice.Valsf = valsf;
+
+            // Add values to iReport for vJoy
+            AddValues(CombinedDevice.Valsf);
+            AddButtons(CombinedDevice.Buttons);
         }
 
         private double[] ProcessValues(double[] valsf)
@@ -486,8 +407,7 @@ namespace CFW.Business
         }
 
         static private int MouseSens = 20;
-
-        private double[] TranslateValues(double[] valsf)
+        private double[] TranslateValuesForVJoy(double[] valsf)
         {
             /* Goal: get data to the point where it can be added to the joystick device 
                 * Specific to particular joystick
@@ -555,7 +475,6 @@ namespace CFW.Business
 
         static private double ThreshRun = 0.1;
         static private double ThreshWalk = 0.1;
-
         private void AddValues(double[] valsf)
         {
             /* Simply update joystick with vals */
@@ -584,16 +503,16 @@ namespace CFW.Business
                 case SimulatorMode.ModeJoystickCoupled:
 
                     /* no strafing */
-                    iReport.AxisY += signY*(int)valsf[0];
-                    iReport.bHats += (uint)valsf[7] / (uint)DeviceList.Count;
+                    iReport.AxisY += (int)(signY*valsf[IndexOf.ValVelocity]);
+                    iReport.bHats = (uint)(valsf[IndexOf.ValPOV]);
                     break;
 
                 case SimulatorMode.ModeJoystickDecoupled:
 
                     /* strafing but no turning*/
-                    iReport.AxisX += signX*(int)valsf[1];
-                    iReport.AxisY += signY*(int)valsf[2];
-                    iReport.bHats = (uint)valsf[7];
+                    iReport.AxisX += (int)(signX*valsf[IndexOf.ValX]);
+                    iReport.AxisY += (int)(signY*valsf[IndexOf.ValY]);
+                    iReport.bHats = (uint)(valsf[IndexOf.ValPOV]);
                     break;
 
                 case SimulatorMode.ModeJoystickTurn:
@@ -645,7 +564,6 @@ namespace CFW.Business
         {
             switch (Mode)
             {
-
                 case SimulatorMode.ModeJoystickCoupled:
                 case SimulatorMode.ModeJoystickTurn:
                 case SimulatorMode.ModeJoystickDecoupled:
@@ -686,47 +604,6 @@ namespace CFW.Business
 
         }
 
-        public void UpdateMode(SimulatorMode mode)
-        {
-            if (mode == Mode || mode == OldMode) { return; } // mode is the same as current
-            if (!CheckMode(mode)) { return; }
-
-            NeutralizeCurrentVJoyDevice();
-
-            this.Mode = mode;
-            this.OldMode = Mode;
-            this.CurrentModeIsFromPhone = true;
-            log.Info("Obtained mode from phone: " + Mode.ToString());  
-        }
-
-        public bool ClickedMode(SimulatorMode mode)
-        {
-            if(!CheckMode(mode))
-            {
-                log.Debug("Seleted mode not available. vJoy not enabled? "+ Mode.ToString());
-                return false;
-            }
-
-            NeutralizeCurrentVJoyDevice();
-
-            this.Mode = mode;
-            this.CurrentModeIsFromPhone = false;
-            log.Info("Obtained mode from CFW menu: " + Mode.ToString());
-            return true;
-        }
-
-        private bool CheckMode(SimulatorMode mode)
-        {
-            // Must have a vJoy device acquired if trying to switch to Joystick mode
-            if (mode != SimulatorMode.ModeWASD &&
-                mode != SimulatorMode.ModePaused &&
-                mode != SimulatorMode.ModeMouse)
-            {
-                return vJoyAcquired;
-            }
-            return true;
-        }
-
         private void NeutralizeCurrentVJoyDevice()
         {
             log.Info("Feeding vJoy device with neutral values.");
@@ -753,11 +630,102 @@ namespace CFW.Business
             {
                 return;
             }
-            /*Feed the driver with the position packet - is fails then wait for input then try to re-acquire device */
+
+            // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
+            AddJoystickConstants();
+
+            //Feed the driver with the position packet - ignore failures
             if (!Joystick.UpdateVJD(Id, ref iReport))
             {
             }
+        }
 
+        #endregion
+
+        #region vJoy helper methods
+        /// <summary>
+        /// Tries to acquire given vJoy device, relinquishing current device if necessary.
+        /// </summary>
+        /// <param name="id">vJoy device ID (1-16)</param>
+        /// <returns>Boolean indicating if device was acquired.</returns>
+        public bool SwapToVJoyDevice(uint id)
+        {
+            log.Info("Will try to acquire device " + id.ToString() + " and return result.");
+            if (vJoyAcquired)
+            {
+                log.Info("First, relinquishing device " + this.Id.ToString());
+                Joystick.ResetVJD(this.Id);
+                Joystick.RelinquishVJD(this.Id);
+                vJoyAcquired = false;
+            }
+
+            if (id < 1 || id > 16)
+            {
+                log.Debug("Device index " + id + " was invalid. Returning false.");
+                return false;
+            }
+
+            if (!IsVJoyDriverEnabled())
+            {
+                vJoyEnabled = false;
+                log.Debug("vJoy not enabled. I could try to enable it in the future. Returning false.");
+                return false;
+            }
+
+            vJoyEnabled = true;
+
+            if (!IsVJoyDeviceOwnedOrFree(id))
+            {
+                log.Debug("Chosen device is is not free! Returning false");
+                return false;
+                // return AcquireUnusedVJoyDevice();
+            }
+
+            if (AcquireVJoyDevice(id))
+            {
+                log.Info("Successfully acquired device " + id + ". Returning true.");
+                this.Id = id;
+                vJoyAcquired = true;
+                GetJoystickProperties(id);
+                ResetValues();
+                AddJoystickConstants();
+                Joystick.UpdateVJD(Id, ref iReport);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Loop through vJoy devices, find the first disabled device. Enable, config, and acquire it.
+        /// </summary>
+        /// <returns>Bool indicating if device was found, enabled, created, and acquired. </returns>
+        private bool AcquireUnusedVJoyDevice()
+        {
+            log.Info("Will acquire first available vJoy device");
+            vJoyAcquired = false;
+
+            // find a disabled device
+            for (int i = 1; i <= 16; i++)
+            {
+                if (IsVJoyDeviceDisabled((uint)i))
+                {
+                    // acquire device
+                    if (EnableDefaultVJoyDevice((uint)i))
+                    {
+                        if (AcquireVJoyDevice((uint)i))
+                        {
+                            log.Info("Acquired device " + i);
+                            this.Id = (uint)i;
+                            vJoyAcquired = true;
+                            GetJoystickProperties((uint)i);
+                            ResetValues();
+                            AddJoystickConstants();
+                            Joystick.UpdateVJD(Id, ref iReport);
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private bool IsVJoyDriverEnabled()
@@ -892,10 +860,8 @@ namespace CFW.Business
 
         private void GetJoystickProperties(UInt32 id)
         {
-            // pov = new byte[4]; // discrete pov hat directions
-
-            // get max range of joysticks
-            // neutral position is max/2
+            // Get max range of joysticks
+            // Neutral position is max/2
             Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref MaxLX);
             Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_X, ref MinLX);
             Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Y, ref MaxLY);
@@ -918,18 +884,18 @@ namespace CFW.Business
 
         public List<int> GetEnabledDevices()
         {
-            List<int> enabled = new List<int>();
+            List<int> enabledDevs = new List<int>();
 
-            if (!Joystick.vJoyEnabled()) return enabled;
+            if (!Joystick.vJoyEnabled()) return enabledDevs;
 
             for (int i = 1; i <= 16; i++)
             {
                if(Joystick.isVJDExists((uint)i))
                 {
-                    enabled.Add(i);
+                    enabledDevs.Add(i);
                 }
             }
-            return enabled;
+            return enabledDevs;
         }
 
         public bool EnableDefaultVJoyDevice(uint id)
@@ -1022,6 +988,7 @@ namespace CFW.Business
                 vJoyConfigProc.WaitForExit();
             }
         }
+        #endregion
 
         public void Dispose()
         {
