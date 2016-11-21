@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Windows.Forms;
 using SharpDX.XInput;
 using WindowsInput;
 using vJoyInterfaceWrap;
-
-// using SharpDX.XInput;
 
 using log4net;
 using System.Collections.Generic;
