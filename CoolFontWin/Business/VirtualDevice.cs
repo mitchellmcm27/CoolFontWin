@@ -75,6 +75,8 @@ namespace CFW.Business
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         #region Init
+
+        // private properties
         private long MaxLX = 1;
         private long MinLX = 1;
         private long MaxLY = 1;
