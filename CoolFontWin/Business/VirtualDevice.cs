@@ -46,7 +46,7 @@ namespace CFW.Business
     /// Corresponds to indexes of Valsf[] of joystick axes values
     /// </summary>
     /// vel, X, Y, RX, RY, Z, RZ, POV, dY, dX
-    public enum JoystickVal
+    public enum PacketIndexVal
     {
         ValVelocity = 0,
         ValX,
@@ -58,8 +58,8 @@ namespace CFW.Business
         ValPOV,
         ValMouseDY,
         ValMouseDX,
-        ValCount
-    }
+        ValCount,
+    };
 
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
@@ -313,7 +313,7 @@ namespace CFW.Business
             double dt = UpdateInterval / 1000.0 / 1000.0; // s
             for (int i = 0; i < valsf.Length; i++)
             {
-                if (i == (int)JoystickVal.ValPOV) { continue; }// do not filter POV
+                if (i == (int)PacketIndexVal.ValPOV) { continue; }// do not filter POV
                 valsf[i] = Algorithm.LowPassFilter(valsf[i], DeviceList[deviceNumber].Valsf[i], RCFilterStrength, dt); // filter vals last
             }
 
@@ -325,29 +325,12 @@ namespace CFW.Business
             {
                 DevicesReady.Add(deviceNumber);
             }
-
+            /*
             // If we have input from all expected devices, we can update vJoy
             // Otherwise, devices will keep overwriting themselves until the other devices come in
             if (DevicesReady.Count == DeviceList.Count)
             {
-                // Initialize main Vlasf array with primary device
-                CombinedDevice.Valsf = DeviceList[0].Valsf;
-                CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[0].Buttons;
-
-                // Add vals and buttons from other devices
-                for (int i=1; i < DeviceList.Count; i++)
-                {
-                    for (int j=0; j < CombinedDevice.Valsf.Length; j++)
-                    {
-                        CombinedDevice.Valsf[j] += DeviceList[i].Valsf[j];
-                    }
-                    CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
-                }
-
-                // Add values to iReport for vJoy
-                AddValues(CombinedDevice.Valsf);
-                AddButtons(CombinedDevice.Buttons);
-                
+                CombineVals();
                 // We are now ready to feed vJoy, but DeviceManager will call FeedVJoy()
 
                 // get ready for next round
@@ -355,15 +338,37 @@ namespace CFW.Business
             }
             else
             {
+                // Add combined-device values
                 InterpolateData();
             }
-
+            */
             // Received packet after a long delay, begin interpolating again
             if (!ShouldInterpolate)
             {
                 ShouldInterpolate = true;
             }
             return true;
+        }
+
+        public void CombineVals()
+        {
+            // Initialize main Vlasf array with primary device
+            CombinedDevice.Valsf = DeviceList[0].Valsf;
+            CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[0].Buttons;
+
+            // Add vals and buttons from other devices
+            for (int i = 1; i < DeviceList.Count; i++)
+            {
+                for (int j = 0; j < CombinedDevice.Valsf.Length; j++)
+                {
+                    CombinedDevice.Valsf[j] += DeviceList[i].Valsf[j];
+                }
+                CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
+            }
+
+            // Add values to iReport for vJoy
+            AddValues(CombinedDevice.Valsf);
+            AddButtons(CombinedDevice.Buttons);
         }
 
         private int ParsePacketNumber(string packetNumberString)

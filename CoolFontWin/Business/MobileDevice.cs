@@ -12,7 +12,7 @@ namespace CFW.Business
         public int Buttons;
         public int PacketNumber;
 
-        private int numAxes = (int)JoystickVal.ValCount;
+        private int numAxes = (int)PacketIndexVal.ValCount;
 
         public MobileDevice()
         {

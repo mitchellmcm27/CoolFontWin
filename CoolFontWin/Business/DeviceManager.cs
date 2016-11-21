@@ -272,7 +272,7 @@ namespace CFW.Business
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             TimerCount++;
-            PassDataToDevices(new byte[] { });
+            UpdateVirtualDevice();
         }
 
         /// <summary>
@@ -281,6 +281,7 @@ namespace CFW.Business
         /// <param name="data">Array of bytes representing UTF8 encoded string.</param>
         public void PassDataToDevices(byte[] data)
         {
+            // Called by a socket whenver it rcvs data
             lock (locker)
             {
                 // give data to virtual device
@@ -296,30 +297,34 @@ namespace CFW.Business
                 {
                     VDevice.ShouldInterpolate = false;
                 }
-
-                // xbox controller handling
-                if (InterceptXInputDevice)
-                {
-                    if (XDevice.IsConnected)
-                    {
-                        State state = XDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }      
-                    else
-                    {
-                        log.Debug("Xbox controller was expected but not found.");
-                        InterceptXInputDevice = false;
-                        XInputDeviceConnected = false;
-                    }
-                }
-
-                // update virtual device
-                VDevice.AddJoystickConstants();
-                VDevice.FeedVJoy();
-                VDevice.ResetValues();
             }
         }
 
+        public void UpdateVirtualDevice()
+        {
+            // Called by timer at a fixed interval
+            // xbox controller handling
+            if (InterceptXInputDevice)
+            {
+                if (XDevice.IsConnected)
+                {
+                    State state = XDevice.GetState();
+                    VDevice.AddControllerState(state);
+                }
+                else
+                {
+                    log.Debug("Xbox controller was expected but not found.");
+                    InterceptXInputDevice = false;
+                    XInputDeviceConnected = false;
+                }
+            }
+
+            // update virtual device
+            VDevice.CombineVals();
+            VDevice.AddJoystickConstants();
+            VDevice.FeedVJoy();
+            VDevice.ResetValues();
+        }
         public void Dispose()
         {
             Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
