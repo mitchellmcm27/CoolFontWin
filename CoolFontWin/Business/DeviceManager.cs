@@ -132,6 +132,8 @@ namespace CFW.Business
             }
         }
 
+        private TimeSpan UpdateInterval;
+
         /// <summary>
         /// Tells Virtual Device how many different input streams to expect.
         /// </summary>
@@ -144,12 +146,14 @@ namespace CFW.Business
             set
             {
                 _MobileDevicesCount = value;
-                VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
-                for (int i=0; i<value; i++)
-                {
-                    VDevice.DeviceList.Add(new MobileDevice());
+                lock (locker)
+                { 
+                    VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
+                    for (int i = 0; i < value; i++)
+                    {
+                        VDevice.DeviceList.Add(new MobileDevice());
+                    }
                 }
-                VDevice.DevicesReady = new List<int>();
             }
         }
         private int _MobileDevicesCount;
@@ -173,10 +177,11 @@ namespace CFW.Business
         // Private initialization for the singleton class.
         private DeviceManager()
         {
+            UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
             //AcquireXInputDevice();
 
-            VDevice = new VirtualDevice();
+            VDevice = new VirtualDevice(UpdateInterval);
 
             AcquireDefaultVJoyDevice();
 
@@ -233,7 +238,7 @@ namespace CFW.Business
 
         private void InitializeTimer()
         {
-            VDeviceUpdateTimer = new Timer(16); // elapse every 1/60 sec, approx 16 ms
+            VDeviceUpdateTimer = new Timer(UpdateInterval.TotalMilliseconds); // elapse every 1/60 sec, approx 16 ms
             VDeviceUpdateTimer.Elapsed += new ElapsedEventHandler(TimerElapsed); //define a handler
             VDeviceUpdateTimer.Enabled = true; //enable the timer.
             VDeviceUpdateTimer.AutoReset = true;
@@ -272,7 +277,7 @@ namespace CFW.Business
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             TimerCount++;
-            PassDataToDevices(new byte[] { });
+            UpdateVirtualDevice();
         }
 
         /// <summary>
@@ -281,45 +286,41 @@ namespace CFW.Business
         /// <param name="data">Array of bytes representing UTF8 encoded string.</param>
         public void PassDataToDevices(byte[] data)
         {
+            // Called by a socket thread whenver it rcvs data
             lock (locker)
             {
-                // give data to virtual device
-                if (VDevice.HandleNewData(data))
+                if (!VDevice.HandleNewData(data))
                 {
-                    // returns false if data is empty
-                    VDevice.ShouldInterpolate = true;
-                    TimerCount = 0;
+                    return;
                 }
-
-                // determine whether to keep interpolating
-                if (TimerCount >= MaxInterpolateCount)
-                {
-                    VDevice.ShouldInterpolate = false;
-                }
-
-                // xbox controller handling
-                if (InterceptXInputDevice)
-                {
-                    if (XDevice.IsConnected)
-                    {
-                        State state = XDevice.GetState();
-                        VDevice.AddControllerState(state);
-                    }      
-                    else
-                    {
-                        log.Debug("Xbox controller was expected but not found.");
-                        InterceptXInputDevice = false;
-                        XInputDeviceConnected = false;
-                    }
-                }
-
-                // update virtual device
-                VDevice.AddJoystickConstants();
-                VDevice.FeedVJoy();
-                VDevice.ResetValues();
             }
         }
 
+        public void UpdateVirtualDevice()
+        {
+            // Called by a Timer at a fixed interval
+
+            // Combine all mobile device data into a single input 
+            VDevice.CombineMobileDevices();
+
+            // Xbox controller handling
+            if (InterceptXInputDevice)
+            {
+                if (XDevice.IsConnected)
+                {
+                    VDevice.AddControllerState(XDevice.GetState());
+                }
+                else
+                {
+                    log.Debug("Xbox controller was expected but not found.");
+                    log.Debug("Setting InterceptXInputDevice to FALSE");
+                    InterceptXInputDevice = false;
+                    XInputDeviceConnected = false;
+                }
+            }
+
+            VDevice.FeedVJoy();
+        }
         public void Dispose()
         {
             Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
