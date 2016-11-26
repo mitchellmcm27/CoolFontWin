@@ -33,6 +33,8 @@ namespace CFW.Business
             this.NotifyIcon = notifyIcon;
             this.NetworkService = new DNSNetworkService();
             this.Server = new UDPServer();
+            Server.ClientAdded += Server_ClientAdded;
+
             this.SharedDeviceManager = DeviceManager.Instance;
         }
 
@@ -56,7 +58,7 @@ namespace CFW.Business
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
 
             Server.Start(Properties.Settings.Default.LastPort);
-            Server.ClientAdded += Server_ClientAdded;
+            
             UDPServerRunning = true;
 
             // get whatever port finally worked and save it
