@@ -195,9 +195,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="vJoyInterfaceWrap">
-      <HintPath>..\lib\vJoyInterfaceWrap.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
@@ -356,6 +353,9 @@
     <None Include="Resources\ic_refresh_white_18dp1.png" />
     <None Include="Resources\reverb-good.wav" />
     <None Include="Resources\ic_cloud_done_white_18dp.png" />
+    <Content Include="vGenInterface.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -402,6 +402,12 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vGenWrap\vGenWrap.csproj">
+      <Project>{d90aba94-328a-4b35-978b-ba6dadabb799}</Project>
+      <Name>vGenWrap</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
