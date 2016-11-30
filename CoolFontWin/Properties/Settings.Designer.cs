@@ -96,5 +96,17 @@ namespace CFW.Properties {
                 this["LastPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowScpVbusDialog {
+            get {
+                return ((bool)(this["ShowScpVbusDialog"]));
+            }
+            set {
+                this["ShowScpVbusDialog"] = value;
+            }
+        }
     }
 }

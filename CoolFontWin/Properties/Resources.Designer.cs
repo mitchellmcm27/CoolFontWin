@@ -411,6 +411,26 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_videogame_asset_black_24dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_videogame_asset_black_24dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_videogame_asset_black_36dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_videogame_asset_black_36dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_videogame_asset_blue_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_videogame_asset_blue_18dp", resourceCulture);

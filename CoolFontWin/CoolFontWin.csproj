@@ -209,6 +209,12 @@
     <Compile Include="Business\UDPServer.cs" />
     <Compile Include="Business\DNSNetworkService.cs" />
     <Compile Include="Business\SilentUpdater.cs" />
+    <Compile Include="Forms\MessageBoxCheck.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\MessageBoxCheck.Designer.cs">
+      <DependentUpon>MessageBoxCheck.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Settings.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -287,6 +293,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ic_videogame_asset_black_36dp.png" />
+    <None Include="Resources\ic_videogame_asset_black_24dp.png" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -403,6 +411,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\MessageBoxCheck.resx">
+      <DependentUpon>MessageBoxCheck.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
