@@ -85,10 +85,33 @@ namespace CFW.Business
             public double Slider0;
             public double Slider1;
             public double POV;
+            public double DPad;
 
             public uint Buttons;
             public byte bDevice;
         }
+
+        private enum wButtons
+        {
+            //  ButtonNone      = 0,
+            ButtonUp = 1 << 0,  // 00000001 = 1
+            ButtonDown = 1 << 1,  // 00000010 = 2
+            ButtonLeft = 1 << 2,  // 00000100 = 4
+            ButtonRight = 1 << 3,  // 8
+            ButtonStart = 1 << 4,  // 16
+            ButtonBack = 1 << 5,  // 32
+            ButtonLAnalog = 1 << 6,  // 64
+            ButtonRAnalog = 1 << 7,  // 128
+            ButtonLTrigger = 1 << 8,  // 256
+            ButtonRTrigger = 1 << 9,  // 512
+            ButtonA = 1 << 12, // 4096
+            ButtonB = 1 << 13, // 8192
+            ButtonX = 1 << 14, // 16384
+            ButtonY = 1 << 15, // 32768
+            ButtonHome = 1 << 16, // 65536
+            ButtonChooseL = 1 << 17, // 131072
+            ButtonChooseR = 1 << 18, // 262144
+};
 
         #region Init
 
@@ -486,6 +509,7 @@ namespace CFW.Business
             iReport.RY = 0;
             iReport.RZ = 0;
             iReport.POV = -1;
+            iReport.DPad = -1;
 
             iReport.Buttons = 0;
         }
@@ -571,9 +595,9 @@ namespace CFW.Business
             iReport.X += MaxAxis / 2;
             iReport.Y += MaxAxis / 2;
             iReport.RX += MaxAxis / 2;
-            iReport.RY += MaxAxis / 2;   
-            iReport.Z += MaxAxis / 2;
-            iReport.RZ += MaxAxis / 2;
+            iReport.RY += MaxAxis / 2;
+            iReport.Z += 0;
+            iReport.RZ += 0;
         }
 
         private void AddButtons(int buttonsDown)
@@ -631,12 +655,12 @@ namespace CFW.Business
 
         public void AddControllerState(State state)
         {
-            iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2 + 50;
-            iReport.Y -= state.Gamepad.LeftThumbY / 327.68 / 2 + 50;
-            iReport.RX += state.Gamepad.RightThumbX / 327.68 / 2 + 50;
-            iReport.RY += state.Gamepad.RightThumbY / 327.68 / 2 + 50;
-            iReport.Z += state.Gamepad.LeftTrigger / 2.55; // not the right scale
-            iReport.RZ += state.Gamepad.RightTrigger / 2.55; // not the right scale
+            iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2 ;
+            iReport.Y += state.Gamepad.LeftThumbY / 327.68 / 2 ;
+            iReport.RX += state.Gamepad.RightThumbX / 327.68 / 2 ;
+            iReport.RY += state.Gamepad.RightThumbY / 327.68 / 2 ;
+            iReport.Z += state.Gamepad.RightTrigger / 2.55; // not the right scale
+            iReport.RZ += state.Gamepad.LeftTrigger / 2.55; // not the right scale
             iReport.Buttons = iReport.Buttons | (uint)state.Gamepad.Buttons;
         }
 
@@ -656,11 +680,59 @@ namespace CFW.Business
             Joystick.SetDevAxis(HDev, 4, iReport.RX);
             Joystick.SetDevAxis(HDev, 5, iReport.RY);
             Joystick.SetDevAxis(HDev, 6, iReport.RZ);
-            //Joystick.SetDevButton(HDev, iReport.Buttons, true);
+
+            Joystick.SetDevButton(HDev, 1, ((wButtons)iReport.Buttons & wButtons.ButtonA) !=0);
+            Joystick.SetDevButton(HDev, 2, ((wButtons)iReport.Buttons & wButtons.ButtonB) != 0);
+            Joystick.SetDevButton(HDev, 3, ((wButtons)iReport.Buttons & wButtons.ButtonX) != 0);
+            Joystick.SetDevButton(HDev, 4, ((wButtons)iReport.Buttons & wButtons.ButtonY) != 0);
+            Joystick.SetDevButton(HDev, 5, ((wButtons)iReport.Buttons & wButtons.ButtonLTrigger) != 0);
+            Joystick.SetDevButton(HDev, 6, ((wButtons)iReport.Buttons & wButtons.ButtonRTrigger) != 0);
+            Joystick.SetDevButton(HDev, 7, ((wButtons)iReport.Buttons & wButtons.ButtonBack) != 0);
+            Joystick.SetDevButton(HDev, 8, ((wButtons)iReport.Buttons & wButtons.ButtonStart) != 0);
+            Joystick.SetDevButton(HDev, 9, ((wButtons)iReport.Buttons & wButtons.ButtonLAnalog) != 0);
+            Joystick.SetDevButton(HDev, 10, ((wButtons)iReport.Buttons & wButtons.ButtonRAnalog) != 0);
 
             if (this.VDevType == DevType.vJoy)
             {
                 Joystick.SetDevPov(this.HDev, 1, iReport.POV);
+            }
+            else
+            {
+                double val = -1;
+                if (((wButtons)iReport.Buttons & wButtons.ButtonUp)!=0)
+                {
+                    if (((wButtons)iReport.Buttons & wButtons.ButtonRight) != 0)
+                    {
+                        val = 45;
+                    }
+                    else { val = 0; }
+                }
+                else if (((wButtons)iReport.Buttons & wButtons.ButtonRight) != 0)
+                {
+                    if (((wButtons)iReport.Buttons & wButtons.ButtonDown) != 0)
+                    {
+                        val = 135;
+                    }
+                    else { val = 90;}
+                }
+                else if (((wButtons)iReport.Buttons & wButtons.ButtonDown) != 0)
+                {
+                    if (((wButtons)iReport.Buttons & wButtons.ButtonLeft) != 0)
+                    {
+                        val = 225;
+                    }
+                    else{ val = 180; }
+                }
+                else if (((wButtons)iReport.Buttons & wButtons.ButtonLeft) != 0)
+                {
+                    if (((wButtons)iReport.Buttons & wButtons.ButtonUp) != 0)
+                    {
+                        val = 315;
+                    }
+                    else { val = 270; }
+                }
+
+                    Joystick.SetDevPov(this.HDev, 1, val);
             }
         }
 
