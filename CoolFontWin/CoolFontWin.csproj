@@ -295,15 +295,36 @@
   <ItemGroup>
     <None Include="Resources\ic_videogame_asset_black_36dp.png" />
     <None Include="Resources\ic_videogame_asset_black_24dp.png" />
+    <None Include="Resources\ic_build_white_18dp.png" />
+    <None Include="Resources\ic_cloud_done_white_18dp.png" />
+    <None Include="Resources\ic_desktop_windows_white_18dp.png" />
+    <None Include="Resources\ic_phone_iphone_white_18dp.png" />
+    <None Include="Resources\ic_launch_white_18dp.png" />
+    <None Include="Resources\ic_gamepad_white_18dp.png" />
+    <None Include="Resources\ic_directions_run_white_18dp.png" />
+    <None Include="Resources\ic_videogame_asset_white_18dp.png" />
+    <None Include="Resources\ic_folder_open_white_18dp.png" />
+    <None Include="Resources\ic_swap_horiz_white_18dp.png" />
+    <None Include="Resources\ic_swap_vert_white_18dp.png" />
+    <None Include="Resources\ic_power_white_18dp.png" />
+    <None Include="Resources\ic_close_orange_18dp.png" />
+    <None Include="Resources\ic_error_orange_18dp.png" />
+    <None Include="Resources\ic_error_outline_orange_18dp.png" />
+    <None Include="Resources\ic_phonelink_white_18dp.png" />
+    <None Include="Resources\ic_check_blue_18dp.png" />
+    <None Include="Resources\ic_refresh_blue_18dp.PNG" />
+    <None Include="Resources\ic_xbox_1p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_2p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_3p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_4p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_all_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_off_blue_18dp.png" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="vJoyInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\ic_close_orange_18dp.png" />
-    <None Include="Resources\ic_error_outline_orange_18dp.png" />
-    <None Include="Resources\ic_refresh_blue_18dp.png" />
     <Content Include="scpvbus\WdfCoinstaller01009.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -340,13 +361,9 @@
     <None Include="Resources\ic_smartphone_white_18dp.png" />
     <None Include="Resources\ic_power_settings_new_white_18dp.png" />
     <None Include="Resources\ic_done_white_16dp.png" />
-    <None Include="Resources\ic_launch_white_18dp.png" />
-    <None Include="Resources\ic_phone_iphone_white_18dp.png" />
     <None Include="Resources\ic_view_day_white_18dp.png" />
     <None Include="Resources\ic_view_headline_white_18dp.png" />
     <None Include="Resources\ic_open_in_browser_white_18dp.png" />
-    <None Include="Resources\ic_swap_horiz_white_18dp.png" />
-    <None Include="Resources\ic_swap_vert_white_18dp.png" />
     <None Include="Resources\ic_call_made_white_18dp.png" />
     <None Include="Resources\ic_line_weight_white_18dp.png" />
     <None Include="Resources\ic_line_style_white_18dp.png" />
@@ -355,37 +372,24 @@
     <None Include="Resources\ic_link_white_18dp.png" />
     <None Include="Resources\ic_phonelink_erase_white_18dp.png" />
     <None Include="Resources\ic_phonelink_ring_white_18dp.png" />
-    <None Include="Resources\ic_videogame_asset_white_18dp.png" />
     <None Include="Resources\ic_radio_button_checked_white_24dp.png" />
     <None Include="Resources\ic_radio_button_unchecked_white_24dp.png" />
     <None Include="Resources\ic_clear_white_18dp.png" />
     <None Include="Resources\ic_keyboard_white_18pt_2x.png" />
-    <None Include="Resources\ic_gamepad_white_18dp.png" />
     <None Include="Resources\ic_done_white_16dp1.png" />
-    <None Include="Resources\ic_desktop_windows_white_18dp.png" />
-    <None Include="Resources\ic_phonelink_white_18dp.png" />
     <None Include="Resources\ic_show_chart_white_18dp.png" />
     <None Include="Resources\ic_show_chart_white_18dp1.png" />
     <None Include="Resources\ic_clear_white_18dp1.png" />
     <None Include="Resources\ic_done_white_16dp2.png" />
     <None Include="Resources\ic_error_outline_white_18dp.png" />
     <None Include="Resources\ic_error_outline_white_18dp1.png" />
-    <None Include="Resources\ic_build_white_18dp.png" />
     <None Include="Resources\beep-bad.wav" />
     <None Include="Resources\beep-good.wav" />
-    <None Include="Resources\ic_directions_run_white_18dp.png" />
     <None Include="Resources\ic_refresh_white_18dp.png" />
     <None Include="Resources\ic_refresh_white_18dp1.png" />
     <None Include="Resources\reverb-good.wav" />
-    <None Include="Resources\ic_cloud_done_white_18dp.png" />
     <None Include="Resources\ic_videogame_asset_white_18dp1.png" />
     <None Include="Resources\ic_videogame_asset_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_1p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_2p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_3p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_4p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_all_blue_18dp.png" />
-    <None Include="Resources\ic_power_white_18dp.png" />
     <Content Include="scpvbus\devcon.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

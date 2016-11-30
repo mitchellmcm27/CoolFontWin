@@ -18,7 +18,7 @@ namespace CFW.Business
             int intHeight = 0;
 
             // Create the Font object for the image text drawing.
-            System.Drawing.Font objFont = new System.Drawing.Font("Arial", 24, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            System.Drawing.Font objFont = new System.Drawing.Font("Arial", 16, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
 
             // Create a graphics object to measure the text's width and height.
             Graphics objGraphics = Graphics.FromImage(objBmpImage);

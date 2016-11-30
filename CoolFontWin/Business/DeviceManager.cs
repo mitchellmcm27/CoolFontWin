@@ -330,6 +330,7 @@ namespace CFW.Business
 
         public void ForceUnplugAllXboxControllers()
         {
+            RelinquishCurrentDevice();
             VDevice.ForceUnplugAllXboxControllers();
         }
 

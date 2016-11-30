@@ -335,6 +335,7 @@ namespace CFW.Business
             // Mode submenu - Display current mode and change modes in dropdown menu
             ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
             modeSelectSubmenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
+            modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -348,7 +349,8 @@ namespace CFW.Business
                 if (i == (int)SharedDeviceManager.Mode)
                 {
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
-                    item.Image = Properties.Resources.ic_done_blue_16dp;
+                    item.Image = Properties.Resources.ic_check_blue_18dp;
+                    item.ImageScaling = ToolStripItemImageScaling.None; 
                 }
                 modeSelectSubmenu.DropDownItems.Add(item);
             }
@@ -356,24 +358,31 @@ namespace CFW.Business
             // vJoy config menu - Change keybinds, monitor/config vJoy, flip axes...
             ToolStripMenuItem fwdKeyItem = ToolStripMenuItemWithHandler("Rebind forward key", null);
             fwdKeyItem.Image = Properties.Resources.ic_gamepad_white_18dp;
+            fwdKeyItem.ImageScaling = ToolStripItemImageScaling.None;
             fwdKeyItem.Enabled = false;
 
             ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
             flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;
+            flipXItem.ImageScaling = ToolStripItemImageScaling.None;
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
             flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
+            flipYItem.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("vJoy Config", VJoyConf_Click);
-            vJoyConfItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
+            vJoyConfItem.Image = Properties.Resources.ic_launch_white_18dp;
+            vJoyConfItem.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("vJoy Monitor", VJoyMon_Click);
-            vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
+            vJoyMonItem.Image = Properties.Resources.ic_launch_white_18dp;
+            vJoyMonItem.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem unplugAllItem = ToolStripMenuItemWithHandler("Unplug all Xbox controllers", UnplugAll_Click);
             unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
+            unplugAllItem.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Configure output");
             ConfigureOutputSubmenu.Image = Properties.Resources.ic_build_white_18dp;
+            ConfigureOutputSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             ConfigureOutputSubmenu.DropDownItems.AddRange(new ToolStripItem[] {
                 fwdKeyItem,
                 flipXItem,
@@ -387,9 +396,11 @@ namespace CFW.Business
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
+            outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
-                outputSelectSubmenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
+                outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
+                outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
                 //vJoySelectSubMenu.Tag = "alert";
                 
             }
@@ -426,7 +437,6 @@ namespace CFW.Business
                     Color idColor = Colors.IconBlue;
                     outputSelectSubmenu.Image = Drawing.CreateBitmapImage(idString, idColor);
                 }
-                
             }
 
             List<ToolStripItem> deviceIDItems = new List<ToolStripItem>();
@@ -461,7 +471,8 @@ namespace CFW.Business
                 {
                     //if (i==0) item.Tag = "alert";
                     item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
-                    item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_done_blue_16dp;
+                    item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_check_blue_18dp;
+                    item.ImageScaling = ToolStripItemImageScaling.None;
                 }
 
                 deviceIDItems.Add(item);
@@ -471,20 +482,22 @@ namespace CFW.Business
 
             // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
-            smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.None;
             smoothingDoubleItem.ImageAlign = ContentAlignment.MiddleCenter;
             smoothingDoubleItem.Image = Drawing.CreateBitmapImage("+", Color.White);
             ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
-            smoothingHalfItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            smoothingHalfItem.ImageScaling = ToolStripItemImageScaling.None;
             smoothingHalfItem.ImageAlign = ContentAlignment.MiddleCenter;
             smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
             ToolStripMenuItem inputSelectSubmenu = new ToolStripMenuItem(String.Format("Input devices"));
             inputSelectSubmenu.Image = Properties.Resources.ic_phonelink_white_18dp;
+            inputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
             addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_directions_run_white_18dp;
+            addRemoveMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
@@ -495,11 +508,13 @@ namespace CFW.Business
             if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_close_orange_18dp;
+                addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
                 //addRemoveXboxControllerItem.Tag = "alert";
             }
             else
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_videogame_asset_white_18dp;
+                addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
             }
 
             inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });

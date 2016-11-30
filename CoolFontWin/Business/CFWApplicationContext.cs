@@ -253,11 +253,13 @@ namespace CFW.Business
                 versionItem.Click += VersionItem_Click;
                 versionItem.Font = new System.Drawing.Font(versionItem.Font, (versionItem.Font.Style | System.Drawing.FontStyle.Bold));
                 versionItem.Image = Properties.Resources.ic_refresh_blue_18dp;
+                versionItem.ImageScaling = ToolStripItemImageScaling.None;
             }
             else
             {
                 versionItem.Enabled = false;
                 versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
+                versionItem.ImageScaling = ToolStripItemImageScaling.None;
                 versionItem.Text = "Latest version";
             }
 
@@ -268,10 +270,12 @@ namespace CFW.Business
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
             quitItem.Image = Properties.Resources.ic_close_orange_18dp;
+            quitItem.ImageScaling = ToolStripItemImageScaling.None;
             //quitItem.Tag = "alert"; // changes font color to orange
 
             ToolStripMenuItem logItem = Cfw.ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
-            logItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
+            logItem.Image = Properties.Resources.ic_folder_open_white_18dp;
+            logItem.ImageScaling = ToolStripItemImageScaling.None;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), logItem, quitItem });
