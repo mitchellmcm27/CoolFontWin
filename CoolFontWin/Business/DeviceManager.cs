@@ -327,6 +327,12 @@ namespace CFW.Business
 
             VDevice.FeedVDev();
         }
+
+        public void ForceUnplugAllXboxControllers()
+        {
+            VDevice.ForceUnplugAllXboxControllers();
+        }
+
         public void Dispose()
         {
             RelinquishCurrentDevice();

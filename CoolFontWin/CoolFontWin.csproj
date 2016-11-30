@@ -360,6 +360,7 @@
     <None Include="Resources\ic_xbox_3p_blue_18dp.png" />
     <None Include="Resources\ic_xbox_4p_blue_18dp.png" />
     <None Include="Resources\ic_xbox_all_blue_18dp.png" />
+    <None Include="Resources\ic_power_white_18dp.png" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

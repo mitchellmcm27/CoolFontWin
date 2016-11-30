@@ -175,6 +175,11 @@ namespace CFW.Business
             if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Monitor vJoy"); }
         }
 
+        private void UnplugAll_Click(object sender, EventArgs e)
+        {
+            DeviceManager.Instance.ForceUnplugAllXboxControllers();
+        }
+
         /// <summary>
         /// Dialog box for navigating to vJoy installation directory.
         /// </summary>
@@ -338,6 +343,9 @@ namespace CFW.Business
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("vJoy Monitor", VJoyMon_Click);
             vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
+            ToolStripMenuItem unplugAllItem = ToolStripMenuItemWithHandler("Unplug all Xbox controllers", UnplugAll_Click);
+            unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
+
             ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Configure output");
             ConfigureOutputSubmenu.Image = Properties.Resources.ic_build_white_18dp;
             ConfigureOutputSubmenu.DropDownItems.AddRange(new ToolStripItem[] {
@@ -347,6 +355,8 @@ namespace CFW.Business
                 new ToolStripSeparator(),
                 vJoyConfItem,
                 vJoyMonItem,
+                new ToolStripSeparator(),
+                unplugAllItem,
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None

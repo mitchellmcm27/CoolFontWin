@@ -311,6 +311,16 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_power_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_power_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_radio_button_checked_white_24dp {
             get {
                 object obj = ResourceManager.GetObject("ic_radio_button_checked_white_24dp", resourceCulture);

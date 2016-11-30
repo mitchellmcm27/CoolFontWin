@@ -994,6 +994,14 @@ namespace CFW.Business
                 vJoyConfigProc.WaitForExit();
             }
         }
+
+        public void ForceUnplugAllXboxControllers()
+        {
+            for (uint i=1; i <=4; i++)
+            {
+                Joystick.UnPlugForce(i);
+            }
+        }
         #endregion
     }
     
