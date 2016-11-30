@@ -149,7 +149,7 @@ namespace CFW.Business
 
             if (!res)
             {
-                MessageBox.Show("Select a vJoy device to use this mode.", "Unable to Switch Modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Select an output device to use this mode.", "Unable to Switch Modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -332,15 +332,15 @@ namespace CFW.Business
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
             flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
 
-            ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("Launch Config", VJoyConf_Click);
+            ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("vJoy Config", VJoyConf_Click);
             vJoyConfItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
-            ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("Launch Monitor", VJoyMon_Click);
+            ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("vJoy Monitor", VJoyMon_Click);
             vJoyMonItem.Image = Properties.Resources.ic_open_in_browser_white_18dp;
 
-            ToolStripMenuItem vJoySubMenu = new ToolStripMenuItem("Virtual Joystick");
-            vJoySubMenu.Image = Properties.Resources.ic_build_white_18dp;
-            vJoySubMenu.DropDownItems.AddRange(new ToolStripItem[] {
+            ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Configure output");
+            ConfigureOutputSubmenu.Image = Properties.Resources.ic_build_white_18dp;
+            ConfigureOutputSubmenu.DropDownItems.AddRange(new ToolStripItem[] {
                 fwdKeyItem,
                 flipXItem,
                 flipYItem,
@@ -350,39 +350,52 @@ namespace CFW.Business
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
-            ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select an output device", Properties.Settings.Default.VJoyID));
+            ToolStripMenuItem OutputSelectSubMenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
-                vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
+                OutputSelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
                 //vJoySelectSubMenu.Tag = "alert";
                 
             }
             else
             {
-                vJoySelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
-                vJoySelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
+                OutputSelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+                OutputSelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
                 uint id = SharedDeviceManager.CurrentDeviceID;
-                string idString;
-                Color idColor;
                 if (id>1000)
                 {
-                    idString = string.Format("X{0}", id - 1000);
-                    idColor = Color.LimeGreen;
+                    switch (id-1000)
+                    {
+                        case 1:
+                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_1p_blue_18dp;
+                            break;
+                        case 2:
+                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_2p_blue_18dp;
+                            break;
+                        case 3:
+                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_3p_blue_18dp;
+                            break;
+                        case 4:
+                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_4p_blue_18dp;
+                            break;
+                        default:
+                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_all_blue_18dp;
+                            break;
+                    }
+                    
                 }
                 else
                 {
-                    idString = id.ToString();
-                    idColor = Colors.IconBlue;
+                    string idString = id.ToString();
+                    Color idColor = Colors.IconBlue;
+                    OutputSelectSubMenu.Image = Drawing.CreateBitmapImage(idString, idColor);
                 }
-                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(idString, idColor);
+                
             }
 
             List<ToolStripItem> deviceIDItems = new List<ToolStripItem>();
-            List<int> validDevIDList = new List<int> { 0, // none
-                                                       1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, // vJoy
-                                                       1001, 1002, 1003, 1004 // vXbox
-                                                      };
-            foreach (int i in validDevIDList)
+
+            foreach (int i in DeviceManager.ValidDevIDList)
             {
                 // valid vjoy IDs are 1-16
 
@@ -416,7 +429,7 @@ namespace CFW.Business
                 deviceIDItems.Add(item);
             }
             
-            vJoySelectSubMenu.DropDownItems.AddRange(deviceIDItems.ToArray());
+            OutputSelectSubMenu.DropDownItems.AddRange(deviceIDItems.ToArray());
 
             // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
@@ -429,7 +442,7 @@ namespace CFW.Business
             smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
-            ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Manage devices"));
+            ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Input devices"));
             deviceSubMenu.Image = Properties.Resources.ic_phonelink_white_18dp;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
@@ -457,13 +470,13 @@ namespace CFW.Business
             cms.Items.AddRange(
                 new ToolStripItem[] {
                     modeSubMenu,
-                    vJoySubMenu,
-                    vJoySelectSubMenu,
+                    OutputSelectSubMenu,
+                    deviceSubMenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
                     smoothingHalfItem,
-                    new ToolStripSeparator(),
-                    deviceSubMenu,
+                    ConfigureOutputSubmenu,
+
                 });          
         }
 

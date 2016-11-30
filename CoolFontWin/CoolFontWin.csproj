@@ -353,6 +353,13 @@
     <None Include="Resources\ic_refresh_white_18dp1.png" />
     <None Include="Resources\reverb-good.wav" />
     <None Include="Resources\ic_cloud_done_white_18dp.png" />
+    <None Include="Resources\ic_videogame_asset_white_18dp1.png" />
+    <None Include="Resources\ic_videogame_asset_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_1p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_2p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_3p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_4p_blue_18dp.png" />
+    <None Include="Resources\ic_xbox_all_blue_18dp.png" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

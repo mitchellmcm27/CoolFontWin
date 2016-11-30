@@ -26,6 +26,12 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        public static List<int> ValidDevIDList = 
+            new List<int> { 0, // none
+                            1001, 1002, 1003, 1004, // vXbox
+                            1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 // vJoy
+                           };
+
         static readonly object locker = new object();
 
         // Devices

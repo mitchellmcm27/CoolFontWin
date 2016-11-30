@@ -411,9 +411,69 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_videogame_asset_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_videogame_asset_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_videogame_asset_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_videogame_asset_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_xbox_1p_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_xbox_1p_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_xbox_2p_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_xbox_2p_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_xbox_3p_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_xbox_3p_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_xbox_4p_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_xbox_4p_blue_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_xbox_all_blue_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_xbox_all_blue_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
