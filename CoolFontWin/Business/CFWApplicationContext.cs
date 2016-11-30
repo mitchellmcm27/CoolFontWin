@@ -104,6 +104,10 @@ namespace CFW.Business
             //ShowUpdateNotesForm();
             // save defaults
 
+            // Install ScpVBus every time application is launched
+            // Uninstall it on exit (see region below)
+            ScpVBus.Install();
+
             try
             {
                 ForceFirewallWindow();
@@ -338,19 +342,21 @@ namespace CFW.Business
             {
                 Components.Dispose();
             }
+                      
         }
 
         protected override void ExitThreadCore()
-        {
-            Cfw.Dispose();
-            NotifyIcon.Visible = false;
+        {    
+            Cfw.Dispose();      
             Dispose(true);
             base.ExitThreadCore();
         }
 
         private void Exit_Click(object sender, EventArgs e)
         {
-            // Hide tray icon, otherwise it will remain shown until user mouses over it     
+            // Hide tray icon, otherwise it will remain shown until user mouses over it
+            NotifyIcon.Visible = false;
+            ScpVBus.Uninstall();
             ExitThread();       
             Environment.Exit(0);
         }

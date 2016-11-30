@@ -439,6 +439,8 @@ namespace CFW.Business
                 item.Tag = i;
                 item.Visible = SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
 
+                // doesn't update after install scpvbus
+
                 // 0 is to remove vJoy devices
                 if (i == 0)
                 {
