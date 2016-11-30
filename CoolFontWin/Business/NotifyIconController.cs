@@ -396,13 +396,10 @@ namespace CFW.Business
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
-            outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
-                outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
                 //vJoySelectSubMenu.Tag = "alert";
-                
             }
             else
             {
@@ -437,8 +434,9 @@ namespace CFW.Business
                     Color idColor = Colors.IconBlue;
                     outputSelectSubmenu.Image = Drawing.CreateBitmapImage(idString, idColor);
                 }
+                
             }
-
+            outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             List<ToolStripItem> deviceIDItems = new List<ToolStripItem>();
 
             foreach (int i in DeviceManager.ValidDevIDList)
