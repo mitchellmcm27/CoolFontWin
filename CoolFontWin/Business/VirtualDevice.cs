@@ -175,7 +175,7 @@ namespace CFW.Business
             // 0.05 good for mouse movement, 0.15 was a little too smooth
             // 0.05 probably good for VR, where you don't have to aim with the phone
             // 0.00 is good for when you have to aim slowly/precisely
-            RCFilterStrength = 0.1;
+            RCFilterStrength = 0.05;
 
             KbM = new InputSimulator();
             Joystick = new vDev();

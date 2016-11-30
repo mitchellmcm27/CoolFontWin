@@ -248,7 +248,7 @@ namespace CFW.Business
             {
                 versionItem.Enabled = false;
                 versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
-                versionItem.Text = "Currently up-to-date";
+                versionItem.Text = "Latest version";
             }
 
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);

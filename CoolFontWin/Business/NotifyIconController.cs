@@ -307,8 +307,8 @@ namespace CFW.Business
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSubMenu = new ToolStripMenuItem(String.Format("Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
-            modeSubMenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
+            modeSelectSubmenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
 #else
@@ -324,7 +324,7 @@ namespace CFW.Business
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_done_blue_16dp;
                 }
-                modeSubMenu.DropDownItems.Add(item);
+                modeSelectSubmenu.DropDownItems.Add(item);
             }
 
             // vJoy config menu - Change keybinds, monitor/config vJoy, flip axes...
@@ -360,36 +360,36 @@ namespace CFW.Business
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
-            ToolStripMenuItem OutputSelectSubMenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
+            ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
-                OutputSelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
+                outputSelectSubmenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
                 //vJoySelectSubMenu.Tag = "alert";
                 
             }
             else
             {
-                OutputSelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
-                OutputSelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
+                outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+                outputSelectSubmenu.ImageAlign = ContentAlignment.MiddleCenter;
                 uint id = SharedDeviceManager.CurrentDeviceID;
                 if (id>1000)
                 {
                     switch (id-1000)
                     {
                         case 1:
-                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_1p_blue_18dp;
+                            outputSelectSubmenu.Image = Properties.Resources.ic_xbox_1p_blue_18dp;
                             break;
                         case 2:
-                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_2p_blue_18dp;
+                            outputSelectSubmenu.Image = Properties.Resources.ic_xbox_2p_blue_18dp;
                             break;
                         case 3:
-                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_3p_blue_18dp;
+                            outputSelectSubmenu.Image = Properties.Resources.ic_xbox_3p_blue_18dp;
                             break;
                         case 4:
-                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_4p_blue_18dp;
+                            outputSelectSubmenu.Image = Properties.Resources.ic_xbox_4p_blue_18dp;
                             break;
                         default:
-                            OutputSelectSubMenu.Image = Properties.Resources.ic_xbox_all_blue_18dp;
+                            outputSelectSubmenu.Image = Properties.Resources.ic_xbox_all_blue_18dp;
                             break;
                     }
                     
@@ -398,7 +398,7 @@ namespace CFW.Business
                 {
                     string idString = id.ToString();
                     Color idColor = Colors.IconBlue;
-                    OutputSelectSubMenu.Image = Drawing.CreateBitmapImage(idString, idColor);
+                    outputSelectSubmenu.Image = Drawing.CreateBitmapImage(idString, idColor);
                 }
                 
             }
@@ -439,7 +439,7 @@ namespace CFW.Business
                 deviceIDItems.Add(item);
             }
             
-            OutputSelectSubMenu.DropDownItems.AddRange(deviceIDItems.ToArray());
+            outputSelectSubmenu.DropDownItems.AddRange(deviceIDItems.ToArray());
 
             // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
@@ -452,8 +452,8 @@ namespace CFW.Business
             smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
-            ToolStripMenuItem deviceSubMenu = new ToolStripMenuItem(String.Format("Input devices"));
-            deviceSubMenu.Image = Properties.Resources.ic_phonelink_white_18dp;
+            ToolStripMenuItem inputSelectSubmenu = new ToolStripMenuItem(String.Format("Input devices"));
+            inputSelectSubmenu.Image = Properties.Resources.ic_phonelink_white_18dp;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
             addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_directions_run_white_18dp;
@@ -474,14 +474,14 @@ namespace CFW.Business
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_videogame_asset_white_18dp;
             }
 
-            deviceSubMenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
+            inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
 
             // Add all of these to the Context Menu Strip
             cms.Items.AddRange(
                 new ToolStripItem[] {
-                    modeSubMenu,
-                    OutputSelectSubMenu,
-                    deviceSubMenu,
+                    outputSelectSubmenu,
+                    modeSelectSubmenu,
+                    inputSelectSubmenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
                     smoothingHalfItem,
