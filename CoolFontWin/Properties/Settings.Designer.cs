@@ -25,7 +25,7 @@ namespace CFW.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\\\Program Files\\\\vJoy")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\\\Program Files\\\\vJoy\\\\x64")]
         public string VJoyDir {
             get {
                 return ((string)(this["VJoyDir"]));

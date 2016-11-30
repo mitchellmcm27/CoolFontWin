@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="VJoyDir" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\\Program Files\\vJoy</Value>
+      <Value Profile="(Default)">C:\\Program Files\\vJoy\\x64</Value>
     </Setting>
     <Setting Name="FirstInstall" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

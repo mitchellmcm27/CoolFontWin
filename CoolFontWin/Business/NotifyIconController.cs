@@ -156,25 +156,51 @@ namespace CFW.Business
         private void VJoyConf_Click(object sender, EventArgs e)
         {
             string fname = "vJoyConf.exe";
-            bool launched = FileManager.FindAndLaunch(Properties.Settings.Default.VJoyDir, fname);
-            if (launched)
+            string path = System.IO.Path.Combine("Program Files", "vJoy");
+            try
             {
-                SharedDeviceManager.RelinquishCurrentDevice();
+                System.Diagnostics.Process.Start(System.IO.Path.Combine(Properties.Settings.Default.VJoyDir, fname));
             }
-            else
+            catch
             {
-                ShowVJoyNotFoundMessageBox(fname, "Configure vJoy");
+                string foundPath = FileManager.FindAndLaunch(path, fname);
+                if (foundPath.Equals(string.Empty))
+                {
+                    ShowVJoyNotFoundMessageBox(fname, "Configure vJoy");
+                }
+                else
+                {
+                    log.Info("Found " + fname + " in " + foundPath + ". Saving in default setting for later use.");
+                    Properties.Settings.Default.VJoyDir = foundPath;
+                    Properties.Settings.Default.Save();
+                }
             }
-
         }
 
         private void VJoyMon_Click(object sender, EventArgs e)
         {
             string fname = "JoyMonitor.exe";
-            bool launched = FileManager.FindAndLaunch(Properties.Settings.Default.VJoyDir, fname);
-            if (!launched) { ShowVJoyNotFoundMessageBox(fname, "Monitor vJoy"); }
+            string path = System.IO.Path.Combine("Program Files", "vJoy");
+            try
+            {
+                System.Diagnostics.Process.Start(System.IO.Path.Combine(Properties.Settings.Default.VJoyDir, fname));
+            }
+            catch
+            {
+                string foundPath = FileManager.FindAndLaunch(path, fname);
+                if (foundPath.Equals(string.Empty))
+                {
+                    ShowVJoyNotFoundMessageBox(fname, "Monitor vJoy");
+                }
+                else
+                {
+                    log.Info("Found " + fname + " in " + foundPath + ". Saving in default setting for later use.");
+                    Properties.Settings.Default.VJoyDir = foundPath;
+                    Properties.Settings.Default.Save();
+                }
+            }
         }
-
+    
         private void UnplugAll_Click(object sender, EventArgs e)
         {
             DeviceManager.Instance.ForceUnplugAllXboxControllers();
@@ -202,7 +228,7 @@ namespace CFW.Business
 
         private void ShowVJoyNotFoundMessageBox(string fname, string description)
         {
-            string title = "vJoy not found in default directory";
+            string title = "vJoy installation not found!";
             string message = String.Format("If vJoy is installed, you can launch the '{0}' app for Windows, or just browse to the vJoy install location manually. \n \n Browse to vJoy folder manually?", description);
             DialogResult clicked = MessageBox.Show(message, title, MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             if (clicked == DialogResult.OK)

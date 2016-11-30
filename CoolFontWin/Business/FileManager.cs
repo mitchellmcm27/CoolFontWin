@@ -113,19 +113,50 @@ namespace CFW.Business
         /// <param name="dir">Path to directory to search within.</param>
         /// <param name="fname">Exectuable file name.</param>
         /// <returns>Returns bool indicating if process started.</returns>
-        public static bool FindAndLaunch(string dir, string fname)
+        public static string FindAndLaunch(string dir, string fname)
         {
-            log.Info("Searching in " + dir + " for " + fname);
-            string exe = FirstOcurrenceOfFile(dir, fname);
-            if (exe.Length > 0)
+            string[] drives = Environment.GetLogicalDrives();
+
+            foreach (string dr in drives)
             {
-                Process.Start(exe);
-                return true;
+                DriveInfo di = new DriveInfo(dr);
+                
+                // Here we skip the drive if it is not ready to be read. This
+                // is not necessarily the appropriate action in all scenarios.
+                if (!di.IsReady)
+                {
+                    log.Debug("The drive {0} could not be read: " + di.Name);
+                    continue;
+                }
+
+                log.Info("Searching in drive " + dr + " for directory " + dir + " containing file " + fname);
+                string path;
+                try
+                {
+                    path = Path.Combine(dr, dir);
+                }
+                catch (Exception e)
+                {
+                    log.Debug("Could not search path: " + e.Message);
+                    return string.Empty;
+                }
+
+                string exe = FirstOcurrenceOfFile(path, fname);
+                if (exe.Length > 0)
+                {
+                    try
+                    {
+                        Process.Start(exe);
+                        return exe.Replace(fname,"");
+                    }
+                    catch (Exception e)
+                    {
+                        log.Debug("Failed to start process " + exe + ": " + e);
+                        return string.Empty;
+                    }              
+                }
             }
-            else
-            {
-                return false;
-            }
+            return string.Empty; 
         }
 
         /// <summary>
