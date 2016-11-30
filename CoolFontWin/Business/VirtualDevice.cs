@@ -122,7 +122,6 @@ namespace CFW.Business
         private double MinPov = 0.0;
 
         private vDev Joystick;
-        private DevType VDevType;
         private VirtualDeviceState iReport;
         private int ContPovNumber;
         private InputSimulator KbM;
@@ -133,8 +132,9 @@ namespace CFW.Business
         private bool RightMoustButtonDown = false;
 
         // public properties
+        public DevType VDevType;
         private uint _Id;
-        public uint Id // vJoy ID
+        public uint Id // 1-16 for vJoy, 1001-1004 for vXbox
         {
             get
             {

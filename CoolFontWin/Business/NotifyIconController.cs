@@ -318,7 +318,7 @@ namespace CFW.Business
                 Properties.Settings.Default.Save();
             }
 
-            if (SharedDeviceManager.AcquireVDev((uint)id))
+            else if (SharedDeviceManager.AcquireVDev((uint)id))
             {
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
@@ -490,11 +490,11 @@ namespace CFW.Business
 
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
             ToolStripMenuItem inputSelectSubmenu = new ToolStripMenuItem(String.Format("Input devices"));
-            inputSelectSubmenu.Image = Properties.Resources.ic_phonelink_white_18dp;
+            inputSelectSubmenu.Image = Properties.Resources.ic_phone_iphone_white_18dp;
             inputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
-            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_phonelink_erase_white_18dp : Properties.Resources.ic_directions_run_white_18dp;
+            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_close_orange_18dp : Properties.Resources.ic_directions_run_white_18dp;
             addRemoveMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
             addRemoveMobileDeviceItem.Enabled = true;
 
@@ -521,8 +521,8 @@ namespace CFW.Business
             cms.Items.AddRange(
                 new ToolStripItem[] {
                     outputSelectSubmenu,
-                    modeSelectSubmenu,
                     inputSelectSubmenu,
+                    modeSelectSubmenu,
                     new ToolStripSeparator(),
                     smoothingDoubleItem,
                     smoothingHalfItem,

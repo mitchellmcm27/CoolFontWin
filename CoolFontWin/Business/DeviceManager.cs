@@ -238,8 +238,8 @@ namespace CFW.Business
 
         public void RelinquishCurrentDevice()
         {
+            if (VDevice.VDevType == DevType.vJoy) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             VDevice.RelinquishCurrentDevice();
-            if (CurrentDeviceID < 1000) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
         private void InitializeTimer()
