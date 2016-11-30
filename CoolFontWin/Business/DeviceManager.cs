@@ -104,7 +104,7 @@ namespace CFW.Business
         {
             get
             {
-                return VDevice.vJoyEnabled;
+                return VDevice.DriverEnabled;
             }
         }
 
@@ -112,7 +112,7 @@ namespace CFW.Business
         {
             get
             {
-                return VDevice.vJoyAcquired;
+                return VDevice.VDevAcquired;
             }
         }
 
@@ -183,7 +183,7 @@ namespace CFW.Business
 
             VDevice = new VirtualDevice(UpdateInterval);
 
-            AcquireDefaultVJoyDevice();
+            AcquireDefaultVDev();
 
             InitializeTimer();
         }
@@ -211,17 +211,17 @@ namespace CFW.Business
         /// Aquire vJoy device according to Default setting.
         /// </summary>
         /// <returns>Bool indicating whether device was acquired.</returns>
-        public bool AcquireDefaultVJoyDevice()
+        public bool AcquireDefaultVDev()
         {
-            return VDevice.SwapToVJoyDevice((uint)Properties.Settings.Default.VJoyID);
+            return VDevice.SwapToVDev((uint)Properties.Settings.Default.VJoyID);
         }
 
-        public bool AcquireVJoyDevice(uint id)
+        public bool AcquireVDev(uint id)
         {
-            bool res = VDevice.SwapToVJoyDevice(id);
+            bool res = VDevice.SwapToVDev(id);
             if (res)
             {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
+                if (id < 1000) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             }
             else
             {
@@ -233,7 +233,7 @@ namespace CFW.Business
         public void RelinquishCurrentDevice()
         {
             VDevice.RelinquishCurrentDevice();
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+            if (CurrentDeviceID < 1000) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
         private void InitializeTimer()
@@ -319,13 +319,13 @@ namespace CFW.Business
                 }
             }
 
-            VDevice.FeedVJoy();
+            VDevice.FeedVDev();
         }
         public void Dispose()
         {
+            RelinquishCurrentDevice();
             Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
-            Properties.Settings.Default.Save();
-            VDevice.Dispose();
+            Properties.Settings.Default.Save(); 
         }
     }
 }

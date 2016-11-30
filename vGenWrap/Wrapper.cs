@@ -207,7 +207,7 @@ namespace vGenWrap
         [DllImport("vGenInterface.dll", EntryPoint = "UnPlug")]
         private static extern UInt32 _UnPlug(UInt32 UserIndex);
 
-        [DllImport("vGenInterface.dll", EntryPoint = "UnPlogForce")]
+        [DllImport("vGenInterface.dll", EntryPoint = "UnPlugForce")]
         private static extern UInt32 _UnPlugForce(UInt32 UserIndex);
 
         // Reset Devices
@@ -461,8 +461,8 @@ namespace vGenWrap
         public uint GetDevHatN(Int32 hDev, ref UInt32 nHat) { return _GetDevHatN(hDev, ref nHat); }
 
         // Position Setting
-        public uint SetDevButton(Int32 hDev, UInt32 Button, Boolean Press) { return _SetDevButton(hDev, Button, Press); }
-        public uint SetDevAxis(Int32 hDev, UInt32 Axis, Single Value) { return _SetDevAxis(hDev, Axis, Value); }
-        public uint SetDevPov(Int32 hDev, UInt32 nPov, Single Value) { return _SetDevPov(hDev, nPov, Value); }
+        public uint SetDevButton(Int32 hDev, UInt32 Button, bool Press) { return _SetDevButton(hDev, Button, Press); }
+        public uint SetDevAxis(Int32 hDev, UInt32 Axis, double Value) { return _SetDevAxis(hDev, Axis, (float)Value); }
+        public uint SetDevPov(Int32 hDev, UInt32 nPov, double Value) { return _SetDevPov(hDev, nPov, (float)Value); }
     }
 }

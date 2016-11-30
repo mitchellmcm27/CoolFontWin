@@ -69,38 +69,42 @@ namespace CFW.Business
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
-    public class VirtualDevice : IDisposable
+    public class VirtualDevice
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        private class VirtualDeviceState
+        {
+            public double X;
+            public double Y;
+            public double Z;
+            public double RX;
+            public double RY;
+            public double RZ;
+            public double Slider0;
+            public double Slider1;
+            public double POV;
+
+            public uint Buttons;
+            public byte bDevice;
+        }
+
         #region Init
 
         // private properties
-        private long MaxLX = 1;
-        private long MinLX = 1;
-        private long MaxLY = 1;
-        private long MinLY = 1;
-
-        private long MaxRX = 1;
-        private long MinRX = 1;
-        private long MaxRY = 1;
-        private long MinRY = 1;
-
-        private long MaxPov = 1;
-        private long MinPov = 1;
-
-        private long MaxLZ = 1;
-        private long MinLZ = 1;
-        private long MaxRZ = 1;
-        private long MinRZ = 1;
+        private double MaxAxis = 100.0;
+        private double MinAxis = 0.0;
+        private double MaxPov = 359.9;
+        private double MinPov = 0.0;
 
         private vDev Joystick;
         private DevType VDevType;
-        private vDev.JoystickState iReport;
+        private VirtualDeviceState iReport;
         private int ContPovNumber;
         private InputSimulator KbM;
         private MobileDevice CombinedDevice;
+        private int HDev;
 
         private bool LeftMouseButtonDown = false;
         private bool RightMoustButtonDown = false;
@@ -125,12 +129,12 @@ namespace CFW.Business
         public List<MobileDevice> DeviceList; // Mobile devices to expect
 
         public bool UserIsRunning = true;
-        public bool vJoyEnabled = false;
-        public bool vJoyAcquired = false;
+        public bool DriverEnabled = false;
+        public bool VDevAcquired = false;
         public bool CurrentModeIsFromPhone = false;
 
-        public int signX = -1; // allows axis inversion
-        public int signY = -1;
+        public int signX = 1; // allows axis inversion
+        public int signY = 1;
 
         public SimulatorMode Mode;
         private SimulatorMode OldMode;
@@ -152,15 +156,16 @@ namespace CFW.Business
 
             KbM = new InputSimulator();
             Joystick = new vDev();
-            iReport = new vDev.JoystickState();
+            iReport = new VirtualDeviceState();
             CombinedDevice = new MobileDevice();
 
             // DeviceManager will fill this list as needed
             DeviceList = new List<MobileDevice>();
 
             // Default boolean states
-            vJoyEnabled = false;
-            vJoyAcquired = false;
+            DriverEnabled = false;
+            VDevAcquired = false;
+            HDev = 0;
 
             // Zero out iReport
             ResetValues();
@@ -275,7 +280,7 @@ namespace CFW.Business
                 mode != SimulatorMode.ModePaused &&
                 mode != SimulatorMode.ModeMouse)
             {
-                return vJoyAcquired;
+                return VDevAcquired;
             }
             return true;
         }
@@ -327,7 +332,7 @@ namespace CFW.Business
 
             valsf[IndexOf.ValPOV] = avgPOV;
 
-            valsf = TranslateValuesForVJoy(ProcessValues(valsf)); // converts units for specific device (e.g. vJoy)  
+            valsf = TranslateValuesForVDev(ProcessValues(valsf)); // converts units for specific device (e.g. vJoy)  
 
             // Filtering
             for (int i = 0; i < IndexOf.ValCount; i++)
@@ -368,18 +373,14 @@ namespace CFW.Business
 
             valsf[0] = valsf[0] / 1000.0; // 0 to 1
 
-            if (valsf[0] > 0.1)
-            {
-            }
-
-            valsf[7] = Algorithm.WrapAngle(valsf[7] / 1000.0); // 0 to 360, do not Clamp
+            valsf[7] = Algorithm.WrapAngle(-valsf[7] / 1000.0); // 0 to 360, do not Clamp
 
 
             if (Mode == SimulatorMode.ModeJoystickDecoupled)
             {
                 // X and Y are determined by user direction and speed
-                valsf[1] = Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
-                valsf[2] = -Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                valsf[1] = -Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                valsf[2] = Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
             }
             else
             {
@@ -422,7 +423,7 @@ namespace CFW.Business
         }
 
         static private int MouseSens = 20;
-        private double[] TranslateValuesForVJoy(double[] valsf)
+        private double[] TranslateValuesForVDev(double[] valsf)
         {
             /* Goal: get data to the point where it can be added to the joystick device 
                 * Specific to particular joystick
@@ -437,25 +438,25 @@ namespace CFW.Business
             }
 
             // Y axis in some modes
-            valsf[0] = valsf[0] * MaxLY / 2;
+            valsf[0] = valsf[0] * MaxAxis / 2;
 
             // 3 axes
             if (Mode == SimulatorMode.ModeJoystickDecoupled)
             {
-                valsf[1] = valsf[1] * MaxLX / 2;
-                valsf[2] = valsf[2] * MaxLY / 2;
+                valsf[1] = valsf[1] * MaxAxis / 2;
+                valsf[2] = valsf[2] * MaxAxis / 2;
             }
             else
             {
-                valsf[1] = valsf[1] * MaxLX / 2 * 2; // max at half turn
-                valsf[2] = valsf[2] * MaxLY / 2 * 2;
+                valsf[1] = valsf[1] * MaxAxis / 2 * 2; // max at half turn
+                valsf[2] = valsf[2] * MaxAxis / 2 * 2;
             }
-            valsf[3] = valsf[3] * MaxRX / 2 * 2;
-            valsf[4] = valsf[4] * MaxRY / 2 * 2;
+            valsf[3] = valsf[3] * MaxAxis / 2 * 2;
+            valsf[4] = valsf[4] * MaxAxis / 2 * 2;
 
             // 2 triggers
-            valsf[5] = -valsf[5] * MaxLZ * 2; // max out at a quarter turn
-            valsf[6] = valsf[6] * MaxLZ * 2;
+            valsf[5] = -valsf[5] * MaxAxis * 2; // max out at a quarter turn
+            valsf[6] = valsf[6] * MaxAxis * 2;
 
             // POV hat
             valsf[7] = valsf[7] / 360 * MaxPov;
@@ -478,12 +479,13 @@ namespace CFW.Business
         public void ResetValues()
         {
             iReport.bDevice = (byte)Id;
-            iReport.AxisX = 0;
-            iReport.AxisY = 0;
-            iReport.AxisXRot = 0;
-            iReport.AxisYRot = 0;
-            iReport.AxisZ = 0;
-            iReport.AxisZRot = 0;
+            iReport.X = 0;
+            iReport.Y = 0;
+            iReport.Z = 0;
+            iReport.RX = 0;
+            iReport.RY = 0;
+            iReport.RZ = 0;
+            iReport.POV = -1;
 
             iReport.Buttons = 0;
         }
@@ -491,8 +493,8 @@ namespace CFW.Business
         static private double ThreshRun = 0.1;
         static private double ThreshWalk = 0.1;
         private void AddValues(double[] valsf)
-        {
-            /* Simply update joystick with vals */
+        { 
+            // Simply update iReport with values
             switch (Mode)
             {
                 case SimulatorMode.ModeWASD:
@@ -518,23 +520,23 @@ namespace CFW.Business
                 case SimulatorMode.ModeJoystickCoupled:
 
                     /* no strafing */
-                    iReport.AxisY += (int)(signY * valsf[IndexOf.ValVelocity]);
-                    iReport.bHats = (uint)(valsf[IndexOf.ValPOV]);
+                    iReport.Y += signY * valsf[IndexOf.ValVelocity];
+                    iReport.POV = valsf[IndexOf.ValPOV];
                     break;
 
                 case SimulatorMode.ModeJoystickDecoupled:
 
                     /* strafing but no turning*/
-                    iReport.AxisX += (int)(signX * valsf[IndexOf.ValX]);
-                    iReport.AxisY += (int)(signY * valsf[IndexOf.ValY]);
-                    iReport.bHats = (uint)(valsf[IndexOf.ValPOV]);
+                    iReport.X += signX * valsf[IndexOf.ValX];
+                    iReport.Y += signY * valsf[IndexOf.ValY];
+                    iReport.POV = valsf[IndexOf.ValPOV];
                     break;
 
                 case SimulatorMode.ModeJoystickTurn:
 
                     // still in testing
-                    iReport.AxisY += signY * (int)valsf[0];
-                    iReport.bHats = (uint)valsf[7];
+                    iReport.Y += signY * valsf[0];
+                    iReport.POV = valsf[7];
 
                     KbM.Mouse.MoveMouseBy(-(int)valsf[9], // negative because device is not assumed upside down
                                             0); // dx, dy (pixels)
@@ -546,13 +548,13 @@ namespace CFW.Business
                     // Full gamepad simulation
                     // NOT FINISHED YET
 
-                    iReport.AxisX += -signX * (int)valsf[1];
-                    iReport.AxisY += signY * (int)valsf[2];
-                    iReport.AxisXRot += (int)valsf[3];
-                    iReport.AxisYRot += -(int)valsf[4];
-                    iReport.AxisZ += (int)valsf[6];
-                    iReport.AxisZRot += (int)valsf[5];
-                    iReport.bHats = (uint)valsf[7];
+                    iReport.X += signX * valsf[1];
+                    iReport.Y += signY * valsf[2];
+                    iReport.RX += valsf[3];
+                    iReport.RY += -valsf[4];
+                    iReport.Z += valsf[6];
+                    iReport.RZ += valsf[5];
+                    iReport.POV = valsf[7];
                     break;
 
                 case SimulatorMode.ModeMouse:
@@ -566,13 +568,12 @@ namespace CFW.Business
 
         public void AddJoystickConstants()
         {
-            iReport.AxisX += (int)MaxLX / 2;
-            iReport.AxisY += (int)MaxLY / 2;
-            iReport.AxisXRot += (int)MaxRX / 2;
-            iReport.AxisYRot += (int)MaxLY / 2;
-
-            iReport.AxisZ += (int)MaxLZ / 2;
-            iReport.AxisZRot += (int)MaxRZ / 2;
+            iReport.X += MaxAxis / 2;
+            iReport.Y += MaxAxis / 2;
+            iReport.RX += MaxAxis / 2;
+            iReport.RY += MaxAxis / 2;   
+            iReport.Z += MaxAxis / 2;
+            iReport.RZ += MaxAxis / 2;
         }
 
         private void AddButtons(int buttonsDown)
@@ -624,22 +625,22 @@ namespace CFW.Business
             log.Info("Feeding vJoy device with neutral values.");
             ResetValues();
             AddJoystickConstants();
-            FeedVJoy();
+            FeedVDev();
             ResetValues();
         }
 
         public void AddControllerState(State state)
         {
-            iReport.AxisX += state.Gamepad.LeftThumbX / 2;
-            iReport.AxisY -= state.Gamepad.LeftThumbY / 2; // inverted 
-            iReport.AxisXRot += state.Gamepad.RightThumbX / 2;
-            iReport.AxisYRot += state.Gamepad.RightThumbY / 2;
-            iReport.AxisZ += state.Gamepad.LeftTrigger; // not the right scale
-            iReport.AxisZRot += state.Gamepad.RightTrigger; // not the right scale
+            iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2 + 50;
+            iReport.Y -= state.Gamepad.LeftThumbY / 327.68 / 2 + 50;
+            iReport.RX += state.Gamepad.RightThumbX / 327.68 / 2 + 50;
+            iReport.RY += state.Gamepad.RightThumbY / 327.68 / 2 + 50;
+            iReport.Z += state.Gamepad.LeftTrigger / 2.55; // not the right scale
+            iReport.RZ += state.Gamepad.RightTrigger / 2.55; // not the right scale
             iReport.Buttons = iReport.Buttons | (uint)state.Gamepad.Buttons;
         }
 
-        public void FeedVJoy()
+        public void FeedVDev()
         {
             if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD)
             {
@@ -649,9 +650,17 @@ namespace CFW.Business
             // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
             AddJoystickConstants();
 
-            //Feed the driver with the position packet - ignore failures
-            if (!Joystick.UpdateVJD(Id, ref iReport))
+            Joystick.SetDevAxis(HDev, 1, iReport.X);
+            Joystick.SetDevAxis(HDev, 2, iReport.Y);
+            Joystick.SetDevAxis(HDev, 3, iReport.Z);
+            Joystick.SetDevAxis(HDev, 4, iReport.RX);
+            Joystick.SetDevAxis(HDev, 5, iReport.RY);
+            Joystick.SetDevAxis(HDev, 6, iReport.RZ);
+            //Joystick.SetDevButton(HDev, iReport.Buttons, true);
+
+            if (this.VDevType == DevType.vJoy)
             {
+                Joystick.SetDevPov(this.HDev, 1, iReport.POV);
             }
         }
 
@@ -663,50 +672,57 @@ namespace CFW.Business
         /// </summary>
         /// <param name="id">vJoy device ID (1-16)</param>
         /// <returns>Boolean indicating if device was acquired.</returns>
-        public bool SwapToVJoyDevice(uint id)
+        public bool SwapToVDev(uint id)
         {
-            log.Info("Will try to acquire device " + id.ToString() + " and return result.");
-            if (vJoyAcquired)
+
+            DevType devType;
+            if (id > 1000)
             {
-                log.Info("First, relinquishing device " + this.Id.ToString());
+                devType = DevType.vXbox;
+                id -= 1000;
+            }
+            else
+            {
+                devType = DevType.vJoy;
+            }
+
+            log.Info("Will try to acquire " + (devType==DevType.vJoy ? "vJoy":"xBox") + " device " + Id.ToString() + " and return result.");
+            if (VDevAcquired)
+            {
+                log.Info("First, relinquishing " + (VDevType == DevType.vJoy ? "vJoy" : "xBox") + " device " + Id.ToString());
                 Joystick.ResetAll();
-                Joystick.RelinquishVJD(this.Id);
-                vJoyAcquired = false;
+                Joystick.RelinquishDev(HDev);
+                VDevAcquired = false;
             }
 
-            if (this.VDevType == DevType.vJoy && (id < 1 || id > 16) // vjoy
+        
+            if (devType == DevType.vJoy && (id < 1 || id > 16) // vjoy
                 ||
-                this.VDevType == DevType.vXbox && (id < 1000 || id > 1004)) // xbox
+                devType == DevType.vXbox && (id < 1|| id > 4)) // xbox
             {
-                log.Debug("Device index " + id + " was invalid. Returning false.");
+                log.Debug("SwapToVJoyDevice: Device index " + id + " was invalid. Returning false.");
                 return false;
             }
 
-            if (!IsVJoyDriverEnabled())
+            if (!IsDriverEnabled(devType))
             {
-                vJoyEnabled = false;
-                log.Debug("vJoy not enabled. I could try to enable it in the future. Returning false.");
+                DriverEnabled = false;
+                log.Debug("Correc driver not enabled. I could try to enable it in the future. Returning false.");
                 return false;
             }
 
-            vJoyEnabled = true;
+            DriverEnabled = true;
 
-            if (!IsVJoyDeviceOwnedOrFree(id))
+            if (AcquireDevice(id, devType))
             {
-                log.Debug("Chosen device is is not free! Returning false");
-                return false;
-                // return AcquireUnusedVJoyDevice();
-            }
-
-            if (AcquireVJoyDevice(id))
-            {
-                log.Info("Successfully acquired device " + id + ". Returning true.");
-                this.Id = id;
-                vJoyAcquired = true;
+                log.Info("Successfully acquired " + (devType == DevType.vJoy ? "vJoy" : "xBox") + " device " + id + ". Returning true.");
+                this.VDevType = devType;
+                this.Id = devType==DevType.vXbox ? id+1000 : id;
+                this.VDevAcquired = true;
                 GetJoystickProperties(id);
                 ResetValues();
                 AddJoystickConstants();
-                Joystick.UpdateVJD(Id, ref iReport);
+                Joystick.ResetAll();
                 return true;
             }
             return false;
@@ -719,137 +735,115 @@ namespace CFW.Business
         private bool AcquireUnusedVJoyDevice()
         {
             log.Info("Will acquire first available vJoy device");
-            vJoyAcquired = false;
+            VDevAcquired = false;
 
             // find a disabled device
             for (int i = 1; i <= 16; i++)
             {
-                if (IsVJoyDeviceDisabled((uint)i))
+               
+                // acquire device
+                if (EnableDefaultVJoyDevice((uint)i))
                 {
-                    // acquire device
-                    if (EnableDefaultVJoyDevice((uint)i))
+                    if (AcquireDevice((uint)i, DevType.vJoy))
                     {
-                        if (AcquireVJoyDevice((uint)i))
-                        {
-                            log.Info("Acquired device " + i);
-                            this.Id = (uint)i;
-                            vJoyAcquired = true;
-                            GetJoystickProperties((uint)i);
-                            ResetValues();
-                            AddJoystickConstants();
-                            Joystick.UpdateVJD(Id, ref iReport);
-                        }
+                        log.Info("Acquired device " + i);
+                        this.Id = (uint)i;
+                        VDevAcquired = true;
+                        GetJoystickProperties((uint)i);
+                        ResetValues();
+                        AddJoystickConstants();
+                        Joystick.ResetAll();
                     }
                 }
+                
             }
             return false;
         }
 
-        private bool IsVJoyDriverEnabled()
+        private bool IsDriverEnabled(DevType devType)
         {
-            // Get the driver attributes (Vendor ID, Product ID, Version Number)
-            if (!Joystick.vJoyEnabled() || !Joystick.isVBusExist())
+            switch (devType)
             {
-                log.Info("vJoy driver not enabled: Failed Getting vJoy attributes.\n");
-                return false;
+                case DevType.vJoy:
+                    if (!Joystick.vJoyEnabled())
+                    {
+                        log.Info("vJoy driver not enabled: Failed Getting vJoy attributes.");
+                        return false;
+                    }
+                    break;
+
+                case DevType.vXbox:
+                    if (!Joystick.isVBusExist())
+                    {
+                        log.Info("ScpVBus driver not installed!");
+                        return false;
+                    }
+                    else
+                    {
+                        byte nSlots = 0;
+                        Joystick.GetNumEmptyBusSlots(ref nSlots);
+                        log.Info("ScpVBus enabled with " + nSlots.ToString() + " empty bus slots.");
+                    }
+                    break;
             }
-            else
-            {
-                //  vjoy only
-                // log.Info(String.Format("Vendor: {0}\nProduct :{1}\nVersion Number:{2}\n", Joystick.GetvJoyManufacturerString(), Joystick.GetvJoyProductString(), Joystick.GetvJoySerialNumberString()));
-            }
             return true;
         }
 
-        private bool IsVJoyDeviceOwnedOrFree(uint id)
+        private bool AcquireDevice(uint id, DevType devType)
         {
-            // Get the state of the requested device
-            VjdStat status = Joystick.GetVJDStatus(id);
-
-            switch (status)
-            {
-                case VjdStat.VJD_STAT_OWN:
-                    log.Info(String.Format("vJoy Device {0} is already owned by this feeder\n", id));
-                    break;
-                case VjdStat.VJD_STAT_FREE:
-                    log.Info(String.Format("vJoy Device {0} is free\n", id));
-                    break;
-                case VjdStat.VJD_STAT_BUSY:
-                    log.Info(String.Format("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id));
-                    return false;
-                case VjdStat.VJD_STAT_MISS:
-                    log.Info(String.Format("vJoy Device {0} is not installed or disabled\nCannot continue\n", id));
-                    return false;
-                default:
-                    log.Info(String.Format("vJoy Device {0} general error\nCannot continue\n", id));
-                    return false;
-            };
-            return true;
-        }
-
-        private bool IsVJoyDeviceDisabled(uint id)
-        {
-            // Get the state of the requested device
-            VjdStat status = Joystick.GetVJDStatus(id);
-            switch (status)
-            {
-                case VjdStat.VJD_STAT_OWN:
-                    log.Info(String.Format("vJoy Device {0} is already owned by this feeder\n", id));
-                    return false;
-                case VjdStat.VJD_STAT_FREE:
-                    log.Info(String.Format("vJoy Device {0} is free\n", id));
-                    return false;
-                case VjdStat.VJD_STAT_BUSY:
-                    log.Info(String.Format("vJoy Device {0} is already owned by another feeder\nCannot continue\n", id));
-                    return false;
-                case VjdStat.VJD_STAT_MISS:
-                    log.Info(String.Format("vJoy Device {0} is not installed or disabled\nCannot continue\n", id));
-                    break;
-                default:
-                    log.Info(String.Format("vJoy Device {0} general error\nCannot continue\n", id));
-                    return false;
-            };
-            return true;
-        }
-
-        private bool AcquireVJoyDevice(uint id)
-        {
-            if (this.VDevType == DevType.vJoy && (id < 1 || id > 16) // vjoy
+            if (devType == DevType.vJoy && (id < 1 || id > 16) // vjoy
                 ||
-                this.VDevType == DevType.vXbox && (id < 1000 || id > 1004)) // xbox
+                devType == DevType.vXbox && (id < 1 || id > 4)) // xbox
             {
-                log.Debug("Device index " + id + " was invalid. Returning false.");
+                log.Debug("AcquireVJoyDevice: Device index " + id + " was invalid. Returning false.");
                 return false;
             }
 
             bool owned = false;
             bool free = false;
             bool exist = false;
-            Joystick.isDevOwned((uint)id, DevType.vXbox, ref owned);
-            Joystick.isDevFree((uint)id, DevType.vXbox, ref free);
-            Joystick.isDevExist((uint)id, DevType.vXbox, ref exist);
+            Joystick.isDevOwned((uint)id, devType, ref owned);
+            Joystick.isDevFree((uint)id, devType, ref free);
+            Joystick.isDevExist((uint)id, devType, ref exist);
 
-            int hDev = 0;
-            Joystick.GetDevHandle(id, this.VDevType, ref hDev);
+            //Test if DLL matches the driver
+            short DllVer = 0, DrvVer = 0;
+            DrvVer = Joystick.GetvJoyVersion();
+            log.Info("vJoy version " + DrvVer.ToString());
 
-            // Check which axes are supported
+            // Acquire the target (sets hDev)
+            Joystick.AcquireDev(id, devType, ref this.HDev);
+            if (owned || (free && HDev == 0))
+            {
+                log.Info(String.Format("Failed to acquire " + (devType==DevType.vXbox?"xBox":"vJoy") + " device number {0}.\n", id));
+                return false;
+            }
+            else
+            {
+                log.Info(String.Format("Acquired: " + (devType == DevType.vXbox ? "xBox" : "vJoy") + " device number {0}.\n", id));
+            }
+
+
             bool AxisX = false;
-            Joystick.isAxisExist(hDev, (uint)HID_USAGES.HID_USAGE_X, ref AxisX);
+            Joystick.isAxisExist(HDev, 1, ref AxisX);
             bool AxisY = false;
-            Joystick.isAxisExist(hDev, (uint)HID_USAGES.HID_USAGE_Y, ref AxisY);
+            Joystick.isAxisExist(HDev, 2, ref AxisY);
             bool AxisZ = false;
-            Joystick.isAxisExist(hDev, (uint)HID_USAGES.HID_USAGE_Z, ref AxisZ);
+            Joystick.isAxisExist(HDev, 3, ref AxisZ);
             bool AxisRX = false;
-            Joystick.isAxisExist(hDev, (uint)HID_USAGES.HID_USAGE_RX, ref AxisRX);
+            Joystick.isAxisExist(HDev, 4, ref AxisRX);
+            bool AxisRY = false;
+            Joystick.isAxisExist(HDev, 5, ref AxisRY);
             bool AxisRZ = false;
-            Joystick.isAxisExist(hDev, (uint)HID_USAGES.HID_USAGE_RZ, ref AxisRZ);
+            Joystick.isAxisExist(HDev, 6, ref AxisRZ);
             // Get the number of buttons and POV Hat switchessupported by this vJoy device
             uint nBtn = 0;
-            Joystick.GetDevButtonN(hDev, ref nBtn);
+            Joystick.GetDevButtonN(HDev, ref nBtn);
             uint nHat = 0;
-            Joystick.GetDevHatN(hDev, ref nHat);
+            Joystick.GetDevHatN(HDev, ref nHat);
 
             int DiscPovNumber = Joystick.GetVJDDiscPovNumber(id);
+
 
             // Print results
             log.Info(String.Format("\nDevice {0} capabilities:\n", id));
@@ -861,33 +855,7 @@ namespace CFW.Business
             log.Info(String.Format("Axis Z\t\t{0}\n", AxisX ? "Yes" : "No"));
             log.Info(String.Format("Axis Rx\t\t{0}\n", AxisRX ? "Yes" : "No"));
             log.Info(String.Format("Axis Rz\t\t{0}\n", AxisRZ ? "Yes" : "No"));
-
-            // Test if DLL matches the driver
-            //UInt32 DllVer = 0, DrvVer = 0;
-            //bool match = Joystick.DriverMatch(ref DllVer, ref DrvVer);
-            //if (match)
-            //{
-            //    log.Info(String.Format("Version of Driver Matches DLL Version ({0:X})\n", DllVer));
-            //}
-            //else
-            //{
-            //    log.Info(String.Format("Version of Driver ({0:X}) does NOT match DLL Version ({1:X})\n", DrvVer, DllVer));
-            //}
-
-
-            // Acquire the target
-            // sets hDev
-            Joystick.AcquireDev(id, this.VDevType, ref hDev);
-            if (owned || (free && hDev==0))
-            {
-                log.Info(String.Format("Failed to acquire vJoy device number {0}.\n", id));
-                return false;
-            }
-            else
-            {
-                log.Info(String.Format("Acquired: vJoy device number {0}.\n", id));
-            }
-
+      
             return true;
         }
 
@@ -895,23 +863,6 @@ namespace CFW.Business
         {
             // Get max range of joysticks
             // Neutral position is max/2
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_X, ref MaxLX);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_X, ref MinLX);
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Y, ref MaxLY);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_Y, ref MinLY);
-
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RX, ref MaxRX);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RX, ref MinRX);
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RY, ref MaxRY);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RY, ref MinRY);
-
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_POV, ref MaxPov);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_POV, ref MinPov);
-
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_Z, ref MaxLZ);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_Z, ref MinLZ);
-            Joystick.GetVJDAxisMax(id, HID_USAGES.HID_USAGE_RZ, ref MaxRZ);
-            Joystick.GetVJDAxisMin(id, HID_USAGES.HID_USAGE_RZ, ref MinRZ);
             ContPovNumber = Joystick.GetVJDContPovNumber(id);
         }
 
@@ -919,30 +870,31 @@ namespace CFW.Business
         {
             List<int> enabledDevs = new List<int>();
 
-            if (!Joystick.vJoyEnabled()) return enabledDevs;
             bool owned=false;
             bool exist=false;
             bool free=false;
 
+            // loop through possible vJoy devices
             for (int i = 1; i <= 16; i++)
             {
                 Joystick.isDevOwned((uint)i, DevType.vJoy, ref owned);
                 Joystick.isDevFree((uint)i, DevType.vJoy, ref free);
                 Joystick.isDevExist((uint)i, DevType.vJoy, ref exist);
 
-                if (exist && free && !owned)
+                if (free || owned)
                 {
                     enabledDevs.Add(i);
                 }
             }
 
+            // loop through possible Xbox devices
             for (int i = 1; i <= 4; i++)
             {
                 Joystick.isDevOwned((uint)i, DevType.vXbox, ref owned);
                 Joystick.isDevFree((uint)i, DevType.vXbox, ref free);
                 Joystick.isDevExist((uint)i, DevType.vXbox, ref exist);
 
-                if (exist && free && !owned)
+                if (free || owned)
                 {
                     enabledDevs.Add(i+1000);
                 }
@@ -1002,9 +954,10 @@ namespace CFW.Business
         public void RelinquishCurrentDevice()
         {
             Joystick.ResetAll();
-            Joystick.RelinquishDev((int)this.Id);
-            this.Id = 0;
-            vJoyAcquired = false;
+            Joystick.RelinquishDev(HDev);
+            Id = 0;
+            HDev = 0;
+            VDevAcquired = false;
         }
 
         public void DeleteVJoyDevice(uint id)
@@ -1042,13 +995,6 @@ namespace CFW.Business
             }
         }
         #endregion
-
-        public void Dispose()
-        {
-            log.Info("Relinquish VJD " + Id.ToString());
-            Joystick.ResetAll();
-            Joystick.RelinquishDev((int)this.Id);
-        }
     }
     
 }

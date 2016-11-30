@@ -287,7 +287,7 @@ namespace CFW.Business
                 Properties.Settings.Default.Save();
             }
 
-            if (SharedDeviceManager.AcquireVJoyDevice((uint)id))
+            if (SharedDeviceManager.AcquireVDev((uint)id))
             {
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
@@ -350,7 +350,7 @@ namespace CFW.Business
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
-            ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select a vJoy device", Properties.Settings.Default.VJoyID));
+            ToolStripMenuItem vJoySelectSubMenu = new ToolStripMenuItem(String.Format("Select an output device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 vJoySelectSubMenu.Image = Properties.Resources.ic_error_outline_orange_18dp;
@@ -361,23 +361,49 @@ namespace CFW.Business
             {
                 vJoySelectSubMenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 vJoySelectSubMenu.ImageAlign = ContentAlignment.MiddleCenter;
-                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(SharedDeviceManager.CurrentDeviceID.ToString(), Colors.IconBlue);
+                uint id = SharedDeviceManager.CurrentDeviceID;
+                string idString;
+                Color idColor;
+                if (id>1000)
+                {
+                    idString = string.Format("X{0}", id - 1000);
+                    idColor = Color.LimeGreen;
+                }
+                else
+                {
+                    idString = id.ToString();
+                    idColor = Colors.IconBlue;
+                }
+                vJoySelectSubMenu.Image = Drawing.CreateBitmapImage(idString, idColor);
             }
 
-            ToolStripItem[] deviceIDItems = new ToolStripItem[17];
-            for (int i = 0; i < 17; i++)
+            List<ToolStripItem> deviceIDItems = new List<ToolStripItem>();
+            List<int> validDevIDList = new List<int> { 0, // none
+                                                       1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, // vJoy
+                                                       1001, 1002, 1003, 1004 // vXbox
+                                                      };
+            foreach (int i in validDevIDList)
             {
                 // valid vjoy IDs are 1-16
 
                 var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
                 item.Tag = i;
-                item.Enabled = SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
+                item.Visible = SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
 
                 // 0 is to remove vJoy devices
                 if (i == 0)
                 {
                     item.Text = "None";
                     item.Enabled = true;
+                    item.Visible = true;
+                }
+                else if (i<=1000)
+                {
+                    item.Text = "vJoy " + (i);
+                }  
+                else
+                {
+                    item.Text = "Xbox " + (i - 1000);
                 }
 
                 if (i == SharedDeviceManager.CurrentDeviceID)
@@ -387,9 +413,10 @@ namespace CFW.Business
                     item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_done_blue_16dp;
                 }
 
-                deviceIDItems[i] = item;
+                deviceIDItems.Add(item);
             }
-            vJoySelectSubMenu.DropDownItems.AddRange(deviceIDItems);
+            
+            vJoySelectSubMenu.DropDownItems.AddRange(deviceIDItems.ToArray());
 
             // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
