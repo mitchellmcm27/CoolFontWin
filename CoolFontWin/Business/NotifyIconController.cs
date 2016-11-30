@@ -494,7 +494,7 @@ namespace CFW.Business
             }
             if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
-                addRemoveXboxControllerItem.Image = Properties.Resources.ic_clear_orange_18dp;
+                addRemoveXboxControllerItem.Image = Properties.Resources.ic_close_orange_18dp;
                 //addRemoveXboxControllerItem.Tag = "alert";
             }
             else

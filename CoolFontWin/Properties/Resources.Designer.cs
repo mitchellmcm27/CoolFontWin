@@ -81,16 +81,6 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap circle_tilted_01 {
-            get {
-                object obj = ResourceManager.GetObject("circle tilted-01", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap ic_build_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_build_white_18dp", resourceCulture);
@@ -111,9 +101,9 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ic_clear_orange_18dp {
+        internal static System.Drawing.Bitmap ic_clear_white_18dp {
             get {
-                object obj = ResourceManager.GetObject("ic_clear_orange_18dp", resourceCulture);
+                object obj = ResourceManager.GetObject("ic_clear_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -121,9 +111,9 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ic_clear_white_18dp {
+        internal static System.Drawing.Bitmap ic_close_orange_18dp {
             get {
-                object obj = ResourceManager.GetObject("ic_clear_white_18dp", resourceCulture);
+                object obj = ResourceManager.GetObject("ic_close_orange_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
