@@ -30,7 +30,7 @@
     <MinimumRequiredVersion>0.1.0.8</MinimumRequiredVersion>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>17</ApplicationRevision>
-    <ApplicationVersion>0.2.4.%2a</ApplicationVersion>
+    <ApplicationVersion>0.2.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -405,7 +405,7 @@
     </BootstrapperPackage>
     <BootstrapperPackage Include="CoolFontWin.Dependencies">
       <Visible>False</Visible>
-      <ProductName>cfwdependencies</ProductName>
+      <ProductName>CoolFontWin Dependencies</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
