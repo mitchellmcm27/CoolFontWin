@@ -33,9 +33,9 @@ namespace CFW.Business
             return ang;
         }
 
-        public static double Clamp(double val, double min, double max)
+        public static double Clamp(double n, double lower, double upper)
         {
-            return val <= min ? min : val >= max ? max : val;
+            return n <= lower ? lower : n >= upper ? upper : n;
         }
     }
 }
