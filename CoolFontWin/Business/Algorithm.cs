@@ -35,7 +35,7 @@ namespace CFW.Business
 
         public static double Clamp(double val, double min, double max)
         {
-            return Math.Min(Math.Max(val, min), max);
+            return val <= min ? min : val >= max ? max : val;
         }
     }
 }
