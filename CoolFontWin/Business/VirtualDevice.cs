@@ -592,10 +592,13 @@ namespace CFW.Business
 
         public void AddJoystickConstants()
         {
+            // 50
             iReport.X += MaxAxis / 2;
             iReport.Y += MaxAxis / 2;
             iReport.RX += MaxAxis / 2;
             iReport.RY += MaxAxis / 2;
+
+            // 0
             iReport.Z += 0;
             iReport.RZ += 0;
         }
@@ -648,19 +651,22 @@ namespace CFW.Business
         {
             log.Info("Feeding vJoy device with neutral values.");
             ResetValues();
-            AddJoystickConstants();
             FeedVDev();
             ResetValues();
         }
 
         public void AddControllerState(State state)
         {
-            iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2 ;
-            iReport.Y += state.Gamepad.LeftThumbY / 327.68 / 2 ;
-            iReport.RX += state.Gamepad.RightThumbX / 327.68 / 2 ;
-            iReport.RY += state.Gamepad.RightThumbY / 327.68 / 2 ;
-            iReport.Z += state.Gamepad.RightTrigger / 2.55; // not the right scale
-            iReport.RZ += state.Gamepad.LeftTrigger / 2.55; // not the right scale
+            // -50 to 50
+            iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2;
+            iReport.Y += state.Gamepad.LeftThumbY / 327.68 / 2;
+            iReport.RX += state.Gamepad.RightThumbX / 327.68 / 2;
+            iReport.RY += state.Gamepad.RightThumbY / 327.68 / 2;
+
+            // 0 to 100
+            iReport.Z += state.Gamepad.RightTrigger / 2.55; 
+            iReport.RZ += state.Gamepad.LeftTrigger / 2.55; 
+
             iReport.Buttons = iReport.Buttons | (uint)state.Gamepad.Buttons;
         }
 
@@ -673,6 +679,14 @@ namespace CFW.Business
 
             // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
             AddJoystickConstants();
+
+            // clamp values to min/max
+            iReport.X = Algorithm.Clamp(iReport.X, MinAxis, MaxAxis);
+            iReport.Y = Algorithm.Clamp(iReport.Y, MinAxis, MaxAxis);
+            iReport.RX = Algorithm.Clamp(iReport.RX, MinAxis, MaxAxis);
+            iReport.RY = Algorithm.Clamp(iReport.RY, MinAxis, MaxAxis);
+            iReport.Z = Algorithm.Clamp(iReport.Z, 0, 255);
+            iReport.RZ = Algorithm.Clamp(iReport.RZ, 0, 255);
 
             Joystick.SetDevAxis(HDev, 1, iReport.X);
             Joystick.SetDevAxis(HDev, 2, iReport.Y);
@@ -793,7 +807,6 @@ namespace CFW.Business
                 this.VDevAcquired = true;
                 GetJoystickProperties(id);
                 ResetValues();
-                AddJoystickConstants();
                 Joystick.ResetAll();
                 return true;
             }
@@ -823,7 +836,6 @@ namespace CFW.Business
                         VDevAcquired = true;
                         GetJoystickProperties((uint)i);
                         ResetValues();
-                        AddJoystickConstants();
                         Joystick.ResetAll();
                     }
                 }

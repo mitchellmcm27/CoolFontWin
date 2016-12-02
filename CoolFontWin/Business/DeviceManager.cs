@@ -200,17 +200,27 @@ namespace CFW.Business
         /// <returns>Returns boolean indicating if a controller was acquired.</returns>
         public bool AcquireXInputDevice()
         {
+            uint id = VDevice.Id;
+            ForceUnplugAllXboxControllers();
+
             XInputDeviceConnected = false;
             XDevice = XMgr.getController();
 
+            bool success = false;
             if (XDevice != null && XDevice.IsConnected)
             {
                 XInputDeviceConnected = true;
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                return true;
+                success = true;
             }
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-            return false;
+            else
+            {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+                success = false;
+            }
+
+            AcquireVDev(id);
+            return success;
         }
 
         /// <summary>
