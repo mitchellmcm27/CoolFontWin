@@ -531,12 +531,12 @@ namespace CFW.Business
                     }
                     else if (valsf[0] <= VirtualDevice.ThreshRun)
                     {
-                        SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
+                        //SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
                         //KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = false;
                     }
 
-                    if (false) //TODO: Implement jumping on iPhone
+                    if (false) // TODO: Implement jumping on iPhone
                     {
                         KbM.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
