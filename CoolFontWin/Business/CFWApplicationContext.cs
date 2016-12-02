@@ -230,9 +230,6 @@ namespace CFW.Business
         {
             e.Cancel = false;
 
-            // TODO:
-            // http://stackoverflow.com/questions/262280/how-can-i-know-if-a-process-is-running
-
             bool steamVRRunning =  Process.GetProcessesByName("VRServer").Length>0;
             bool oculusHomeRunning = Process.GetProcessesByName("OculusVR").Length>0; // correct process name?
             if (steamVRRunning || oculusHomeRunning)
@@ -265,6 +262,7 @@ namespace CFW.Business
 
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
 
+            // Add VDevice handling items
             Cfw.AddToContextMenu(NotifyIcon.ContextMenuStrip);
 
             ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
@@ -302,7 +300,6 @@ namespace CFW.Business
             if (e.Button == MouseButtons.Left)
             {
                 MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-
                 mi.Invoke(NotifyIcon, null);
             }
             else if (e.Button == MouseButtons.Right)

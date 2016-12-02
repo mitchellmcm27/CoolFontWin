@@ -303,7 +303,15 @@ namespace CFW.Business
                 mode != SimulatorMode.ModePaused &&
                 mode != SimulatorMode.ModeMouse)
             {
-                return VDevAcquired;
+                if (VDevAcquired)
+                {
+                    return true;
+                }
+                else
+                {
+                    return AcquireUnusedVDev();
+                }
+         
             }
             return true;
         }
@@ -818,29 +826,24 @@ namespace CFW.Business
         /// Loop through vJoy devices, find the first disabled device. Enable, config, and acquire it.
         /// </summary>
         /// <returns>Bool indicating if device was found, enabled, created, and acquired. </returns>
-        private bool AcquireUnusedVJoyDevice()
+        public bool AcquireUnusedVDev()
         {
-            log.Info("Will acquire first available vJoy device");
+            log.Info("Will acquire first available vXbox device");
             VDevAcquired = false;
 
             // find a disabled device
-            for (int i = 1; i <= 16; i++)
+            for (uint i = 1; i <= 4; i++)
             {
-               
-                // acquire device
-                if (EnableDefaultVJoyDevice((uint)i))
+                if (AcquireDevice(i, DevType.vXbox))
                 {
-                    if (AcquireDevice((uint)i, DevType.vJoy))
-                    {
-                        log.Info("Acquired device " + i);
-                        this.Id = (uint)i;
-                        VDevAcquired = true;
-                        GetJoystickProperties((uint)i);
-                        ResetValues();
-                        Joystick.ResetAll();
-                    }
-                }
-                
+                    log.Info("Acquired device " + i+1000);
+                    this.Id = i+1000;
+                    VDevAcquired = true;
+                    GetJoystickProperties(i);
+                    ResetValues();
+                    Joystick.ResetAll();
+                    return true;
+                } 
             }
             return false;
         }

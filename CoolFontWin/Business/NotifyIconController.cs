@@ -279,14 +279,14 @@ namespace CFW.Business
 
         private string AddRemoveXboxControllerString()
         {
-            if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
-            {
-                return "Joystick mode only";
-            }
-
             if (!SharedDeviceManager.InterceptXInputDevice)
             {
-                return "Capture Xbox controller input";
+                string str = "Capture physical Xbox controller";
+                if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
+                {
+                    str += "\n(Change to Joystick Mode)";
+                }
+                return str;
             }
             else
             {
@@ -333,7 +333,7 @@ namespace CFW.Business
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Ouput Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
             modeSelectSubmenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 #if DEBUG
@@ -395,7 +395,7 @@ namespace CFW.Business
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
-            ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output device", Properties.Settings.Default.VJoyID));
+            ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Virtual device", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
@@ -499,10 +499,6 @@ namespace CFW.Business
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
-            if (SharedDeviceManager.Mode==SimulatorMode.ModeWASD)
-            {
-                addRemoveXboxControllerItem.Enabled = false;
-            }
             if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_close_orange_18dp;

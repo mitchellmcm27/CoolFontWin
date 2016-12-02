@@ -86,11 +86,7 @@ namespace CFW.Business
             }
             set
             {
-                if (VDevice.Mode==SimulatorMode.ModeWASD)
-                {
-                    _InterceptXInputDevice = false;
-                }
-                else if (value==true)
+                if (value)
                 {
                     // acquire device
                     _InterceptXInputDevice = AcquireXInputDevice();
@@ -206,21 +202,29 @@ namespace CFW.Business
             XInputDeviceConnected = false;
             XDevice = XMgr.getController();
 
-            bool success = false;
+            bool xDeviceAcquired = false;
             if (XDevice != null && XDevice.IsConnected)
             {
                 XInputDeviceConnected = true;
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                success = true;
+                xDeviceAcquired = true;
             }
             else
             {
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-                success = false;
+                xDeviceAcquired = false;
             }
 
-            AcquireVDev(id);
-            return success;
+            if (id == 0)
+            {
+                VDevice.AcquireUnusedVDev();
+            }
+            else
+            {
+                AcquireVDev(id);
+            }
+
+            return xDeviceAcquired;
         }
 
         /// <summary>
