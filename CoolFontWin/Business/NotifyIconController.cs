@@ -527,7 +527,6 @@ namespace CFW.Business
                     smoothingDoubleItem,
                     smoothingHalfItem,
                     ConfigureOutputSubmenu,
-
                 });          
         }
 

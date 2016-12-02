@@ -74,7 +74,7 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private class VirtualDeviceState
+        public class VirtualDeviceState
         {
             public double X;
             public double Y;
@@ -91,7 +91,7 @@ namespace CFW.Business
             public byte bDevice;
         }
 
-        private enum wButtons
+        public enum wButtons
         {
             //  ButtonNone      = 0,
             ButtonUp = 1 << 0,  // 00000001 = 1
@@ -122,7 +122,7 @@ namespace CFW.Business
         private double MinPov = 0.0;
 
         private vDev Joystick;
-        private VirtualDeviceState iReport;
+        public VirtualDeviceState iReport;
         private int ContPovNumber;
         private InputSimulator KbM;
         private MobileDevice CombinedDevice;
@@ -339,6 +339,7 @@ namespace CFW.Business
             double[] valsf = new double[IndexOf.ValCount];
 
             // Add vals and buttons from Ready devices
+            CombinedDevice.Buttons = 0;
             for (int i = 0; i < DeviceList.Count; i++)
             {
                 if (!DeviceList[i].Ready) continue;
