@@ -531,15 +531,15 @@ namespace CFW.Business
             switch (Mode)
             {
                 case SimulatorMode.ModeWASD:
-                    if (valsf[0] > VirtualDevice.ThreshRun)
+                    if (valsf[0] > VirtualDevice.ThreshRun && !UserIsRunning)
                     {
                         SendInputWrapper.KeyDown(SendInputWrapper.ScanCodeShort.KEY_W);
                         //KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = true;
                     }
-                    else if (valsf[0] <= VirtualDevice.ThreshRun)
+                    else if (valsf[0] <= VirtualDevice.ThreshRun && UserIsRunning)
                     {
-                        //SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
+                        SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
                         //KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = false;
                     }
