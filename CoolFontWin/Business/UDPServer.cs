@@ -56,9 +56,9 @@ namespace CFW.Business
 
             // create IPv6 socket, and enable dual mode so that it supports IPv4
             this.ServerSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
-            this.ServerSocket.DualMode = true; // default is false
+            this.ServerSocket.DualMode = true; // ipv4 and v6; default is false
             this.ServerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            this.ServerSocket.EnableBroadcast = true; // default is false
+            this.ServerSocket.EnableBroadcast = false; // default is false
 
             this.ServerSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, this.Port));
             this.Port = ((IPEndPoint)this.ServerSocket.LocalEndPoint).Port;
