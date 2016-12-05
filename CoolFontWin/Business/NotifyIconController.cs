@@ -75,7 +75,8 @@ namespace CFW.Business
 
         private void Server_ClientAdded(object sender, EventArgs e)
         {
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
+            // Commented out because DeviceManager now plays sounds when devices come and go
+            // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
         }
 
         /// <summary>
