@@ -19,10 +19,10 @@ namespace CFW.Business
         [Description("Keyboard")]
         ModeWASD, // Use KB to run forward, mouse to turn
 
-        [Description("Joystick Coupled")]
+        [Description("Coupled gamepad")]
         ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
 
-        [Description("Joystick Decoupled")]
+        [Description("Decoupled gamepad")]
         ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
 
         [Description("Joystick+Mouse")]
@@ -836,7 +836,7 @@ namespace CFW.Business
             {
                 if (AcquireDevice(i, DevType.vXbox))
                 {
-                    log.Info("Acquired device " + i+1000);
+                    log.Info("Acquired device " + (i+1000).ToString());
                     this.Id = i+1000;
                     VDevAcquired = true;
                     GetJoystickProperties(i);
