@@ -269,30 +269,11 @@ namespace CFW.Business
             ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
             quitItem.Image = Properties.Resources.ic_close_orange_18dp;
             quitItem.ImageScaling = ToolStripItemImageScaling.None;
-            //quitItem.Tag = "alert"; // changes font color to orange
-
-            ToolStripMenuItem logItem = Cfw.ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
-            logItem.Image = Properties.Resources.ic_folder_open_white_18dp;
-            logItem.ImageScaling = ToolStripItemImageScaling.None;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), logItem, quitItem });
+                new ToolStripItem[] { new ToolStripSeparator(), quitItem });
 
          //   AddDebugMenuItems(); // called only if DEBUG is defined
-        }
-
-        private void ViewLog_Click(Object sender, EventArgs e)
-        {
-            try
-            {
-                string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                log.Info(path + "\\CoolFontWin\\Log.txt");
-                Process.Start(path + "\\CoolFontWin\\Log.txt");
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error opening Log.txt: " + ex);
-            }
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)

@@ -181,6 +181,26 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ic_input_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_input_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_keyboard_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_keyboard_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_launch_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_launch_white_18dp", resourceCulture);
@@ -214,6 +234,16 @@ namespace CFW.Properties {
         internal static System.Drawing.Bitmap ic_link_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_link_white_18dp", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ic_pause_white_18dp {
+            get {
+                object obj = ResourceManager.GetObject("ic_pause_white_18dp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

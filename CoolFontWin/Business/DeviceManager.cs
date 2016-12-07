@@ -197,23 +197,12 @@ namespace CFW.Business
         public bool AcquireXInputDevice()
         {
             uint id = VDevice.Id;
-            ForceUnplugAllXboxControllers();
-
+            ForceUnplugAllXboxControllers(silent: true);
+            
             XInputDeviceConnected = false;
-            XDevice = XMgr.getController();
-
             bool xDeviceAcquired = false;
-            if (XDevice != null && XDevice.IsConnected)
-            {
-                XInputDeviceConnected = true;
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                xDeviceAcquired = true;
-            }
-            else
-            {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-                xDeviceAcquired = false;
-            }
+
+            XDevice = XMgr.getController();
 
             if (id == 0)
             {
@@ -222,6 +211,18 @@ namespace CFW.Business
             else
             {
                 AcquireVDev(id);
+            }
+
+            if (XDevice != null && XDevice.IsConnected)
+            {
+                XInputDeviceConnected = true;
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good, afterMilliseconds: 1000);
+                xDeviceAcquired = true;
+            }
+            else
+            {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
+                xDeviceAcquired = false;
             }
 
             return xDeviceAcquired;
@@ -250,9 +251,9 @@ namespace CFW.Business
             return res;
         }
 
-        public void RelinquishCurrentDevice()
+        public void RelinquishCurrentDevice(bool silent=false)
         {
-            if (VDevice.VDevType == DevType.vJoy) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+            if (VDevice.VDevType == DevType.vJoy && !silent) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             VDevice.RelinquishCurrentDevice();
         }
 
@@ -342,9 +343,9 @@ namespace CFW.Business
             VDevice.FeedVDev();
         }
 
-        public void ForceUnplugAllXboxControllers()
+        public void ForceUnplugAllXboxControllers(bool silent = false)
         {
-            RelinquishCurrentDevice();
+            RelinquishCurrentDevice(silent);
             VDevice.ForceUnplugAllXboxControllers();
         }
 

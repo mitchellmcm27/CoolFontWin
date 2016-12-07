@@ -133,6 +133,23 @@ namespace CFW.Business
 
         #region ContextMenuStrip handlers and creation
 
+        private Image getImageFromMode(SimulatorMode mode)
+        {
+            switch (mode)
+            {
+                case SimulatorMode.ModeWASD:
+                    return Properties.Resources.ic_keyboard_white_18dp;
+                case SimulatorMode.ModeJoystickCoupled:
+                case SimulatorMode.ModeJoystickDecoupled:
+                case SimulatorMode.ModeJoystickTurn:
+                    return Properties.Resources.ic_videogame_asset_white_18dp;
+                case SimulatorMode.ModePaused:
+                    return Properties.Resources.ic_pause_white_18dp;
+                default:
+                    return null;
+            }
+        }
+
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
             SharedDeviceManager.SmoothingFactor *= 2;
@@ -148,8 +165,13 @@ namespace CFW.Business
             log.Debug(sender);
             bool res = SharedDeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
 
-            if (!res)
+            if (res)
             {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
+            }
+            else
+            {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 MessageBox.Show("Select an output device to use this mode.", "Unable to Switch Modes", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
@@ -254,17 +276,6 @@ namespace CFW.Business
             }
         }
 
-        private string AddRemoveMobileDeviceString()
-        {
-            if (DeviceNames.Count > 1)
-            {
-                return "Remove secondary phone";
-            }
-            else
-            {
-                return "Use 2 phones at once";
-            }
-        }
 
         private void addRemoveMobileDevice_Click(object sender, EventArgs e)
         {
@@ -280,19 +291,12 @@ namespace CFW.Business
 
         private string AddRemoveXboxControllerString()
         {
-            if (!SharedDeviceManager.InterceptXInputDevice)
+            string str = "Physical Xbox controller";
+            if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
             {
-                string str = "Capture physical Xbox controller";
-                if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
-                {
-                    str += "\n(Change to Joystick Mode)";
-                }
-                return str;
+                str += "\n(switch to gamepad)";
             }
-            else
-            {
-                return "Release Xbox controller";
-            }
+            return str; 
         }
 
         private void addRemoveXboxController_Click(object sender, EventArgs e)
@@ -326,6 +330,20 @@ namespace CFW.Business
             }
         }
 
+        private void ViewLog_Click(Object sender, EventArgs e)
+        {
+            try
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                log.Info(path + "\\CoolFontWin\\Log.txt");
+                System.Diagnostics.Process.Start(path + "\\CoolFontWin\\Log.txt");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error opening Log.txt: " + ex);
+            }
+        }
+
         /// <summary>
         /// Build most of the ContextMenuStrip items and add to menu.
         /// </summary>
@@ -334,8 +352,8 @@ namespace CFW.Business
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Ouput Mode - {0}", GetDescription(SharedDeviceManager.Mode)));
-            modeSelectSubmenu.Image = SharedDeviceManager.CurrentModeIsFromPhone ? Properties.Resources.ic_phone_iphone_white_18dp : Properties.Resources.ic_desktop_windows_white_18dp;
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", GetDescription(SharedDeviceManager.Mode)));
+            modeSelectSubmenu.Image = getImageFromMode(SharedDeviceManager.Mode);
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 #if DEBUG
             int numModes = (int)SimulatorMode.ModeCountDebug;
@@ -377,12 +395,23 @@ namespace CFW.Business
             vJoyMonItem.Image = Properties.Resources.ic_launch_white_18dp;
             vJoyMonItem.ImageScaling = ToolStripItemImageScaling.None;
 
-            ToolStripMenuItem unplugAllItem = ToolStripMenuItemWithHandler("Unplug all Xbox controllers", UnplugAll_Click);
-            unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
-            unplugAllItem.ImageScaling = ToolStripItemImageScaling.None;
+            // Smoothing factor adjustment - double or half
+            ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
+            smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.None;
+            smoothingDoubleItem.ImageAlign = ContentAlignment.MiddleCenter;
+            smoothingDoubleItem.Image = Drawing.CreateBitmapImage("+", Color.White);
 
-            ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Configure output");
-            ConfigureOutputSubmenu.Image = Properties.Resources.ic_build_white_18dp;
+            ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
+            smoothingHalfItem.ImageScaling = ToolStripItemImageScaling.None;
+            smoothingHalfItem.ImageAlign = ContentAlignment.MiddleCenter;
+            smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
+
+            ToolStripMenuItem logItem = ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
+            logItem.Image = Properties.Resources.ic_folder_open_white_18dp;
+            logItem.ImageScaling = ToolStripItemImageScaling.None;
+
+            ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Debug options");
+            ConfigureOutputSubmenu.Image = null;
             ConfigureOutputSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             ConfigureOutputSubmenu.DropDownItems.AddRange(new ToolStripItem[] {
                 fwdKeyItem,
@@ -392,11 +421,14 @@ namespace CFW.Business
                 vJoyConfItem,
                 vJoyMonItem,
                 new ToolStripSeparator(),
-                unplugAllItem,
+                smoothingDoubleItem,
+                smoothingHalfItem,
+                new ToolStripSeparator(),
+                logItem
             });
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
-            ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Virtual device", Properties.Settings.Default.VJoyID));
+            ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output virtual gamepad", Properties.Settings.Default.VJoyID));
             if (SharedDeviceManager.CurrentDeviceID == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
@@ -463,7 +495,7 @@ namespace CFW.Business
                 }  
                 else
                 {
-                    item.Text = "Xbox " + (i - 1000);
+                    item.Text = "vXbox " + (i - 1000);
                 }
 
                 if (i == SharedDeviceManager.CurrentDeviceID)
@@ -479,40 +511,39 @@ namespace CFW.Business
             
             outputSelectSubmenu.DropDownItems.AddRange(deviceIDItems.ToArray());
 
-            // Smoothing factor adjustment - double or half
-            ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
-            smoothingDoubleItem.ImageScaling = ToolStripItemImageScaling.None;
-            smoothingDoubleItem.ImageAlign = ContentAlignment.MiddleCenter;
-            smoothingDoubleItem.Image = Drawing.CreateBitmapImage("+", Color.White);
-            ToolStripMenuItem smoothingHalfItem = ToolStripMenuItemWithHandler("Decrease signal smoothing", SmoothingHalf_Click);
-            smoothingHalfItem.ImageScaling = ToolStripItemImageScaling.None;
-            smoothingHalfItem.ImageAlign = ContentAlignment.MiddleCenter;
-            smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
-
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
             ToolStripMenuItem inputSelectSubmenu = new ToolStripMenuItem(String.Format("Input devices"));
-            inputSelectSubmenu.Image = Properties.Resources.ic_phone_iphone_white_18dp;
+            inputSelectSubmenu.Image = Properties.Resources.ic_input_white_18dp;
             inputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
-            ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler(AddRemoveMobileDeviceString(), addRemoveMobileDevice_Click);
-            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_close_orange_18dp : Properties.Resources.ic_directions_run_white_18dp;
+            ToolStripMenuItem primaryMobileDeviceItem = new ToolStripMenuItem("Primary mobile device");
+            primaryMobileDeviceItem.Image = Properties.Resources.ic_check_blue_18dp;
+            primaryMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
+            primaryMobileDeviceItem.Enabled = false;
+
+            ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler("Secondary mobile device", addRemoveMobileDevice_Click);
+            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_check_blue_18dp : null;
             addRemoveMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
             if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
-                addRemoveXboxControllerItem.Image = Properties.Resources.ic_close_orange_18dp;
+                addRemoveXboxControllerItem.Image = Properties.Resources.ic_check_blue_18dp;
                 addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
-                //addRemoveXboxControllerItem.Tag = "alert";
             }
             else
             {
-                addRemoveXboxControllerItem.Image = Properties.Resources.ic_videogame_asset_white_18dp;
+                addRemoveXboxControllerItem.Image = null;
                 addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
             }
 
-            inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
+            inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { primaryMobileDeviceItem, addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
+
+
+            ToolStripMenuItem unplugAllItem = ToolStripMenuItemWithHandler("Unplug all Xbox controllers", UnplugAll_Click);
+            unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
+            unplugAllItem.ImageScaling = ToolStripItemImageScaling.None;
 
             // Add all of these to the Context Menu Strip
             cms.Items.AddRange(
@@ -520,9 +551,8 @@ namespace CFW.Business
                     outputSelectSubmenu,
                     inputSelectSubmenu,
                     modeSelectSubmenu,
+                    unplugAllItem,
                     new ToolStripSeparator(),
-                    smoothingDoubleItem,
-                    smoothingHalfItem,
                     ConfigureOutputSubmenu,
                 });          
         }
