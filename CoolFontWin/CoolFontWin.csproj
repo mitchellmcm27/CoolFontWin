@@ -120,7 +120,7 @@
     </Win32Resource>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>F1D5B7D8AAD5CF34A762352BE514268A7FCB766C</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>1081C4D4153F432686170A6B09D585C8D780F4DF</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestKeyFile>
@@ -137,7 +137,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
