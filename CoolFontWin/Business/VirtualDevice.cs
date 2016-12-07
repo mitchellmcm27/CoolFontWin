@@ -25,7 +25,7 @@ namespace CFW.Business
         [Description("Decoupled gamepad")]
         ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
 
-        [Description("Joystick+Mouse")]
+        [Description("Gamepad+Mouse")]
         ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
 
         [Description("Mouse")]
