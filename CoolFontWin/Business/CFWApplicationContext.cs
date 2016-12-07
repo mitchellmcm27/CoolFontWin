@@ -93,6 +93,14 @@ namespace CFW.Business
         {
             // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
             NotifyIcon.Text = VersionItemString();
+            if (Updater.UpdateAvailable)
+            {
+                NotifyIcon.Icon = Properties.Resources.tray_icon_notification;
+            }
+            else
+            {
+                NotifyIcon.Icon = Properties.Resources.tray_icon;
+            }
         }
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
