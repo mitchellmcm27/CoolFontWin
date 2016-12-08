@@ -167,8 +167,8 @@ namespace CFW.ViewModel
             get { return _vJoyDevices; }
         }
 
-        private readonly NotifyIconController Model;
-        public Presenter(NotifyIconController model)
+        private readonly BusinessModel Model;
+        public Presenter(BusinessModel model)
         {
             Model = model;
         }

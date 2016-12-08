@@ -12,6 +12,7 @@ using Ookii.Dialogs;
 using log4net;
 
 using CFW.Forms;
+using CFW.ViewModel;
 
 
 namespace CFW.Business
@@ -43,7 +44,8 @@ namespace CFW.Business
         }
 
         public SilentUpdater Updater { get; private set; }
-        private NotifyIconController Cfw;
+        private NotifyIconController NotifyIconViewModel;
+        private BusinessModel Model;
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
         private View.SettingsWindow SettingsView;
@@ -75,8 +77,9 @@ namespace CFW.Business
             
 
             InitializeContext();
-            Cfw = new NotifyIconController(NotifyIcon);
-            Cfw.StartServices();
+            Model = new Business.BusinessModel();
+            NotifyIconViewModel = new NotifyIconController(Model);
+            Model.StartServices();
 
             NotifyIcon.Text = VersionItemString();
 
@@ -276,10 +279,10 @@ namespace CFW.Business
             NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
 
             // Add VDevice handling items
-            Cfw.AddToContextMenu(NotifyIcon.ContextMenuStrip);
+            NotifyIconViewModel.AddToContextMenu(NotifyIcon.ContextMenuStrip);
 
-            ToolStripMenuItem restartItem = Cfw.ToolStripMenuItemWithHandler("Restart", Restart_Click);
-            ToolStripMenuItem quitItem = Cfw.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
+            ToolStripMenuItem restartItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Restart", Restart_Click);
+            ToolStripMenuItem quitItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
             quitItem.Image = Properties.Resources.ic_close_orange_18dp;
             quitItem.ImageScaling = ToolStripItemImageScaling.None;
 
@@ -314,7 +317,7 @@ namespace CFW.Business
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                Presenter = new ViewModel.Presenter(Cfw);
+                Presenter = new ViewModel.Presenter(Model);
                 SettingsWindow.DataContext = Presenter;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }              
@@ -410,7 +413,7 @@ namespace CFW.Business
 
         protected override void ExitThreadCore()
         {    
-            Cfw.Dispose();      
+            Model.Dispose();
             Dispose(true);
             base.ExitThreadCore();
         }

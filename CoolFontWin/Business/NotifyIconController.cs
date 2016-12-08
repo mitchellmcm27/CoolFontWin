@@ -12,141 +12,22 @@ using log4net;
 using System.Net.Sockets;
 using System.Collections.Specialized;
 
-namespace CFW.Business
+using CFW.Business;
+
+namespace CFW.ViewModel
 {
-
-    public enum Output
-    {
-        Keyboard,
-        VJoy,
-        XBox
-    }
-
     public class NotifyIconController
     {
+
         private static readonly ILog log =
-            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private readonly NotifyIcon NotifyIcon;
-        public DNSNetworkService NetworkService;
-        public UDPServer Server;
-        public DeviceManager SharedDeviceManager;
-        public List<string> DeviceNames;
-        public bool UDPServerRunning = false;
-        public List<int> CurrentDevices
+        private BusinessModel Model;
+
+        public NotifyIconController(BusinessModel model)
         {
-            get { return SharedDeviceManager.EnabledVJoyDevicesList; }
+            Model = model;
         }
-
-        //static public string PortFile = "last-port.txt";
-
-        public NotifyIconController(NotifyIcon notifyIcon)
-        {
-            this.NotifyIcon = notifyIcon;
-            this.NetworkService = new DNSNetworkService();
-            this.Server = new UDPServer();
-            Server.ClientAdded += Server_ClientAdded;
-
-            this.SharedDeviceManager = DeviceManager.Instance;
-        }
-
-        /// <summary>
-        /// Starts network services (DNS and UDP server) for each device in Default Settings.
-        /// </summary>
-        public void StartServices()
-        {
-            // get list of default devices
-            var devicesCol = Properties.Settings.Default.ConnectedDevices;
-            StartServices(devicesCol.Cast<string>().ToList());
-        }
-
-        /// <summary>
-        /// Starts network services (DNS and UDP server) for each device by name.
-        /// </summary>
-        /// <param name="names">List of strings represting device names.</param>
-        public void StartServices(List<string> names)
-        {
-            this.DeviceNames = names;
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
-
-            Server.Start(Properties.Settings.Default.LastPort);
-            
-            UDPServerRunning = true;
-
-            // get whatever port finally worked and save it
-            int port = Server.Port;
-            Properties.Settings.Default.LastPort = port;
-            Properties.Settings.Default.Save();
-
-            // publish 1 network service for each device
-            for (int i = 0; i < DeviceNames.Count; i++)
-            {
-                NetworkService.Publish(port, DeviceNames[i]);
-            }
-        }
-
-        private void Server_ClientAdded(object sender, EventArgs e)
-        {
-            // Commented out because DeviceManager now plays sounds when devices come and go
-            // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
-        }
-
-        /// <summary>
-        /// Publish a new network service on the same port.
-        /// </summary>
-        /// <param name="name">Name to append to the service (device name).</param>
-        public void AddService(string name)
-        {
-
-            if (NetworkService.Publish(Server.Port, name))
-            {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                this.DeviceNames.Add(name);
-            }
-            
-
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
-
-            // update Defaults with this name
-            StringCollection collection = new StringCollection();
-            collection.AddRange(DeviceNames.ToArray());
-            Properties.Settings.Default.ConnectedDevices = collection;
-            Properties.Settings.Default.Save();
-        }
-
-        /// <summary>
-        /// Remove the last service that was published.
-        /// </summary>
-        public void RemoveLastService()
-        {
-            if (DeviceNames.Count==1)
-            {
-                return;
-            }
-            // get last-added device name
-            string name = DeviceNames.Last();
-            this.DeviceNames.Remove(name);
-
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
-
-            // unpublish service containing this name
-            NetworkService.Unpublish(name);
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-
-            // update Defaults 
-            StringCollection collection = new StringCollection();
-            collection.AddRange(DeviceNames.ToArray());
-            Properties.Settings.Default.ConnectedDevices = collection;
-            Properties.Settings.Default.Save();
-        }
-
-        public void Dispose()
-        {
-            // Relinquish connected devices
-            SharedDeviceManager.Dispose();
-        }
-
-        #region ContextMenuStrip handlers and creation
 
         private Image getImageFromMode(SimulatorMode mode)
         {
@@ -167,18 +48,18 @@ namespace CFW.Business
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
-            SharedDeviceManager.SmoothingFactor *= 2;
+            Model.SharedDeviceManager.SmoothingFactor *= 2;
         }
 
         private void SmoothingHalf_Click(object sender, EventArgs e)
         {
-            SharedDeviceManager.SmoothingFactor /= 2;
+            Model.SharedDeviceManager.SmoothingFactor /= 2;
         }
 
         private void SelectedMode_Click(object sender, EventArgs e)
         {
             log.Debug(sender);
-            bool res = SharedDeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
+            bool res = Model.SharedDeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
 
             if (res)
             {
@@ -277,37 +158,37 @@ namespace CFW.Business
 
         private void FlipX_Click(object sender, EventArgs e)
         {
-            if (SharedDeviceManager.VJoyDeviceConnected)
+            if (Model.SharedDeviceManager.VJoyDeviceConnected)
             {
-                SharedDeviceManager.FlipAxis(Axis.AxisX);
+                Model.SharedDeviceManager.FlipAxis(Axis.AxisX);
             }
         }
 
         private void FlipY_Click(object sender, EventArgs e)
         {
-            if (SharedDeviceManager.VJoyDeviceConnected)
+            if (Model.SharedDeviceManager.VJoyDeviceConnected)
             {
-                SharedDeviceManager.FlipAxis(Axis.AxisY);
+                Model.SharedDeviceManager.FlipAxis(Axis.AxisY);
             }
         }
 
 
         private void addRemoveMobileDevice_Click(object sender, EventArgs e)
         {
-            if (DeviceNames.Count > 1)
+            if (Model.DeviceNames.Count > 1)
             {
-                RemoveLastService();
+                Model.RemoveLastService();
             }
             else
             {
-                AddService("Secondary");
+                Model.AddService("Secondary");
             }
         }
 
         private string AddRemoveXboxControllerString()
         {
             string str = "Physical Xbox controller";
-            if (SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
+            if (Model.SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
             {
                 str += "\n(switch to gamepad)";
             }
@@ -316,7 +197,7 @@ namespace CFW.Business
 
         private void addRemoveXboxController_Click(object sender, EventArgs e)
         {
-            SharedDeviceManager.InterceptXInputDevice = !SharedDeviceManager.InterceptXInputDevice;
+            Model.SharedDeviceManager.InterceptXInputDevice = !Model.SharedDeviceManager.InterceptXInputDevice;
         }
 
         private void deviceID_Click(object sender, EventArgs e)
@@ -333,12 +214,12 @@ namespace CFW.Business
 
             if (id==0)
             {
-                SharedDeviceManager.RelinquishCurrentDevice();
+                Model.SharedDeviceManager.RelinquishCurrentDevice();
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
             }
 
-            else if (SharedDeviceManager.AcquireVDev((uint)id))
+            else if (Model.SharedDeviceManager.AcquireVDev((uint)id))
             {
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
@@ -367,8 +248,8 @@ namespace CFW.Business
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", GetDescription(SharedDeviceManager.Mode)));
-            modeSelectSubmenu.Image = getImageFromMode(SharedDeviceManager.Mode);
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", GetDescription(Model.SharedDeviceManager.Mode)));
+            modeSelectSubmenu.Image = getImageFromMode(Model.SharedDeviceManager.Mode);
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
             List<string> Modes = CFWMode.GetDescriptions();
@@ -378,7 +259,7 @@ namespace CFW.Business
                 var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode enum value
                 item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
-                if (i == (int)SharedDeviceManager.Mode)
+                if (i == (int)Model.SharedDeviceManager.Mode)
                 {
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_check_blue_18dp;
@@ -442,7 +323,7 @@ namespace CFW.Business
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output virtual gamepad", Properties.Settings.Default.VJoyID));
-            if (SharedDeviceManager.CurrentDeviceID == 0)
+            if (Model.SharedDeviceManager.CurrentDeviceID == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
                 //vJoySelectSubMenu.Tag = "alert";
@@ -451,7 +332,7 @@ namespace CFW.Business
             {
                 outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 outputSelectSubmenu.ImageAlign = ContentAlignment.MiddleCenter;
-                uint id = SharedDeviceManager.CurrentDeviceID;
+                uint id = Model.SharedDeviceManager.CurrentDeviceID;
                 if (id>1000)
                 {
                     switch (id-1000)
@@ -491,7 +372,7 @@ namespace CFW.Business
 
                 var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
                 item.Tag = i;
-                item.Visible = SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
+                item.Visible = Model.SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
 
                 // doesn't update after install scpvbus
 
@@ -511,7 +392,7 @@ namespace CFW.Business
                     item.Text = "vXbox " + (i - 1000);
                 }
 
-                if (i == SharedDeviceManager.CurrentDeviceID)
+                if (i == Model.SharedDeviceManager.CurrentDeviceID)
                 {
                     //if (i==0) item.Tag = "alert";
                     item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
@@ -535,12 +416,12 @@ namespace CFW.Business
             primaryMobileDeviceItem.Enabled = false;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler("Secondary mobile device", addRemoveMobileDevice_Click);
-            addRemoveMobileDeviceItem.Image = DeviceNames.Count > 1 ? Properties.Resources.ic_check_blue_18dp : null;
+            addRemoveMobileDeviceItem.Image = Model.DeviceNames.Count > 1 ? Properties.Resources.ic_check_blue_18dp : null;
             addRemoveMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
-            if (SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
+            if (Model.SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_check_blue_18dp;
                 addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
@@ -598,6 +479,6 @@ namespace CFW.Business
             return item;
         }
 
-        #endregion
+
     }
 }
