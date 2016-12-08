@@ -1,0 +1,120 @@
+﻿<UserControl x:Class="CFW.View.SettingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ViewModel="clr-namespace:CFW.ViewModel"
+             d:DataContext="{d:DesignInstance ViewModel:Presenter}"
+             mc:Ignorable="d" Height="251.72" Width="475.622" Foreground="White">
+    <Grid Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Input Column -->
+        <DockPanel Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Background="#FF2C2C2C">
+            <Label FontSize="10" Foreground="White" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,10,0,5" Background="{x:Null}">Input devices</Label>
+            <Grid DockPanel.Dock="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="2*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="4*"/>
+                </Grid.ColumnDefinitions>
+                <CheckBox Name="primaryDeviceBox" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          IsChecked="True" />
+                <CheckBox Name="secondaryDeviceBox" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          IsChecked="{Binding SecondaryDevice}"/>
+                <CheckBox Name="xboxDeviceBox" Grid.Row="5" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                          IsChecked="{Binding XboxDevice}"/>
+
+                <Image Name="pimaryDeviceImage" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                   Source="/Resources/ic_phone_iphone_white_18dp.png" Stretch="None"/>
+                <Image Name="secondaryDeviceImage" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Source="/Resources/ic_phone_iphone_white_18dp.png" Stretch="None"/>
+                <Image Name="xboxDeviceImage" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Source="/Resources/ic_videogame_asset_white_18dp.png" Stretch="None"/>
+                <Label FontSize="10" Foreground="Gray" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+                    Primary</Label>
+                <Label FontSize="10" Foreground="Gray" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+                    Secondary</Label>
+                <Label FontSize="10" Foreground="Gray" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"  HorizontalAlignment="Center">
+                    Xbox Controller</Label>
+            </Grid>
+        </DockPanel>
+
+        <!-- Mode column -->
+        <DockPanel Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Background="#FF262626">
+            <Label FontSize="10" Foreground="White" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,10,0,15">Locomotion type</Label>
+            <ComboBox ItemsSource="{Binding Modes}" SelectedIndex="{Binding CurrentMode}" IsSynchronizedWithCurrentItem="true" Name="modeList" Margin="10" DockPanel.Dock="Top"/>
+            <TextBlock Text="{Binding LocomotionDescription}" FontSize="9" Foreground="Gray" HorizontalAlignment="Center" DockPanel.Dock="Top" Cursor="None" TextWrapping="Wrap" Margin="3">
+                Description of selected locomotion type goes here.
+            </TextBlock>
+            <ToolBar DockPanel.Dock="Top">
+                <MenuItem IsSubmenuOpen="{Binding SettingsContextMenuOpen}">
+                    <MenuItem.Header>
+                        <Button Height="24" Width="24" Background="Transparent" BorderThickness="0" Command="{Binding SettingsMenuCommand}">
+                            <Button.Content>
+                                <Image Source="/Resources/ic_settings_white_18dp.png"></Image>
+                            </Button.Content>
+                        </Button>
+                    </MenuItem.Header>
+                    <Menu>
+                        <MenuItem Header="Do this"/>
+                        <MenuItem Header="Do that"/>
+                    </Menu>
+                </MenuItem>
+            </ToolBar>
+        </DockPanel>
+
+        <!-- Output column -->
+        <DockPanel Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Background="#FF212121">
+            <Label FontSize="10" Foreground="White" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,10,0,5">Output device</Label>
+            <Grid DockPanel.Dock="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="2*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label FontSize="10" Foreground="Gray" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0">vXbox</Label>
+                <Image Name="xboxImage" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Source="/Resources/ic_videogame_asset_white_18dp.png" Stretch="None"/>
+                <Label FontSize="10" Foreground="Gray" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" Margin="0,0,0,0">vJoy</Label>
+                <Image Name="vJoyImage" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Source="/Resources/ic_videogame_asset_white_18dp.png" Stretch="None"/>
+
+                <RadioButton Name="XboxOutput" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                             IsChecked="{Binding XboxOutput}" />
+                <RadioButton Name="VJoyOutput" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                             IsChecked="{Binding VJoyOutput}" Foreground="#FF00C3FF" />
+
+                <ComboBox Name="XboxDevices" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             ItemsSource="{Binding XboxDevices}" SelectedItem="{Binding CurrentXboxDevice}" IsSynchronizedWithCurrentItem="true" Background="#FF262626" BorderBrush="#FF00C3FF"/>
+                <ComboBox Name="VJoyDevices" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"/>
+
+                <Button Name="RelinquishAllXboxButton" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Foreground="OrangeRed" Margin="5"
+                        Command="{Binding UnplugAllXboxCommand}">
+                    Unplug vXbox Controllers
+                </Button>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>
+
+

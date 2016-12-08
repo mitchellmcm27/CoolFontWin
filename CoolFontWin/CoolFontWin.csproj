@@ -166,6 +166,8 @@
       <HintPath>..\packages\Ookii.Dialogs.WindowsForms.1.0\lib\net35\Ookii.Dialogs.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="SharpDX">
       <HintPath>..\lib\SharpDX.dll</HintPath>
     </Reference>
@@ -188,16 +190,19 @@
     <Reference Include="System.Windows.Input.Manipulations" />
     <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Workflow.Activities" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Business\Algorithm.cs" />
+    <Compile Include="Business\CFWMode.cs" />
     <Compile Include="Business\ResourceSoundPlayer.cs" />
     <Compile Include="Business\DeviceManager.cs" />
     <Compile Include="Business\Drawing.cs" />
@@ -274,6 +279,15 @@
     <Compile Include="Forms\UpdateNotes.Designer.cs">
       <DependentUpon>UpdateNotes.cs</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\DelegateCommand.cs" />
+    <Compile Include="ViewModel\ObservableObject.cs" />
+    <Compile Include="ViewModel\Presenter.cs" />
+    <Compile Include="View\SettingsControl.xaml.cs">
+      <DependentUpon>SettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -293,37 +307,37 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ic_videogame_asset_black_36dp.png" />
-    <None Include="Resources\ic_videogame_asset_black_24dp.png" />
-    <None Include="Resources\ic_build_white_18dp.png" />
-    <None Include="Resources\ic_cloud_done_white_18dp.png" />
-    <None Include="Resources\ic_desktop_windows_white_18dp.png" />
-    <None Include="Resources\ic_phone_iphone_white_18dp.png" />
-    <None Include="Resources\ic_launch_white_18dp.png" />
-    <None Include="Resources\ic_gamepad_white_18dp.png" />
-    <None Include="Resources\ic_directions_run_white_18dp.png" />
-    <None Include="Resources\ic_videogame_asset_white_18dp.png" />
-    <None Include="Resources\ic_folder_open_white_18dp.png" />
-    <None Include="Resources\ic_swap_horiz_white_18dp.png" />
-    <None Include="Resources\ic_swap_vert_white_18dp.png" />
-    <None Include="Resources\ic_power_white_18dp.png" />
-    <None Include="Resources\ic_close_orange_18dp.png" />
-    <None Include="Resources\ic_error_orange_18dp.png" />
-    <None Include="Resources\ic_error_outline_orange_18dp.png" />
-    <None Include="Resources\ic_phonelink_white_18dp.png" />
-    <None Include="Resources\ic_check_blue_18dp.png" />
-    <None Include="Resources\ic_refresh_blue_18dp.PNG" />
-    <None Include="Resources\ic_xbox_1p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_2p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_3p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_4p_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_all_blue_18dp.png" />
-    <None Include="Resources\ic_xbox_off_blue_18dp.png" />
-    <None Include="Resources\ic_input_white_18dp.png" />
-    <None Include="Resources\ic_keyboard_white_18dp.png" />
-    <None Include="Resources\ic_pause_white_18dp.png" />
-    <None Include="Assets\tray-icon-transparent.ico" />
-    <None Include="Assets\tray-icon-notification.ico" />
+    <Resource Include="Resources\ic_videogame_asset_black_36dp.png" />
+    <Resource Include="Resources\ic_videogame_asset_black_24dp.png" />
+    <Resource Include="Resources\ic_build_white_18dp.png" />
+    <Resource Include="Resources\ic_cloud_done_white_18dp.png" />
+    <Resource Include="Resources\ic_desktop_windows_white_18dp.png" />
+    <Resource Include="Resources\ic_phone_iphone_white_18dp.png" />
+    <Resource Include="Resources\ic_launch_white_18dp.png" />
+    <Resource Include="Resources\ic_gamepad_white_18dp.png" />
+    <Resource Include="Resources\ic_directions_run_white_18dp.png" />
+    <Resource Include="Resources\ic_videogame_asset_white_18dp.png" />
+    <Resource Include="Resources\ic_folder_open_white_18dp.png" />
+    <Resource Include="Resources\ic_swap_horiz_white_18dp.png" />
+    <Resource Include="Resources\ic_swap_vert_white_18dp.png" />
+    <Resource Include="Resources\ic_power_white_18dp.png" />
+    <Resource Include="Resources\ic_close_orange_18dp.png" />
+    <Resource Include="Resources\ic_error_orange_18dp.png" />
+    <Resource Include="Resources\ic_error_outline_orange_18dp.png" />
+    <Resource Include="Resources\ic_phonelink_white_18dp.png" />
+    <Resource Include="Resources\ic_check_blue_18dp.png" />
+    <Resource Include="Resources\ic_refresh_blue_18dp.PNG" />
+    <Resource Include="Resources\ic_xbox_1p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_2p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_3p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_4p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_all_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_off_blue_18dp.png" />
+    <Resource Include="Resources\ic_input_white_18dp.png" />
+    <Resource Include="Resources\ic_keyboard_white_18dp.png" />
+    <Resource Include="Resources\ic_pause_white_18dp.png" />
+    <Resource Include="Assets\tray-icon-transparent.ico" />
+    <Resource Include="Assets\tray-icon-notification.ico" />
     <Content Include="tray-icon-transparent.ico" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -334,68 +348,68 @@
     <Content Include="scpvbus\WdfCoinstaller01009.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\cog.svg" />
-    <None Include="Resources\ConfigImage.bmp" />
-    <None Include="Resources\cog.png">
+    <Resource Include="Resources\cog.svg" />
+    <Resource Include="Resources\ConfigImage.bmp" />
+    <Resource Include="Resources\cog.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\cog-2x.png" />
-    <None Include="Resources\share-boxed-2x.png" />
-    <None Include="Resources\dashboard-2x.png" />
-    <None Include="Resources\cog-2x1.png" />
-    <None Include="Resources\dashboard-2x1.png" />
-    <None Include="Resources\share-boxed.png" />
-    <None Include="Resources\x.png" />
-    <None Include="Resources\383-new-tab.png" />
-    <None Include="Resources\272-cross.png" />
-    <None Include="Resources\270-cancel-circle.png" />
-    <None Include="Resources\267-plus.png" />
-    <None Include="Resources\268-minus.png" />
-    <None Include="Resources\315-arrow-up2.png" />
-    <None Include="Resources\circle straight-01.png" />
+    </Resource>
+    <Resource Include="Resources\cog-2x.png" />
+    <Resource Include="Resources\share-boxed-2x.png" />
+    <Resource Include="Resources\dashboard-2x.png" />
+    <Resource Include="Resources\cog-2x1.png" />
+    <Resource Include="Resources\dashboard-2x1.png" />
+    <Resource Include="Resources\share-boxed.png" />
+    <Resource Include="Resources\x.png" />
+    <Resource Include="Resources\383-new-tab.png" />
+    <Resource Include="Resources\272-cross.png" />
+    <Resource Include="Resources\270-cancel-circle.png" />
+    <Resource Include="Resources\267-plus.png" />
+    <Resource Include="Resources\268-minus.png" />
+    <Resource Include="Resources\315-arrow-up2.png" />
+    <Resource Include="Resources\circle straight-01.png" />
     <None Include="Assets\tray-icon.ico" />
-    <None Include="Resources\lil-dued-in-space_unplugged_smaller-01.png" />
-    <None Include="Resources\circle tilted-01.png" />
-    <None Include="Resources\269-info.png" />
-    <None Include="Resources\320-arrow-down-left2.png" />
-    <None Include="Resources\319-arrow-down2.png" />
-    <None Include="Resources\269-info1.png" />
-    <None Include="Resources\183-switch.png" />
-    <None Include="Resources\105-redo2.png" />
-    <None Include="Resources\273-checkmark.png" />
-    <None Include="Resources\ic_settings_cell_white_18dp.png" />
-    <None Include="Resources\ic_smartphone_white_18dp.png" />
-    <None Include="Resources\ic_power_settings_new_white_18dp.png" />
-    <None Include="Resources\ic_done_white_16dp.png" />
-    <None Include="Resources\ic_view_day_white_18dp.png" />
-    <None Include="Resources\ic_view_headline_white_18dp.png" />
-    <None Include="Resources\ic_open_in_browser_white_18dp.png" />
-    <None Include="Resources\ic_call_made_white_18dp.png" />
-    <None Include="Resources\ic_line_weight_white_18dp.png" />
-    <None Include="Resources\ic_line_style_white_18dp.png" />
-    <None Include="Resources\ic_settings_applications_white_18dp.png" />
-    <None Include="Resources\ic_settings_white_18dp.png" />
-    <None Include="Resources\ic_link_white_18dp.png" />
-    <None Include="Resources\ic_phonelink_erase_white_18dp.png" />
-    <None Include="Resources\ic_phonelink_ring_white_18dp.png" />
-    <None Include="Resources\ic_radio_button_checked_white_24dp.png" />
-    <None Include="Resources\ic_radio_button_unchecked_white_24dp.png" />
-    <None Include="Resources\ic_clear_white_18dp.png" />
-    <None Include="Resources\ic_keyboard_white_18pt_2x.png" />
-    <None Include="Resources\ic_done_white_16dp1.png" />
-    <None Include="Resources\ic_show_chart_white_18dp.png" />
-    <None Include="Resources\ic_show_chart_white_18dp1.png" />
-    <None Include="Resources\ic_clear_white_18dp1.png" />
-    <None Include="Resources\ic_done_white_16dp2.png" />
-    <None Include="Resources\ic_error_outline_white_18dp.png" />
-    <None Include="Resources\ic_error_outline_white_18dp1.png" />
+    <Resource Include="Resources\lil-dued-in-space_unplugged_smaller-01.png" />
+    <Resource Include="Resources\circle tilted-01.png" />
+    <Resource Include="Resources\269-info.png" />
+    <Resource Include="Resources\320-arrow-down-left2.png" />
+    <Resource Include="Resources\319-arrow-down2.png" />
+    <Resource Include="Resources\269-info1.png" />
+    <Resource Include="Resources\183-switch.png" />
+    <Resource Include="Resources\105-redo2.png" />
+    <Resource Include="Resources\273-checkmark.png" />
+    <Resource Include="Resources\ic_settings_cell_white_18dp.png" />
+    <Resource Include="Resources\ic_smartphone_white_18dp.png" />
+    <Resource Include="Resources\ic_power_settings_new_white_18dp.png" />
+    <Resource Include="Resources\ic_done_white_16dp.png" />
+    <Resource Include="Resources\ic_view_day_white_18dp.png" />
+    <Resource Include="Resources\ic_view_headline_white_18dp.png" />
+    <Resource Include="Resources\ic_open_in_browser_white_18dp.png" />
+    <Resource Include="Resources\ic_call_made_white_18dp.png" />
+    <Resource Include="Resources\ic_line_weight_white_18dp.png" />
+    <Resource Include="Resources\ic_line_style_white_18dp.png" />
+    <Resource Include="Resources\ic_settings_applications_white_18dp.png" />
+    <Resource Include="Resources\ic_settings_white_18dp.png" />
+    <Resource Include="Resources\ic_link_white_18dp.png" />
+    <Resource Include="Resources\ic_phonelink_erase_white_18dp.png" />
+    <Resource Include="Resources\ic_phonelink_ring_white_18dp.png" />
+    <Resource Include="Resources\ic_radio_button_checked_white_24dp.png" />
+    <Resource Include="Resources\ic_radio_button_unchecked_white_24dp.png" />
+    <Resource Include="Resources\ic_clear_white_18dp.png" />
+    <Resource Include="Resources\ic_keyboard_white_18pt_2x.png" />
+    <Resource Include="Resources\ic_done_white_16dp1.png" />
+    <Resource Include="Resources\ic_show_chart_white_18dp.png" />
+    <Resource Include="Resources\ic_show_chart_white_18dp1.png" />
+    <Resource Include="Resources\ic_clear_white_18dp1.png" />
+    <Resource Include="Resources\ic_done_white_16dp2.png" />
+    <Resource Include="Resources\ic_error_outline_white_18dp.png" />
+    <Resource Include="Resources\ic_error_outline_white_18dp1.png" />
     <None Include="Resources\beep-bad.wav" />
     <None Include="Resources\beep-good.wav" />
-    <None Include="Resources\ic_refresh_white_18dp.png" />
-    <None Include="Resources\ic_refresh_white_18dp1.png" />
+    <Resource Include="Resources\ic_refresh_white_18dp.png" />
+    <Resource Include="Resources\ic_refresh_white_18dp1.png" />
     <None Include="Resources\reverb-good.wav" />
-    <None Include="Resources\ic_videogame_asset_white_18dp1.png" />
-    <None Include="Resources\ic_videogame_asset_blue_18dp.png" />
+    <Resource Include="Resources\ic_videogame_asset_white_18dp1.png" />
+    <Resource Include="Resources\ic_videogame_asset_blue_18dp.png" />
     <Content Include="scpvbus\devcon.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -444,6 +458,16 @@
       <Project>{d90aba94-328a-4b35-978b-ba6dadabb799}</Project>
       <Name>vGenWrap</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="View\SettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

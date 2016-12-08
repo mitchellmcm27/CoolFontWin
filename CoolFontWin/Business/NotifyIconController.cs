@@ -14,17 +14,29 @@ using System.Collections.Specialized;
 
 namespace CFW.Business
 {
+
+    public enum Output
+    {
+        Keyboard,
+        VJoy,
+        XBox
+    }
+
     public class NotifyIconController
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private readonly NotifyIcon NotifyIcon;
-        private DNSNetworkService NetworkService;
-        private UDPServer Server;
-        private DeviceManager SharedDeviceManager;
-        private List<string> DeviceNames;
-        private bool UDPServerRunning = false;
+        public DNSNetworkService NetworkService;
+        public UDPServer Server;
+        public DeviceManager SharedDeviceManager;
+        public List<string> DeviceNames;
+        public bool UDPServerRunning = false;
+        public List<int> CurrentDevices
+        {
+            get { return SharedDeviceManager.EnabledVJoyDevicesList; }
+        }
 
         //static public string PortFile = "last-port.txt";
 
@@ -107,8 +119,10 @@ namespace CFW.Business
         /// </summary>
         public void RemoveLastService()
         {
-            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-            
+            if (DeviceNames.Count==1)
+            {
+                return;
+            }
             // get last-added device name
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
@@ -117,6 +131,7 @@ namespace CFW.Business
 
             // unpublish service containing this name
             NetworkService.Unpublish(name);
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
 
             // update Defaults 
             StringCollection collection = new StringCollection();
@@ -355,14 +370,12 @@ namespace CFW.Business
             ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", GetDescription(SharedDeviceManager.Mode)));
             modeSelectSubmenu.Image = getImageFromMode(SharedDeviceManager.Mode);
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
-#if DEBUG
-            int numModes = (int)SimulatorMode.ModeCountDebug;
-#else
-            int numModes = (int)SimulatorMode.ModeCountRelease;
-#endif
-            for (int i = 0; i < numModes; i++)
+
+            List<string> Modes = CFWMode.GetDescriptions();
+
+            for (int i = 0; i < Modes.Count; i++)
             {
-                var item = ToolStripMenuItemWithHandler(GetDescription((SimulatorMode)i), SelectedMode_Click);
+                var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode enum value
                 item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
                 if (i == (int)SharedDeviceManager.Mode)

@@ -46,19 +46,40 @@ namespace CFW.Business
         private NotifyIconController Cfw;
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
-
+        private View.SettingsWindow SettingsView;
+        
         public CFWApplicationContext()
         {
-            InitializeContext();
-
-            Cfw = new NotifyIconController(NotifyIcon);         
-            Cfw.StartServices();
             
             Updater = new SilentUpdater(); // checks immediately then starts 20 min timer
             Updater.Completed += Updater_Completed;
             Updater.PropertyChanged += Updater_PropertyChanged;
 
+            // Install ScpVBus every time application is launched
+            // Uninstall it on exit (see region below)
+            if (!ScpVBus.Install() && Properties.Settings.Default.ShowScpVbusDialog)
+            {
+                ShowScpVbusDialog();
+            }
+
+            try
+            {
+                ForceFirewallWindow();
+            }
+            catch (Exception e)
+            {
+                log.Error("Unable to open temp TCP socket because: " + e.Message);
+                log.Info("Windows Firewall should prompt on the next startup.");
+            }
+
+            
+
+            InitializeContext();
+            Cfw = new NotifyIconController(NotifyIcon);
+            Cfw.StartServices();
+
             NotifyIcon.Text = VersionItemString();
+
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
             {
                 log.Info("First launch after fresh install");
@@ -110,28 +131,6 @@ namespace CFW.Business
 
         private void InitializeContext()
         {
-            // if... 
-            //ShowSuccessfulInstallForm();
-            //ShowUpdateNotesForm();
-            // save defaults
-
-            // Install ScpVBus every time application is launched
-            // Uninstall it on exit (see region below)
-            if (!ScpVBus.Install() && Properties.Settings.Default.ShowScpVbusDialog)
-            {
-                ShowScpVbusDialog();
-            }
-
-            try
-            {
-                ForceFirewallWindow();
-            }
-            catch (Exception e)
-            {
-                log.Error("Unable to open temp TCP socket because: " + e.Message);
-                log.Info("Windows Firewall should prompt on the next startup.");
-            }
-
             Components = new System.ComponentModel.Container();
             NotifyIcon = new NotifyIcon(Components)
             {
@@ -234,13 +233,19 @@ namespace CFW.Business
         private static CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
         private static CFWContextMenuRenderer CustomRendererNormal = new CFWContextMenuRenderer(UIStyle.UIStyleNormal);
 
+        private bool SteamVRRunning
+        {
+            get { return Process.GetProcessesByName("VRServer").Length > 0; }
+        }
+        bool OculusHomeRunning
+        {
+            get { return Process.GetProcessesByName("OculusVR").Length > 0; } // correct process name?
+        }
+
         private void ContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = false;
-
-            bool steamVRRunning =  Process.GetProcessesByName("VRServer").Length>0;
-            bool oculusHomeRunning = Process.GetProcessesByName("OculusVR").Length>0; // correct process name?
-            if (steamVRRunning || oculusHomeRunning)
+            if (SteamVRRunning || OculusHomeRunning)
             {
                 NotifyIcon.ContextMenuStrip.Renderer = CustomRendererVR;
             }
@@ -288,8 +293,7 @@ namespace CFW.Business
         {
             if (e.Button == MouseButtons.Left)
             {
-                MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-                mi.Invoke(NotifyIcon, null);
+                ShowSettingsWindow();
             }
             else if (e.Button == MouseButtons.Right)
             {
@@ -302,6 +306,20 @@ namespace CFW.Business
 
         private SuccessForm SuccessForm;
         private UpdateNotes UpdateNotes;
+        private View.SettingsWindow SettingsWindow;
+        private ViewModel.Presenter Presenter;
+
+        private void ShowSettingsWindow()
+        {
+            if (SettingsWindow == null)
+            {
+                SettingsWindow = new View.SettingsWindow();
+                Presenter = new ViewModel.Presenter(Cfw);
+                SettingsWindow.DataContext = Presenter;
+                SettingsWindow.Closed += (o, i) => SettingsWindow = null;
+            }              
+            SettingsWindow.Show();
+        }
 
         private void ShowSuccessfulInstallForm()
         {
@@ -310,7 +328,7 @@ namespace CFW.Business
                 SuccessForm = new SuccessForm();
             }
 
-            SuccessForm.Closed += SucessForm_Closed;
+            SuccessForm.Closed += (o, i) => SuccessForm = null;
             SuccessForm.Show();
         }
 
@@ -321,7 +339,7 @@ namespace CFW.Business
                 UpdateNotes = new UpdateNotes();
             }
 
-            UpdateNotes.Closed += UpdateNotes_Closed;
+            UpdateNotes.Closed += (o, i) => UpdateNotes = null;
             UpdateNotes.Show();
         }
 
@@ -375,12 +393,7 @@ namespace CFW.Business
                 }
             }).Start();
         }
-            
-    
-        
 
-        private void SucessForm_Closed(object sender, EventArgs e) { SuccessForm = null; }
-        private void UpdateNotes_Closed(object sender, EventArgs e) { UpdateNotes = null; }
 
         #endregion
 

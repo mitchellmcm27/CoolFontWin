@@ -10,34 +10,6 @@ using System.Collections.Generic;
 
 namespace CFW.Business
 {
-    public enum SimulatorMode
-    {
-        // Controls how the character moves in-game
-        [Description("Pause")]
-        ModePaused = 0,
-
-        [Description("Keyboard")]
-        ModeWASD, // Use KB to run forward, mouse to turn
-
-        [Description("Coupled gamepad")]
-        ModeJoystickCoupled, // Use vJoy/XOutput to move character through game (strafe only, no turning). VR MODE.
-
-        [Description("Decoupled gamepad")]
-        ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
-
-        [Description("Gamepad+Mouse")]
-        ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
-
-        [Description("Mouse")]
-        ModeMouse, // tilt the phone L/R U/D to move the mouse pointer
-
-        [Description("Gamepad")]
-        ModeGamepad, // fully functional gamepad similar to Xbox controller
-
-        ModeCountDebug,
-        ModeCountRelease = 4,
-        ModeDefault = ModeWASD,
-    };
 
     /// <summary>
     /// Gives indexes of Valsf[] of joystick axes values
@@ -781,7 +753,7 @@ namespace CFW.Business
                 devType = DevType.vJoy;
             }
 
-            log.Info("Will try to acquire " + (devType==DevType.vJoy ? "vJoy":"xBox") + " device " + Id.ToString() + " and return result.");
+            log.Info("Will try to acquire " + (devType==DevType.vJoy ? "vJoy":"xBox") + " device " + id.ToString() + " and return result.");
             if (VDevAcquired)
             {
                 log.Info("First, relinquishing " + (VDevType == DevType.vJoy ? "vJoy" : "xBox") + " device " + Id.ToString());
