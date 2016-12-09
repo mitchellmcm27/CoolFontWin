@@ -34,8 +34,11 @@ namespace CFW.Business
             {
                 _installSuccess = value;
                 OnPropertyChanged("InstallSuccess");
+                if (_installSuccess) Installed = true;
             }
         }
+
+        public bool Installed = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -104,7 +107,7 @@ namespace CFW.Business
         /// Uninstall ScpVBus. Blocks so that app can close after it's done installing.
         /// </summary>
         /// <returns></returns>
-        public static bool Uninstall()
+        public bool Uninstall()
         {
             log.Info("Attempt to uninstall ScpVBus...");
             ProcessStartInfo startInfo = new ProcessStartInfo(exe, uninstallargs);
@@ -115,6 +118,8 @@ namespace CFW.Business
                 Process proc = new Process();
                 proc.StartInfo = startInfo;
                 proc.Start();
+                log.Info("Uninstalled.");
+                Installed = false;
                 return true;
                 // do not wait to see if successful
             }
@@ -124,6 +129,5 @@ namespace CFW.Business
                 return false;
             }
         }
-
     }
 }

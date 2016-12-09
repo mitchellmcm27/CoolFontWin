@@ -71,14 +71,13 @@ namespace CFW.Business
             {
                 log.Error("Unable to open temp TCP socket because: " + e.Message);
                 log.Info("Windows Firewall should prompt on the next startup.");
-            }
-
-            
+            }  
 
             InitializeContext();
-            Model = new Business.BusinessModel();
+            Model = new BusinessModel();
             NotifyIconViewModel = new NotifyIconViewModel(Model);
             Model.StartServices();
+            NotifyIcon.Visible = true;
 
             NotifyIcon.Text = VersionItemString();
 
@@ -148,7 +147,6 @@ namespace CFW.Business
                 ContextMenuStrip = new ContextMenuStrip(),
                 Icon = Properties.Resources.tray_icon,
                 Text = "CoolFontWin",
-                Visible = true
             };
             
             NotifyIcon.ContextMenuStrip.Renderer = CustomRendererNormal;
@@ -430,7 +428,7 @@ namespace CFW.Business
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             NotifyIcon.Visible = false;
-            ScpVBus.Uninstall();
+            if (scpInstaller.Installed) scpInstaller.Uninstall();
             ExitThread();       
             Environment.Exit(0);
         }
