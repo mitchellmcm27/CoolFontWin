@@ -59,22 +59,7 @@
             <TextBlock Text="{Binding LocomotionDescription}" FontSize="9" Foreground="Gray" HorizontalAlignment="Center" DockPanel.Dock="Top" Cursor="None" TextWrapping="Wrap" Margin="3">
                 Description of selected locomotion type goes here.
             </TextBlock>
-            <ToolBar DockPanel.Dock="Top">
-                <MenuItem IsSubmenuOpen="{Binding SettingsContextMenuOpen}">
-                    <MenuItem.Header>
-                        <Button Height="24" Width="24" Background="Transparent" BorderThickness="0" Command="{Binding SettingsMenuCommand}">
-                            <Button.Content>
-                                <Image Source="/Resources/ic_settings_white_18dp.png"></Image>
-                            </Button.Content>
-                        </Button>
-                    </MenuItem.Header>
-                    <Menu>
-                        <MenuItem Header="Do this"/>
-                        <MenuItem Header="Do that"/>
-                    </Menu>
-                </MenuItem>
-            </ToolBar>
-        </DockPanel>
+            </DockPanel>
 
         <!-- Output column -->
         <DockPanel Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Background="#FF212121">
@@ -99,14 +84,19 @@
                    Source="/Resources/ic_videogame_asset_white_18dp.png" Stretch="None"/>
 
                 <RadioButton Name="XboxOutput" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
-                             IsChecked="{Binding XboxOutput}" />
+                             IsChecked="{Binding XboxOutput}"
+                             IsEnabled="{Binding XboxOutputButtonIsEnabled}"/>
                 <RadioButton Name="VJoyOutput" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
-                             IsChecked="{Binding VJoyOutput}" Foreground="#FF00C3FF" />
+                             IsChecked="{Binding VJoyOutput}" Foreground="#FF00C3FF"
+                             IsEnabled="{Binding VJoyOutputButtonIsEnabled}"/>
 
                 <ComboBox Name="XboxDevices" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}"
-                             ItemsSource="{Binding XboxDevices}" SelectedItem="{Binding CurrentXboxDevice}" IsSynchronizedWithCurrentItem="true" Background="#FF262626" BorderBrush="#FF00C3FF"/>
+                          ItemsSource="{Binding XboxDevices}" SelectedItem="{Binding CurrentXboxDevice}" IsSynchronizedWithCurrentItem="true" Background="#FF262626" BorderBrush="#FF00C3FF"
+                          IsEnabled="{Binding XboxOutputButtonIsEnabled}"/>
+                
                 <ComboBox Name="VJoyDevices" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                             ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"/>
+                          ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
+                          IsEnabled="{Binding VJoyOutputButtonIsEnabled}"/>
 
                 <Button Name="RelinquishAllXboxButton" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Foreground="OrangeRed" Margin="5"
                         Command="{Binding UnplugAllXboxCommand}">

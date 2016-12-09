@@ -14,17 +14,17 @@ namespace CFW.ViewModel
     {
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
-    
+
         private readonly ObservableCollection<string> _modes = new ObservableCollection<string>(CFWMode.GetDescriptions());
-        private ObservableCollection<int> _xboxDevices;    
-        private ObservableCollection<int> _vJoyDevices; 
-        
+        private ObservableCollection<int> _xboxDevices;       
+        private ObservableCollection<int> _vJoyDevices;
+
 
         private int _currentMode;
-        private bool _xboxOutput=false;
-        private bool _vJoyOutput=false;
-        private int _currentXboxDevice=0;
-        private int _currentVJoyDevice=0;
+        private bool _xboxOutput = false;
+        private bool _vJoyOutput = false;
+        private int _currentXboxDevice = 0;
+        private int _currentVJoyDevice = 0;
 
         private uint _currentDeviceID;
         public uint CurrentDeviceID
@@ -35,7 +35,7 @@ namespace CFW.ViewModel
                 if (Model.AcquireVDev(value)) _currentDeviceID = value;
             }
         }
-    
+
         public IEnumerable<string> Modes
         {
             get { return _modes; }
@@ -46,18 +46,17 @@ namespace CFW.ViewModel
             get { return (int)Model.Mode; }
             set
             {
-                if (Model.UpdateMode(value)) 
-                { 
+                if (Model.UpdateMode(value))
+                {
                     _currentMode = value;
                     RaisePropertyChangedEvent("CurrentMode");
                 }
-                
             }
         }
 
         public bool SecondaryDevice
         {
-            get { return Model.DeviceNames.Count>1; }
+            get { return Model.DeviceNames.Count > 1; }
             set
             {
                 if (value)
@@ -90,8 +89,30 @@ namespace CFW.ViewModel
                 if (value == _xboxOutput) return;
                 _xboxOutput = value;
                 RaisePropertyChangedEvent("XboxOutput");
-                _currentDeviceID = (uint)_currentXboxDevice+1000;
+                _currentDeviceID = (uint)_currentXboxDevice + 1000;
                 if (_xboxOutput) AcquireDevice();
+            }
+        }
+
+        private bool _xboxOutputButtonIsEnabled;
+        public bool XboxOutputButtonIsEnabled
+        {
+            get { return _xboxOutputButtonIsEnabled; }
+            set
+            {
+                _xboxOutputButtonIsEnabled = value;
+                RaisePropertyChangedEvent("XboxOutputButtonIsEnabled");
+            }
+        }
+
+        private bool _vJoyOutputButtonIsEnabled;
+        public bool VJoyOutputButtonIsEnabled
+        {
+            get { return _vJoyOutputButtonIsEnabled; }
+            set
+            {
+                _vJoyOutputButtonIsEnabled = value;
+                RaisePropertyChangedEvent("VJoyOutputButtonIsEnabled");
             }
         }
 
@@ -148,7 +169,6 @@ namespace CFW.ViewModel
             {
                 _settingsContextMenuOpen = value;
                 RaisePropertyChangedEvent("SettingsContextMenuOpen");
-
             }
         }
 
@@ -167,7 +187,9 @@ namespace CFW.ViewModel
         {
             Model = model;
             _xboxDevices = new ObservableCollection<int>(Model.CurrentDevices.Where(x => x > 1000 && x < 1005).Select(x => x - 1000));
+            _xboxOutputButtonIsEnabled = _xboxDevices.Count > 0;
             _vJoyDevices = new ObservableCollection<int>(Model.CurrentDevices.Where(x => x > 0 && x < 17));
+            _vJoyOutputButtonIsEnabled = _vJoyDevices.Count > 0;
         }
         
         // public Commands return ICommand using DelegateCommand class
@@ -206,6 +228,7 @@ namespace CFW.ViewModel
             foreach (var item in Model.CurrentDevices.Where(x => x > 1000 && x < 1005).Select(x => x - 1000)) _xboxDevices.Add(item);
             _currentXboxDevice = 0;
             RaisePropertyChangedEvent("CurrentXboxDevice");
+            XboxOutputButtonIsEnabled = _xboxDevices.Count > 0;  
         }
 
         private void SettingsMenu()
