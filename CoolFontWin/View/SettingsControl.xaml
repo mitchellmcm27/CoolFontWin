@@ -103,7 +103,7 @@
                 <RadioButton Name="VJoyOutput" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"
                              IsChecked="{Binding VJoyOutput}" Foreground="#FF00C3FF" />
 
-                <ComboBox Name="XboxDevices" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <ComboBox Name="XboxDevices" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding (Validation.Errors)[0].ErrorContent, RelativeSource={RelativeSource Self}}"
                              ItemsSource="{Binding XboxDevices}" SelectedItem="{Binding CurrentXboxDevice}" IsSynchronizedWithCurrentItem="true" Background="#FF262626" BorderBrush="#FF00C3FF"/>
                 <ComboBox Name="VJoyDevices" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
                              ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"/>

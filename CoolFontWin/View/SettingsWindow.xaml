@@ -4,6 +4,6 @@
         xmlns:View="clr-namespace:CFW.View"
         xmlns:ViewModel="clr-namespace:CFW.ViewModel"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="CFW.View.SettingsWindow"
-        Title="CoolFontWin" Foreground="{x:Null}" Icon="/Assets/tray-icon-transparent.ico" ResizeMode="NoResize" Background="#FF262626" SizeToContent="WidthAndHeight">
+        Title="CoolFontWin" Foreground="{x:Null}" Icon="/Assets/tray-icon-transparent.ico" ResizeMode="CanMinimize" Background="#FF262626" SizeToContent="WidthAndHeight">
     <View:SettingsControl/>
 </Window>

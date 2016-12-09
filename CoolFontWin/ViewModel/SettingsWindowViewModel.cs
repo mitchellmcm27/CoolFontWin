@@ -16,14 +16,9 @@ namespace CFW.ViewModel
         // Raise propertychangedevent on set
     
         private readonly ObservableCollection<string> _modes = new ObservableCollection<string>(CFWMode.GetDescriptions());
-        private ObservableCollection<int> _xboxDevices
-        {
-            get { return new ObservableCollection<int>(Model.CurrentDevices.Where(x => x>1000 && x<1005).Select(x=>x-1000)); }
-        }
-        private ObservableCollection<int> _vJoyDevices
-        {
-            get { return new ObservableCollection<int>(Model.CurrentDevices.Where(x => x>0 && x<17)); }
-        }
+        private ObservableCollection<int> _xboxDevices;    
+        private ObservableCollection<int> _vJoyDevices; 
+        
 
         private int _currentMode;
         private bool _xboxOutput=false;
@@ -125,7 +120,7 @@ namespace CFW.ViewModel
                 _currentVJoyDevice = value;
                 RaisePropertyChangedEvent("CurrrentVJoyDevice");
                 if (!_vJoyOutput) VJoyOutput = true;
-                CurrentDeviceID = (uint)value;        
+                else { CurrentDeviceID = (uint)value; }       
             }
         }
 
@@ -141,7 +136,7 @@ namespace CFW.ViewModel
                 _currentXboxDevice = value;
                 RaisePropertyChangedEvent("CurrrentXBoxDevice");
                 if (!_xboxOutput) XboxOutput = true;
-                CurrentDeviceID = (uint)(value+1000);
+                else { CurrentDeviceID = (uint)(value + 1000); }
             }
         }
 
@@ -171,6 +166,8 @@ namespace CFW.ViewModel
         public SettingsWindowViewModel(BusinessModel model)
         {
             Model = model;
+            _xboxDevices = new ObservableCollection<int>(Model.CurrentDevices.Where(x => x > 1000 && x < 1005).Select(x => x - 1000));
+            _vJoyDevices = new ObservableCollection<int>(Model.CurrentDevices.Where(x => x > 0 && x < 17));
         }
         
         // public Commands return ICommand using DelegateCommand class
@@ -195,14 +192,20 @@ namespace CFW.ViewModel
         {
             get { return new DelegateCommand(SettingsMenu); }
         }
-        private void AcquireDevice()
+
+        private async void AcquireDevice()
         {
-            Model.AcquireVDev(_currentDeviceID);
+            await Model.AcquireVDevAsync(_currentDeviceID);
         }
 
         private void UnplugAllXbox()
         {
+            XboxOutput = false;
+            _xboxDevices.Clear();
             Model.UnplugAllXbox(silent:true);
+            foreach (var item in Model.CurrentDevices.Where(x => x > 1000 && x < 1005).Select(x => x - 1000)) _xboxDevices.Add(item);
+            _currentXboxDevice = 0;
+            RaisePropertyChangedEvent("CurrentXboxDevice");
         }
 
         private void SettingsMenu()

@@ -11,6 +11,7 @@ using SharpDX.XInput;
 using log4net;
 using System.Net.Sockets;
 using System.Collections.Specialized;
+using System.Threading.Tasks;
 
 namespace CFW.Business
 {
@@ -174,6 +175,11 @@ namespace CFW.Business
         public bool AcquireVDev(uint id)
         {
             return SharedDeviceManager.AcquireVDev(id);
+        }
+
+        public async Task<bool> AcquireVDevAsync(uint id)
+        {
+            return await Task.Run(() => SharedDeviceManager.AcquireVDev(id));
         }
 
         public void FlipX()
