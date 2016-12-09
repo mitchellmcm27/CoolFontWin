@@ -37,7 +37,7 @@ namespace CFW.ViewModel
             get { return _currentDeviceID; }
             set
             {
-                if (Model.SharedDeviceManager.AcquireVDev(value)) _currentDeviceID = value;
+                if (Model.AcquireVDev(value)) _currentDeviceID = value;
             }
         }
     
@@ -48,10 +48,10 @@ namespace CFW.ViewModel
 
         public int CurrentMode
         {
-            get { return (int)Model.SharedDeviceManager.Mode; }
+            get { return (int)Model.Mode; }
             set
             {
-                if (DeviceManager.Instance.TryMode(value)) 
+                if (Model.UpdateMode(value)) 
                 { 
                     _currentMode = value;
                     RaisePropertyChangedEvent("CurrentMode");
@@ -79,10 +79,10 @@ namespace CFW.ViewModel
 
         public bool XboxDevice
         {
-            get { return Model.SharedDeviceManager.InterceptXInputDevice; }
+            get { return Model.InterceptXInputDevice; }
             set
             {
-                Model.SharedDeviceManager.InterceptXInputDevice = value;
+                Model.InterceptXInputDevice = value;
                 RaisePropertyChangedEvent("XboxDevice");
             }
         }
@@ -197,12 +197,12 @@ namespace CFW.ViewModel
         }
         private void AcquireDevice()
         {
-            Model.SharedDeviceManager.AcquireVDev(_currentDeviceID);
+            Model.AcquireVDev(_currentDeviceID);
         }
 
         private void UnplugAllXbox()
         {
-            Model.SharedDeviceManager.ForceUnplugAllXboxControllers(silent:true);
+            Model.UnplugAllXbox(silent:true);
         }
 
         private void SettingsMenu()

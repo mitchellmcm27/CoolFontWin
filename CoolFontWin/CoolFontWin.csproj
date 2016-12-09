@@ -251,7 +251,7 @@
     <Compile Include="Business\InputSimulator\Native\MOUSEINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="Business\NotifyIconController.cs" />
+    <Compile Include="Business\NotifyIconViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Business\InputSimulator\Native\VirtualKeyCode.cs" />
     <Compile Include="Business\InputSimulator\Native\XButton.cs" />

@@ -16,20 +16,19 @@ using CFW.Business;
 
 namespace CFW.ViewModel
 {
-    public class NotifyIconController
+    public class NotifyIconViewModel
     {
-
         private static readonly ILog log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private BusinessModel Model;
 
-        public NotifyIconController(BusinessModel model)
+        public NotifyIconViewModel(BusinessModel model)
         {
             Model = model;
         }
 
-        private Image getImageFromMode(SimulatorMode mode)
+        private Image ImageFromMode(SimulatorMode mode)
         {
             switch (mode)
             {
@@ -48,18 +47,18 @@ namespace CFW.ViewModel
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
-            Model.SharedDeviceManager.SmoothingFactor *= 2;
+            Model.IncreaseSmoothingFactor();
         }
 
         private void SmoothingHalf_Click(object sender, EventArgs e)
         {
-            Model.SharedDeviceManager.SmoothingFactor /= 2;
+            Model.DecreaseSmoothingFactor();
         }
 
         private void SelectedMode_Click(object sender, EventArgs e)
         {
             log.Debug(sender);
-            bool res = Model.SharedDeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
+            bool res = Model.UpdateMode((int)((ToolStripMenuItem)sender).Tag);
 
             if (res)
             {
@@ -158,17 +157,17 @@ namespace CFW.ViewModel
 
         private void FlipX_Click(object sender, EventArgs e)
         {
-            if (Model.SharedDeviceManager.VJoyDeviceConnected)
+            if (Model.VJoyDeviceConnected)
             {
-                Model.SharedDeviceManager.FlipAxis(Axis.AxisX);
+                Model.FlipX();
             }
         }
 
         private void FlipY_Click(object sender, EventArgs e)
         {
-            if (Model.SharedDeviceManager.VJoyDeviceConnected)
+            if (Model.VJoyDeviceConnected)
             {
-                Model.SharedDeviceManager.FlipAxis(Axis.AxisY);
+                Model.FlipY();
             }
         }
 
@@ -188,7 +187,7 @@ namespace CFW.ViewModel
         private string AddRemoveXboxControllerString()
         {
             string str = "Physical Xbox controller";
-            if (Model.SharedDeviceManager.Mode == SimulatorMode.ModeWASD)
+            if (Model.Mode == SimulatorMode.ModeWASD)
             {
                 str += "\n(switch to gamepad)";
             }
@@ -197,7 +196,7 @@ namespace CFW.ViewModel
 
         private void addRemoveXboxController_Click(object sender, EventArgs e)
         {
-            Model.SharedDeviceManager.InterceptXInputDevice = !Model.SharedDeviceManager.InterceptXInputDevice;
+            Model.InterceptXInputDevice = !Model.InterceptXInputDevice;
         }
 
         private void deviceID_Click(object sender, EventArgs e)
@@ -214,12 +213,12 @@ namespace CFW.ViewModel
 
             if (id==0)
             {
-                Model.SharedDeviceManager.RelinquishCurrentDevice();
+                Model.RelinquishCurrentDevice();
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
             }
 
-            else if (Model.SharedDeviceManager.AcquireVDev((uint)id))
+            else if (Model.AcquireVDev((uint)id))
             {
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
@@ -248,8 +247,8 @@ namespace CFW.ViewModel
         {
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", GetDescription(Model.SharedDeviceManager.Mode)));
-            modeSelectSubmenu.Image = getImageFromMode(Model.SharedDeviceManager.Mode);
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", CFWMode.GetDescription(Model.Mode)));
+            modeSelectSubmenu.Image = ImageFromMode(Model.Mode);
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
             List<string> Modes = CFWMode.GetDescriptions();
@@ -259,7 +258,7 @@ namespace CFW.ViewModel
                 var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode enum value
                 item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
-                if (i == (int)Model.SharedDeviceManager.Mode)
+                if (i == (int)Model.Mode)
                 {
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_check_blue_18dp;
@@ -323,7 +322,7 @@ namespace CFW.ViewModel
 
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output virtual gamepad", Properties.Settings.Default.VJoyID));
-            if (Model.SharedDeviceManager.CurrentDeviceID == 0)
+            if (Model.CurrentDeviceID == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
                 //vJoySelectSubMenu.Tag = "alert";
@@ -332,7 +331,7 @@ namespace CFW.ViewModel
             {
                 outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 outputSelectSubmenu.ImageAlign = ContentAlignment.MiddleCenter;
-                uint id = Model.SharedDeviceManager.CurrentDeviceID;
+                uint id = Model.CurrentDeviceID;
                 if (id>1000)
                 {
                     switch (id-1000)
@@ -372,7 +371,7 @@ namespace CFW.ViewModel
 
                 var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
                 item.Tag = i;
-                item.Visible = Model.SharedDeviceManager.EnabledVJoyDevicesList.Contains(i);
+                item.Visible = Model.EnabledVJoyDevicesList.Contains(i);
 
                 // doesn't update after install scpvbus
 
@@ -392,7 +391,7 @@ namespace CFW.ViewModel
                     item.Text = "vXbox " + (i - 1000);
                 }
 
-                if (i == Model.SharedDeviceManager.CurrentDeviceID)
+                if (i == Model.CurrentDeviceID)
                 {
                     //if (i==0) item.Tag = "alert";
                     item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
@@ -421,7 +420,7 @@ namespace CFW.ViewModel
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
-            if (Model.SharedDeviceManager.InterceptXInputDevice) // xbox device currently active
+            if (Model.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_check_blue_18dp;
                 addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
@@ -449,20 +448,6 @@ namespace CFW.ViewModel
                     new ToolStripSeparator(),
                     ConfigureOutputSubmenu,
                 });          
-        }
-
-        /// <summary>
-        /// Get description from a decorated enum.
-        /// </summary>
-        /// <param name="value">Enum value</param>
-        /// <returns>String of description</returns>
-        public static string GetDescription(Enum value)
-        {
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-            DescriptionAttribute[] attributes =
-                  (DescriptionAttribute[])fi.GetCustomAttributes(
-                  typeof(DescriptionAttribute), false);
-            return (attributes.Length > 0) ? attributes[0].Description : value.ToString();
         }
 
         /// <summary>

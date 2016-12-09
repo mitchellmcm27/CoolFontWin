@@ -44,7 +44,7 @@ namespace CFW.Business
         }
 
         public SilentUpdater Updater { get; private set; }
-        private NotifyIconController NotifyIconViewModel;
+        private NotifyIconViewModel NotifyIconViewModel;
         private BusinessModel Model;
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
@@ -78,7 +78,7 @@ namespace CFW.Business
 
             InitializeContext();
             Model = new Business.BusinessModel();
-            NotifyIconViewModel = new NotifyIconController(Model);
+            NotifyIconViewModel = new NotifyIconViewModel(Model);
             Model.StartServices();
 
             NotifyIcon.Text = VersionItemString();
