@@ -22,7 +22,7 @@ namespace CFW.Business
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static readonly string DefaultTooltip = "Pocket Strafe Companion";
+        private static readonly string DefaultTooltip = "PocketStrafe Companion";
         private static readonly string CurrentInstallLocation = Assembly.GetExecutingAssembly().Location;
 
         private string _Ver;

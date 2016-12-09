@@ -1,16 +1,8 @@
 ﻿using System;
-using System.Reflection;
-using System.ComponentModel;
 using System.Windows.Forms;
-using System.Linq;
 using System.Drawing;
 using System.Collections.Generic;
-using System.Collections;
-
-using SharpDX.XInput;
 using log4net;
-using System.Net.Sockets;
-using System.Collections.Specialized;
 
 using CFW.Business;
 
