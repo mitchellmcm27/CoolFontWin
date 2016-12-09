@@ -233,8 +233,8 @@ namespace CFW.Business
             }
         }
 
-        private static CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
-        private static CFWContextMenuRenderer CustomRendererNormal = new CFWContextMenuRenderer(UIStyle.UIStyleNormal);
+        private static readonly CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
+        private static readonly CFWContextMenuRenderer CustomRendererNormal = new CFWContextMenuRenderer(UIStyle.UIStyleNormal);
 
         private bool SteamVRRunning
         {
@@ -310,15 +310,15 @@ namespace CFW.Business
         private SuccessForm SuccessForm;
         private UpdateNotes UpdateNotes;
         private View.SettingsWindow SettingsWindow;
-        private ViewModel.Presenter Presenter;
+        private SettingsWindowViewModel SettingsWindowViewModel;
 
         private void ShowSettingsWindow()
         {
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                Presenter = new ViewModel.Presenter(Model);
-                SettingsWindow.DataContext = Presenter;
+                SettingsWindowViewModel = new SettingsWindowViewModel(Model);
+                SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }              
             SettingsWindow.Show();

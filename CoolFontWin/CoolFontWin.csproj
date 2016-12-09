@@ -282,7 +282,7 @@
     </Compile>
     <Compile Include="ViewModel\DelegateCommand.cs" />
     <Compile Include="ViewModel\ObservableObject.cs" />
-    <Compile Include="ViewModel\Presenter.cs" />
+    <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="View\SettingsControl.xaml.cs">
       <DependentUpon>SettingsControl.xaml</DependentUpon>
     </Compile>

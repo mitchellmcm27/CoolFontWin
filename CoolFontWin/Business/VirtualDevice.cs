@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.ComponentModel;
 using SharpDX.XInput;
 using WindowsInput;
 using vGenWrap;
@@ -15,7 +14,7 @@ namespace CFW.Business
     /// Gives indexes of Valsf[] of joystick axes values
     /// </summary>
     /// vel, X, Y, RX, RY, Z, RZ, POV, dY, dX
-    public static class IndexOf
+    public struct IndexOf
     {
         // Index of data after separating string by $
         public static readonly int DataMode = 0;
@@ -46,7 +45,7 @@ namespace CFW.Business
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public class VirtualDeviceState
+        public class State
         {
             public double X;
             public double Y;
@@ -88,13 +87,13 @@ namespace CFW.Business
         #region Init
 
         // private properties
-        private double MaxAxis = 100.0;
-        private double MinAxis = 0.0;
-        private double MaxPov = 359.9;
-        private double MinPov = 0.0;
+        private static readonly double MaxAxis = 100.0;
+        private static readonly double MinAxis = 0.0;
+        private static readonly double MaxPov = 359.9;
+        private static readonly double MinPov = 0.0;
 
         private vDev Joystick;
-        public VirtualDeviceState iReport;
+        private State iReport;
         private int ContPovNumber;
         private InputSimulator KbM;
         private MobileDevice CombinedDevice;
@@ -102,6 +101,8 @@ namespace CFW.Business
 
         private bool LeftMouseButtonDown = false;
         private bool RightMoustButtonDown = false;
+
+        private TimeSpan UpdateInterval;
 
         // public properties
         public DevType VDevType;
@@ -119,8 +120,6 @@ namespace CFW.Business
             }
         }
 
-        public TimeSpan UpdateInterval;
-
         public List<MobileDevice> DeviceList; // Mobile devices to expect
 
         public bool UserIsRunning = true;
@@ -132,7 +131,7 @@ namespace CFW.Business
         public int signY = 1;
 
         public SimulatorMode Mode;
-        private SimulatorMode OldMode;
+        private SimulatorMode PreviousMode;
 
         public double RCFilterStrength;
 
@@ -140,7 +139,7 @@ namespace CFW.Business
         {
 
             Mode = SimulatorMode.ModeDefault;
-            OldMode = Mode;
+            PreviousMode = Mode;
 
             UpdateInterval = updateInterval;
 
@@ -151,7 +150,7 @@ namespace CFW.Business
 
             KbM = new InputSimulator();
             Joystick = new vDev();
-            iReport = new VirtualDeviceState();
+            iReport = new State();
             CombinedDevice = new MobileDevice();
 
             // DeviceManager will fill this list as needed
@@ -226,28 +225,25 @@ namespace CFW.Business
             // Mode from primary device only!
             if (deviceNumber == 0)
             {
-                int modeIn = int.Parse(instring_sep[IndexOf.DataMode]); // Mode is a fallback
-                UpdateMode((SimulatorMode)modeIn);
+                SimulatorMode modeIn = (SimulatorMode)int.Parse(instring_sep[IndexOf.DataMode]);
+                ModeFromPhone(modeIn);
             }
 
-            // Main joystick axis values
-            double[] valsf = ParseVals(instring_sep[IndexOf.DataVals]);
-
             // Update MobileDevice with processed vals
-            DeviceList[deviceNumber].Valsf = valsf;
+            DeviceList[deviceNumber].Valsf = ParseVals(instring_sep[IndexOf.DataVals]);
             DeviceList[deviceNumber].Count++;
             return true;
         }
 
-        public void UpdateMode(SimulatorMode mode)
+        private void ModeFromPhone(SimulatorMode mode)
         {
-            if (mode == Mode || mode == OldMode) { return; } // mode is the same as current
+            if (mode == Mode || mode == PreviousMode) { return; } // mode is the same as current
             if (!CheckMode(mode)) { return; }
 
             NeutralizeCurrentVJoyDevice();
 
             this.Mode = mode;
-            this.OldMode = Mode;
+            this.PreviousMode = Mode;
             this.CurrentModeIsFromPhone = true;
             log.Info("Obtained mode from phone: " + Mode.ToString());
         }
@@ -300,9 +296,9 @@ namespace CFW.Business
             {
                 parsed[i] = Int32.Parse(axes_sep[i]);
             }
-
             return parsed;
         }
+
         #endregion
 
         #region Data preparation (Main Class Logic)
@@ -320,6 +316,7 @@ namespace CFW.Business
 
             // Add vals and buttons from Ready devices
             CombinedDevice.Buttons = 0;
+
             for (int i = 0; i < DeviceList.Count; i++)
             {
                 if (!DeviceList[i].Ready) continue;
@@ -580,8 +577,8 @@ namespace CFW.Business
             iReport.RY += MaxAxis / 2;
 
             // 0
-            iReport.Z += 0;
-            iReport.RZ += 0;
+            // iReport.Z += 0;
+            // iReport.RZ += 0;
         }
 
         private void AddButtons(int buttonsDown)
@@ -636,7 +633,7 @@ namespace CFW.Business
             ResetValues();
         }
 
-        public void AddControllerState(State state)
+        public void AddControllerState(SharpDX.XInput.State state)
         {
             // -50 to 50
             iReport.X += state.Gamepad.LeftThumbX / 327.68 / 2;

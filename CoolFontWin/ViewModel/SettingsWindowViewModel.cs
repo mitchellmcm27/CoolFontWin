@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace CFW.ViewModel
 {
-    public class Presenter : ObservableObject
+    public class SettingsWindowViewModel : ObservableObject
     {
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
@@ -168,7 +168,7 @@ namespace CFW.ViewModel
         }
 
         private readonly BusinessModel Model;
-        public Presenter(BusinessModel model)
+        public SettingsWindowViewModel(BusinessModel model)
         {
             Model = model;
         }

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
-             d:DataContext="{d:DesignInstance ViewModel:Presenter}"
+             d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModel}"
              mc:Ignorable="d" Height="251.72" Width="475.622" Foreground="White">
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
