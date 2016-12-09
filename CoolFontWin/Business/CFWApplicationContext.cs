@@ -49,6 +49,7 @@ namespace CFW.Business
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
         private View.SettingsWindow SettingsView;
+        private ScpVBus scpInstaller = new ScpVBus();
         
         public CFWApplicationContext()
         {
@@ -59,10 +60,8 @@ namespace CFW.Business
 
             // Install ScpVBus every time application is launched
             // Uninstall it on exit (see region below)
-            if (!ScpVBus.Install() && Properties.Settings.Default.ShowScpVbusDialog)
-            {
-                ShowScpVbusDialog();
-            }
+            scpInstaller.PropertyChanged += ScpInstallerPropertyChanged;
+            scpInstaller.Install();
 
             try
             {
@@ -106,6 +105,15 @@ namespace CFW.Business
                     "CoolFontWin updated",
                     "Get update notes at www.coolfont.co",
                     ToolTipIcon.Info);
+            }
+        }
+
+        private void ScpInstallerPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!scpInstaller.InstallSuccess && Properties.Settings.Default.ShowScpVbusDialog)
+            {
+                log.Debug("Show ScpVBus dialog.");
+                ShowScpVbusDialog();
             }
         }
 
