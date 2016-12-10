@@ -81,6 +81,26 @@ namespace CFW.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap cfw_joystick {
+            get {
+                object obj = ResourceManager.GetObject("cfw_joystick", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap cfw_xbox {
+            get {
+                object obj = ResourceManager.GetObject("cfw_xbox", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap ic_build_white_18dp {
             get {
                 object obj = ResourceManager.GetObject("ic_build_white_18dp", resourceCulture);

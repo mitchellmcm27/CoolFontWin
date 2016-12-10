@@ -169,17 +169,24 @@ namespace CFW.Business
 
         public void UnplugAllXbox(bool silent = false)
         {
+            SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD);
             SharedDeviceManager.ForceUnplugAllXboxControllers(silent);
+        }
+
+        public async Task UnplugAllXboxAsync(bool silent=false)
+        {
+            await Task.Run(() => UnplugAllXbox(silent));
         }
 
         public bool AcquireVDev(uint id)
         {
+            if (Mode == SimulatorMode.ModeWASD) UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
             return SharedDeviceManager.AcquireVDev(id);
         }
 
         public async Task<bool> AcquireVDevAsync(uint id)
         {
-            return await Task.Run(() => SharedDeviceManager.AcquireVDev(id));
+            return await Task.Run(() => AcquireVDev(id));
         }
 
         public void FlipX()
