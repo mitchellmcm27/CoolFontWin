@@ -26,17 +26,6 @@ namespace CFW.ViewModel
 
         private uint _previousDeviceID;
         private uint _currentDeviceID;
-        public uint CurrentDeviceID
-        {
-            get { return _currentDeviceID; }
-            set
-            {
-                if (_currentDeviceID == value) return;
-                _previousDeviceID = _currentDeviceID;
-                _currentDeviceID = value;
-                AcquireDevice();
-            }
-        }
 
         public IEnumerable<string> Modes
         {
@@ -92,9 +81,9 @@ namespace CFW.ViewModel
                 if (value)
                 {
                     Model.UpdateMode((int)SimulatorMode.ModeWASD);
-                    RaisePropertyChangedEvent("KeyboardOutput");
                     RaisePropertyChangedEvent("CoupledOutput");
                 }
+                RaisePropertyChangedEvent("KeyboardOutput");
             }
         }
 
@@ -107,15 +96,88 @@ namespace CFW.ViewModel
                 if (value == _xboxOutput) return;
                 _xboxOutput = value;
                 RaisePropertyChangedEvent("XboxOutput");
-                KeyboardOutput = false;
                 _currentDeviceID = (uint)_currentXboxDevice + 1000;
                 if (_xboxOutput) AcquireDevice();
             }
         }
 
+        public int CurrentXboxDevice
+        {
+            get
+            {
+                if (_currentXboxDevice == 0) _currentXboxDevice = XboxDevices.FirstOrDefault();
+                return _currentXboxDevice;
+            }
+            set
+            {
+                _currentXboxDevice = value;
+                RaisePropertyChangedEvent("CurrrentXBoxDevice");
+                _xboxOutput = true;
+                _currentDeviceID = (uint)(value + 1000);
+                AcquireDevice();
+                RaisePropertyChangedEvent("DecoupledOutput");
+                RaisePropertyChangedEvent("CoupledOutput");
+                RaisePropertyChangedEvent("KeyboardOutput");
+            }
+        }
+
+        private bool _xboxOutputButtonIsEnabled;
+        public bool XboxOutputButtonIsEnabled
+        {
+            get { return _xboxOutputButtonIsEnabled; }
+            set
+            {
+                _xboxOutputButtonIsEnabled = value;
+                RaisePropertyChangedEvent("XboxOutputButtonIsEnabled");
+            }
+        }
+
+        public bool VJoyOutput
+        {
+            get { return _vJoyOutput; }
+            set
+            {
+                if (value == _vJoyOutput) return;
+                _vJoyOutput = value;
+                RaisePropertyChangedEvent("VJoyOutput");
+                _currentDeviceID = (uint)_currentVJoyDevice;
+                if (_vJoyOutput) AcquireDevice();
+            }
+        }
+
+        public int CurrentVJoyDevice
+        {
+            get
+            {
+                if (_currentVJoyDevice == 0) _currentVJoyDevice = VJoyDevices.FirstOrDefault();
+                return _currentVJoyDevice;
+            }
+            set
+            {
+                _currentVJoyDevice = value;
+                RaisePropertyChangedEvent("CurrrentVJoyDevice");
+                if (!_vJoyOutput) VJoyOutput = true;
+                else { _currentDeviceID = (uint)value; }
+                RaisePropertyChangedEvent("DecoupledOutput");
+                RaisePropertyChangedEvent("CoupledOutput");
+                RaisePropertyChangedEvent("KeyboardOutput");
+            }
+        }
+
+        private bool _vJoyOutputButtonIsEnabled;
+        public bool VJoyOutputButtonIsEnabled
+        {
+            get { return _vJoyOutputButtonIsEnabled; }
+            set
+            {
+                _vJoyOutputButtonIsEnabled = value;
+                RaisePropertyChangedEvent("VJoyOutputButtonIsEnabled");
+            }
+        }
+
         public bool CoupledOutput
         {
-            get { return Model.Mode!=SimulatorMode.ModeJoystickDecoupled; }
+            get { return Model.Mode != SimulatorMode.ModeJoystickDecoupled; }
             set
             {
                 if (value)
@@ -136,80 +198,6 @@ namespace CFW.ViewModel
                     Model.UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
                     RaisePropertyChangedEvent("DecoupledOutput");
                 }
-            }
-        }
-
-        private bool _xboxOutputButtonIsEnabled;
-        public bool XboxOutputButtonIsEnabled
-        {
-            get { return _xboxOutputButtonIsEnabled; }
-            set
-            {
-                _xboxOutputButtonIsEnabled = value;
-                RaisePropertyChangedEvent("XboxOutputButtonIsEnabled");
-            }
-        }
-
-        private bool _vJoyOutputButtonIsEnabled;
-        public bool VJoyOutputButtonIsEnabled
-        {
-            get { return _vJoyOutputButtonIsEnabled; }
-            set
-            {
-                _vJoyOutputButtonIsEnabled = value;
-                RaisePropertyChangedEvent("VJoyOutputButtonIsEnabled");
-            }
-        }
-
-        public bool VJoyOutput
-        {
-            get { return _vJoyOutput; }
-            set
-            {
-                if (value == _vJoyOutput) return;
-                _vJoyOutput = value;
-                RaisePropertyChangedEvent("VJoyOutput");
-                KeyboardOutput = false;       
-                _currentDeviceID = (uint)_currentVJoyDevice;
-                if (_vJoyOutput) AcquireDevice();
-            }
-        }
-
-        public int CurrentVJoyDevice
-        {
-            get
-            {
-                if (_currentVJoyDevice == 0) _currentVJoyDevice = VJoyDevices.FirstOrDefault();
-                return _currentVJoyDevice;
-            }
-            set
-            {
-                _currentVJoyDevice = value;
-                RaisePropertyChangedEvent("CurrrentVJoyDevice");
-                if (!_vJoyOutput) VJoyOutput = true;
-                else { CurrentDeviceID = (uint)value; }
-                RaisePropertyChangedEvent("DecoupledOutput");
-                RaisePropertyChangedEvent("CoupledOutput");
-                RaisePropertyChangedEvent("KeyboardOutput");
-            }
-        }
-
-        public int CurrentXboxDevice
-        {
-            get
-            {
-                if (_currentXboxDevice == 0) _currentXboxDevice = XboxDevices.FirstOrDefault();
-                return _currentXboxDevice;
-            }
-            set
-            {
-                _currentXboxDevice = value;
-                RaisePropertyChangedEvent("CurrrentXBoxDevice");
-                if (!_xboxOutput) XboxOutput = true;
-                else { CurrentDeviceID = (uint)(value + 1000); }
-                RaisePropertyChangedEvent("DecoupledOutput");
-                RaisePropertyChangedEvent("CoupledOutput");
-                RaisePropertyChangedEvent("KeyboardOutput");
             }
         }
 
@@ -271,27 +259,34 @@ namespace CFW.ViewModel
         private async void AcquireDevice()
         {
             bool res = await Model.AcquireVDevAsync(_currentDeviceID);
-            if (!res) CurrentDeviceID = _previousDeviceID;
+            if (!res)
+            {
+                _currentDeviceID = _previousDeviceID;
+                //Model.AcquireVDev(_previousDeviceID);
+            }
+             
             RaisePropertyChangedEvent("DecoupledOutput");
             RaisePropertyChangedEvent("CoupledOutput");
             RaisePropertyChangedEvent("KeyboardOutput");
+
+            _previousDeviceID = _currentDeviceID;
         }
 
         private async void UnplugAllXbox()
         {
-            XboxOutput = false;   
-            
+            KeyboardOutput = true;
+  
             for (int i = 1; i < 5; i++) _xboxDevices.Add(i);
             _currentXboxDevice = 0;
             RaisePropertyChangedEvent("CurrentXboxDevice");
+
             await Model.UnplugAllXboxAsync(silent:true);
             _xboxDevices.Clear();
             foreach (var item in Model.CurrentDevices.Where(x => x > 1000 && x < 1005).Select(x => x - 1000)) _xboxDevices.Add(item);
             _currentXboxDevice = 0;
             RaisePropertyChangedEvent("CurrentXboxDevice");
-            XboxOutputButtonIsEnabled = _xboxDevices.Count > 0;
 
-            KeyboardOutput = Model.Mode == SimulatorMode.ModeWASD;
+            XboxOutputButtonIsEnabled = _xboxDevices.Count > 0;
         }
 
         private void SettingsMenu()

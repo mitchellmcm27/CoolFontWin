@@ -120,6 +120,7 @@ namespace CFW.Business
             }
         }
 
+        public int MaxDevices;
         public List<MobileDevice> DeviceList; // Mobile devices to expect
 
         public bool UserIsRunning = true;
@@ -192,6 +193,8 @@ namespace CFW.Business
             {
                 deviceNumber = int.Parse(instring_sep[IndexOf.DataDeviceNumber]);
             }
+
+            if (deviceNumber > MaxDevices-1) return false;
 
             DeviceList[deviceNumber].PacketNumber = int.Parse(instring_sep[IndexOf.DataPacketNumber]);
 

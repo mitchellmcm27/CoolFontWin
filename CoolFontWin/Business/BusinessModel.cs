@@ -139,7 +139,7 @@ namespace CFW.Business
             // get last-added device name and remove it
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
+           
 
             // unpublish service containing this name
             DnsServer.Unpublish(name);
@@ -150,6 +150,8 @@ namespace CFW.Business
             collection.AddRange(DeviceNames.ToArray());
             Properties.Settings.Default.ConnectedDevices = collection;
             Properties.Settings.Default.Save();
+
+            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
         }
 
         public void IncreaseSmoothingFactor()
@@ -180,8 +182,9 @@ namespace CFW.Business
 
         public bool AcquireVDev(uint id)
         {
+            bool res = SharedDeviceManager.AcquireVDev(id);
             if (Mode == SimulatorMode.ModeWASD) UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-            return SharedDeviceManager.AcquireVDev(id);
+            return res;
         }
 
         public async Task<bool> AcquireVDevAsync(uint id)

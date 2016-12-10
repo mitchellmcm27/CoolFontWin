@@ -155,6 +155,7 @@ namespace CFW.Business
                     {
                         VDevice.DeviceList.Add(new MobileDevice());
                     }
+                    VDevice.MaxDevices = _MobileDevicesCount;
                 }
             }
         }
@@ -254,6 +255,7 @@ namespace CFW.Business
 
         public void RelinquishCurrentDevice(bool silent=false)
         {
+            log.Info("Relinquish current device");
             if (VDevice.VDevType == DevType.vJoy && !silent) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             VDevice.RelinquishCurrentDevice();
         }
@@ -275,6 +277,7 @@ namespace CFW.Business
         /// <returns>Returns a bool indicating whether the mode switched.</returns>
         public bool TryMode(int mode)
         {
+            if (mode == (int)SimulatorMode.ModeWASD) RelinquishCurrentDevice(silent: true);
             return VDevice.ClickedMode((SimulatorMode)mode);
         }
 
