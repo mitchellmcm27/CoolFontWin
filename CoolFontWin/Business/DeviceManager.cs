@@ -185,7 +185,7 @@ namespace CFW.Business
 
             VDevice = new VirtualDevice(UpdateInterval);
 
-            AcquireDefaultVDev();
+           // AcquireDefaultVDev();
 
             InitializeTimer();
         }
@@ -204,25 +204,26 @@ namespace CFW.Business
 
             XDevice = XMgr.getController();
 
-            if (id == 0)
-            {
-                VDevice.AcquireUnusedVDev();
-            }
-            else
-            {
-                AcquireVDev(id);
-            }
-
             if (XDevice != null && XDevice.IsConnected)
             {
                 XInputDeviceConnected = true;
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good, afterMilliseconds: 1000);
                 xDeviceAcquired = true;
+                if (id == 0)
+                {
+                    VDevice.AcquireUnusedVDev();
+                }
+                else
+                {
+                    AcquireVDev(id);
+                }
             }
             else
             {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
+                //ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
                 xDeviceAcquired = false;
+                AcquireVDev(id);
+                
             }
 
             return xDeviceAcquired;
