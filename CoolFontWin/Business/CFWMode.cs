@@ -32,7 +32,6 @@ namespace CFW.Business
         [Description("Gamepad")]
         ModeGamepad, // fully functional gamepad similar to Xbox controller
 
-        ModeDefault = ModeWASD,
     };
 
     public static class CFWMode

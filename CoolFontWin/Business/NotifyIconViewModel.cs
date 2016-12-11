@@ -238,47 +238,20 @@ namespace CFW.ViewModel
         public void AddToContextMenu(ContextMenuStrip cms)
         {
 
-            // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", CFWMode.GetDescription(Model.Mode)));
-            modeSelectSubmenu.Image = ImageFromMode(Model.Mode);
-            modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
-
-            List<string> Modes = CFWMode.GetDescriptions();
-
-            for (int i = 0; i < Modes.Count; i++)
-            {
-                var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
-                item.Tag = i; // = SimulatorMode enum value
-                item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
-                if (i == (int)Model.Mode)
-                {
-                    item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
-                    item.Image = Properties.Resources.ic_check_blue_18dp;
-                    item.ImageScaling = ToolStripItemImageScaling.None; 
-                }
-                modeSelectSubmenu.DropDownItems.Add(item);
-            }
-
             // vJoy config menu - Change keybinds, monitor/config vJoy, flip axes...
             ToolStripMenuItem fwdKeyItem = ToolStripMenuItemWithHandler("Rebind forward key", null);
-            fwdKeyItem.Image = Properties.Resources.ic_gamepad_white_18dp;
-            fwdKeyItem.ImageScaling = ToolStripItemImageScaling.None;
             fwdKeyItem.Enabled = false;
 
             ToolStripMenuItem flipXItem = ToolStripMenuItemWithHandler("Flip X-axis", FlipX_Click);
-            flipXItem.Image = Properties.Resources.ic_swap_horiz_white_18dp;
-            flipXItem.ImageScaling = ToolStripItemImageScaling.None;
+
             ToolStripMenuItem flipYItem = ToolStripMenuItemWithHandler("Flip Y-axis", FlipY_Click);
-            flipYItem.Image = Properties.Resources.ic_swap_vert_white_18dp;
-            flipYItem.ImageScaling = ToolStripItemImageScaling.None;
+
 
             ToolStripMenuItem vJoyConfItem = ToolStripMenuItemWithHandler("vJoy Config", VJoyConf_Click);
-            vJoyConfItem.Image = Properties.Resources.ic_launch_white_18dp;
-            vJoyConfItem.ImageScaling = ToolStripItemImageScaling.None;
+
 
             ToolStripMenuItem vJoyMonItem = ToolStripMenuItemWithHandler("vJoy Monitor", VJoyMon_Click);
-            vJoyMonItem.Image = Properties.Resources.ic_launch_white_18dp;
-            vJoyMonItem.ImageScaling = ToolStripItemImageScaling.None;
+
 
             // Smoothing factor adjustment - double or half
             ToolStripMenuItem smoothingDoubleItem = ToolStripMenuItemWithHandler("Increase signal smoothing", SmoothingDouble_Click);
@@ -312,6 +285,33 @@ namespace CFW.ViewModel
                 logItem
             });
 
+            // Add all of these to the Context Menu Strip
+            cms.Items.AddRange(
+                new ToolStripItem[] {
+                   // outputSelectSubmenu,
+                   // inputSelectSubmenu,
+                   // modeSelectSubmenu,
+                   // unplugAllItem,
+                    ConfigureOutputSubmenu,
+                });          
+        }
+
+        /// <summary>
+        /// Helper method to create a handler with a toolstrip menu item.
+        /// </summary>
+        /// <param name="displayText">Item's display text</param>
+        /// <param name="eventHandler">Handler for Click event</param>
+        /// <returns>ToolStripMenuItem</returns>
+        public ToolStripMenuItem ToolStripMenuItemWithHandler(string displayText, EventHandler eventHandler)
+        {
+            var item = new ToolStripMenuItem(displayText);
+            // add image
+            if (eventHandler != null) { item.Click += eventHandler; }
+            return item;
+        }
+
+        public void OldMenuItems()
+        {
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output virtual gamepad", Properties.Settings.Default.VJoyID));
             if (Model.CurrentDeviceID == 0)
@@ -324,9 +324,9 @@ namespace CFW.ViewModel
                 outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 outputSelectSubmenu.ImageAlign = ContentAlignment.MiddleCenter;
                 uint id = Model.CurrentDeviceID;
-                if (id>1000)
+                if (id > 1000)
                 {
-                    switch (id-1000)
+                    switch (id - 1000)
                     {
                         case 1:
                             outputSelectSubmenu.Image = Properties.Resources.ic_xbox_1p_blue_18dp;
@@ -344,7 +344,7 @@ namespace CFW.ViewModel
                             outputSelectSubmenu.Image = Properties.Resources.ic_xbox_all_blue_18dp;
                             break;
                     }
-                    
+
                 }
                 else
                 {
@@ -352,7 +352,7 @@ namespace CFW.ViewModel
                     Color idColor = Colors.IconBlue;
                     outputSelectSubmenu.Image = Drawing.CreateBitmapImage(idString, idColor);
                 }
-                
+
             }
             outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             List<ToolStripItem> deviceIDItems = new List<ToolStripItem>();
@@ -374,10 +374,10 @@ namespace CFW.ViewModel
                     item.Enabled = true;
                     item.Visible = true;
                 }
-                else if (i<=1000)
+                else if (i <= 1000)
                 {
                     item.Text = "vJoy " + (i);
-                }  
+                }
                 else
                 {
                     item.Text = "vXbox " + (i - 1000);
@@ -386,14 +386,14 @@ namespace CFW.ViewModel
                 if (i == Model.CurrentDeviceID)
                 {
                     //if (i==0) item.Tag = "alert";
-                    item.Font = new Font(cms.Font, cms.Font.Style | FontStyle.Bold);
-                    item.Image = i==0? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_check_blue_18dp;
+                    item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
+                    item.Image = i == 0 ? Properties.Resources.ic_error_outline_orange_18dp : Properties.Resources.ic_check_blue_18dp;
                     item.ImageScaling = ToolStripItemImageScaling.None;
                 }
 
                 deviceIDItems.Add(item);
             }
-            
+
             outputSelectSubmenu.DropDownItems.AddRange(deviceIDItems.ToArray());
 
             // Device Manager Menu -  Add/remove 2nd iPhone, add/remove Xbox controller
@@ -425,37 +425,32 @@ namespace CFW.ViewModel
 
             inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { primaryMobileDeviceItem, addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
 
+            // Mode submenu - Display current mode and change modes in dropdown menu
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", CFWMode.GetDescription(Model.Mode)));
+            modeSelectSubmenu.Image = ImageFromMode(Model.Mode);
+            modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
+
+            List<string> Modes = CFWMode.GetDescriptions();
+
+            for (int i = 0; i < Modes.Count; i++)
+            {
+                var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
+                item.Tag = i; // = SimulatorMode enum value
+                item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
+                if (i == (int)Model.Mode)
+                {
+                    item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
+                    item.Image = Properties.Resources.ic_check_blue_18dp;
+                    item.ImageScaling = ToolStripItemImageScaling.None;
+                }
+                modeSelectSubmenu.DropDownItems.Add(item);
+            }
+
 
             ToolStripMenuItem unplugAllItem = ToolStripMenuItemWithHandler("Unplug all Xbox controllers", UnplugAll_Click);
             unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
             unplugAllItem.ImageScaling = ToolStripItemImageScaling.None;
-
-            
-            // Add all of these to the Context Menu Strip
-            cms.Items.AddRange(
-                new ToolStripItem[] {
-                   // outputSelectSubmenu,
-                   // inputSelectSubmenu,
-                   // modeSelectSubmenu,
-                   // unplugAllItem,
-                    ConfigureOutputSubmenu,
-                });          
         }
-
-        /// <summary>
-        /// Helper method to create a handler with a toolstrip menu item.
-        /// </summary>
-        /// <param name="displayText">Item's display text</param>
-        /// <param name="eventHandler">Handler for Click event</param>
-        /// <returns>ToolStripMenuItem</returns>
-        public ToolStripMenuItem ToolStripMenuItemWithHandler(string displayText, EventHandler eventHandler)
-        {
-            var item = new ToolStripMenuItem(displayText);
-            // add image
-            if (eventHandler != null) { item.Click += eventHandler; }
-            return item;
-        }
-
 
     }
 }

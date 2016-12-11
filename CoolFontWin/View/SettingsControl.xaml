@@ -73,7 +73,13 @@
 
                     <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16,8,16,8" 
                         Command="{Binding PlayPauseCommand}">
-                        Pause
+                        <Button.Content>
+                            <DockPanel>
+                                <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
+                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding PauseButtonText}"></TextBlock>
+                            </DockPanel>
+                        </Button.Content>
+                        
                     </Button>
                 </Grid>
             </DockPanel>
@@ -163,9 +169,8 @@
                           ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
                           IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
                     <DockPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,8,8,8">
-                        <Button  Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="0,0,4,0"
-                        Command="{Binding UnplugAllXboxCommand}">
-                            Unplug Controllers
+                        <Button  Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="0,0,4,0" Command="{Binding UnplugAllXboxCommand}">
+                            Unplug vControllers
                         </Button>
                         <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" DockPanel.Dock="Left" Margin="4,0,0,0" Command="{Binding JoyCplCommand}">
                             <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />

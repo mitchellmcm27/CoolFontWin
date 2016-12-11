@@ -186,14 +186,11 @@ namespace CFW.Business
         }
 
         public void UnplugAllXbox(bool silent = false)
-        {
-            if(SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD))
-            {
-                RaisePropertyChangedEvent("Mode");
-            }
+        {         
             SharedDeviceManager.ForceUnplugAllXboxControllers(silent);
+            SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD);
             RaisePropertyChangedEvent("CurrentDevices");
-            RaisePropertyChangedEvent("CurrentDeviceID");
+
         }
 
         public async Task UnplugAllXboxAsync(bool silent=false)

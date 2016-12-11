@@ -140,7 +140,7 @@ namespace CFW.Business
         public VirtualDevice(TimeSpan updateInterval)
         {
 
-            Mode = SimulatorMode.ModeDefault;
+            Mode = SimulatorMode.ModeWASD;
             PreviousMode = Mode;
 
             UpdateInterval = updateInterval;
