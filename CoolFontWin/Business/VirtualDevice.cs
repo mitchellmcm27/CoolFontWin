@@ -40,7 +40,7 @@ namespace CFW.Business
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
-    public class VirtualDevice
+    public class VirtualDevice : ObservableObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -116,6 +116,7 @@ namespace CFW.Business
             set
             {
                 _Id = value;
+                RaisePropertyChangedEvent("Id");
                 this.VDevType = value < 1001 ? DevType.vJoy : DevType.vXbox;
             }
         }
@@ -249,13 +250,14 @@ namespace CFW.Business
             this.PreviousMode = Mode;
             this.CurrentModeIsFromPhone = true;
             log.Info("Obtained mode from phone: " + Mode.ToString());
+            RaisePropertyChangedEvent("Mode");
         }
 
         public bool ClickedMode(SimulatorMode mode)
         {
             if (!CheckMode(mode))
             {
-                log.Debug("Seleted mode not available. vJoy not enabled? " + Mode.ToString());
+                log.Debug("Selected mode not available. vJoy not enabled? " + Mode.ToString());
                 return false;
             }
 
@@ -264,6 +266,7 @@ namespace CFW.Business
             this.Mode = mode;
             this.CurrentModeIsFromPhone = false;
             log.Info("Obtained mode from CFW menu: " + Mode.ToString());
+            RaisePropertyChangedEvent("Mode");
             return true;
         }
 

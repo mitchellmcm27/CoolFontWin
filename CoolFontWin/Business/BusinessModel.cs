@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace CFW.Business
 {
-    public class BusinessModel
+    public class BusinessModel : ObservableObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -36,11 +36,14 @@ namespace CFW.Business
         {
             get { return SharedDeviceManager.CurrentDeviceID; }
         }
-
+        
         public bool InterceptXInputDevice
         {
             get { return SharedDeviceManager.InterceptXInputDevice; }
-            set { SharedDeviceManager.InterceptXInputDevice = value; }
+            set
+            {
+                SharedDeviceManager.InterceptXInputDevice = value;
+            }
         }
 
         public bool VJoyDeviceConnected
@@ -64,6 +67,7 @@ namespace CFW.Business
             this.UdpServer = new UDPServer();
             UdpServer.ClientAdded += Server_ClientAdded;
             this.SharedDeviceManager = DeviceManager.Instance;
+            SharedDeviceManager.PropertyChanged += DeviceManager_PropertyChanged;      
         }
 
         /// <summary>
@@ -84,6 +88,8 @@ namespace CFW.Business
         {
             this.DeviceNames = names;
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
+
+            RaisePropertyChangedEvent("DeviceNames");
 
             UdpServer.Start(Properties.Settings.Default.LastPort);
 
@@ -123,6 +129,7 @@ namespace CFW.Business
             collection.AddRange(DeviceNames.ToArray());
             Properties.Settings.Default.ConnectedDevices = collection;
             Properties.Settings.Default.Save();
+            RaisePropertyChangedEvent("DeviceNames");
         }
 
         /// <summary>
@@ -139,7 +146,6 @@ namespace CFW.Business
             // get last-added device name and remove it
             string name = DeviceNames.Last();
             this.DeviceNames.Remove(name);
-           
 
             // unpublish service containing this name
             DnsServer.Unpublish(name);
@@ -152,6 +158,7 @@ namespace CFW.Business
             Properties.Settings.Default.Save();
 
             SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
+            RaisePropertyChangedEvent("DeviceNames");
         }
 
         public void IncreaseSmoothingFactor()
@@ -164,15 +171,29 @@ namespace CFW.Business
             SharedDeviceManager.SmoothingFactor /= 2;
         }
 
+        public async Task UpdateModeAsync(int mode)
+        {
+            await Task.Run(()=> UpdateMode(mode));
+        }
+
         public bool UpdateMode(int mode)
         {
-            return SharedDeviceManager.TryMode(mode);
+            bool res = SharedDeviceManager.TryMode(mode);
+            RaisePropertyChangedEvent("CurrentDevice");
+            RaisePropertyChangedEvent("Mode");
+            
+            return res;
         }
 
         public void UnplugAllXbox(bool silent = false)
         {
-            SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD);
+            if(SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD))
+            {
+                RaisePropertyChangedEvent("Mode");
+            }
             SharedDeviceManager.ForceUnplugAllXboxControllers(silent);
+            RaisePropertyChangedEvent("CurrentDevices");
+            RaisePropertyChangedEvent("CurrentDeviceID");
         }
 
         public async Task UnplugAllXboxAsync(bool silent=false)
@@ -183,7 +204,8 @@ namespace CFW.Business
         public bool AcquireVDev(uint id)
         {
             bool res = SharedDeviceManager.AcquireVDev(id);
-            if (Mode == SimulatorMode.ModeWASD) UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
+            RaisePropertyChangedEvent("CurrentDeviceID");
+            RaisePropertyChangedEvent("Mode");     
             return res;
         }
 
@@ -205,6 +227,9 @@ namespace CFW.Business
         public void RelinquishCurrentDevice()
         {
             SharedDeviceManager.RelinquishCurrentDevice();
+           // RaisePropertyChangedEvent("CurrentDevices");
+            RaisePropertyChangedEvent("CurrentDeviceID");
+            RaisePropertyChangedEvent("Mode");
         }
 
         public void Dispose()
@@ -212,6 +237,25 @@ namespace CFW.Business
             // Relinquish connected devices
             SharedDeviceManager.Dispose();
         }
+
+        ////// Notifications
+
+        private void DeviceManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName=="Mode")
+            {
+                RaisePropertyChangedEvent("Mode");
+            }
+            else if(e.PropertyName== "CurrentDeviceID")
+            {
+                RaisePropertyChangedEvent("CurrentDeviceID");
+            }
+            else if (e.PropertyName=="InterceptXInputDevice")
+            {
+                RaisePropertyChangedEvent("InterceptXInputDevice");
+                RaisePropertyChangedEvent("Mode");
+            }
+        }   
     
     }
 }

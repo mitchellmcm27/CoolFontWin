@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CFW.ViewModel
+namespace CFW
 {
     public class  ObservableObject : INotifyPropertyChanged
     {

@@ -104,6 +104,7 @@ namespace CFW.Business
                     "CoolFontWin updated",
                     "Get update notes at www.coolfont.co",
                     ToolTipIcon.Info);
+                ShowSettingsWindow();
             }
         }
 
@@ -302,7 +303,8 @@ namespace CFW.Business
         {
             if (e.Button == MouseButtons.Left)
             {
-                ShowSettingsWindow();
+                MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
+                mi.Invoke(NotifyIcon, null);
             }
             else if (e.Button == MouseButtons.Right)
             {

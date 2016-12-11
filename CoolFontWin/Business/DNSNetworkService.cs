@@ -140,7 +140,6 @@ namespace CFW.Business
 
             if(serviceToDelete!=null)
             {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 serviceToDelete.Dispose();
                 PublishedServices.Remove(serviceToDelete);
             }

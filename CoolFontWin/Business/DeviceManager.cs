@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 using SharpDX.XInput;
 using log4net;
-
+using System.ComponentModel;
 
 namespace CFW.Business
 {
@@ -21,7 +21,7 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public sealed class DeviceManager : IDisposable
+    public sealed class DeviceManager : ObservableObject, IDisposable
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -33,7 +33,7 @@ namespace CFW.Business
                            };
 
         static readonly object locker = new object();
-
+        
         // Devices
         private VirtualDevice VDevice; // single vjoy device, combines multiple mobile device inputs
         private XInputDeviceManager XMgr;
@@ -97,6 +97,7 @@ namespace CFW.Business
                     ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                     _InterceptXInputDevice = false;
                 }
+                RaisePropertyChangedEvent("InterceptXInputDevice");
             }
         }
         
@@ -185,8 +186,9 @@ namespace CFW.Business
             //AcquireXInputDevice();
 
             VDevice = new VirtualDevice(UpdateInterval);
+            VDevice.PropertyChanged += VDevice_PropertyChanged;
 
-           // AcquireDefaultVDev();
+            // AcquireDefaultVDev();
 
             InitializeTimer();
         }
@@ -218,13 +220,14 @@ namespace CFW.Business
                 {
                     AcquireVDev(id);
                 }
+
+                TryMode((int)SimulatorMode.ModeJoystickCoupled);
             }
             else
             {
                 //ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
                 xDeviceAcquired = false;
                 AcquireVDev(id);
-                
             }
 
             return xDeviceAcquired;
@@ -358,6 +361,20 @@ namespace CFW.Business
             RelinquishCurrentDevice();
             Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
             Properties.Settings.Default.Save(); 
+        }
+
+        // Notifications
+
+        private void VDevice_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName=="Mode")
+            {
+                RaisePropertyChangedEvent("Mode");
+            }
+            else if (e.PropertyName=="Id")
+            {
+                RaisePropertyChangedEvent("CurrentDeviceID");
+            }
         }
     }
 }
