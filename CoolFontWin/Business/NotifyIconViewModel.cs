@@ -430,14 +430,14 @@ namespace CFW.ViewModel
             unplugAllItem.Image = Properties.Resources.ic_power_white_18dp;
             unplugAllItem.ImageScaling = ToolStripItemImageScaling.None;
 
+            
             // Add all of these to the Context Menu Strip
             cms.Items.AddRange(
                 new ToolStripItem[] {
-                    outputSelectSubmenu,
-                    inputSelectSubmenu,
-                    modeSelectSubmenu,
-                    unplugAllItem,
-                    new ToolStripSeparator(),
+                   // outputSelectSubmenu,
+                   // inputSelectSubmenu,
+                   // modeSelectSubmenu,
+                   // unplugAllItem,
                     ConfigureOutputSubmenu,
                 });          
         }

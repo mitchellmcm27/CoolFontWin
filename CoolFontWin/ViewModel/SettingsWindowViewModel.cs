@@ -12,6 +12,7 @@ using System.Threading;
 using System.Windows.Data;
 using System.Windows;
 using log4net;
+using System.Diagnostics;
 
 namespace CFW.ViewModel
 {
@@ -276,6 +277,11 @@ namespace CFW.ViewModel
         public ICommand CurrentVJoyDeviceChangedCommand
         {
             get { return AcquireDeviceAsyncCommand; }
+        }
+
+        public ICommand JoyCplCommand
+        {
+            get { return new DelegateCommand(() => Process.Start("joy.cpl")); }
         }
 
         private async Task AcquireDeviceAsync()

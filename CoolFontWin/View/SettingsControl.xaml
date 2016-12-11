@@ -162,11 +162,15 @@
                     <ComboBox Name="VJoyDevices" materialDesign:HintAssist.Hint="none" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,0,8,0"
                           ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
                           IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
-
-                    <Button Name="RelinquishAllXboxButton" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,8,16,8"
+                    <DockPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,8,8,8">
+                        <Button  Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="0,0,4,0"
                         Command="{Binding UnplugAllXboxCommand}">
-                        Unplug vXbox Controllers
-                    </Button>
+                            Unplug Controllers
+                        </Button>
+                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" DockPanel.Dock="Left" Margin="4,0,0,0" Command="{Binding JoyCplCommand}">
+                            <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />
+                        </Button>
+                    </DockPanel>
                 </Grid>
             </DockPanel>
         </materialDesign:Card>

@@ -283,15 +283,21 @@ namespace CFW.Business
                 versionItem.Text = "Latest version";
             }
 
-            NotifyIcon.ContextMenuStrip.Items.Add(versionItem);
+            ToolStripMenuItem settingsItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("&Configure", (o, i) => ShowSettingsWindow());
+            settingsItem.Image = Properties.Resources.ic_settings_white_18dp;
+            //settingsItem.ImageScaling = ToolStripItemImageScaling.None;
+
+            NotifyIcon.ContextMenuStrip.Items.AddRange( new ToolStripItem[] {
+                    versionItem,
+                    new ToolStripSeparator(),
+                    settingsItem,
+            });
 
             // Add VDevice handling items
             NotifyIconViewModel.AddToContextMenu(NotifyIcon.ContextMenuStrip);
 
             ToolStripMenuItem restartItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Restart", Restart_Click);
             ToolStripMenuItem quitItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
-            quitItem.Image = Properties.Resources.ic_close_orange_18dp;
-            quitItem.ImageScaling = ToolStripItemImageScaling.None;
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), quitItem });
