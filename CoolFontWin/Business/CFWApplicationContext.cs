@@ -324,14 +324,14 @@ namespace CFW.Business
         private SuccessForm SuccessForm;
         private UpdateNotes UpdateNotes;
         private View.SettingsWindow SettingsWindow;
-        private SettingsWindowViewModel SettingsWindowViewModel;
+        private SettingsWindowViewModelRx SettingsWindowViewModel;
 
         private void ShowSettingsWindow()
         {
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                SettingsWindowViewModel = new SettingsWindowViewModel(Model);
+                SettingsWindowViewModel = new SettingsWindowViewModelRx(Model);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }              

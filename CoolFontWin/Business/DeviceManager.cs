@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Timers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using SharpDX.XInput;
 using log4net;
 using System.ComponentModel;
+using ReactiveUI;
 
 namespace CFW.Business
 {
@@ -21,7 +18,7 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public sealed class DeviceManager : ObservableObject, IDisposable
+    public sealed class DeviceManager : ReactiveObject, IDisposable
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -86,6 +83,7 @@ namespace CFW.Business
             }
             set
             {
+                this.RaiseAndSetIfChanged(ref _InterceptXInputDevice, value);
                 if (value)
                 {
                     // acquire device
@@ -97,7 +95,6 @@ namespace CFW.Business
                     ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                     _InterceptXInputDevice = false;
                 }
-                RaisePropertyChangedEvent("InterceptXInputDevice");
             }
         }
         
@@ -183,13 +180,7 @@ namespace CFW.Business
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
-            //AcquireXInputDevice();
-
             VDevice = new VirtualDevice(UpdateInterval);
-            VDevice.PropertyChanged += VDevice_PropertyChanged;
-
-            // AcquireDefaultVDev();
-
             InitializeTimer();
         }
 
@@ -361,20 +352,6 @@ namespace CFW.Business
             RelinquishCurrentDevice();
             Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
             Properties.Settings.Default.Save(); 
-        }
-
-        // Notifications
-
-        private void VDevice_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName=="Mode")
-            {
-                RaisePropertyChangedEvent("Mode");
-            }
-            else if (e.PropertyName=="Id")
-            {
-                RaisePropertyChangedEvent("CurrentDeviceID");
-            }
-        }
+        }    
     }
 }

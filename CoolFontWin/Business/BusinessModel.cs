@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Reflection;
-using System.ComponentModel;
-using System.Windows.Forms;
 using System.Linq;
-using System.Drawing;
 using System.Collections.Generic;
-using System.Collections;
-
-using SharpDX.XInput;
 using log4net;
-using System.Net.Sockets;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace CFW.Business
 {
-    public class BusinessModel : ObservableObject
+    public class BusinessModel : ReactiveObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,7 +18,12 @@ namespace CFW.Business
         private UDPServer UdpServer;
         private DeviceManager SharedDeviceManager;
 
-        public List<string> DeviceNames;
+        List<string> _DeviceNames;
+        public List<string> DeviceNames
+        {
+            get { return _DeviceNames; }
+            set { this.RaiseAndSetIfChanged(ref _DeviceNames, value); }
+        }
 
         public List<int> EnabledVJoyDevicesList
         {
@@ -67,7 +65,6 @@ namespace CFW.Business
             this.UdpServer = new UDPServer();
             UdpServer.ClientAdded += Server_ClientAdded;
             this.SharedDeviceManager = DeviceManager.Instance;
-            SharedDeviceManager.PropertyChanged += DeviceManager_PropertyChanged;      
         }
 
         /// <summary>
@@ -86,10 +83,8 @@ namespace CFW.Business
         /// <param name="names">List of strings represting device names.</param>
         public void StartServices(List<string> names)
         {
-            this.DeviceNames = names;
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
-
-            RaisePropertyChangedEvent("DeviceNames");
+            DeviceNames = names;
+            SharedDeviceManager.MobileDevicesCount = DeviceNames.Count;
 
             UdpServer.Start(Properties.Settings.Default.LastPort);
 
@@ -120,16 +115,15 @@ namespace CFW.Business
             if (DnsServer.Publish(UdpServer.Port, name))
             {
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                this.DeviceNames.Add(name);
+                DeviceNames.Add(name);
             }
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
+            SharedDeviceManager.MobileDevicesCount = DeviceNames.Count;
 
             // update Defaults with this name
             StringCollection collection = new StringCollection();
             collection.AddRange(DeviceNames.ToArray());
             Properties.Settings.Default.ConnectedDevices = collection;
             Properties.Settings.Default.Save();
-            RaisePropertyChangedEvent("DeviceNames");
         }
 
         /// <summary>
@@ -145,7 +139,7 @@ namespace CFW.Business
 
             // get last-added device name and remove it
             string name = DeviceNames.Last();
-            this.DeviceNames.Remove(name);
+            DeviceNames.Remove(name);
 
             // unpublish service containing this name
             DnsServer.Unpublish(name);
@@ -157,8 +151,7 @@ namespace CFW.Business
             Properties.Settings.Default.ConnectedDevices = collection;
             Properties.Settings.Default.Save();
 
-            SharedDeviceManager.MobileDevicesCount = this.DeviceNames.Count;
-            RaisePropertyChangedEvent("DeviceNames");
+            SharedDeviceManager.MobileDevicesCount = DeviceNames.Count;
         }
 
         public void IncreaseSmoothingFactor()
@@ -179,9 +172,6 @@ namespace CFW.Business
         public bool UpdateMode(int mode)
         {
             bool res = SharedDeviceManager.TryMode(mode);
-            RaisePropertyChangedEvent("CurrentDevice");
-            RaisePropertyChangedEvent("Mode");
-            
             return res;
         }
 
@@ -189,8 +179,6 @@ namespace CFW.Business
         {         
             SharedDeviceManager.ForceUnplugAllXboxControllers(silent);
             SharedDeviceManager.TryMode((int)SimulatorMode.ModeWASD);
-            RaisePropertyChangedEvent("CurrentDevices");
-
         }
 
         public async Task UnplugAllXboxAsync(bool silent=false)
@@ -200,9 +188,7 @@ namespace CFW.Business
 
         public bool AcquireVDev(uint id)
         {
-            bool res = SharedDeviceManager.AcquireVDev(id);
-            RaisePropertyChangedEvent("CurrentDeviceID");
-            RaisePropertyChangedEvent("Mode");     
+            bool res = SharedDeviceManager.AcquireVDev(id);    
             return res;
         }
 
@@ -224,9 +210,6 @@ namespace CFW.Business
         public void RelinquishCurrentDevice()
         {
             SharedDeviceManager.RelinquishCurrentDevice();
-           // RaisePropertyChangedEvent("CurrentDevices");
-            RaisePropertyChangedEvent("CurrentDeviceID");
-            RaisePropertyChangedEvent("Mode");
         }
 
         public void Dispose()
@@ -234,25 +217,5 @@ namespace CFW.Business
             // Relinquish connected devices
             SharedDeviceManager.Dispose();
         }
-
-        ////// Notifications
-
-        private void DeviceManager_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName=="Mode")
-            {
-                RaisePropertyChangedEvent("Mode");
-            }
-            else if(e.PropertyName== "CurrentDeviceID")
-            {
-                RaisePropertyChangedEvent("CurrentDeviceID");
-            }
-            else if (e.PropertyName=="InterceptXInputDevice")
-            {
-                RaisePropertyChangedEvent("InterceptXInputDevice");
-                RaisePropertyChangedEvent("Mode");
-            }
-        }   
-    
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using SharpDX.XInput;
 using WindowsInput;
 using vGenWrap;
-
 using log4net;
 using System.Collections.Generic;
+using ReactiveUI;
 
 namespace CFW.Business
 {
@@ -40,7 +39,7 @@ namespace CFW.Business
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
-    public class VirtualDevice : ObservableObject
+    public class VirtualDevice : ReactiveObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -115,9 +114,8 @@ namespace CFW.Business
             }
             set
             {
-                _Id = value;
-                RaisePropertyChangedEvent("Id");
-                this.VDevType = value < 1001 ? DevType.vJoy : DevType.vXbox;
+                this.RaiseAndSetIfChanged(ref _Id, value);
+                VDevType = value < 1001 ? DevType.vJoy : DevType.vXbox;
             }
         }
 
@@ -132,7 +130,13 @@ namespace CFW.Business
         public int signX = 1; // allows axis inversion
         public int signY = 1;
 
-        public SimulatorMode Mode;
+        SimulatorMode _Mode;
+        public SimulatorMode Mode
+        {
+            get { return _Mode; }
+            set { this.RaiseAndSetIfChanged(ref _Mode, value); }
+        }
+
         private SimulatorMode PreviousMode;
 
         public double RCFilterStrength;
@@ -246,11 +250,10 @@ namespace CFW.Business
 
             NeutralizeCurrentVJoyDevice();
 
-            this.Mode = mode;
-            this.PreviousMode = Mode;
-            this.CurrentModeIsFromPhone = true;
+            Mode = mode;
+            PreviousMode = Mode;
+            CurrentModeIsFromPhone = true;
             log.Info("Obtained mode from phone: " + Mode.ToString());
-            RaisePropertyChangedEvent("Mode");
         }
 
         public bool ClickedMode(SimulatorMode mode)
@@ -263,10 +266,9 @@ namespace CFW.Business
 
             NeutralizeCurrentVJoyDevice();
 
-            this.Mode = mode;
-            this.CurrentModeIsFromPhone = false;
+            Mode = mode;
+            CurrentModeIsFromPhone = false;
             log.Info("Obtained mode from CFW menu: " + Mode.ToString());
-            RaisePropertyChangedEvent("Mode");
             return true;
         }
 
