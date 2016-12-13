@@ -19,7 +19,7 @@ namespace CFW.Business
         private uint LastCount;
 
         private Timer DeviceTimeoutTimer = new Timer();
-        private static readonly double DeviceTimeout = TimeSpan.FromSeconds(0.5).TotalMilliseconds;
+        private static readonly double DeviceTimeout = TimeSpan.FromSeconds(2).TotalMilliseconds;
 
         public MobileDevice()
         {
