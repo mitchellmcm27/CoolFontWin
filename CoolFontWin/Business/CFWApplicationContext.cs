@@ -371,7 +371,7 @@ namespace CFW.Business
 
             taskDialog.MainInstruction = "ScpVBus failed to install";
             taskDialog.Content = "Xbox controller emulation requires ScpVBus.\n";
-            taskDialog.Content += "You can download and install it, or continue using only keyboard/joystick emulation.";
+            taskDialog.Content += "First try running CoolFontWin as Administrator.\nIf that doesn't work, you can download and install ScpVBus yourself, or continue using only keyboard/joystick emulation.";
 
             taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
             var customButton = new TaskDialogButton(ButtonType.Custom);

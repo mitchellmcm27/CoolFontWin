@@ -22,7 +22,7 @@ namespace CFW.Business
             EXIT_USAGE = 3
         }
 
-        private static readonly string exe = "scpvbus\\devcon.exe";
+        private static readonly string exe = "scpvbus\\evcon.exe";
         private static readonly string installargs = "install scpvbus\\ScpVBus.inf Root\\ScpVBus";
         private static readonly string uninstallargs = "remove Root\\ScpVBus";
         private readonly Process proc = new Process();
