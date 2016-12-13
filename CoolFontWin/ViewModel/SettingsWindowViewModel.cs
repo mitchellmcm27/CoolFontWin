@@ -34,7 +34,6 @@ namespace CFW.ViewModel
         private int _currentXboxDevice = 0;
         private int _currentVJoyDevice = 0;
 
-        private uint _previousDeviceID;
         private uint _currentDeviceID;
 
         public IEnumerable<string> Modes
@@ -58,6 +57,28 @@ namespace CFW.ViewModel
                     Model.RemoveLastService();
                 }
                 RaisePropertyChangedEvent("SecondaryDevice");
+            }
+        }
+
+        public string XboxLedImage
+        {
+            get { return XboxLedImagePath((int)_currentDeviceID); }
+        }
+
+        private string XboxLedImagePath(int id)
+        {
+            switch (id)
+            {
+                default:
+                    return "/CoolFontWin;component/Resources/ic_xbox_off_blue_18dp.png";
+                case 1001:
+                    return "/CoolFontWin;component/Resources/ic_xbox_1p_blue_18dp.png";
+                case 1002:
+                    return "/CoolFontWin;component/Resources/ic_xbox_2p_blue_18dp.png";
+                case 1003:
+                    return "/CoolFontWin;component/Resources/ic_xbox_3p_blue_18dp.png";
+                case 1004:
+                    return "/CoolFontWin;component/Resources/ic_xbox_4p_blue_18dp.png";
             }
         }
 
@@ -93,6 +114,11 @@ namespace CFW.ViewModel
                 if (_xboxOutput)
                 {
                     _currentDeviceID = (uint)_currentXboxDevice+1000;
+                    XboxVisibility = Visibility.Visible;
+                }
+                else
+                {
+                    XboxVisibility = Visibility.Hidden;
                 }
                 RaisePropertyChangedEvent("XboxOutput");
 
@@ -103,13 +129,13 @@ namespace CFW.ViewModel
         {
             get
             {
-                if (_currentXboxDevice == 0) _currentXboxDevice = XboxDevices.FirstOrDefault();
                 return _currentXboxDevice;
             }
             set
             {
                 _currentXboxDevice = value;
                 RaisePropertyChangedEvent("CurrrentXBoxDevice");
+                RaisePropertyChangedEvent("XboxLedImage");
                 XboxOutput = true;
             }
         }
@@ -134,6 +160,11 @@ namespace CFW.ViewModel
                 if (_vJoyOutput)
                 {
                     _currentDeviceID = (uint)_currentVJoyDevice;
+                    VJoyVisibility = Visibility.Visible;
+                }
+                else
+                {
+                    VJoyVisibility = Visibility.Hidden;
                 }
                 RaisePropertyChangedEvent("VJoyOutput");
             }
@@ -150,6 +181,7 @@ namespace CFW.ViewModel
             {
                 _currentVJoyDevice = value;
                 RaisePropertyChangedEvent("CurrrentVJoyDevice");
+                RaisePropertyChangedEvent("XboxLedImage");
                 VJoyOutput = true;
             }
         }
@@ -165,6 +197,11 @@ namespace CFW.ViewModel
             }
         }
 
+        public string CoupledText
+        {
+            get { return CoupledOutput ? "Coupled" : "Decoupled"; }
+        }
+
         private bool _coupledOutput;
         public bool CoupledOutput
         {
@@ -172,24 +209,8 @@ namespace CFW.ViewModel
             set
             {
                 _coupledOutput = value;
-                if (value)
-                {
-                    UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-                }
-            }
-        }
-
-        private bool _decoupledOutput;
-        public bool DecoupledOutput
-        {
-            get { return _decoupledOutput; }
-            set
-            {
-                _decoupledOutput = value;
-                if (value)
-                {
-                    Model.UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
-                }
+                RaisePropertyChangedEvent("CoupledOutput");
+                RaisePropertyChangedEvent("CoupledText");
             }
         }
 
@@ -204,17 +225,29 @@ namespace CFW.ViewModel
             }
         }
 
-        public IEnumerable<int>XboxDevices
-        {
-            get { return _xboxDevices; }
-        }
-
         public IEnumerable<int> VJoyDevices
         {
             get { return _vJoyDevices; }
         }
 
         private bool _isPaused;
+        public bool IsPaused
+        {
+            get { return _isPaused; }
+            set
+            {
+                _isPaused = value;
+                RaisePropertyChangedEvent("IsPaused");
+                RaisePropertyChangedEvent("IsNotPaused");
+                RaisePropertyChangedEvent("PauseButtonText");
+                RaisePropertyChangedEvent("PauseButtonIcon");
+            }
+        }
+
+        public bool IsNotPaused
+        {
+            get { return !IsPaused; }
+        }
         public string PauseButtonText
         {
             get { return _isPaused ? "Resume" : "Pause"; }
@@ -223,6 +256,28 @@ namespace CFW.ViewModel
         public string PauseButtonIcon
         {
             get { return _isPaused ? "Play" : "Pause"; }
+        }
+
+        private Visibility _vJoyVisibility;
+        public Visibility VJoyVisibility
+        {
+            get { return _vJoyVisibility; }
+            set
+            {
+                _vJoyVisibility = value;
+                RaisePropertyChangedEvent("VJoyVisibility");
+            }
+        }
+
+        private Visibility _xboxVisibility;
+        public Visibility XboxVisibility
+        {
+            get { return _xboxVisibility; }
+            set
+            {
+                _xboxVisibility = value;
+                RaisePropertyChangedEvent("XboxVisibility");
+            }
         }
 
         private readonly BusinessModel Model;
@@ -241,7 +296,6 @@ namespace CFW.ViewModel
             _xboxOutput = !_keyboardOutput && Model.CurrentDeviceID > 1000 && !_isPaused;
             _vJoyOutput = !_xboxOutput && !_keyboardOutput && !_isPaused;
             _coupledOutput = Model.Mode == SimulatorMode.ModeJoystickCoupled && !_isPaused;
-            _decoupledOutput = Model.Mode == SimulatorMode.ModeJoystickDecoupled && !_isPaused;
 
         }
         
@@ -263,6 +317,11 @@ namespace CFW.ViewModel
             get { return AcquireDeviceAsyncCommand; }
         }
 
+        public ICommand CoupledDecoupledCommand
+        {
+            get { return new AwaitableDelegateCommand(UpdateCoupledCommand); }
+        }
+
         public ICommand InterceptXInputDeviceCommand
         {
             get { return new AwaitableDelegateCommand(IntercpetXInputDeviceAsync); }
@@ -278,30 +337,17 @@ namespace CFW.ViewModel
             get { return new DelegateCommand(SettingsMenu); }
         }
 
-        public ICommand CurrentXboxDeviceChangedCommand
-        {
-            get
-            {
-                return AcquireDeviceAsyncCommand_NotCodeTriggered;
-            }
-        }
-
         public ICommand CurrentVJoyDeviceChangedCommand
         {
             get
             {
-                return AcquireDeviceAsyncCommand_NotCodeTriggered;
+                return AcquireDeviceAsyncCommand;
             }
         }
 
         private ICommand AcquireDeviceAsyncCommand
         {
             get { return new AwaitableDelegateCommand(AcquireDeviceAsync); }
-        }
-
-        private ICommand AcquireDeviceAsyncCommand_NotCodeTriggered
-        {
-            get { return new AwaitableDelegateCommand(AcquireDeviceAsync_NotCodeTriggered); }
         }
 
         public ICommand PlayPauseCommand
@@ -314,10 +360,17 @@ namespace CFW.ViewModel
             get { return new DelegateCommand(() => Process.Start("joy.cpl")); }
         }
 
-        bool _codeTriggered = false;
-        private async Task AcquireDeviceAsync_NotCodeTriggered()
+        private async Task UpdateCoupledCommand()
         {
-            if (!_codeTriggered) await AcquireDeviceAsync();            
+            if (KeyboardOutput) return;
+            if (CoupledOutput)
+            {
+                await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
+            }
+            else
+            {
+                await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
+            }
         }
 
         private async Task AcquireDeviceAsync()
@@ -333,28 +386,24 @@ namespace CFW.ViewModel
                 log.Info("Keyboard output FALSE, acquire vdev");
                 await Model.AcquireVDevAsync(_currentDeviceID);
 
-                if (_decoupledOutput)
+                if (_coupledOutput)
+                {
+                    log.Info("Update mode to coupled");
+                    await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
+                }
+                else
                 {
                     log.Info("Update mode to decoupled");
                     await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
                 }
-                else
-                { 
-                    log.Info("Update mode to coupled");
-                    await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-                }
-
             }
    
-            
         }
 
         private int previousMode;
         private async Task PlayPause()
         {
-            _isPaused = !_isPaused;
-            RaisePropertyChangedEvent("PauseButtonText");
-            RaisePropertyChangedEvent("PauseButtonIcon");
+            IsPaused = !IsPaused;
             if (_isPaused)
             {
                 previousMode = (int)Model.Mode;
@@ -374,9 +423,8 @@ namespace CFW.ViewModel
 
         private async Task UnplugAllXboxAsync()
         {
-            _codeTriggered = true;
+            CurrentXboxDevice = 0;
             await Model.UnplugAllXboxAsync(silent:true);
-            _codeTriggered = false;
         }
 
         private void SettingsMenu()
@@ -398,21 +446,12 @@ namespace CFW.ViewModel
             }
             else if (e.PropertyName == "Mode")
             {
-                _isPaused = Model.Mode == SimulatorMode.ModePaused;
-                _keyboardOutput = Model.Mode == SimulatorMode.ModeWASD && !_isPaused;
-                _xboxOutput = !_keyboardOutput && Model.CurrentDeviceID > 1000 && !_isPaused; 
-                _vJoyOutput = !_xboxOutput && !_keyboardOutput && !_isPaused; 
+                IsPaused = Model.Mode == SimulatorMode.ModePaused;
+                KeyboardOutput = Model.Mode == SimulatorMode.ModeWASD && !_isPaused;
+                XboxOutput = !_keyboardOutput && Model.CurrentDeviceID > 1000 && !_isPaused; 
+                VJoyOutput = !_xboxOutput && !_keyboardOutput && !_isPaused; 
 
-                _coupledOutput = Model.Mode == SimulatorMode.ModeJoystickCoupled && !_isPaused;
-                _decoupledOutput = Model.Mode == SimulatorMode.ModeJoystickDecoupled && !_isPaused;
- 
-                RaisePropertyChangedEvent("VJoyOutput");
-                RaisePropertyChangedEvent("XboxOutput");
-                RaisePropertyChangedEvent("KeyboardOutput");
-                RaisePropertyChangedEvent("CoupledOutput");
-                RaisePropertyChangedEvent("DecoupledOutput");
-                RaisePropertyChangedEvent("PauseButtonText");
-                RaisePropertyChangedEvent("PauseButtonIcon");
+                CoupledOutput = (KeyboardOutput || Model.Mode == SimulatorMode.ModeJoystickCoupled) && !_isPaused;
             }
             else if (e.PropertyName == "CurrentDeviceID")
             {
@@ -431,7 +470,6 @@ namespace CFW.ViewModel
                 _vJoyOutputButtonIsEnabled = _vJoyDevices.Count > 0;
                 RaisePropertyChangedEvent("VJoyOutputButtonIsEnabled");
 
-                RaisePropertyChangedEvent("XboxDevices");
                 RaisePropertyChangedEvent("VJoyDevices");         
             }
         }

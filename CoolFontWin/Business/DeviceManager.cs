@@ -247,9 +247,9 @@ namespace CFW.Business
             bool res = VDevice.SwapToVDev(id);
             if (res)
             {
-                if (id < 1000) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
+                if (id < 1000 ) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             }
-            else
+            else if (id!=0 && id !=1000)
             {
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
             }

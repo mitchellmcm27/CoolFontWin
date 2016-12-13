@@ -337,12 +337,6 @@
     <Resource Include="Resources\ic_phonelink_white_18dp.png" />
     <Resource Include="Resources\ic_check_blue_18dp.png" />
     <Resource Include="Resources\ic_refresh_blue_18dp.PNG" />
-    <Resource Include="Resources\ic_xbox_1p_blue_18dp.png" />
-    <Resource Include="Resources\ic_xbox_2p_blue_18dp.png" />
-    <Resource Include="Resources\ic_xbox_3p_blue_18dp.png" />
-    <Resource Include="Resources\ic_xbox_4p_blue_18dp.png" />
-    <Resource Include="Resources\ic_xbox_all_blue_18dp.png" />
-    <Resource Include="Resources\ic_xbox_off_blue_18dp.png" />
     <Resource Include="Resources\ic_input_white_18dp.png" />
     <Resource Include="Resources\ic_keyboard_white_18dp.png" />
     <Resource Include="Resources\ic_pause_white_18dp.png" />
@@ -350,6 +344,12 @@
     <Resource Include="Assets\tray-icon-notification.ico" />
     <Resource Include="Resources\joystick.png" />
     <Resource Include="Resources\xbox.png" />
+    <Resource Include="Resources\ic_xbox_1p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_2p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_3p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_4p_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_all_blue_18dp.png" />
+    <Resource Include="Resources\ic_xbox_off_blue_18dp.png" />
     <Content Include="tray-icon-transparent.ico" />
     <Content Include="vGenInterface.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

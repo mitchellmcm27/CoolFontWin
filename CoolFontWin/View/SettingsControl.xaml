@@ -33,7 +33,7 @@
 
         <materialDesign:Card Margin="8,8,4,8" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,10,0,5" Background="Transparent" FontSize="16">Input devices</TextBlock>
+                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="8,8,8,12" Background="Transparent" FontSize="16">Input devices</TextBlock>
                 <Grid DockPanel.Dock="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*"/>
@@ -42,20 +42,17 @@
                         <RowDefinition Height="64"/>
 
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <DockPanel  Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10">
-                        <CheckBox Margin="10" DockPanel.Dock="Left" IsChecked="True" IsEnabled="False" />
+
+                    <DockPanel  Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
+                        <CheckBox Margin="8" DockPanel.Dock="Left" IsChecked="True" IsEnabled="False" />
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
                         <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Primary mobile</TextBlock>
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
-                    <DockPanel Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10">
-                        <CheckBox IsChecked="{Binding SecondaryDevice}" Margin="10" DockPanel.Dock="Left"/>
+                    <DockPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
+                        <CheckBox IsChecked="{Binding SecondaryDevice}" Margin="8" DockPanel.Dock="Left"/>
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
@@ -63,20 +60,20 @@
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
 
-                    <DockPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10">
-                        <CheckBox IsChecked="{Binding XboxDevice}" Margin="10" DockPanel.Dock="Left" Command="{Binding InterceptXInputDeviceCommand}"/>
+                    <DockPanel Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
+                        <CheckBox IsChecked="{Binding XboxDevice}" Margin="8" DockPanel.Dock="Left" Command="{Binding InterceptXInputDeviceCommand}"/>
                         <Image Source="/Resources/xbox.png" Stretch="None" Margin="4" DockPanel.Dock="Left"/>
                         <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Xbox controller</TextBlock>
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
 
                     </DockPanel>
 
-                    <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16,8,16,8" 
+                    <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="8" 
                         Command="{Binding PlayPauseCommand}">
                         <Button.Content>
-                            <DockPanel>
+                            <DockPanel HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
-                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding PauseButtonText}"></TextBlock>
+                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding PauseButtonText}" Margin="4"/>
                             </DockPanel>
                         </Button.Content>
                         
@@ -84,98 +81,102 @@
                 </Grid>
             </DockPanel>
         </materialDesign:Card>
+        
         <!-- Output column -->
         <materialDesign:Card Margin="4,8,8,8" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,10,0,5" Background="Transparent" FontSize="16">Output device</TextBlock>
+                <TextBlock IsEnabled="{Binding IsNotPaused}" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="8,8,8,12" Background="Transparent" FontSize="16"
+                           Text="Output device">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Foreground"
+                            Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                
                 <Grid DockPanel.Dock="Top">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1*"/>
                         <RowDefinition Height="1*"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="64"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
-                                                 Width="18" Height="18"                                                 
-                                                 />
-                        <TextBlock VerticalAlignment="Center">
-                        Keyboard
-                        </TextBlock>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
-                        <Image Name="xboxImage" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="4"
-                   Source="/Resources/xbox.png" Stretch="None"/>
-                        <TextBlock VerticalAlignment="Center">
-                        vXbox
-                        </TextBlock>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="2" Margin="0,0,0,10">
-                        <RadioButton HorizontalAlignment="Left"  Margin="0"
-                             IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding XboxOutput}" FontSize="10" Foreground="White">Coupled</RadioButton>
-                        <RadioButton HorizontalAlignment="Left"  Margin="0"
-                             IsChecked="{Binding DecoupledOutput}" IsEnabled="{Binding XboxOutput}" FontSize="10" Foreground="White">Decoupled</RadioButton>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="3" >
-                        <Image Name="vjoyImage" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="4"
-                   Source="/Resources/joystick.png" Stretch="None"/>
-                        <TextBlock VerticalAlignment="Center">
-                        vJoy
-                        </TextBlock>
-                    </StackPanel>
-
-                    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="4" Margin="0,0,0,10">
-                        <RadioButton HorizontalAlignment="Left"  Margin="0"
-                             IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding VJoyOutput}" FontSize="10" Foreground="White">Coupled</RadioButton>
-                        <RadioButton HorizontalAlignment="Left"  Margin="0"
-                             IsChecked="{Binding DecoupledOutput}" IsEnabled="{Binding VJoyOutput}" FontSize="10" Foreground="White">Decoupled</RadioButton>
-                    </StackPanel>
-
-                    <RadioButton Name="KeyboardOutput" GroupName="Output" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"  Margin="10"
+                    <DockPanel Grid.Column="0" Grid.Row="0" Margin="8">
+                        <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Top"  Margin="8"
                              IsChecked="{Binding KeyboardOutput}"
                              IsEnabled="{Binding KeyboardOutputButtonIsEnabled}"
                              Command="{Binding KeyboardOutputCommand}"/>
-                    <RadioButton Name="XboxOutput"  GroupName="Output" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"  Margin="10"
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="Virtual W-key press">
+                            <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" 
+                                                     Width="18" Height="18"/>
+                            <TextBlock VerticalAlignment="Center" Text="Keyboard" Margin="8"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <DockPanel Grid.Column="0" Grid.Row="1" Margin="8" ToolTip="Virtual Xbox 360 controller">
+                        <RadioButton DockPanel.Dock="Left" Name="XboxOutput"  GroupName="Output" HorizontalAlignment="Center" VerticalAlignment="Top"  Margin="8"
                              IsChecked="{Binding XboxOutput}"
                              IsEnabled="{Binding XboxOutputButtonIsEnabled}"
                              Command="{Binding XboxOutputCommand}"/>
-                    <RadioButton  GroupName="Output" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center"  Margin="10"
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+
+                            <Image Name="xboxImage" HorizontalAlignment="Left" VerticalAlignment="Center" DockPanel.Dock="Left" Margin="4"
+                            Source="/Resources/xbox.png" Stretch="None"/>
+                            <TextBlock VerticalAlignment="Center" Text="vXbox" Margin="8"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="In coupled locomotion games, movement direction is bound to look direction">
+                            <ToggleButton IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupledCommand}" HorizontalAlignment="Center" Margin="8,0,8,0"/>
+                            <TextBlock FontSize="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                   Text="{Binding CoupledText}"/>
+                        </StackPanel>
+                    </DockPanel>
+
+                    <materialDesign:Chip Grid.Column="1" Grid.Row="1" IsEnabled="False"
+                                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,16,8,16" Background="#565656">
+                        <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </materialDesign:Chip>
+
+                    <DockPanel Grid.Row="2" Margin="8">
+                        <RadioButton  GroupName="Output" VerticalAlignment="Top" Margin="8" DockPanel.Dock="Left"
                              IsChecked="{Binding VJoyOutput}"
                              IsEnabled="{Binding VJoyOutputButtonIsEnabled}"
                              Command ="{Binding VJoyOutputCommand}"/>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="Virtual joystick">
+                            <Image Name="vjoyImage" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="4"
+                            Source="/Resources/joystick.png" Stretch="None"/>
+                            <TextBlock VerticalAlignment="Top" DockPanel.Dock="Left" Text="vJoy"  Margin="8"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="In decoupled locomotion games, movement and look directions are independent">
+                        <ToggleButton IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupledCommand}" HorizontalAlignment="Left" DockPanel.Dock="Top" Margin="8,0,8,0"/>
+                        <TextBlock FontSize="10" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" DockPanel.Dock="Top"
+                                   Text="{Binding CoupledText}"/>
+                        </StackPanel>
+                    </DockPanel>
 
-                    <ComboBox Name="XboxDevices" materialDesign:HintAssist.Hint="none" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,0,8,0"
-                          ItemsSource="{Binding XboxDevices}" SelectedItem="{Binding CurrentXboxDevice}" IsSynchronizedWithCurrentItem="true" IsEnabled="{Binding XboxOutputButtonIsEnabled}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="SelectionChanged">
-                                <i:InvokeCommandAction Command="{Binding CurrentXboxDeviceChangedCommand}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </ComboBox>
+                    <ComboBox Name="VJoyDevices" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,16,8,16" DockPanel.Dock="Left"
+                                ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
+                                IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
 
-                    <ComboBox Name="VJoyDevices" materialDesign:HintAssist.Hint="none" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,0,8,0"
-                          ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
-                          IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
-                    <DockPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,8,8,8">
-                        <Button  Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="0,0,4,0" Command="{Binding UnplugAllXboxCommand}">
-                            Unplug vControllers
-                        </Button>
-                        <Button Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}" DockPanel.Dock="Left" Margin="4,0,0,0" Command="{Binding JoyCplCommand}">
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+                        <Button Margin="8,8,4,8" Command="{Binding JoyCplCommand}" ToolTip="Windows USB device properties">
                             <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />
                         </Button>
-                    </DockPanel>
+                        <Button Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="4,8,8,8" Command="{Binding UnplugAllXboxCommand}">
+                            Unplug vControllers
+                        </Button>
+          
+                    </StackPanel>
+
                 </Grid>
             </DockPanel>
         </materialDesign:Card>
