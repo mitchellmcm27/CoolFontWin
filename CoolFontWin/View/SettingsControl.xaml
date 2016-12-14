@@ -51,7 +51,9 @@
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
                     <DockPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox IsChecked="{Binding SecondaryDevice, Mode=OneWay}" Command="{Binding AddRemoveSecondaryDevice}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}" Margin="8" DockPanel.Dock="Left"/>
+                        <CheckBox Margin="8" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" 
+                                  Command="{Binding AddRemoveSecondaryDevice}" 
+                                  CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
@@ -60,7 +62,9 @@
                     </DockPanel>
 
                     <DockPanel Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox IsChecked="{Binding XboxController}" Margin="8" DockPanel.Dock="Left" Command="{Binding InterceptXInputDeviceCommand}"/>
+                        <CheckBox IsChecked="{Binding XboxController, Mode=OneWay}" Margin="8" DockPanel.Dock="Left" 
+                                  Command="{Binding InterceptXInputDevice}"
+                                  CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
                         <Image Source="/Resources/xbox.png" Stretch="None" Margin="4" DockPanel.Dock="Left"/>
                         <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Xbox controller</TextBlock>
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>

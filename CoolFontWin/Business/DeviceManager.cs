@@ -74,7 +74,7 @@ namespace CFW.Business
         }
 
         // which devices are connected and which should be updated
-        private bool _InterceptXInputDevice = false;
+        private bool _InterceptXInputDevice;
         public bool InterceptXInputDevice
         {
             get
@@ -84,21 +84,15 @@ namespace CFW.Business
             set
             {
                 this.RaiseAndSetIfChanged(ref _InterceptXInputDevice, value);
-                if (value)
-                {
-                    // acquire device
-                    _InterceptXInputDevice = AcquireXInputDevice();
-                }
-                else
-                {
-                    // give up device
-                    ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-                    _InterceptXInputDevice = false;
-                }
             }
         }
-        
-        public bool XInputDeviceConnected { get; private set; }
+
+        private bool _XInputDeviceConnected;
+        public bool XInputDeviceConnected
+        {
+            get { return _XInputDeviceConnected; }
+            private set { this.RaiseAndSetIfChanged(ref _XInputDeviceConnected, value); }
+        }
 
         public bool VJoyEnabled
         {
@@ -182,6 +176,8 @@ namespace CFW.Business
         /// <returns>Returns boolean indicating if a controller was acquired.</returns>
         public bool AcquireXInputDevice()
         {
+            InterceptXInputDevice = true;
+                 
             uint id = VDevice.Id;
             ForceUnplugAllXboxControllers(silent: true);
             
@@ -208,12 +204,19 @@ namespace CFW.Business
             }
             else
             {
-                //ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
                 xDeviceAcquired = false;
+                InterceptXInputDevice = false;
                 AcquireVDev(id);
             }
 
             return xDeviceAcquired;
+        }
+
+        public void RelinquishXInputDevice()
+        {
+            InterceptXInputDevice = false;
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
         /// <summary>
@@ -324,8 +327,8 @@ namespace CFW.Business
                 else
                 {
                     log.Debug("Xbox controller was expected but not found.");
-                    log.Debug("Setting InterceptXInputDevice to FALSE");
-                    InterceptXInputDevice = false;
+                    log.Debug("Relinquishing XInput device and setting InterceptXInputDevice to false.");
+                    RelinquishXInputDevice();
                     XInputDeviceConnected = false;
                 }
             }

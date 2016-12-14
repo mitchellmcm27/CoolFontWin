@@ -47,14 +47,10 @@ namespace CFW.ViewModel
             get { return _XboxLedImage.Value; }
         }
 
-        bool _XboxController;
+        readonly ObservableAsPropertyHelper<bool> _XboxController;
         public bool XboxController
         {
-            get { return _XboxController; }
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _XboxController, value);
-            }
+            get { return _XboxController.Value; }
         }
 
         readonly ObservableAsPropertyHelper<bool> _KeyboardOutput;
@@ -170,7 +166,7 @@ namespace CFW.ViewModel
             DeviceHub = d;
             DnsServer = s;
 
-            XboxController = DeviceHub.InterceptXInputDevice;
+
             XboxOutputButtonIsEnabled = DeviceHub.EnabledVJoyDevicesList.Where(x => x > 1000 && x < 1005).Count() > 0;
             VJoyDevices = new List<int>(DeviceHub.EnabledVJoyDevicesList.Where(x => x > 0 && x < 17));
             VJoyOutputButtonIsEnabled = VJoyDevices.Count > 0;
@@ -212,6 +208,15 @@ namespace CFW.ViewModel
                 }
             });
 
+            InterceptXInputDevice = ReactiveCommand.Create<bool>(wasChecked => 
+            {
+                if (wasChecked)
+                {
+                    DeviceHub.AcquireXInputDevice();
+                }
+                else DeviceHub.InterceptXInputDevice = false;
+            });
+
             AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceHub.AcquireVDev(CurrentDeviceID)));
 
             // depends on checkbox state (bool parameter)
@@ -228,6 +233,11 @@ namespace CFW.ViewModel
             // Secondary device DNS service
             this.WhenAnyValue(x => x.DnsServer.DeviceNames, x => x.Count() > 1)
                 .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
+
+            // Xbox controller intercepted
+            this.WhenAnyValue(x => x.DeviceHub.InterceptXInputDevice)
+                //.Throttle(TimeSpan.FromMilliseconds(200))
+                .ToProperty(this, x => x.XboxController, out _XboxController);
 
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Id)
@@ -269,7 +279,7 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Id)
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .Select(x => XboxLedImagePath((int)x))
-                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);      
+                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);    
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -279,15 +289,10 @@ namespace CFW.ViewModel
         public ReactiveCommand AddRemoveSecondaryDevice { get; set; }
         public ReactiveCommand PlayPause { get; set; }
         public ReactiveCommand CoupledDecoupled { get; set; }
-
+        public ReactiveCommand InterceptXInputDevice { get; set; }
 
         // public Commands return ICommand using DelegateCommand class
         // and are backed by private methods
-
-        public ICommand InterceptXInputDeviceCommand
-        {
-            get { return new AwaitableDelegateCommand(IntercpetXInputDeviceAsync); }
-        }
 
         public ICommand UnplugAllXboxCommand
         {
@@ -310,11 +315,6 @@ namespace CFW.ViewModel
             {
                 await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
             }
-        }
-
-        private async Task IntercpetXInputDeviceAsync()
-        {
-            await Task.Run(() => DeviceHub.InterceptXInputDevice = _XboxController);
         }
 
         private async Task UpdateMode(int mode)
@@ -367,13 +367,7 @@ namespace CFW.ViewModel
         // Notifications
         private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-
-            if (e.PropertyName == "InterceptXInputDevice")
-            {
-                XboxController = DeviceHub.InterceptXInputDevice;
-            }
-
-            else if (e.PropertyName == "CurrentDevices")
+            if (e.PropertyName == "CurrentDevices")
             {
                 _VJoyDevices = new List<int>(DeviceHub.EnabledVJoyDevicesList.Where(x => x > 0 && x < 17));
 
