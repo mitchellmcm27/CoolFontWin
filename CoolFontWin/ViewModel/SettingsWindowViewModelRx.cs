@@ -89,7 +89,7 @@ namespace CFW.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _CurrentVJoyDevice, value);
-                
+                AcquireAndUpdateVJoyDevice(value);
             }
         }
 
@@ -178,11 +178,11 @@ namespace CFW.ViewModel
             // Commands 
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(()=> DeviceHub.RelinquishCurrentDevice(silent:true));
+                await Task.Run(() => DeviceHub.RelinquishCurrentDevice(silent: true));
                 await UpdateMode((int)SimulatorMode.ModeWASD);
             });
 
-            VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) => 
+            VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
                 await Task.Run(() => DeviceHub.AcquireVDev((uint)id));
                 if (CoupledOutput)
@@ -197,7 +197,7 @@ namespace CFW.ViewModel
                 }
             });
 
-            XboxMode = ReactiveCommand.CreateFromTask(async _=>
+            XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
                 await Task.Run(() => DeviceHub.AcquireVDev(0));
                 if (CoupledOutput)
@@ -241,14 +241,14 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
                 .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
 
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause")
+            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
                 .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m == SimulatorMode.ModeWASD)
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, x => x.DeviceHub.VDevice.Id, (m, id) => 
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, x => x.DeviceHub.VDevice.Id, (m, id) =>
                 (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id > 1000)
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
@@ -256,26 +256,20 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, x => x.DeviceHub.VDevice.Id, (m, id) =>
                 (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id < 17)
                 .Throttle(TimeSpan.FromMilliseconds(200))
-                .ToProperty(this, x=>x.VJoyOutput, out _VJoyOutput);
+                .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m==SimulatorMode.ModeJoystickCoupled || m==SimulatorMode.ModeWASD)
-                .Throttle(TimeSpan.FromMilliseconds(200))
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
+                //.Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
 
             this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
                 .ToProperty(this, x => x.CoupledText, out _CoupledText);
 
+            // Xbox controller LED image
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Id)
                 .Throttle(TimeSpan.FromMilliseconds(200))
                 .Select(x => XboxLedImagePath((int)x))
-                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);
-
-            // TODO
-            this.WhenAnyValue(x => x.CurrentVJoyDevice)
-                .Throttle(TimeSpan.FromMilliseconds(200))
-                .Do(x => DeviceHub.AcquireVDev((uint)x));
-                
-
+                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);      
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -364,6 +358,11 @@ namespace CFW.ViewModel
             }
         }
 
+        private async Task AcquireAndUpdateVJoyDevice(int id)
+        {
+            await Task.Run(()=>DeviceHub.AcquireVDev((uint)id));
+            await Task.Run(()=>DeviceHub.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
+        }
 
         // Notifications
         private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
