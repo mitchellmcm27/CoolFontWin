@@ -101,6 +101,7 @@ namespace CFW.Business
             NotifyIcon.Visible = true;
 
             NotifyIcon.Text = VersionItemString();
+            ShowSettingsWindow();
 
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
             {
@@ -125,7 +126,6 @@ namespace CFW.Business
                     "CoolFontWin updated",
                     "Get update notes at www.coolfont.co",
                     ToolTipIcon.Info);
-                ShowSettingsWindow();
             }
         }
 
