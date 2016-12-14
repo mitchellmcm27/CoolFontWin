@@ -129,7 +129,7 @@
                     <DockPanel Grid.Column="0" Grid.Row="1" Margin="8" ToolTip="Virtual Xbox 360 controller">
                         <RadioButton DockPanel.Dock="Left" Name="XboxOutput"  GroupName="Output" HorizontalAlignment="Center" VerticalAlignment="Top"  Margin="8"
                              IsChecked="{Binding XboxOutput, Mode=OneWay}"
-                             IsEnabled="{Binding XboxOutputButtonIsEnabled}"
+                             IsEnabled="{Binding XboxOutputButtonIsEnabled, Mode=OneWay}"
                              Command="{Binding XboxMode}"/>
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
 

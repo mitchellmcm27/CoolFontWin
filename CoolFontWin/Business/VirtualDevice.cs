@@ -119,6 +119,13 @@ namespace CFW.Business
             }
         }
 
+        private List<int> _EnabledDevices;
+        public List<int> EnabledDevices
+        {
+            get { return _EnabledDevices; }
+            set { this.RaiseAndSetIfChanged(ref _EnabledDevices, value); }
+        }
+
         public int MaxDevices;
         public List<MobileDevice> DeviceList; // Mobile devices to expect
 
@@ -169,6 +176,8 @@ namespace CFW.Business
 
             // Zero out iReport
             ResetValues();
+
+            EnabledDevices = GetEnabledDevices();
         }
         #endregion
 

@@ -364,7 +364,7 @@ namespace CFW.ViewModel
 
                 var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
                 item.Tag = i;
-                item.Visible = DeviceHub.EnabledVJoyDevicesList.Contains(i);
+                item.Visible = DeviceHub.VDevice.EnabledDevices.Contains(i);
 
                 // doesn't update after install scpvbus
 

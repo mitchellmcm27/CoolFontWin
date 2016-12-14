@@ -65,11 +65,10 @@ namespace CFW.ViewModel
             get { return _XboxOutput.Value; }
         } 
 
-        bool _XboxOutputButtonIsEnabled;
+        readonly ObservableAsPropertyHelper<bool> _XboxOutputButtonIsEnabled;
         public bool XboxOutputButtonIsEnabled
         {
-            get { return _XboxOutputButtonIsEnabled; }
-            set { this.RaiseAndSetIfChanged(ref _XboxOutputButtonIsEnabled, value); }
+            get { return _XboxOutputButtonIsEnabled.Value; }
         }
 
         readonly ObservableAsPropertyHelper<bool> _VJoyOutput;
@@ -89,11 +88,10 @@ namespace CFW.ViewModel
             }
         }
 
-        bool _vJoyOutputButtonIsEnabled;
+        readonly ObservableAsPropertyHelper<bool> _vJoyOutputButtonIsEnabled;
         public bool VJoyOutputButtonIsEnabled
         {
-            get { return _vJoyOutputButtonIsEnabled; }
-            set { this.RaiseAndSetIfChanged(ref _vJoyOutputButtonIsEnabled, value); }
+            get { return _vJoyOutputButtonIsEnabled.Value; }
         }
 
         readonly ObservableAsPropertyHelper<string> _CoupledText;
@@ -108,11 +106,10 @@ namespace CFW.ViewModel
             get { return _CoupledOutput.Value; }
         }
 
-        List<int> _VJoyDevices;
+        readonly ObservableAsPropertyHelper<List<int>> _VJoyDevices;
         public List<int> VJoyDevices
         {
-            get { return _VJoyDevices; }
-            set { this.RaiseAndSetIfChanged(ref _VJoyDevices, value); }
+            get { return _VJoyDevices.Value; }
         }
 
         readonly ObservableAsPropertyHelper<bool> _IsPaused;
@@ -169,9 +166,6 @@ namespace CFW.ViewModel
             DnsServer = s;
 
 
-            XboxOutputButtonIsEnabled = DeviceHub.EnabledVJoyDevicesList.Where(x => x > 1000 && x < 1005).Count() > 0;
-            VJoyDevices = new List<int>(DeviceHub.EnabledVJoyDevicesList.Where(x => x > 0 && x < 17));
-            VJoyOutputButtonIsEnabled = VJoyDevices.Count > 0;
 
             // Commands 
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
@@ -246,40 +240,51 @@ namespace CFW.ViewModel
 
             // Mode
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode)
-                .Throttle(TimeSpan.FromMilliseconds(50))
                 .ToProperty(this, x => x.Mode, out _Mode);
-
-            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModePaused)
-                .ToProperty(this, x => x.IsPaused, out _IsPaused);
-
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
-                .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
-
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
-                .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
+            
+            // Cascade down Mode and Current Device ID
 
             this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
 
             this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
-                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id > 1000)
+                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id > 1000 && id<1005)
                 .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
 
             this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
-                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id < 17)
+                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id < 17 && id>0)
                 .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
 
             this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
 
-            this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
-                .ToProperty(this, x => x.CoupledText, out _CoupledText);
+                this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
+                    .ToProperty(this, x => x.CoupledText, out _CoupledText);
+
+            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModePaused)
+                .ToProperty(this, x => x.IsPaused, out _IsPaused);
+
+                this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
+                    .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
+
+                this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
+                    .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
             // Xbox controller LED image
             this.WhenAnyValue(x => x.CurrentDeviceID)
-                .Throttle(TimeSpan.FromMilliseconds(50))
                 .Select(x => XboxLedImagePath((int)x))
-                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);    
+                .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);
+
+            // Devices available to be acquired
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+                .ToProperty(this, x => x.XboxOutputButtonIsEnabled, out _XboxOutputButtonIsEnabled);
+
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+                 .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
+
+            this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
+                .ToProperty(this, x => x.VJoyOutputButtonIsEnabled, out _vJoyOutputButtonIsEnabled);
+
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -362,18 +367,6 @@ namespace CFW.ViewModel
         {
             await Task.Run(()=>DeviceHub.AcquireVDev((uint)id));
             await Task.Run(()=>DeviceHub.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
-        }
-
-        // Notifications
-        private void Model_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "CurrentDevices")
-            {
-                _VJoyDevices = new List<int>(DeviceHub.EnabledVJoyDevicesList.Where(x => x > 0 && x < 17));
-
-                XboxOutputButtonIsEnabled = DeviceHub.EnabledVJoyDevicesList.Where(x => x > 1000 && x < 1005).Count() > 0;
-                VJoyOutputButtonIsEnabled = VJoyDevices.Count > 0;
-            }
         }
     }
 }

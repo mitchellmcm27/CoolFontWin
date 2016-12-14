@@ -110,14 +110,6 @@ namespace CFW.Business
             }
         }
 
-        public List<int> EnabledVJoyDevicesList
-        {
-            get
-            {
-                return VDevice.GetEnabledDevices();
-            }
-        }
-
         private TimeSpan UpdateInterval;
 
         /// <summary>
