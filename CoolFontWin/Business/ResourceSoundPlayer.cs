@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace CFW.Business
 {
+    
     public static class ResourceSoundPlayer
     {
+
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 

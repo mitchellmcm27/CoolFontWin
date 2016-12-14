@@ -160,6 +160,8 @@ namespace CFW.ViewModel
 
         private readonly DeviceManager DeviceHub;
         private readonly DNSNetworkService DnsServer;
+        private ObservableAsPropertyHelper<SimulatorMode> _Mode;
+        private SimulatorMode Mode { get { return (_Mode.Value); } }
 
         public SettingsWindowViewModelRx(DeviceManager d, DNSNetworkService s)
         {
@@ -236,7 +238,6 @@ namespace CFW.ViewModel
 
             // Xbox controller intercepted
             this.WhenAnyValue(x => x.DeviceHub.InterceptXInputDevice)
-                //.Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.XboxController, out _XboxController);
 
             // Current vDevice ID
@@ -244,8 +245,11 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
             // Mode
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m == SimulatorMode.ModePaused)
-                .Throttle(TimeSpan.FromMilliseconds(200))
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode)
+                .Throttle(TimeSpan.FromMilliseconds(50))
+                .ToProperty(this, x => x.Mode, out _Mode);
+
+            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModePaused)
                 .ToProperty(this, x => x.IsPaused, out _IsPaused);
 
             this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
@@ -254,30 +258,26 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
                 .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m == SimulatorMode.ModeWASD)
-                .Throttle(TimeSpan.FromMilliseconds(200))
+            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, x => x.DeviceHub.VDevice.Id, (m, id) =>
+            this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
                 (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id > 1000)
-                .Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, x => x.DeviceHub.VDevice.Id, (m, id) =>
+            this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
                 (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id < 17)
-                .Throttle(TimeSpan.FromMilliseconds(200))
                 .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
-                //.Throttle(TimeSpan.FromMilliseconds(200))
+            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
 
             this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
                 .ToProperty(this, x => x.CoupledText, out _CoupledText);
 
             // Xbox controller LED image
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Id)
-                .Throttle(TimeSpan.FromMilliseconds(200))
+            this.WhenAnyValue(x => x.CurrentDeviceID)
+                .Throttle(TimeSpan.FromMilliseconds(50))
                 .Select(x => XboxLedImagePath((int)x))
                 .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);    
         }
