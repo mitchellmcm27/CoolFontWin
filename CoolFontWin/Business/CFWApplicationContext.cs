@@ -45,12 +45,15 @@ namespace CFW.Business
 
         public SilentUpdater Updater { get; private set; }
         private NotifyIconViewModel NotifyIconViewModel;
-        private BusinessModel Model;
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
-        private View.SettingsWindow SettingsView;
         private ScpVBus scpInstaller = new ScpVBus();
-        
+
+        private DeviceManager DeviceHub = DeviceManager.Instance;
+        private UDPServer UdpServer = new UDPServer();
+        private DNSNetworkService DnsServer;
+
+
         public CFWApplicationContext()
         {
             
@@ -74,9 +77,27 @@ namespace CFW.Business
             }  
 
             InitializeContext();
-            Model = new BusinessModel();
-            NotifyIconViewModel = new NotifyIconViewModel(Model);
-            Model.StartServices();
+            List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
+            DeviceHub.MobileDevicesCount = names.Count;
+
+            
+
+            UdpServer.Start(Properties.Settings.Default.LastPort);
+            int port = UdpServer.Port;
+
+            DnsServer = new DNSNetworkService(port, DeviceHub);
+
+            Properties.Settings.Default.LastPort = port;
+            Properties.Settings.Default.Save();
+
+
+            // publish 1 network service for each device
+            for (int i = 0; i < names.Count; i++)
+            {
+                DnsServer.Publish(port, names[i]);
+            }
+
+            NotifyIconViewModel = new NotifyIconViewModel(DeviceHub, DnsServer);
             NotifyIcon.Visible = true;
 
             NotifyIcon.Text = VersionItemString();
@@ -331,7 +352,7 @@ namespace CFW.Business
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                SettingsWindowViewModel = new SettingsWindowViewModelRx(Model);
+                SettingsWindowViewModel = new SettingsWindowViewModelRx(DeviceHub, DnsServer);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }              
@@ -427,7 +448,7 @@ namespace CFW.Business
 
         protected override void ExitThreadCore()
         {    
-            Model.Dispose();
+            DeviceHub.Dispose();
             Dispose(true);
             base.ExitThreadCore();
         }

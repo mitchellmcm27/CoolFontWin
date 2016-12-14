@@ -6,6 +6,9 @@ using System.Net.Sockets;
 using Mono.Zeroconf;
 using log4net;
 using System.Windows.Forms;
+using ReactiveUI;
+using System.Collections.Specialized;
+using System.Linq;
 
 namespace CFW.Business
 {
@@ -13,7 +16,7 @@ namespace CFW.Business
     /// <summary>
     /// Manages DNS Services through Mono.Zeroconf. Works with and requires Bonjour.
     /// </summary>
-    public class DNSNetworkService
+    public class DNSNetworkService : ReactiveObject
     {
         /**<summary>
          * Implements a UDP socket to listen on a given port, defaults to 5555.
@@ -29,8 +32,19 @@ namespace CFW.Business
 
         public List<RegisterService> PublishedServices = new List<RegisterService>();
 
-        public DNSNetworkService()
+        List<string> _DeviceNames = new List<string>();
+        public List<string> DeviceNames
         {
+            get { return _DeviceNames; }
+            set { this.RaiseAndSetIfChanged(ref _DeviceNames, value); }
+        }
+
+        private int Port;
+        private DeviceManager DeviceHub;
+        public DNSNetworkService(int port, DeviceManager deviceHub)
+        {
+            Port = port;
+            DeviceHub = deviceHub;
         }
 
         public static List<IPAddress> GetValidLocalAddresses()
@@ -120,6 +134,7 @@ namespace CFW.Business
             service.Register();
 
             PublishedServices.Add(service);
+            DeviceNames.Add(name);
             return true;
         }
 
@@ -160,6 +175,55 @@ namespace CFW.Business
                     log.Error(String.Format("!! Unknown Error registering name = '{0}'", args.Service.Name +". Details: " + args.ServiceError.ToString()));
                     break;
             }
+        }
+
+        /// <summary>
+        /// Publish a new network service on the same port.
+        /// </summary>
+        /// <param name="name">Name to append to the service (device name).</param>
+        public void AddService(string name)
+        {
+            if (Publish(Port, name))
+            {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);    
+            }
+            DeviceHub.MobileDevicesCount = DeviceNames.Count;
+
+            // update Defaults with this name
+            StringCollection collection = new StringCollection();
+            collection.AddRange(DeviceNames.ToArray());
+            Properties.Settings.Default.ConnectedDevices = collection;
+            Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Remove the last service that was published.
+        /// </summary>
+        public void RemoveLastService()
+        {
+            // Do not allow removal of primary device
+            if (DeviceNames.Count == 1)
+            {
+                log.Info("Can't remove primary device. Return.");
+                return;
+            }
+
+            // get last-added device name and remove it
+            string name = DeviceNames.Last();
+            DeviceNames.Remove(name);
+            log.Info("Removed " + name + " from device list.");
+
+            // unpublish service containing this name
+            Unpublish(name);
+            ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
+
+            // update Defaults 
+            StringCollection collection = new StringCollection();
+            collection.AddRange(DeviceNames.ToArray());
+            Properties.Settings.Default.ConnectedDevices = collection;
+            Properties.Settings.Default.Save();
+
+            DeviceHub.MobileDevicesCount = DeviceNames.Count;
         }
 
         private static List<IPAddress> GetAddresses(NetworkInterfaceType type, AddressFamily family)

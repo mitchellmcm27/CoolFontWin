@@ -32,7 +32,7 @@ namespace CFW.Business
         static readonly object locker = new object();
         
         // Devices
-        private VirtualDevice VDevice; // single vjoy device, combines multiple mobile device inputs
+        public VirtualDevice VDevice; // single vjoy device, combines multiple mobile device inputs
         private XInputDeviceManager XMgr;
         private Controller XDevice; // single xbox controller
 
@@ -113,14 +113,6 @@ namespace CFW.Business
             get
             {
                 return VDevice.VDevAcquired;
-            }
-        }
-
-        public uint CurrentDeviceID
-        {
-            get
-            {
-                return VDevice.Id;
             }
         }
 
@@ -350,7 +342,7 @@ namespace CFW.Business
         public void Dispose()
         {
             RelinquishCurrentDevice();
-            Properties.Settings.Default.VJoyID = (int)CurrentDeviceID;
+            Properties.Settings.Default.VJoyID = (int)VDevice.Id;
             Properties.Settings.Default.Save(); 
         }    
     }

@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"           
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModel}"
+             d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModelRx}"
              mc:Ignorable="d" Height="Auto" Width="Auto" Foreground="White">
 
     <UserControl.Resources>
@@ -51,7 +51,7 @@
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
                     <DockPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox IsChecked="{Binding SecondaryDevice}" Margin="8" DockPanel.Dock="Left"/>
+                        <CheckBox IsChecked="{Binding SecondaryDevice, Mode=OneWay}" Command="{Binding AddRemoveSecondaryDevice}" CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}" Margin="8" DockPanel.Dock="Left"/>
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
@@ -60,7 +60,7 @@
                     </DockPanel>
 
                     <DockPanel Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox IsChecked="{Binding XboxDevice}" Margin="8" DockPanel.Dock="Left" Command="{Binding InterceptXInputDeviceCommand}"/>
+                        <CheckBox IsChecked="{Binding XboxController}" Margin="8" DockPanel.Dock="Left" Command="{Binding InterceptXInputDeviceCommand}"/>
                         <Image Source="/Resources/xbox.png" Stretch="None" Margin="4" DockPanel.Dock="Left"/>
                         <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Xbox controller</TextBlock>
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
@@ -68,7 +68,7 @@
                     </DockPanel>
 
                     <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="8" 
-                        Command="{Binding PlayPauseCommand}">
+                        Command="{Binding PlayPause}">
                         <Button.Content>
                             <DockPanel HorizontalAlignment="Center">
                                 <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
@@ -112,9 +112,9 @@
 
                     <DockPanel Grid.Column="0" Grid.Row="0" Margin="8">
                         <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Top"  Margin="8"
-                             IsChecked="{Binding KeyboardOutput}"
+                             IsChecked="{Binding KeyboardOutput, Mode=OneWay}"
                              IsEnabled="{Binding KeyboardOutputButtonIsEnabled}"
-                             Command="{Binding KeyboardOutputCommand}"/>
+                             Command="{Binding KeyboardMode}"/>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="Virtual W-key press">
                             <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" 
                                                      Width="18" Height="18"/>
@@ -124,9 +124,9 @@
 
                     <DockPanel Grid.Column="0" Grid.Row="1" Margin="8" ToolTip="Virtual Xbox 360 controller">
                         <RadioButton DockPanel.Dock="Left" Name="XboxOutput"  GroupName="Output" HorizontalAlignment="Center" VerticalAlignment="Top"  Margin="8"
-                             IsChecked="{Binding XboxOutput}"
+                             IsChecked="{Binding XboxOutput, Mode=OneWay}"
                              IsEnabled="{Binding XboxOutputButtonIsEnabled}"
-                             Command="{Binding XboxOutputCommand}"/>
+                             Command="{Binding XboxMode}"/>
                         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
 
                             <Image Name="xboxImage" HorizontalAlignment="Left" VerticalAlignment="Center" DockPanel.Dock="Left" Margin="4"
@@ -134,9 +134,9 @@
                             <TextBlock VerticalAlignment="Center" Text="vXbox" Margin="8"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="In coupled locomotion games, movement direction is bound to look direction">
-                            <ToggleButton IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupledCommand}" HorizontalAlignment="Center" Margin="8,0,8,0"/>
+                            <ToggleButton IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupled}" HorizontalAlignment="Center" Margin="8,0,8,0"/>
                             <TextBlock FontSize="10" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                                   Text="{Binding CoupledText}"/>
+                                   Text="{Binding CoupledText, Mode=OneWay}"/>
                         </StackPanel>
                     </DockPanel>
 
@@ -147,18 +147,19 @@
 
                     <DockPanel Grid.Row="2" Margin="8">
                         <RadioButton  GroupName="Output" VerticalAlignment="Top" Margin="8" DockPanel.Dock="Left"
-                             IsChecked="{Binding VJoyOutput}"
+                             IsChecked="{Binding VJoyOutput, Mode=OneWay}"
                              IsEnabled="{Binding VJoyOutputButtonIsEnabled}"
-                             Command ="{Binding VJoyOutputCommand}"/>
+                             Command ="{Binding VJoyMode}"
+                             CommandParameter="{Binding ElementName=VJoyDevices,Path=SelectedItem}"/>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="Virtual joystick">
                             <Image Name="vjoyImage" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="4"
                             Source="/Resources/joystick.png" Stretch="None"/>
                             <TextBlock VerticalAlignment="Top" DockPanel.Dock="Left" Text="vJoy"  Margin="8"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="In decoupled locomotion games, movement and look directions are independent">
-                        <ToggleButton IsChecked="{Binding CoupledOutput}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupledCommand}" HorizontalAlignment="Left" DockPanel.Dock="Top" Margin="8,0,8,0"/>
+                        <ToggleButton IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}" HorizontalAlignment="Left" DockPanel.Dock="Top" Margin="8,0,8,0"/>
                         <TextBlock FontSize="10" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Center" DockPanel.Dock="Top"
-                                   Text="{Binding CoupledText}"/>
+                                   Text="{Binding CoupledText, Mode=OneWay}"/>
                         </StackPanel>
                     </DockPanel>
 
