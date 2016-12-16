@@ -69,6 +69,7 @@ namespace CFW.ViewModel
             get { return _Keybind; }
             set
             {
+                value = value.ToUpper();
                 this.RaiseAndSetIfChanged(ref _Keybind, value);
                 DeviceHub.VDevice.SetKeybind(value);
             }
@@ -261,7 +262,6 @@ namespace CFW.ViewModel
 
             // Keybind
             Keybind = DeviceHub.VDevice.Keybind;
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Keybind, x => this.Keybind = x);
 
             // Cascade down Mode and Current Device ID
 
