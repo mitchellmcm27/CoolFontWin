@@ -130,14 +130,14 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>Internet</TargetZone>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -319,6 +319,9 @@
       <DependentUpon>UpdateNotes.cs</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\DelegateCommand.cs" />
+    <Compile Include="View\WindowBarControl.xaml.cs">
+      <DependentUpon>WindowBarControl.xaml</DependentUpon>
+    </Compile>
     <None Include="ViewModel\SettingsWindowViewModel.cs" />
     <Compile Include="ViewModel\SettingsWindowViewModelRx.cs" />
     <Compile Include="View\SettingsControl.xaml.cs">
@@ -509,6 +512,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\WindowBarControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

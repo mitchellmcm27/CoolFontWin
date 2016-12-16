@@ -30,20 +30,23 @@
 
         <!-- Input Column -->
 
-        <materialDesign:Card Margin="8,8,4,8" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <materialDesign:Card Margin="0,0,4,0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="8,8,8,12" Background="Transparent" FontSize="16">Input devices</TextBlock>
+                <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                    <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16">Input devices</TextBlock>
+                </materialDesign:ColorZone>
                 <Grid DockPanel.Dock="Top">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
 
                     </Grid.RowDefinitions>
 
                     <DockPanel  Grid.Row="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox Margin="8" DockPanel.Dock="Left" IsChecked="True" IsEnabled="False" />
+                        <CheckBox Margin="8" DockPanel.Dock="Left" VerticalAlignment ="Center" IsChecked="True" IsEnabled="False" />
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
@@ -51,7 +54,7 @@
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
                     <DockPanel Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox Margin="8" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" 
+                        <CheckBox Margin="8" VerticalAlignment="Center" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" 
                                   Command="{Binding AddRemoveSecondaryDevice}" 
                                   CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
@@ -62,7 +65,7 @@
                     </DockPanel>
 
                     <DockPanel Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox IsChecked="{Binding XboxController, Mode=OneWay}" Margin="8" DockPanel.Dock="Left" 
+                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding XboxController, Mode=OneWay}" Margin="8" DockPanel.Dock="Left" 
                                   Command="{Binding InterceptXInputDevice}"
                                   CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
                         <Image Source="/Resources/xbox.png" Stretch="None" Margin="4" DockPanel.Dock="Left"/>
@@ -71,7 +74,7 @@
 
                     </DockPanel>
 
-                    <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="8" 
+                    <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16" HorizontalAlignment="Center"
                         Command="{Binding PlayPause}">
                         <Button.Content>
                             <DockPanel HorizontalAlignment="Center">
@@ -86,27 +89,24 @@
         </materialDesign:Card>
         
         <!-- Output column -->
-        <materialDesign:Card Margin="4,8,8,8" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <DockPanel>
-                <TextBlock IsEnabled="{Binding IsNotPaused}" DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="8,8,8,12" Background="Transparent" FontSize="16"
-                           Text="Output device">
-                    <TextBlock.Style>
-                        <Style TargetType="{x:Type TextBlock}">
-                            <Style.Triggers>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Foreground"
-                            Value="{StaticResource {x:Static SystemColors.GrayTextBrushKey}}"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                
+                <materialDesign:ColorZone Padding="16" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                    <DockPanel>
+                        <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
+                                Style="{StaticResource MaterialDesignToolForegroundButton}">
+                        <materialDesign:PackIcon Kind="Settings" Height="18" Width="18"/>
+                        </Button>
+                        <TextBlock IsEnabled="{Binding IsNotPaused}" HorizontalAlignment="Center" Margin="8" FontSize="16"
+                           Text="Output device"/>
+                    </DockPanel>
+                </materialDesign:ColorZone>
                 <Grid DockPanel.Dock="Top">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
@@ -126,17 +126,18 @@
 
 
                         </StackPanel>
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <TextBox Name="Keybind"  HorizontalAlignment="center" VerticalAlignment="center" Margin="4"
-                             Text="{Binding Keybind}" MaxLength="1">
-                            </TextBox>
-                            <Button Margin="0"  ToolTip="Accept" Width="24" Height="24"
-                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}">
-                                <materialDesign:PackIcon Kind="Check" Height="18" Width="18" />
-                            </Button>
-                        </StackPanel>
                     </DockPanel>
-             
+
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
+                        <TextBox Name="Keybind"  HorizontalAlignment="center" VerticalAlignment="center" Margin="4"
+                             Text="{Binding Keybind}" MaxLength="1">
+                        </TextBox>
+                        <Button Margin="0"  ToolTip="Accept" Width="24" Height="24"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}">
+                            <materialDesign:PackIcon Kind="Check" Height="18" Width="18" />
+                        </Button>
+                    </StackPanel>
+
 
                     <DockPanel Grid.Column="0" Grid.Row="1" Margin="8" ToolTip="Virtual Xbox 360 controller">
                         <RadioButton DockPanel.Dock="Left" Name="XboxOutput"  GroupName="Output" HorizontalAlignment="Center" VerticalAlignment="Top"  Margin="8"
@@ -188,15 +189,10 @@
                                 ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
                                 IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
 
-                    <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
-                        <Button Margin="8,8,4,8" Command="{Binding JoyCplCommand}" ToolTip="Windows USB device properties">
-                            <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />
-                        </Button>
-                        <Button Name="RelinquishAllXboxButton" DockPanel.Dock="Left" Margin="4,8,8,8" Command="{Binding UnplugAllXboxCommand}">
+                        <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="RelinquishAllXboxButton" Margin="16" HorizontalAlignment="Center"
+                                Command="{Binding UnplugAllXboxCommand}">
                             Unplug vControllers
                         </Button>
-          
-                    </StackPanel>
 
                 </Grid>
             </DockPanel>

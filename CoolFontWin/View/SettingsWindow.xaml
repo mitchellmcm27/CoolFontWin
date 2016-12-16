@@ -15,7 +15,7 @@
     Title="CoolFontWin" Foreground="{x:Null}" Icon="/Assets/tray-icon-transparent.ico" ResizeMode="CanMinimize" SizeToContent="WidthAndHeight"
     UseLayoutRounding="True">
     <Window.Resources>
-        
+
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
@@ -24,10 +24,11 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Orange.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            </ResourceDictionary>
+        </ResourceDictionary>
     </Window.Resources>
 
-
-    <View:SettingsControl DockPanel.Dock="Top"/>
+    <StackPanel Orientation="Vertical" Margin="4,4,4,4">
+        <View:SettingsControl/>
+    </StackPanel>
 
 </Window>
