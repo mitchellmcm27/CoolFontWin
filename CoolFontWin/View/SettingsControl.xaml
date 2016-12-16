@@ -57,7 +57,7 @@
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
                                                  Width="18" Height="18"                                                 
                                                  />
-                        <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Secondary mobile</TextBlock>
+                        <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket!">Secondary mobile</TextBlock>
                         <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
                     </DockPanel>
 
@@ -114,17 +114,29 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <DockPanel Grid.Column="0" Grid.Row="0" Margin="8">
-                        <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Top"  Margin="8"
+                    <DockPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="8" HorizontalAlignment="Stretch">
+                        <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8"
                              IsChecked="{Binding KeyboardOutput, Mode=OneWay}"
                              IsEnabled="{Binding KeyboardOutputButtonIsEnabled}"
                              Command="{Binding KeyboardMode}"/>
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="Virtual W-key press">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" ToolTip="Virtual W-key press">
                             <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="4" 
                                                      Width="18" Height="18"/>
-                            <TextBlock VerticalAlignment="Center" Text="Keyboard" Margin="8"/>
+                            <TextBlock VerticalAlignment="Center" Text="Keyboard" Margin="8,8,8,8"/>
+
+
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <TextBox Name="Keybind"  HorizontalAlignment="center" VerticalAlignment="center" Margin="4"
+                             Text="{Binding Keybind}" MaxLength="1">
+                            </TextBox>
+                            <Button Margin="0"  ToolTip="Accept" Width="24" Height="24"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}">
+                                <materialDesign:PackIcon Kind="Check" Height="18" Width="18" />
+                            </Button>
                         </StackPanel>
                     </DockPanel>
+             
 
                     <DockPanel Grid.Column="0" Grid.Row="1" Margin="8" ToolTip="Virtual Xbox 360 controller">
                         <RadioButton DockPanel.Dock="Left" Name="XboxOutput"  GroupName="Output" HorizontalAlignment="Center" VerticalAlignment="Top"  Margin="8"
@@ -145,7 +157,7 @@
                     </DockPanel>
 
                     <materialDesign:Chip Grid.Column="1" Grid.Row="1" IsEnabled="False"
-                                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,16,8,16" Background="#565656">
+                                         HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,12,8,12" Background="#565656">
                         <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </materialDesign:Chip>
 
@@ -159,6 +171,11 @@
                             <Image Name="vjoyImage" DockPanel.Dock="Left" VerticalAlignment="Top" Margin="4"
                             Source="/Resources/joystick.png" Stretch="None"/>
                             <TextBlock VerticalAlignment="Top" DockPanel.Dock="Left" Text="vJoy"  Margin="8"/>
+                            <Button Margin="0" Command="{Binding VJoyInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" Background="Transparent"
+                                ToolTip="Info on installing virtual joysticks">
+                                <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                                     Width="18" Height="18" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                            </Button>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" ToolTip="In decoupled locomotion games, movement and look directions are independent">
                         <ToggleButton IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}" HorizontalAlignment="Left" DockPanel.Dock="Top" Margin="8,0,8,0"/>
@@ -167,7 +184,7 @@
                         </StackPanel>
                     </DockPanel>
 
-                    <ComboBox Name="VJoyDevices" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,16,8,16" DockPanel.Dock="Left"
+                    <ComboBox Name="VJoyDevices" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="8,12,8,12"
                                 ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
                                 IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
 

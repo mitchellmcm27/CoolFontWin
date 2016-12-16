@@ -252,6 +252,7 @@
     <Compile Include="Business\UDPServer.cs" />
     <Compile Include="Business\DNSNetworkService.cs" />
     <Compile Include="Business\SilentUpdater.cs" />
+    <Compile Include="Business\VJoyInfoDialog.cs" />
     <Compile Include="Forms\MessageBoxCheck.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -328,6 +329,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="vJoy\vJoySetup.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
@@ -509,5 +513,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

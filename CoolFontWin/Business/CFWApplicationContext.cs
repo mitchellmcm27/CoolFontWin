@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Windows.Forms.Integration;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
@@ -355,7 +356,8 @@ namespace CFW.Business
                 SettingsWindowViewModel = new SettingsWindowViewModelRx(DeviceHub, DnsServer);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
-            }              
+            }
+            ElementHost.EnableModelessKeyboardInterop(SettingsWindow);
             SettingsWindow.Show();
         }
 

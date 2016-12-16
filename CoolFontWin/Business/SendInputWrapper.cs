@@ -15,6 +15,8 @@ namespace CFW.Business
             [MarshalAs(UnmanagedType.LPArray), In] INPUT[] pInputs,
             int cbSize);
 
+        [DllImport("user32.dll")]
+        internal static extern uint MapVirtualKey(uint uCode, uint uMapType);
 
         // Declare the INPUT struct
         [StructLayout(LayoutKind.Sequential)]
@@ -977,8 +979,6 @@ namespace CFW.Business
             internal short wParamL;
             internal short wParamH;
         }
-
-
 
         static public void KeyUp(ScanCodeShort key)
         {

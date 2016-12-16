@@ -5,6 +5,8 @@ using vGenWrap;
 using log4net;
 using System.Collections.Generic;
 using ReactiveUI;
+using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace CFW.Business
 {
@@ -148,6 +150,20 @@ namespace CFW.Business
 
         public double RCFilterStrength;
 
+        private SendInputWrapper.ScanCodeShort _VirtualKeyCode;
+        private TypeConverter converter = TypeDescriptor.GetConverter(typeof(Keys));
+
+        private string _Keybind;
+        public string Keybind
+        {
+            get { return _Keybind; }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Keybind, value);
+               
+            }
+        }
+
         public VirtualDevice(TimeSpan updateInterval)
         {
 
@@ -178,6 +194,16 @@ namespace CFW.Business
             ResetValues();
 
             EnabledDevices = GetEnabledDevices();
+            string key = "W";
+            SetKeybind(key);
+        }
+
+        public void SetKeybind(string key)
+        {
+            Keybind = key.ToCharArray()[0].ToString().ToUpper();
+
+            // http://www.pinvoke.net/default.aspx/user32/MapVirtualKey.html
+            _VirtualKeyCode = (SendInputWrapper.ScanCodeShort)SendInputWrapper.MapVirtualKey((uint)(Keys)Enum.Parse(typeof(Keys), _Keybind, true), 0x00);
         }
         #endregion
 
@@ -519,13 +545,13 @@ namespace CFW.Business
                 case SimulatorMode.ModeWASD:
                     if (valsf[0] > VirtualDevice.ThreshRun && !UserIsRunning)
                     {
-                        SendInputWrapper.KeyDown(SendInputWrapper.ScanCodeShort.KEY_W);
+                        SendInputWrapper.KeyDown(_VirtualKeyCode);
                         //KbM.Keyboard.KeyDown(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = true;
                     }
                     else if (valsf[0] <= VirtualDevice.ThreshRun && UserIsRunning)
                     {
-                        SendInputWrapper.KeyUp(SendInputWrapper.ScanCodeShort.KEY_W);
+                        SendInputWrapper.KeyUp(_VirtualKeyCode);
                         //KbM.Keyboard.KeyUp(WindowsInput.Native.VirtualKeyCode.VK_W);
                         UserIsRunning = false;
                     }

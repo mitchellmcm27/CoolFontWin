@@ -35,6 +35,8 @@ namespace CFW.ViewModel
             get { return _modes; }
         }
 
+        // Input devices
+
         readonly ObservableAsPropertyHelper<bool> _SecondaryDevice;
         public bool SecondaryDevice
         {
@@ -53,10 +55,23 @@ namespace CFW.ViewModel
             get { return _XboxController.Value; }
         }
 
+        // Output devices
+
         readonly ObservableAsPropertyHelper<bool> _KeyboardOutput;
         public bool KeyboardOutput
         {
             get { return _KeyboardOutput.Value; }
+        }
+
+        private string _Keybind;
+        public string Keybind
+        {
+            get { return _Keybind; }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Keybind, value);
+                DeviceHub.VDevice.SetKeybind(value);
+            }
         }
 
         readonly ObservableAsPropertyHelper<bool> _XboxOutput;
@@ -225,6 +240,8 @@ namespace CFW.ViewModel
             PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
 
+            VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(()=>VJoyInfoDialog.ShowVJoyInfoDialog()));
+
             // Responding to model changes
             // Secondary device DNS service
             this.WhenAnyValue(x => x.DnsServer.DeviceNames, x => x.Count() > 1)
@@ -241,7 +258,11 @@ namespace CFW.ViewModel
             // Mode
             this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode)
                 .ToProperty(this, x => x.Mode, out _Mode);
-            
+
+            // Keybind
+            Keybind = DeviceHub.VDevice.Keybind;
+            this.WhenAnyValue(x => x.DeviceHub.VDevice.Keybind, x => this.Keybind = x);
+
             // Cascade down Mode and Current Device ID
 
             this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeWASD)
@@ -295,6 +316,9 @@ namespace CFW.ViewModel
         public ReactiveCommand PlayPause { get; set; }
         public ReactiveCommand CoupledDecoupled { get; set; }
         public ReactiveCommand InterceptXInputDevice { get; set; }
+        public ReactiveCommand VJoyInfo { get; set; }
+        public ReactiveCommand StartKeybind { get; set; }
+        public ReactiveCommand ChangeKeybind { get; set; }
 
         // public Commands return ICommand using DelegateCommand class
         // and are backed by private methods
