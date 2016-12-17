@@ -43,56 +43,49 @@ namespace CFW.Business
         private NotifyIcon NotifyIcon;
         private ScpVBus scpInstaller = new ScpVBus();
 
-        private UDPServer UdpServer = new UDPServer();
+        private UDPServer UdpServer;
         private DNSNetworkService DnsServer;
-
+        private DeviceManager DeviceManager;
 
         public CFWApplicationContext()
         {
-            
             Updater = new SilentUpdater(); // checks immediately then starts 20 min timer
             Updater.Completed += Updater_Completed;
             Updater.PropertyChanged += Updater_PropertyChanged;
+
+            DeviceManager = new DeviceManager();
+            UdpServer = new UDPServer(DeviceManager);
 
             // Install ScpVBus every time application is launched
             // Uninstall it on exit (see region below)
             scpInstaller.PropertyChanged += ScpInstallerPropertyChanged;
             scpInstaller.Install();
 
-            try
-            {
-                ForceFirewallWindow();
-            }
-            catch (Exception e)
-            {
-                log.Error("Unable to open temp TCP socket because: " + e.Message);
-                log.Info("Windows Firewall should prompt on the next startup.");
-            }  
-
             InitializeContext();
-            List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
-            DeviceManager.Instance.MobileDevicesCount = names.Count;
 
+            // Get number of expected mobile device inputs from Default
+            List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
+            DeviceManager.MobileDevicesCount = names.Count;
             UdpServer.Start(Properties.Settings.Default.LastPort);
             int port = UdpServer.Port;
-
-            DnsServer = new DNSNetworkService(port, DeviceManager.Instance);
-
             Properties.Settings.Default.LastPort = port;
             Properties.Settings.Default.Save();
 
 
             // publish 1 network service for each device
+            DnsServer = new DNSNetworkService(port, DeviceManager);
             for (int i = 0; i < names.Count; i++)
             {
                 DnsServer.Publish(port, names[i]);
             }
 
-            NotifyIconViewModel = new NotifyIconViewModel(DeviceManager.Instance, DnsServer);
+            NotifyIconViewModel = new NotifyIconViewModel(DeviceManager, DnsServer);
             NotifyIcon.Visible = true;
 
             NotifyIcon.Text = GetVersionItemString();
             ShowSettingsWindow();
+
+            DeviceManager.VDevice.GetEnabledDevices();
 
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
             {
@@ -118,11 +111,21 @@ namespace CFW.Business
                     "Get update notes at www.coolfont.co",
                     ToolTipIcon.Info);
             }
+
+            try
+            {
+                ForceFirewallWindow();
+            }
+            catch (Exception e)
+            {
+                log.Error("Unable to open temp TCP socket because: " + e.Message);
+                log.Info("Windows Firewall should prompt on the next startup.");
+            }
         }
 
         private void ScpInstallerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            DeviceManager.Instance.VDevice.GetEnabledDevices();
+            DeviceManager.VDevice.GetEnabledDevices();
             if (!scpInstaller.InstallSuccess && Properties.Settings.Default.ShowScpVbusDialog)
             {
                 log.Debug("Show ScpVBus dialog.");
@@ -355,7 +358,7 @@ namespace CFW.Business
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                SettingsWindowViewModel = new SettingsWindowViewModel(DeviceManager.Instance, DnsServer);
+                SettingsWindowViewModel = new SettingsWindowViewModel(DeviceManager, DnsServer);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }
@@ -452,7 +455,7 @@ namespace CFW.Business
 
         protected override void ExitThreadCore()
         {    
-            DeviceManager.Instance.Dispose();
+            DeviceManager.Dispose();
             Dispose(true);
             base.ExitThreadCore();
         }

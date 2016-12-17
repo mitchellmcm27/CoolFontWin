@@ -21,7 +21,7 @@ namespace CFW.Business
         private Socket ServerSocket;
         private List<EndPoint> ClientList;
         private byte[] ByteData = new byte[1024];
-        private DeviceManager SharedDeviceManager;
+        private DeviceManager DeviceManager;
         public int Port;
 
         private void OnClientAdded()
@@ -29,12 +29,12 @@ namespace CFW.Business
             ClientAdded?.Invoke(this, null);
         }
 
-        public UDPServer()
+        public UDPServer(DeviceManager d)
         {
             ServerSocket = null;
             ClientList = new List<EndPoint>();
             Port = 0;
-            SharedDeviceManager = DeviceManager.Instance;
+            DeviceManager = d;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace CFW.Business
                 }
 
                 // send data to device manager singleton (vjoy etc)
-                SharedDeviceManager.PassDataToDevices(data);
+                DeviceManager.PassDataToDevices(data);
             }
             catch (ObjectDisposedException)
             {

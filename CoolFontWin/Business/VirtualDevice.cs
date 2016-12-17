@@ -181,9 +181,11 @@ namespace CFW.Business
             Joystick = new vDev();
             iReport = new State();
             CombinedDevice = new MobileDevice();
+            
 
             // DeviceManager will fill this list as needed
             DeviceList = new List<MobileDevice>();
+            EnabledDevices = new List<int>();
 
             // Default boolean states
             DriverEnabled = false;
@@ -1103,6 +1105,7 @@ namespace CFW.Business
 
         public void ForceUnplugAllXboxControllers()
         {
+
             log.Info("Unplugging all vXbox controllers.");
             for (uint i=1; i <=4; i++)
             {

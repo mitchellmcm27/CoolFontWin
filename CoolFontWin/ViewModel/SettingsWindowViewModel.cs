@@ -71,7 +71,7 @@ namespace CFW.ViewModel
             {
                 value = value.ToUpper();
                 this.RaiseAndSetIfChanged(ref _Keybind, value);
-                DeviceHub.VDevice.SetKeybind(value);
+                DeviceManager.VDevice.SetKeybind(value);
             }
         }
 
@@ -171,26 +171,26 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _XboxVisibility, value); }
         }
 
-        private readonly DeviceManager DeviceHub;
+        private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
 
         public SettingsWindowViewModel(DeviceManager d, DNSNetworkService s)
         {
-            DeviceHub = d;
+            DeviceManager = d;
             DnsServer = s;
 
             // Commands 
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceHub.RelinquishCurrentDevice(silent: true));
+                await Task.Run(() => DeviceManager.RelinquishCurrentDevice(silent: true));
                 await UpdateMode((int)SimulatorMode.ModeWASD);
             });
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
-                await Task.Run(() => DeviceHub.AcquireVDev((uint)id));
+                await Task.Run(() => DeviceManager.AcquireVDev((uint)id));
                 if (CoupledOutput)
                 {
                     log.Info("Update mode to coupled");
@@ -205,7 +205,7 @@ namespace CFW.ViewModel
 
             XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceHub.AcquireVDev(0));
+                await Task.Run(() => DeviceManager.AcquireVDev(0));
                 if (CoupledOutput)
                 {
                     log.Info("Update mode to coupled");
@@ -222,12 +222,12 @@ namespace CFW.ViewModel
             {
                 if (wasChecked)
                 {
-                    DeviceHub.AcquireXInputDevice();
+                    DeviceManager.AcquireXInputDevice();
                 }
-                else DeviceHub.InterceptXInputDevice = false;
+                else DeviceManager.InterceptXInputDevice = false;
             });
 
-            AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceHub.AcquireVDev(CurrentDeviceID)));
+            AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID)));
 
             // depends on checkbox state (bool parameter)
             AddRemoveSecondaryDevice = ReactiveCommand.Create<bool>(notAdded =>
@@ -250,19 +250,19 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
 
             // Xbox controller intercepted
-            this.WhenAnyValue(x => x.DeviceHub.InterceptXInputDevice)
+            this.WhenAnyValue(x => x.DeviceManager.InterceptXInputDevice)
                 .ToProperty(this, x => x.XboxController, out _XboxController);
 
             // Current vDevice ID
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Id)
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
             // Mode
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.Mode)
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.Mode)
                 .ToProperty(this, x => x.Mode, out _Mode);
 
             // Keybind
-            Keybind = DeviceHub.VDevice.Keybind;
+            Keybind = DeviceManager.VDevice.Keybind;
 
             // Cascade down Mode and Current Device ID
 
@@ -298,10 +298,10 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);
 
             // Devices available to be acquired
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
                 .ToProperty(this, x => x.XboxOutputButtonIsEnabled, out _XboxOutputButtonIsEnabled);
 
-            this.WhenAnyValue(x => x.DeviceHub.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
                  .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
 
             this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
@@ -341,12 +341,12 @@ namespace CFW.ViewModel
 
         private async Task UpdateMode(int mode)
         {
-            await Task.Run(() => DeviceHub.TryMode(mode));
+            await Task.Run(() => DeviceManager.TryMode(mode));
         }
 
         private async Task UnplugAllXboxImpl()
         {
-            await Task.Run(()=> DeviceHub.ForceUnplugAllXboxControllers(silent: true));
+            await Task.Run(()=> DeviceManager.ForceUnplugAllXboxControllers(silent: true));
             await UpdateMode((int)SimulatorMode.ModeWASD);
         }
 
@@ -355,7 +355,7 @@ namespace CFW.ViewModel
         {
             if (!IsPaused)
             {
-                if (DeviceHub.Mode != SimulatorMode.ModePaused) previousMode = (int)DeviceHub.Mode;
+                if (DeviceManager.Mode != SimulatorMode.ModePaused) previousMode = (int)DeviceManager.Mode;
                 await UpdateMode((int)SimulatorMode.ModePaused);
             }
             else await UpdateMode(previousMode);
@@ -382,8 +382,8 @@ namespace CFW.ViewModel
 
         private async Task AcquireAndUpdateVJoyDevice(int id)
         {
-            await Task.Run(()=>DeviceHub.AcquireVDev((uint)id));
-            await Task.Run(()=>DeviceHub.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
+            await Task.Run(()=>DeviceManager.AcquireVDev((uint)id));
+            await Task.Run(()=>DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
         }
     }
 }

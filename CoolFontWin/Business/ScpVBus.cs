@@ -1,7 +1,6 @@
 ﻿using System;
 using log4net;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.ComponentModel;
 
 namespace CFW.Business
@@ -61,7 +60,7 @@ namespace CFW.Business
             {
                 proc.StartInfo = startInfo;
                 proc.EnableRaisingEvents = true;
-                proc.Exited += Proc_Exited;
+                proc.Exited += Proc_Exited; 
                 proc.Start();
                 proc.WaitForExit();
             }
@@ -74,8 +73,8 @@ namespace CFW.Business
 
         private void Proc_Exited(object sender, EventArgs args)
         {
+           // System.Threading.Thread.Sleep(3000);
             DevconExitCode exitCode = (DevconExitCode)proc.ExitCode;
-
             log.Info("ScpVBus installation finished with code: " + exitCode.ToString());
 
             switch (exitCode)

@@ -18,16 +18,17 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public sealed class DeviceManager : ReactiveObject, IDisposable
+    public class DeviceManager : ReactiveObject, IDisposable
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static List<int> ValidDevIDList = 
-            new List<int> { 0, // none
-                            1001, 1002, 1003, 1004, // vXbox
-                            1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 // vJoy
-                           };
+        public static readonly List<int> ValidDevIDList = new List<int>
+        {
+            0, // none
+            1001, 1002, 1003, 1004, // vXbox
+            1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 // vJoy
+        };
 
         static readonly object locker = new object();
         
@@ -112,6 +113,8 @@ namespace CFW.Business
 
         private TimeSpan UpdateInterval;
 
+        private int _MobileDevicesCount;
+
         /// <summary>
         /// Tells Virtual Device how many different input streams to expect.
         /// </summary>
@@ -124,37 +127,17 @@ namespace CFW.Business
             set
             {
                 _MobileDevicesCount = value;
-                lock (locker)
-                { 
-                    VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
-                    for (int i = 0; i < value; i++)
-                    {
-                        VDevice.DeviceList.Add(new MobileDevice());
-                    }
-                    VDevice.MaxDevices = _MobileDevicesCount;
+                VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
+                for (int i = 0; i < value; i++)
+                {
+                    VDevice.DeviceList.Add(new MobileDevice());
                 }
-            }
-        }
-        private int _MobileDevicesCount;
-
-        // Lazy instantiation of singleton class.
-        // Executes only once because static.
-        private static readonly Lazy<DeviceManager> lazy = 
-            new Lazy<DeviceManager>(() => new DeviceManager());
-        
-        /// <summary>
-        /// Public getter for the singleton instance.
-        /// </summary>
-        public static DeviceManager Instance
-        {
-            get
-            { 
-                return lazy.Value;
+                VDevice.MaxDevices = _MobileDevicesCount;
             }
         }
 
         // Private initialization for the singleton class.
-        private DeviceManager()
+        public DeviceManager()
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
@@ -336,7 +319,7 @@ namespace CFW.Business
 
         public void Dispose()
         {
-            RelinquishCurrentDevice();
+            RelinquishCurrentDevice(silent:true);
             Properties.Settings.Default.VJoyID = (int)VDevice.Id;
             Properties.Settings.Default.Save(); 
         }    

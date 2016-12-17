@@ -13,12 +13,12 @@ namespace CFW.ViewModel
         private static readonly ILog log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private DeviceManager DeviceHub;
+        private DeviceManager DeviceManager;
         private DNSNetworkService DnsServer;
 
         public NotifyIconViewModel(DeviceManager deviceHub, DNSNetworkService dnsServer)
         {
-            DeviceHub = deviceHub;
+            DeviceManager = deviceHub;
             DnsServer = dnsServer;
         }
 
@@ -41,18 +41,18 @@ namespace CFW.ViewModel
 
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
-            DeviceHub.SmoothingFactor*=2;
+            DeviceManager.SmoothingFactor*=2;
         }
 
         private void SmoothingHalf_Click(object sender, EventArgs e)
         {
-            DeviceHub.SmoothingFactor/=2;
+            DeviceManager.SmoothingFactor/=2;
         }
 
         private void SelectedMode_Click(object sender, EventArgs e)
         {
             log.Debug(sender);
-            bool res = DeviceHub.TryMode((int)((ToolStripMenuItem)sender).Tag);
+            bool res = DeviceManager.TryMode((int)((ToolStripMenuItem)sender).Tag);
 
             if (res)
             {
@@ -115,7 +115,7 @@ namespace CFW.ViewModel
     
         private void UnplugAll_Click(object sender, EventArgs e)
         {
-            DeviceManager.Instance.ForceUnplugAllXboxControllers();
+            DeviceManager.ForceUnplugAllXboxControllers();
         }
 
         /// <summary>
@@ -151,17 +151,17 @@ namespace CFW.ViewModel
 
         private void FlipX_Click(object sender, EventArgs e)
         {
-            if (DeviceHub.VJoyDeviceConnected)
+            if (DeviceManager.VJoyDeviceConnected)
             {
-                DeviceHub.FlipAxis(Axis.AxisX);
+                DeviceManager.FlipAxis(Axis.AxisX);
             }
         }
 
         private void FlipY_Click(object sender, EventArgs e)
         {
-            if (DeviceHub.VJoyDeviceConnected)
+            if (DeviceManager.VJoyDeviceConnected)
             {
-                DeviceHub.FlipAxis(Axis.AxisY);
+                DeviceManager.FlipAxis(Axis.AxisY);
             }
         }
 
@@ -180,7 +180,7 @@ namespace CFW.ViewModel
         private string AddRemoveXboxControllerString()
         {
             string str = "Physical Xbox controller";
-            if (DeviceHub.Mode == SimulatorMode.ModeWASD)
+            if (DeviceManager.Mode == SimulatorMode.ModeWASD)
             {
                 str += "\n(switch to gamepad)";
             }
@@ -189,7 +189,7 @@ namespace CFW.ViewModel
 
         private void addRemoveXboxController_Click(object sender, EventArgs e)
         {
-            DeviceHub.InterceptXInputDevice = !DeviceHub.InterceptXInputDevice;
+            DeviceManager.InterceptXInputDevice = !DeviceManager.InterceptXInputDevice;
         }
 
         private void deviceID_Click(object sender, EventArgs e)
@@ -206,12 +206,12 @@ namespace CFW.ViewModel
 
             if (id==0)
             {
-                DeviceHub.RelinquishCurrentDevice();
+                DeviceManager.RelinquishCurrentDevice();
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
             }
 
-            else if (DeviceHub.AcquireVDev((uint)id))
+            else if (DeviceManager.AcquireVDev((uint)id))
             {
                 Properties.Settings.Default.VJoyID = id;
                 Properties.Settings.Default.Save();
@@ -315,7 +315,7 @@ namespace CFW.ViewModel
         {
             // Select vJoy Device menu - Select a vJoy device ID, 1-16 or None
             ToolStripMenuItem outputSelectSubmenu = new ToolStripMenuItem(String.Format("Output virtual gamepad", Properties.Settings.Default.VJoyID));
-            if (DeviceHub.VDevice.Id == 0)
+            if (DeviceManager.VDevice.Id == 0)
             {
                 outputSelectSubmenu.Image = Properties.Resources.ic_error_orange_18dp;
                 //vJoySelectSubMenu.Tag = "alert";
@@ -324,7 +324,7 @@ namespace CFW.ViewModel
             {
                 outputSelectSubmenu.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 outputSelectSubmenu.ImageAlign = ContentAlignment.MiddleCenter;
-                uint id = DeviceHub.VDevice.Id;
+                uint id = DeviceManager.VDevice.Id;
                 if (id > 1000)
                 {
                     switch (id - 1000)
@@ -364,7 +364,7 @@ namespace CFW.ViewModel
 
                 var item = ToolStripMenuItemWithHandler((i).ToString(), deviceID_Click);
                 item.Tag = i;
-                item.Visible = DeviceHub.VDevice.EnabledDevices.Contains(i);
+                item.Visible = DeviceManager.VDevice.EnabledDevices.Contains(i);
 
                 // doesn't update after install scpvbus
 
@@ -384,7 +384,7 @@ namespace CFW.ViewModel
                     item.Text = "vXbox " + (i - 1000);
                 }
 
-                if (i == DeviceHub.VDevice.Id)
+                if (i == DeviceManager.VDevice.Id)
                 {
                     //if (i==0) item.Tag = "alert";
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
@@ -413,7 +413,7 @@ namespace CFW.ViewModel
             addRemoveMobileDeviceItem.Enabled = true;
 
             ToolStripMenuItem addRemoveXboxControllerItem = ToolStripMenuItemWithHandler(AddRemoveXboxControllerString(), addRemoveXboxController_Click);
-            if (DeviceHub.InterceptXInputDevice) // xbox device currently active
+            if (DeviceManager.InterceptXInputDevice) // xbox device currently active
             {
                 addRemoveXboxControllerItem.Image = Properties.Resources.ic_check_blue_18dp;
                 addRemoveXboxControllerItem.ImageScaling = ToolStripItemImageScaling.None;
@@ -427,8 +427,8 @@ namespace CFW.ViewModel
             inputSelectSubmenu.DropDownItems.AddRange(new ToolStripItem[] { primaryMobileDeviceItem, addRemoveMobileDeviceItem, addRemoveXboxControllerItem });
 
             // Mode submenu - Display current mode and change modes in dropdown menu
-            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", CFWMode.GetDescription(DeviceHub.Mode)));
-            modeSelectSubmenu.Image = ImageFromMode(DeviceHub.Mode);
+            ToolStripMenuItem modeSelectSubmenu = new ToolStripMenuItem(String.Format("Output mode - {0}", CFWMode.GetDescription(DeviceManager.Mode)));
+            modeSelectSubmenu.Image = ImageFromMode(DeviceManager.Mode);
             modeSelectSubmenu.ImageScaling = ToolStripItemImageScaling.None;
 
             List<string> Modes = CFWMode.GetDescriptions();
@@ -438,7 +438,7 @@ namespace CFW.ViewModel
                 var item = ToolStripMenuItemWithHandler(Modes[i], SelectedMode_Click);
                 item.Tag = i; // = SimulatorMode enum value
                 item.Font = new Font(item.Font, item.Font.Style | FontStyle.Regular);
-                if (i == (int)DeviceHub.Mode)
+                if (i == (int)DeviceManager.Mode)
                 {
                     item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
                     item.Image = Properties.Resources.ic_check_blue_18dp;
