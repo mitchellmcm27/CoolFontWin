@@ -6,6 +6,7 @@
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModel}"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d" Height="Auto" Width="Auto">
 
     <UserControl.Resources>
@@ -13,33 +14,36 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <System:Double x:Key="Size">18</System:Double>
+            
         </ResourceDictionary>
     </UserControl.Resources>
     
     <StackPanel Orientation="Horizontal" Margin="4">
             <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchFacebook"
                     ToolTip="Facebook">
-            <materialDesign:PackIcon Kind="Facebook" Height="24" Width="24" Foreground="CornflowerBlue" Opacity="0.5"/>
+            <materialDesign:PackIcon Kind="Facebook" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="CornflowerBlue" Opacity="0.5"/>
             </Button>
 
         <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchTwitter"
                 ToolTip="Twitter">
-                <materialDesign:PackIcon Kind="Twitter" Height="24" Width="24" Foreground="LightBlue" Opacity="0.7"/>
+            <materialDesign:PackIcon Kind="Twitter" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="LightBlue" Opacity="0.7"/>
             </Button>
 
         <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchYoutube"
                 ToolTip="Youtube">
-            <materialDesign:PackIcon Kind="YoutubePlay" Height="24" Width="24" Foreground="Tomato" Opacity="0.5"/>
+            <materialDesign:PackIcon Kind="YoutubePlay" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="Tomato" Opacity="0.5"/>
             </Button>
 
         <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchWeb"
                 ToolTip="Website">
-                <materialDesign:PackIcon Kind="Web" Height="24" Width="24" />
+            <materialDesign:PackIcon Kind="Web" Height="{StaticResource Size}" Width="{StaticResource Size}" />
         </Button>
 
         <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchDiscord"
                 ToolTip="Discord">
-            <materialDesign:PackIcon Kind="Discord" Height="24" Width="24" Foreground="SlateBlue" Opacity="0.6"/>
+            <materialDesign:PackIcon Kind="Discord" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="SlateBlue" Opacity="0.6"/>
         </Button>
 
     </StackPanel>

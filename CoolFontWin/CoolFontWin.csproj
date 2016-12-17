@@ -130,14 +130,14 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>Internet</TargetZone>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -239,7 +239,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Business\Algorithm.cs" />
-    <Compile Include="Business\BusinessModel.cs" />
     <Compile Include="Business\CFWMode.cs" />
     <Compile Include="Business\ResourceSoundPlayer.cs" />
     <Compile Include="Business\DeviceManager.cs" />
