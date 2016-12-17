@@ -63,7 +63,7 @@ namespace CFW.Business
                 proc.EnableRaisingEvents = true;
                 proc.Exited += Proc_Exited;
                 proc.Start();
-                // proc.WaitForExit();
+                proc.WaitForExit();
             }
             catch (Exception e)
             {

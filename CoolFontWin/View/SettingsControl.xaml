@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"           
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModelRx}"
+             d:DataContext="{d:DesignInstance ViewModel:SettingsWindowViewModel}"
              mc:Ignorable="d" Height="Auto" Width="Auto" Foreground="White">
 
     <UserControl.Resources>

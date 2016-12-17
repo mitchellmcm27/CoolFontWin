@@ -192,8 +192,7 @@ namespace CFW.Business
 
             // Zero out iReport
             ResetValues();
-
-            EnabledDevices = GetEnabledDevices();
+            
             string key = "W";
             SetKeybind(key);
         }
@@ -946,15 +945,15 @@ namespace CFW.Business
 
 
             // Print results
-            log.Info(String.Format("\nDevice {0} capabilities:\n", id));
-            log.Info(String.Format("Number of buttons\t\t{0}\n", nBtn));
-            log.Info(String.Format("Number of Hats\t{0}\n", nHat));
-            log.Info(String.Format("Number of Descrete POVs\t\t{0}\n", DiscPovNumber));
-            log.Info(String.Format("Axis X\t\t{0}\n", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Y\t\t{0}\n", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Z\t\t{0}\n", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Rx\t\t{0}\n", AxisRX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Rz\t\t{0}\n", AxisRZ ? "Yes" : "No"));
+            log.Info(String.Format("\nDevice {0} capabilities:", id));
+            log.Info(String.Format("Number of buttons\t\t{0}", nBtn));
+            log.Info(String.Format("Number of Hats\t{0}", nHat));
+            log.Info(String.Format("Number of Descrete POVs\t\t{0}", DiscPovNumber));
+            log.Info(String.Format("Axis X\t\t{0}", AxisX ? "Yes" : "No"));
+            log.Info(String.Format("Axis Y\t\t{0}", AxisX ? "Yes" : "No"));
+            log.Info(String.Format("Axis Z\t\t{0}", AxisX ? "Yes" : "No"));
+            log.Info(String.Format("Axis Rx\t\t{0}", AxisRX ? "Yes" : "No"));
+            log.Info(String.Format("Axis Rz\t\t{0}", AxisRZ ? "Yes" : "No"));
       
             return true;
         }
@@ -966,9 +965,14 @@ namespace CFW.Business
             ContPovNumber = Joystick.GetVJDContPovNumber(id);
         }
 
-        public List<int> GetEnabledDevices()
+        public void GetEnabledDevices()
         {
+            log.Info("Get virtual devices able to be acquired...");
             List<int> enabledDevs = new List<int>();
+
+            log.Info("Check drivers enabled: ");
+            IsDriverEnabled(DevType.vJoy);
+            IsDriverEnabled(DevType.vXbox);
 
             bool owned=false;
             bool exist=false;
@@ -983,6 +987,7 @@ namespace CFW.Business
 
                 if (free || owned)
                 {
+                    log.Info("Found vJoy device " + i.ToString());
                     enabledDevs.Add(i);
                 }
             }
@@ -996,11 +1001,12 @@ namespace CFW.Business
 
                 if (free || owned)
                 {
+                    log.Info("Found vXbox device " + i.ToString());
                     enabledDevs.Add(i+1000);
                 }
             }
 
-            return enabledDevs;
+            EnabledDevices = enabledDevs;
         }
 
         public bool EnableDefaultVJoyDevice(uint id)
@@ -1097,10 +1103,12 @@ namespace CFW.Business
 
         public void ForceUnplugAllXboxControllers()
         {
+            log.Info("Unplugging all vXbox controllers.");
             for (uint i=1; i <=4; i++)
             {
                 Joystick.UnPlugForce(i);
             }
+            GetEnabledDevices();
         }
         #endregion
     }

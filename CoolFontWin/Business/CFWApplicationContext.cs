@@ -14,7 +14,7 @@ using log4net;
 
 using CFW.Forms;
 using CFW.ViewModel;
-
+using ReactiveUI;
 
 namespace CFW.Business
 {
@@ -23,24 +23,17 @@ namespace CFW.Business
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        public string VersionString = "CoolFontWin";
         private static readonly string DefaultTooltip = "PocketStrafe Companion";
         private static readonly string CurrentInstallLocation = Assembly.GetExecutingAssembly().Location;
 
         private string _Ver;
-        public string VersionDescription
+        public string Ver
         {
-            get
+            get { return _Ver; }
+            set
             {
-                Version version;
-                if (ApplicationDeployment.IsNetworkDeployed)
-                {
-                    version = ApplicationDeployment.CurrentDeployment.CurrentVersion;
-                    return version.ToString();
-                }
-                else
-                {
-                    return "Debug";
-                }
+                _Ver = value;
             }
         }
 
@@ -50,7 +43,6 @@ namespace CFW.Business
         private NotifyIcon NotifyIcon;
         private ScpVBus scpInstaller = new ScpVBus();
 
-        private DeviceManager DeviceHub = DeviceManager.Instance;
         private UDPServer UdpServer = new UDPServer();
         private DNSNetworkService DnsServer;
 
@@ -79,14 +71,12 @@ namespace CFW.Business
 
             InitializeContext();
             List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
-            DeviceHub.MobileDevicesCount = names.Count;
-
-            
+            DeviceManager.Instance.MobileDevicesCount = names.Count;
 
             UdpServer.Start(Properties.Settings.Default.LastPort);
             int port = UdpServer.Port;
 
-            DnsServer = new DNSNetworkService(port, DeviceHub);
+            DnsServer = new DNSNetworkService(port, DeviceManager.Instance);
 
             Properties.Settings.Default.LastPort = port;
             Properties.Settings.Default.Save();
@@ -98,10 +88,10 @@ namespace CFW.Business
                 DnsServer.Publish(port, names[i]);
             }
 
-            NotifyIconViewModel = new NotifyIconViewModel(DeviceHub, DnsServer);
+            NotifyIconViewModel = new NotifyIconViewModel(DeviceManager.Instance, DnsServer);
             NotifyIcon.Visible = true;
 
-            NotifyIcon.Text = VersionItemString();
+            NotifyIcon.Text = GetVersionItemString();
             ShowSettingsWindow();
 
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
@@ -132,6 +122,7 @@ namespace CFW.Business
 
         private void ScpInstallerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            DeviceManager.Instance.VDevice.GetEnabledDevices();
             if (!scpInstaller.InstallSuccess && Properties.Settings.Default.ShowScpVbusDialog)
             {
                 log.Debug("Show ScpVBus dialog.");
@@ -146,7 +137,9 @@ namespace CFW.Business
         private void Updater_Completed(object sender, EventArgs e)
         {
             // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
-            NotifyIcon.Text = VersionItemString();
+            Ver = GetVersionItemString();
+            NotifyIcon.Text = Ver;
+
             if (Updater.UpdateAvailable)
             {
                 NotifyIcon.Icon = Properties.Resources.tray_icon_notification;
@@ -249,9 +242,18 @@ namespace CFW.Business
             Process.Start(procStartInfo);
         }
 
-        private string VersionItemString()
+        private string GetVersionItemString()
         {
-            return Updater.UpdateAvailable ? "Restart to apply update" : "CoolFontWin - " + VersionDescription;
+            string version;
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                version = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
+            }
+            else
+            {
+                version = "Debug";
+            }
+            return Updater.UpdateAvailable ? "Restart to apply update" : "CoolFontWin - " + version;
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
@@ -288,7 +290,7 @@ namespace CFW.Business
 
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
-            ToolStripMenuItem versionItem = new ToolStripMenuItem(VersionItemString());
+            ToolStripMenuItem versionItem = new ToolStripMenuItem(GetVersionItemString());
             if (Updater.UpdateAvailable)
             {
                 versionItem.Enabled = true;
@@ -346,14 +348,14 @@ namespace CFW.Business
         private SuccessForm SuccessForm;
         private UpdateNotes UpdateNotes;
         private View.SettingsWindow SettingsWindow;
-        private SettingsWindowViewModelRx SettingsWindowViewModel;
+        private SettingsWindowViewModel SettingsWindowViewModel;
 
         private void ShowSettingsWindow()
         {
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                SettingsWindowViewModel = new SettingsWindowViewModelRx(DeviceHub, DnsServer);
+                SettingsWindowViewModel = new SettingsWindowViewModel(DeviceManager.Instance, DnsServer);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
             }
@@ -450,7 +452,7 @@ namespace CFW.Business
 
         protected override void ExitThreadCore()
         {    
-            DeviceHub.Dispose();
+            DeviceManager.Instance.Dispose();
             Dispose(true);
             base.ExitThreadCore();
         }
