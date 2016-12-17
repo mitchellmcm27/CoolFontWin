@@ -158,10 +158,16 @@
                     </StackPanel>
                 </Grid>
 
-                <ComboBox Name="VJoyDevices" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16"
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2">
+                    <ComboBox Name="VJoyDevices" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16,16,0,16"
                                 ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
                                 IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
-
+                    <Button Margin="0"  ToolTip="Accept" Width="24" Height="24" 
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}"
+                            Command="{Binding AcquireVJoyDevice}">
+                        <materialDesign:PackIcon Kind="Check" Height="18" Width="18" />
+                    </Button>
+                </StackPanel>
                 <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="16" HorizontalAlignment="Center"
                                 Command="{Binding UnplugAllXboxCommand}">
                     Unplug vControllers

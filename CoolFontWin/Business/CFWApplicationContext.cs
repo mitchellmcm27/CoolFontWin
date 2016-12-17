@@ -49,17 +49,18 @@ namespace CFW.Business
 
         public CFWApplicationContext()
         {
+
             Updater = new SilentUpdater(); // checks immediately then starts 20 min timer
             Updater.Completed += Updater_Completed;
             Updater.PropertyChanged += Updater_PropertyChanged;
 
+            // Install ScpVBus every time application is launched
+            // Must be installed synchronously
+            // Uninstall it on exit (see region below)
+            scpInstaller.Install();
+
             DeviceManager = new DeviceManager();
             UdpServer = new UDPServer(DeviceManager);
-
-            // Install ScpVBus every time application is launched
-            // Uninstall it on exit (see region below)
-            scpInstaller.PropertyChanged += ScpInstallerPropertyChanged;
-            scpInstaller.Install();
 
             InitializeContext();
 
@@ -80,9 +81,9 @@ namespace CFW.Business
             }
 
             NotifyIconViewModel = new NotifyIconViewModel(DeviceManager, DnsServer);
+            NotifyIcon.Text = GetVersionItemString();
             NotifyIcon.Visible = true;
 
-            NotifyIcon.Text = GetVersionItemString();
             ShowSettingsWindow();
 
             DeviceManager.VDevice.GetEnabledDevices();
@@ -120,16 +121,6 @@ namespace CFW.Business
             {
                 log.Error("Unable to open temp TCP socket because: " + e.Message);
                 log.Info("Windows Firewall should prompt on the next startup.");
-            }
-        }
-
-        private void ScpInstallerPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            DeviceManager.VDevice.GetEnabledDevices();
-            if (!scpInstaller.InstallSuccess && Properties.Settings.Default.ShowScpVbusDialog)
-            {
-                log.Debug("Show ScpVBus dialog.");
-                ShowScpVbusDialog();
             }
         }
 

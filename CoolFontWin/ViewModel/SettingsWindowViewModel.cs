@@ -100,7 +100,6 @@ namespace CFW.ViewModel
             set
             {
                 this.RaiseAndSetIfChanged(ref _CurrentVJoyDevice, value);
-                AcquireAndUpdateVJoyDevice(value);
             }
         }
 
@@ -202,6 +201,8 @@ namespace CFW.ViewModel
                     await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
                 }
             });
+
+            AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireAndUpdateVJoyDevice);
 
             XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
@@ -322,6 +323,7 @@ namespace CFW.ViewModel
         public ReactiveCommand ChangeKeybind { get; set; }
         public ReactiveCommand JoyCplCommand { get; set; }
         public ReactiveCommand UnplugAllXboxCommand { get; set; }
+        public ReactiveCommand AcquireVJoyDevice { get; set; }
 
         // public Commands return ICommand using DelegateCommand class
         // and are backed by private methods
@@ -380,9 +382,9 @@ namespace CFW.ViewModel
             }
         }
 
-        private async Task AcquireAndUpdateVJoyDevice(int id)
+        private async Task AcquireAndUpdateVJoyDevice()
         {
-            await Task.Run(()=>DeviceManager.AcquireVDev((uint)id));
+            await Task.Run(()=>DeviceManager.AcquireVDev((uint)CurrentVJoyDevice));
             await Task.Run(()=>DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
         }
     }
