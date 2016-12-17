@@ -61,7 +61,6 @@ namespace CFW.Business
                 proc.StartInfo = startInfo;
                 proc.EnableRaisingEvents = true;
                 // proc.Exited += Proc_Exited; 
-                System.Threading.Thread.Sleep(3000);
                 proc.Start();
                 proc.WaitForExit();
             }
