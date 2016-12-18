@@ -44,7 +44,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <View:InputSettingsControl Grid.Row="0" Grid.Column="0"/>
-            <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
-            <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center"/>
+        <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
+        <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch"/>
         </Grid>
 </Window>

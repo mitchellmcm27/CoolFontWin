@@ -15,37 +15,51 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <System:Double x:Key="Size">18</System:Double>
+            <System:Double x:Key="IconSize">18</System:Double>
+            <System:Double x:Key="ButtonSize">24</System:Double>
             
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <StackPanel Orientation="Horizontal" Margin="4">
-            <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchFacebook"
-                    ToolTip="Facebook">
-            <materialDesign:PackIcon Kind="Facebook" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="CornflowerBlue" Opacity="0.5"/>
-            </Button>
 
-        <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchTwitter"
-                ToolTip="Twitter">
-            <materialDesign:PackIcon Kind="Twitter" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="LightBlue" Opacity="0.7"/>
+    <DockPanel>
+        <Button Click="LaunchWeb" Style="{StaticResource MaterialDesignToolForegroundButton}">
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+                Style="{DynamicResource MaterialDesignToolButton}">
+                <materialDesign:PackIcon Kind="Web" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" />
             </Button>
-
-        <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchYoutube"
-                ToolTip="Youtube">
-            <materialDesign:PackIcon Kind="YoutubePlay" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="Tomato" Opacity="0.5"/>
-            </Button>
-
-        <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchWeb"
-                ToolTip="Website">
-            <materialDesign:PackIcon Kind="Web" Height="{StaticResource Size}" Width="{StaticResource Size}" />
+            <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
+                 Foreground="{DynamicResource MaterialDesignDivider}">
+            www.coolfont.co
+        </TextBlock>
+        </StackPanel>
         </Button>
 
-        <Button Margin="0" Width="36" Height="36" Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchDiscord"
+        <StackPanel Orientation="Horizontal" Margin="4" DockPanel.Dock="Right" HorizontalAlignment="Right">
+        <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+                Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchFacebook"
+                    ToolTip="Facebook">
+            <materialDesign:PackIcon Kind="Facebook" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="CornflowerBlue" Opacity="0.5"/>
+            </Button>
+
+        <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+                Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchTwitter"
+                ToolTip="Twitter">
+            <materialDesign:PackIcon Kind="Twitter" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="LightBlue" Opacity="0.7"/>
+            </Button>
+
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+                Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchYoutube"
+                ToolTip="Youtube">
+                <materialDesign:PackIcon Kind="YoutubePlay" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="Tomato" Opacity="0.5"/>
+            </Button>
+
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+                Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchDiscord"
                 ToolTip="Discord">
-            <materialDesign:PackIcon Kind="Discord" Height="{StaticResource Size}" Width="{StaticResource Size}" Foreground="SlateBlue" Opacity="0.6"/>
+            <materialDesign:PackIcon Kind="Discord" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="SlateBlue" Opacity="0.6"/>
         </Button>
 
     </StackPanel>
-
+    </DockPanel>
 </UserControl>

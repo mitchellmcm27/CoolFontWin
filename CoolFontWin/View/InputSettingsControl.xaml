@@ -38,45 +38,70 @@
                         <RowDefinition Height="64"/>
                     </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                    <DockPanel  Grid.Row="0" Grid.Column ="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox DockPanel.Dock="Left" VerticalAlignment ="Center" IsChecked="True" IsEnabled="False"/>
-                        <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
+                <Grid Grid.Row="0" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <CheckBox VerticalAlignment ="Center" IsChecked="True" IsEnabled="False" Margin="8,0,8,0"/>
+                        <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18"                                                 
                                                  />
-                        <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Primary mobile</TextBlock>
-                        <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
-                    </DockPanel>
-                    <DockPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox VerticalAlignment="Center" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" 
+                        <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Primary mobile</TextBlock>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                               IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
+                </Grid>
+                    
+                <Grid Grid.Row="1" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <CheckBox VerticalAlignment="Center" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" Margin="8,0,8,0"
                                   Command="{Binding AddRemoveSecondaryDevice}" 
                                   CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
-                        <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"
+                        <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18"                                                 
                                                  />
-                        <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket!">Secondary mobile</TextBlock>
-                        <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
-                    </DockPanel>
+                        <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket!">Secondary mobile</TextBlock>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                               IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
+                </Grid>
 
-                    <DockPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8">
-                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding XboxController, Mode=OneWay}" DockPanel.Dock="Left" 
+                <Grid Grid.Row="2" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <CheckBox VerticalAlignment="Center" IsChecked="{Binding XboxController, Mode=OneWay}" Margin="8,0,8,0"
                                   Command="{Binding InterceptXInputDevice}"
                                   CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
-                    <Rectangle Fill="{DynamicResource MaterialDesignBody}" Margin="4" DockPanel.Dock="Left"
+                        <Rectangle Fill="{DynamicResource MaterialDesignBody}" Margin="8,0,8,0" DockPanel.Dock="Left"
                                Width="18" Height="18">
-                        <Rectangle.OpacityMask>
-                            <ImageBrush ImageSource="/CoolFontWin;component/Resources/xbox.png" Stretch="None" />
-                        </Rectangle.OpacityMask>
-                    </Rectangle>
-                    <TextBlock VerticalAlignment="Center" Margin="8,8,8,0" DockPanel.Dock="Top">Xbox controller</TextBlock>
-                        <TextBlock VerticalAlignment="Center" Margin="16,0,0,8" DockPanel.Dock="Top" IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
-
-                    </DockPanel>
-
-                    <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16" HorizontalAlignment="Center"
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="/CoolFontWin;component/Resources/xbox.png" Stretch="None" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Xbox controller</TextBlock>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                               IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
+                </Grid>
+                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16" HorizontalAlignment="Center"
                         Command="{Binding PlayPause}">
                         <Button.Content>
                             <DockPanel HorizontalAlignment="Center">
