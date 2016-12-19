@@ -17,7 +17,9 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
+        
     </UserControl.Resources>
 
     <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
@@ -92,10 +94,16 @@
                             </Rectangle.OpacityMask>
                         </Rectangle>
                         <TextBlock VerticalAlignment="Center" Text="vXbox" />
+                        <Button Margin="0" Command="{Binding VXboxInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
+                                Background="Transparent" ToolTip="Info on installing virtual joysticks"
+                                IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
+                            <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
+                                             Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
+                        </Button>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="2"  ToolTip="In coupled locomotion games, movement direction is bound to look direction"
-                                Height="24" HorizontalAlignment="Left" Margin="43,0,0,0">
+                                HorizontalAlignment="Left" Margin="43,0,0,0">
                         <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16" Margin="0,0,8,0"
                                       IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupled}">
                             <ToggleButton.Content>
@@ -136,7 +144,8 @@
                         </Rectangle>
                         <TextBlock VerticalAlignment="Center" Text="vJoy" />
                         <Button Margin="0" Command="{Binding VJoyInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
-                                Background="Transparent" ToolTip="Info on installing virtual joysticks" IsEnabled="{Binding VJoyOutputButtonIsEnabled}">
+                                Background="Transparent" ToolTip="Info on installing virtual joysticks" 
+                                IsEnabled="{Binding NoVJoyDevices}" Visibility="{Binding NoVJoyDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
                             <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
                                              Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
                         </Button>
@@ -145,32 +154,32 @@
                     <StackPanel Grid.Row="2" Orientation="Horizontal" ToolTip="In decoupled locomotion games, movement and look directions are independent"
                                 HorizontalAlignment="Left" Margin="43,0,0,0" Grid.ColumnSpan="2">
                         <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16"
-                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}" 
+                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}"  
                                       HorizontalAlignment="Center" Margin="0,0,8,0"
                                       >
                             <ToggleButton.Content>
                                 <materialDesign:PackIcon Kind="CallMerge" Width="12" Height="12" />
                             </ToggleButton.Content>
                         </ToggleButton>
-                        <TextBlock FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" DockPanel.Dock="Top" 
+                        <TextBlock FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                    Text="{Binding CoupledText, Mode=OneWay}"/>
                     </StackPanel>
                 </Grid>
 
                 <DockPanel  Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right">
-                    <Button Margin="0"  ToolTip="Accept" Width="24" Height="24" DockPanel.Dock="Right"
+                    <Button Margin="0"  ToolTip="Accept" Width="24" Height="24" DockPanel.Dock="Right" IsEnabled="{Binding VJoyOutputButtonIsEnabled}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}"
                             Command="{Binding AcquireVJoyDevice}">
                         <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
                     </Button>
                     <ComboBox Name="VJoyDevices" Margin="16,16,0,16"
-                                ItemsSource="{Binding VJoyDevices}" SelectedItem="{Binding CurrentVJoyDevice}" IsSynchronizedWithCurrentItem="true"
-                                IsEnabled="{Binding VJoyOutputButtonIsEnabled}"  />
+                                ItemsSource="{Binding VJoyDevices, TargetNullValue=''}" SelectedItem="{Binding CurrentVJoyDevice, TargetNullValue=''}" IsSynchronizedWithCurrentItem="true"
+                                IsEnabled="{Binding VJoyOutputButtonIsEnabled}"/>
                 </DockPanel>
+
+
                 <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="16" HorizontalAlignment="Center"
-                                Command="{Binding UnplugAllXboxCommand}">
-                    Unplug vControllers
-                </Button>
+                                Command="{Binding UnplugAllXboxCommand}" Content=" Reset &amp; Unplug"/>
 
             </Grid>
         </DockPanel>

@@ -2,6 +2,8 @@
 using log4net;
 using System.Diagnostics;
 using System.ComponentModel;
+using Ookii.Dialogs;
+using System.Threading;
 
 namespace CFW.Business
 {
@@ -100,6 +102,11 @@ namespace CFW.Business
                     InstallSuccess = false;
                     break;
             }
+
+            if (!InstallSuccess)
+            {
+                ShowScpVbusDialog();
+            }
         }
 
         /// <summary>
@@ -127,6 +134,57 @@ namespace CFW.Business
                 log.Warn("Failed to start devcon.exe to uninstall ScpVBus: " + e.Message);
                 return false;
             }
+        }
+
+        public static void ShowScpVbusDialog()
+        {
+            var taskDialog = new TaskDialog();
+            taskDialog.Width = 200;
+            taskDialog.AllowDialogCancellation = true;
+
+            taskDialog.WindowTitle = "CoolFontWin - An important component was not installed";
+            taskDialog.MainIcon = TaskDialogIcon.Warning;
+
+            taskDialog.MainInstruction = "ScpVBus failed to install";
+            taskDialog.Content = "Xbox controller emulation requires ScpVBus.\n";
+            taskDialog.Content += "First try running CoolFontWin as Administrator.\nIf that doesn't work, you can download and install ScpVBus yourself, or continue using only keyboard/joystick emulation.";
+
+            taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
+            var customButton = new TaskDialogButton(ButtonType.Custom);
+            customButton.CommandLinkNote = "github.com/shauleiz/ScpVBus";
+            customButton.Text = "ScpVBus download page";
+            customButton.Default = true;
+            taskDialog.Buttons.Add(customButton);
+            taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Close));
+
+            taskDialog.ExpandFooterArea = true;
+            taskDialog.ExpandedControlText = "Installation tips";
+            taskDialog.ExpandedInformation = "1.  Download ScpVbus-x64.zip and extract it anywhere\n2.  Follow the directions on the website to install\n3.  Restart CoolFontWin";
+            taskDialog.VerificationText = "Don't show this warning again";
+
+            new Thread(() =>
+            {
+                try
+                {
+                    TaskDialogButton res = taskDialog.Show(); // Windows Vista and later
+                    if (res != null && res.ButtonType == ButtonType.Custom)
+                    {
+                        Process.Start("https://github.com/shauleiz/ScpVBus/releases/tag/v1.7.1.2");
+                    }
+
+                    if (taskDialog.IsVerificationChecked)
+                    {
+                        Properties.Settings.Default.ShowScpVbusDialog = false;
+                        Properties.Settings.Default.Save();
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.Warn("ScpVBus install dialog not shown, probably because operating system was earlier than Windows Vista.");
+                    log.Warn(e.Message);
+                    return;
+                }
+            }).Start();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace CFW.Business
             taskDialog.MainIcon = TaskDialogIcon.Information;
 
             taskDialog.MainInstruction = "Install vJoy to enable virtual joystick output";
-            taskDialog.Content = "A few games work well with a virtual joystick (vJoy), because it is customizable than controllers.\n\n";
+            taskDialog.Content = "A few games work well with a virtual joystick (vJoy), because it is more customizable than controllers.\n\n";
             taskDialog.Content += "You can install the vJoy driver here, or find the latest version online. Beware that some games do not play well with joysticks, but you can always disable or uninstall the driver.";
 
             taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
