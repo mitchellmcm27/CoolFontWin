@@ -36,7 +36,17 @@ namespace CFW.Business
         public List<string> DeviceNames
         {
             get { return _DeviceNames; }
-            set { this.RaiseAndSetIfChanged(ref _DeviceNames, value); }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _DeviceNames, value);
+            }
+        }
+
+        private int _DeviceCount;
+        public int DeviceCount
+        {
+            get { return _DeviceCount; }
+            set { this.RaiseAndSetIfChanged(ref _DeviceCount, value); }
         }
 
         private int Port;
@@ -135,6 +145,7 @@ namespace CFW.Business
 
             PublishedServices.Add(service);
             DeviceNames.Add(name);
+            DeviceCount = DeviceNames.Count;
             return true;
         }
 
@@ -211,6 +222,7 @@ namespace CFW.Business
             // get last-added device name and remove it
             string name = DeviceNames.Last();
             DeviceNames.Remove(name);
+            DeviceCount = DeviceNames.Count;
             log.Info("Removed " + name + " from device list.");
 
             // unpublish service containing this name

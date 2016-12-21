@@ -207,7 +207,7 @@ namespace CFW.ViewModel
 
             // Responding to model changes
             // Secondary device DNS service
-            this.WhenAnyValue(x => x.DnsServer.DeviceNames, x => x.Count() > 1)
+            this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 1)
                 .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
 
             // Xbox controller intercepted
@@ -352,12 +352,8 @@ namespace CFW.ViewModel
             AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID)));
 
             // depends on checkbox state (bool parameter)
-            AddRemoveSecondaryDevice = ReactiveCommand.Create<bool>(notAdded =>
-            {
-                if (notAdded) DnsServer.AddService("Secondary");
-                else DnsServer.RemoveLastService();
-            });
-
+            AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
+         
             PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
 
@@ -388,6 +384,11 @@ namespace CFW.ViewModel
         // public Commands return ICommand using DelegateCommand class
         // and are backed by private methods
 
+        private async Task AddRemoveSecondaryDeviceImpl()
+        {
+            if (!SecondaryDevice) await Task.Run(()=> DnsServer.AddService("Secondary"));
+            else await Task.Run(()=> DnsServer.RemoveLastService());
+        }
         private async Task CoupledDecoupledImpl()
         {
             if (KeyboardOutput) return;

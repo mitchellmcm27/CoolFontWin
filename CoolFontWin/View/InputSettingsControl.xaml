@@ -68,8 +68,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <CheckBox VerticalAlignment="Center" DockPanel.Dock="Left" IsChecked="{Binding SecondaryDevice, Mode=OneWay}" Margin="8,0,8,0"
-                                  Command="{Binding AddRemoveSecondaryDevice}" 
-                                  CommandParameter="{Binding IsChecked, RelativeSource={RelativeSource Self}, Mode=OneWay}"/>
+                                  Command="{Binding AddRemoveSecondaryDevice}"/>
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18"                                                 
                                                  />

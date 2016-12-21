@@ -167,7 +167,7 @@ namespace CFW.ViewModel
 
         private void addRemoveMobileDevice_Click(object sender, EventArgs e)
         {
-            if (DnsServer.DeviceNames.Count > 1)
+            if (DnsServer.DeviceCount > 1)
             {
                 DnsServer.RemoveLastService();
             }
@@ -408,7 +408,7 @@ namespace CFW.ViewModel
             primaryMobileDeviceItem.Enabled = false;
 
             ToolStripMenuItem addRemoveMobileDeviceItem = ToolStripMenuItemWithHandler("Secondary mobile device", addRemoveMobileDevice_Click);
-            addRemoveMobileDeviceItem.Image = DnsServer.DeviceNames.Count > 1 ? Properties.Resources.ic_check_blue_18dp : null;
+            addRemoveMobileDeviceItem.Image = DnsServer.DeviceCount > 1 ? Properties.Resources.ic_check_blue_18dp : null;
             addRemoveMobileDeviceItem.ImageScaling = ToolStripItemImageScaling.None;
             addRemoveMobileDeviceItem.Enabled = true;
 
