@@ -216,6 +216,7 @@ namespace CFW.ViewModel
 
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
+                .Throttle(TimeSpan.FromMilliseconds(250))
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
             // Mode
@@ -224,9 +225,9 @@ namespace CFW.ViewModel
 
             // Keybind
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Keybind)
-                .Do(k =>
+                .Do(x =>
                 {
-                    Keybind = k;
+                    Keybind = x;
                     KeybindChanged = false;
                 })
                 .Subscribe();
