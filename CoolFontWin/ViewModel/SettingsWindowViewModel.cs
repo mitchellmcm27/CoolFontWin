@@ -300,11 +300,11 @@ namespace CFW.ViewModel
                 }
             });
 
-            InterceptXInputDevice = ReactiveCommand.Create<bool>(wasChecked => 
+            InterceptXInputDevice = ReactiveCommand.CreateFromTask<bool>(async wasChecked => 
             {
                 if (wasChecked)
                 {
-                    DeviceManager.AcquireXInputDevice();
+                    await Task.Run(()=>DeviceManager.AcquireXInputDevice());
                 }
                 else DeviceManager.InterceptXInputDevice = false;
             });
