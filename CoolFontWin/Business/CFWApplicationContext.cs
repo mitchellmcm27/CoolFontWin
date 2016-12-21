@@ -4,17 +4,13 @@ using System.Windows.Forms.Integration;
 using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
-using System.Deployment;
 using System.Deployment.Application;
 using System.ComponentModel;
 using System.Collections.Generic;
-using System.Threading;
-using Ookii.Dialogs;
 using log4net;
 
-using CFW.Forms;
 using CFW.ViewModel;
-using ReactiveUI;
+
 
 namespace CFW.Business
 {
@@ -71,8 +67,7 @@ namespace CFW.Business
             int port = UdpServer.Port;
             Properties.Settings.Default.LastPort = port;
             Properties.Settings.Default.Save();
-
-
+            
             // publish 1 network service for each device
             DnsServer = new DNSNetworkService(port, DeviceManager);
             for (int i = 0; i < names.Count; i++)
@@ -85,9 +80,7 @@ namespace CFW.Business
             NotifyIcon.Visible = true;
 
             LoadSettingsWindow();
-
             DeviceManager.VDevice.GetEnabledDevices();
-
             ShowSettingsWindow();
 
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
@@ -341,8 +334,6 @@ namespace CFW.Business
 
         #region child forms
 
-        private SuccessForm SuccessForm;
-        private UpdateNotes UpdateNotes;
         private View.SettingsWindow SettingsWindow;
         private SettingsWindowViewModel SettingsWindowViewModel;
 
@@ -362,28 +353,6 @@ namespace CFW.Business
         {
             if (SettingsWindow == null) LoadSettingsWindow();
             SettingsWindow.Show();
-        }
-
-        private void ShowSuccessfulInstallForm()
-        {
-            if (SuccessForm == null)
-            {
-                SuccessForm = new SuccessForm();
-            }
-
-            SuccessForm.Closed += (o, i) => SuccessForm = null;
-            SuccessForm.Show();
-        }
-
-        private void ShowUpdateNotesForm()
-        {
-            if (UpdateNotes == null)
-            {
-                UpdateNotes = new UpdateNotes();
-            }
-
-            UpdateNotes.Closed += (o, i) => UpdateNotes = null;
-            UpdateNotes.Show();
         }
 
         #endregion
