@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using CFW.ViewModel;
 
 namespace CFW.View
 {

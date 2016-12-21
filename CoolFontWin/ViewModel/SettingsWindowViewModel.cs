@@ -71,8 +71,14 @@ namespace CFW.ViewModel
             {
                 value = value.ToUpper();
                 this.RaiseAndSetIfChanged(ref _Keybind, value);
-                DeviceManager.VDevice.SetKeybind(value);
             }
+        }
+
+        private bool _KeybindChanged;
+        public bool KeybindChanged
+        {
+            get { return _KeybindChanged; }
+            set { this.RaiseAndSetIfChanged(ref _KeybindChanged, value); }
         }
 
         readonly ObservableAsPropertyHelper<bool> _XboxOutput;
@@ -82,7 +88,7 @@ namespace CFW.ViewModel
         } 
 
         readonly ObservableAsPropertyHelper<bool> _XboxOutputButtonIsEnabled;
-        public bool XboxOutputButtonIsEnabled
+        public bool XboxDevicesExist
         {
             get { return _XboxOutputButtonIsEnabled.Value; }
         }
@@ -103,8 +109,15 @@ namespace CFW.ViewModel
             }
         }
 
+        private bool _VJoyDeviceChanged;
+        public bool VJoyDeviceChanged
+        {
+            get { return _VJoyDeviceChanged; }
+            set { this.RaiseAndSetIfChanged(ref _VJoyDeviceChanged, value); }
+        }
+
         readonly ObservableAsPropertyHelper<bool> _vJoyOutputButtonIsEnabled;
-        public bool VJoyOutputButtonIsEnabled
+        public bool VJoyDevicesExist
         {
             get { return _vJoyOutputButtonIsEnabled.Value; }
         }
@@ -210,7 +223,13 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.Mode, out _Mode);
 
             // Keybind
-            Keybind = DeviceManager.VDevice.Keybind;
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.Keybind)
+                .Do(k =>
+                {
+                    Keybind = k;
+                    KeybindChanged = false;
+                })
+                .Subscribe();
 
             // Cascade down Mode and Current Device ID
 
@@ -240,33 +259,54 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
                 .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
+            // Filter list of enabled devices to VJoyDevices list
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+                 .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
+
+            // Set *DevicesExist property based on *Devices lists having values
+            this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
+                .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyOutputButtonIsEnabled);
+
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+                .ToProperty(this, x => x.XboxDevicesExist, out _XboxOutputButtonIsEnabled);
+
+            // No*Devices is the inverse of *DevicesExist
+            this.WhenAnyValue(x => x.VJoyDevicesExist, x => !x)
+                .ToProperty(this, x => x.NoVJoyDevices, out _NoVJoyDevices);
+
+            this.WhenAnyValue(x => x.XboxDevicesExist, x => !x)
+                .ToProperty(this, x => x.NoXboxDevices, out _NoXboxDevices);
+
+            // When the user changes VJoy ID, but hasn't acquired it yet, set VJoyDevice changed to true
+            this.WhenAnyValue(x => x.CurrentVJoyDevice)
+                .Do(_ => VJoyDeviceChanged = true)
+                .Subscribe();
+
+            // When CFW changes the current device ID to a vJoy id (1-16), set VJoyDeviceChanged to false
+            this.WhenAnyValue(x => x.CurrentDeviceID, x => x > 0 && x < 17)
+                .Do(_ => VJoyDeviceChanged = false)
+                .Subscribe();
+
+            // Handling user changing Keybind in a similar way
+            this.WhenAnyValue(x => x.Keybind)
+                .Skip(1) // skip initial value set by model
+                .Do(x => KeybindChanged = !string.IsNullOrWhiteSpace(x))
+                .Subscribe();
+
             // Xbox controller LED image
             this.WhenAnyValue(x => x.CurrentDeviceID)
                 .Select(x => XboxLedImagePath((int)x))
                 .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);
 
-            // Devices available to be acquired
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
-                .ToProperty(this, x => x.XboxOutputButtonIsEnabled, out _XboxOutputButtonIsEnabled);
-
-            this.WhenAnyValue(x => x.XboxOutputButtonIsEnabled, x => !x)
-                .ToProperty(this, x => x.NoXboxDevices, out _NoXboxDevices);
-
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
-                 .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
-
-            this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
-                .ToProperty(this, x => x.VJoyOutputButtonIsEnabled, out _vJoyOutputButtonIsEnabled);
-
-            this.WhenAnyValue(x => x.VJoyOutputButtonIsEnabled, x => !x)
-                .ToProperty(this, x => x.NoVJoyDevices, out _NoVJoyDevices);
-
-            // Commands 
+            // Commands
+            //
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
                 await Task.Run(() => DeviceManager.RelinquishCurrentDevice(silent: true));
                 await UpdateMode((int)SimulatorMode.ModeWASD);
             });
+
+            ChangeKeybind = ReactiveCommand.CreateFromTask(ChangeKeybindImpl);
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
@@ -361,14 +401,19 @@ namespace CFW.ViewModel
             }
         }
 
+        private async Task ChangeKeybindImpl()
+        {
+            await Task.Run(()=> DeviceManager.VDevice.SetKeybind(Keybind));
+        }
+
         private async Task UpdateMode(int mode)
         {
-            await Task.Run(() => DeviceManager.TryMode(mode));
+            await Task.Run(()=> DeviceManager.TryMode(mode));
         }
 
         private async Task UnplugAllXboxImpl()
         {
-            await Task.Run(()=> DeviceManager.ForceUnplugAllXboxControllers(silent: true));
+            await Task.Run(()=> DeviceManager.ForceUnplugAllXboxControllers());
             await UpdateMode((int)SimulatorMode.ModeWASD);
         }
 

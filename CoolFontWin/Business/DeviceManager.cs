@@ -154,7 +154,11 @@ namespace CFW.Business
             InterceptXInputDevice = true;
                  
             uint id = VDevice.Id;
-            ForceUnplugAllXboxControllers(silent: true);
+            if (id > 1000)
+            {
+                RelinquishCurrentDevice(silent: true);
+            }
+            ForceUnplugAllXboxControllers();
             
             XInputDeviceConnected = false;
             bool xDeviceAcquired = false;
@@ -311,9 +315,8 @@ namespace CFW.Business
             VDevice.FeedVDev();
         }
 
-        public void ForceUnplugAllXboxControllers(bool silent = false)
-        {
-            RelinquishCurrentDevice(silent);
+        public void ForceUnplugAllXboxControllers()
+        {  
             VDevice.ForceUnplugAllXboxControllers();
         }
 

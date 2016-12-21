@@ -317,6 +317,7 @@
     <Compile Include="Forms\UpdateNotes.Designer.cs">
       <DependentUpon>UpdateNotes.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\BoolToVisibilityConverter.cs" />
     <Compile Include="View\InputSettingsControl.xaml.cs">
       <DependentUpon>InputSettingsControl.xaml</DependentUpon>
     </Compile>
