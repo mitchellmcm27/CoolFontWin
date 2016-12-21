@@ -283,7 +283,7 @@ namespace CFW.ViewModel
                 }
             });
 
-            AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireAndUpdateVJoyDevice);
+            AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireVJoyDeviceImpl);
 
             XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
@@ -402,9 +402,11 @@ namespace CFW.ViewModel
             }
         }
 
-        private async Task AcquireAndUpdateVJoyDevice()
+        private async Task AcquireVJoyDeviceImpl()
         {
-            await Task.Run(()=>DeviceManager.AcquireVDev((uint)CurrentVJoyDevice));
+            uint id = (uint)(CurrentVJoyDevice ?? VJoyDevices.FirstOrDefault());
+
+            await Task.Run(()=>DeviceManager.AcquireVDev(id));
             await Task.Run(()=>DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
         }
     }
