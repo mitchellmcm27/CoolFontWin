@@ -134,7 +134,7 @@ namespace CFW.Business
             service.Register();
 
             PublishedServices.Add(service);
-            DeviceNames.Add(name);
+            DeviceNames.Add(appendToName);
             return true;
         }
 
