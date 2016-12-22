@@ -58,7 +58,6 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                         <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8"
                              IsChecked="{Binding KeyboardOutput, Mode=OneWay}"
-                             IsEnabled="{Binding KeyboardOutputButtonIsEnabled}"
                              Command="{Binding KeyboardMode}"/>
                         <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
                                                      Width="18" Height="18"/>
