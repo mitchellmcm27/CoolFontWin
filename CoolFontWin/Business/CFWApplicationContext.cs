@@ -79,8 +79,13 @@ namespace CFW.Business
             NotifyIcon.Text = GetVersionItemString();
             NotifyIcon.Visible = true;
 
+            log.Info("Load settings window...");
             LoadSettingsWindow();
+
+            log.Info("Get enabled devices...");
             DeviceManager.VDevice.GetEnabledDevices();
+
+            log.Info("Show settings window...");
             ShowSettingsWindow();
 
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
