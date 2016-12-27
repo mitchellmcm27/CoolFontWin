@@ -57,6 +57,13 @@ namespace CFW.Business
             DeviceHub = deviceHub;
         }
 
+        private bool _BonjourInstalled = true;
+        public bool BonjourInstalled
+        {
+            get { return _BonjourInstalled; }
+            set { this.RaiseAndSetIfChanged(ref _BonjourInstalled, value); }
+        }
+
         public static List<IPAddress> GetValidLocalAddresses()
         {
             // Choose best address of local network interface
@@ -103,15 +110,9 @@ namespace CFW.Business
             }
             catch (Exception e)
             {
+                BonjourInstalled = false;
                 log.Error("Unable to register service: " + e.Message);
-                System.Media.SystemSounds.Exclamation.Play();
-                DialogResult res = MessageBox.Show("Bonjour for Windows is required. Please download Bonjour from Apple. \n\n Go to download page?", "Bonjour not Installed", MessageBoxButtons.YesNo);
-                if (res == DialogResult.Yes)
-                {
-                    // go to website
-                    System.Diagnostics.Process.Start("https://support.apple.com/kb/DL999?locale=en_US");
-                }
-
+                ShowBonjourDialog();
                 return false;
             }
 
@@ -147,6 +148,18 @@ namespace CFW.Business
             DeviceNames.Add(appendToName);
             DeviceCount = DeviceNames.Count;
             return true;
+        }
+
+        public void ShowBonjourDialog()
+        {
+            System.Media.SystemSounds.Exclamation.Play();
+            DialogResult res = MessageBox.Show("Bonjour for Windows is required. Please download Bonjour from Apple and restart CoolFontWin. \n\n Go to download page?", "Bonjour not Installed", MessageBoxButtons.YesNo);
+            if (res == DialogResult.Yes)
+            {
+                // go to website
+                System.Diagnostics.Process.Start("https://support.apple.com/kb/DL999?locale=en_US");
+            }
+
         }
 
         public void Unpublish(string appendToName)

@@ -70,7 +70,8 @@
 
                 <TextBox Grid.Row="0" Grid.Column="2" Name="Keybind"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" 
                          materialDesign:HintAssist.Hint=". . ."
-                         Text="{Binding Keybind, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" MaxLength="1">
+                         Text="{Binding Keybind, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" MaxLength="1"
+                         GotFocus="Keybind_GotFocus">
                     <TextBox.InputBindings>
                         <KeyBinding Command="{Binding ChangeKeybind}" Key="Enter"/>
                         <KeyBinding Command="{Binding ChangeKeybind}" Key="Esc"/>
@@ -156,7 +157,7 @@
                                 Background="Transparent" ToolTip="Info on installing virtual joysticks" 
                                 IsEnabled="{Binding NoVJoyDevices}" Visibility="{Binding NoVJoyDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
                             <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
-                                             Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
+                                             Width="18" Height="18" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
                         </Button>
                     </StackPanel>
 

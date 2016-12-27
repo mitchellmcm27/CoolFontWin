@@ -37,6 +37,18 @@ namespace CFW.ViewModel
 
         // Input devices
 
+        readonly ObservableAsPropertyHelper<bool> _BonjourNotInstalled;
+        public bool BonjourNotInstalled
+        {
+            get { return _BonjourNotInstalled.Value; }
+        }
+
+        readonly ObservableAsPropertyHelper<bool> _PrimaryDevice;
+        public bool PrimaryDevice
+        {
+            get { return _PrimaryDevice.Value; }
+        }
+
         readonly ObservableAsPropertyHelper<bool> _SecondaryDevice;
         public bool SecondaryDevice
         {
@@ -206,6 +218,15 @@ namespace CFW.ViewModel
             DnsServer = s;
 
             // Responding to model changes
+
+            // Primary device DNS service (implies that Bonjour wasn't installed)
+            this.WhenAnyValue(x => x.DnsServer.BonjourInstalled, x => !x)
+                .ToProperty(this, x => x.BonjourNotInstalled, out _BonjourNotInstalled);
+
+            // Primary device DNS service
+            this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 0)
+                .ToProperty(this, x => x.PrimaryDevice, out _PrimaryDevice);
+
             // Secondary device DNS service
             this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 1)
                 .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
@@ -360,6 +381,7 @@ namespace CFW.ViewModel
 
             VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(()=>VJoyInfoDialog.ShowVJoyInfoDialog()));
             VXboxInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => ScpVBus.ShowScpVbusDialog()));
+            BonjourInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => DnsServer.ShowBonjourDialog())); 
 
             JoyCplCommand = ReactiveCommand.Create(()=>Process.Start("joy.cpl"));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
@@ -381,6 +403,7 @@ namespace CFW.ViewModel
 
         public ReactiveCommand VJoyInfo { get; set; }
         public ReactiveCommand VXboxInfo { get; set; }
+        public ReactiveCommand BonjourInfo { get; set; }
 
         // public Commands return ICommand using DelegateCommand class
         // and are backed by private methods

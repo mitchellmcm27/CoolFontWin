@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using CFW.ViewModel;
+using System.Windows;
 
 namespace CFW.View
 {
@@ -11,6 +12,12 @@ namespace CFW.View
         public OutputSettingsControl()
         {
             InitializeComponent();
+        }
+
+        public void Keybind_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            tb.Text = string.Empty;
         }
     }
 }
