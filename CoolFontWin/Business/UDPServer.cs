@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using log4net;
+using ReactiveUI;
 
 namespace CFW.Business
 {
@@ -22,7 +23,7 @@ namespace CFW.Business
         private List<EndPoint> ClientList;
         private byte[] ByteData = new byte[1024];
         private DeviceManager DeviceManager;
-        public int Port;
+        public int Port;    
 
         private void OnClientAdded()
         {

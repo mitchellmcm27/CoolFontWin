@@ -179,7 +179,7 @@ namespace CFW.Business
             //System.Net.IPAddress ipAddress = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
 
             // new way, write function that avoids Hamachi network interfaces
-            List<System.Net.IPAddress> localAddrs = DNSNetworkService.GetValidLocalAddresses();
+            List<System.Net.IPAddress> localAddrs = DnsServer.GetValidLocalAddresses();
             System.Net.IPAddress ipAddress = localAddrs.FirstOrDefault();
 
             log.Info("Address: " + ipAddress.ToString());

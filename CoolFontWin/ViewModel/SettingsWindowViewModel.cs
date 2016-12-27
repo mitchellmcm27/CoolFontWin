@@ -24,6 +24,12 @@ namespace CFW.ViewModel
 
         private readonly List<string> _modes = new List<string>(CFWMode.GetDescriptions());
 
+        readonly ObservableAsPropertyHelper<string> _IpAddress;
+        public string IpAddress
+        {
+            get { return _IpAddress.Value; }
+        }
+
         readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
         private uint CurrentDeviceID
         {
@@ -218,6 +224,11 @@ namespace CFW.ViewModel
             DnsServer = s;
 
             // Responding to model changes
+
+            // IP address
+            this.WhenAnyValue(x => x.DnsServer.Address, x => x.DnsServer.Port, 
+                    (addr, p) => string.Format(addr + ":" + p.ToString()))
+                .ToProperty(this, x => x.IpAddress, out _IpAddress);
 
             // Primary device DNS service (implies that Bonjour wasn't installed)
             this.WhenAnyValue(x => x.DnsServer.BonjourInstalled, x => !x)

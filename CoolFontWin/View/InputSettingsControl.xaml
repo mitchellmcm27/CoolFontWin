@@ -50,6 +50,9 @@
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
 
+                    <TextBlock Margin="4" Grid.Row="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" HorizontalAlignment="Center"
+                               ToolTip="Local IP Address"/>
+                    
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <CheckBox VerticalAlignment ="Center" IsChecked="{Binding PrimaryDevice, Mode=OneWay}" IsEnabled="False" Margin="8,0,8,0"/>
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"

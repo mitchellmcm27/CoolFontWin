@@ -21,7 +21,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <DockPanel>
+    <DockPanel Grid.Row="1">
         <Button Click="LaunchWeb" Style="{StaticResource MaterialDesignToolForegroundButton}">
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
             <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 

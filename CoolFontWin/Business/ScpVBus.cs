@@ -115,6 +115,12 @@ namespace CFW.Business
         /// <returns></returns>
         public bool Uninstall()
         {
+            if (!Installed)
+            {
+                log.Info("Didn't install ScpVBus, so not uninstalling it.");
+                return true;
+            }
+
             log.Info("Attempt to uninstall ScpVBus...");
             ProcessStartInfo startInfo = new ProcessStartInfo(exe, uninstallargs);
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;

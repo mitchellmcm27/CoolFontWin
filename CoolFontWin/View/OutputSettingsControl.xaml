@@ -69,7 +69,7 @@
 
 
                 <TextBox Grid.Row="0" Grid.Column="2" Name="Keybind"  HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" 
-                         materialDesign:HintAssist.Hint=". . ."
+                         materialDesign:HintAssist.Hint="[   ]"
                          Text="{Binding Keybind, UpdateSourceTrigger=PropertyChanged}" TextAlignment="Center" MaxLength="1"
                          GotFocus="Keybind_GotFocus">
                     <TextBox.InputBindings>

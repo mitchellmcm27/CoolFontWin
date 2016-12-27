@@ -49,8 +49,15 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _DeviceCount, value); }
         }
 
-        private int Port;
+        private int _Port;
+        public int Port
+        {
+            get { return _Port; }
+            set { this.RaiseAndSetIfChanged(ref _Port, value); }
+        }
+
         private DeviceManager DeviceHub;
+
         public DNSNetworkService(int port, DeviceManager deviceHub)
         {
             Port = port;
@@ -64,11 +71,18 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _BonjourInstalled, value); }
         }
 
-        public static List<IPAddress> GetValidLocalAddresses()
+        private string _Address = "Address not initialized";
+        public string Address
+        {
+            get { return _Address; }
+            set { this.RaiseAndSetIfChanged(ref _Address, value); }
+        }
+
+        public List<IPAddress> GetValidLocalAddresses()
         {
             // Choose best address of local network interface
             // Supports IPv4 and v6
-            // Tries Ethernet first, and then WiFi
+            // Tries Ethernet first, and then WiFi, then IPv6
 
             List<IPAddress> localAddrs = new List<IPAddress>();
             try
@@ -98,6 +112,15 @@ namespace CFW.Business
             }
 
             log.Info("Found " + localAddrs.Count.ToString() + " addresses.");
+           
+            if (localAddrs.Count>0)
+            {
+                Address = localAddrs.First().ToString();
+            }
+            else
+            {
+                Address = "No discoverable IP address found.";
+            }
             return localAddrs;
         }
 
