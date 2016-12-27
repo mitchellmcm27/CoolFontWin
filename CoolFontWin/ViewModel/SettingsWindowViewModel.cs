@@ -249,7 +249,6 @@ namespace CFW.ViewModel
                 .Do(x =>
                 {
                     Keybind = x;
-                    KeybindChanged = false;
                 })
                 .Subscribe();
 
@@ -429,6 +428,7 @@ namespace CFW.ViewModel
         private async Task ChangeKeybindImpl()
         {
             await Task.Run(()=> DeviceManager.VDevice.SetKeybind(Keybind));
+            KeybindChanged = false;
         }
 
         private async Task UpdateMode(int mode)

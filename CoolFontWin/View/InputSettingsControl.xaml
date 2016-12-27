@@ -80,7 +80,7 @@
                         <materialDesign:PackIcon Kind="CellphoneAndroid" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18"                                                 
                                                  />
-                        <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket!">Secondary mobile</TextBlock>
+                        <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket">Secondary mobile</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>

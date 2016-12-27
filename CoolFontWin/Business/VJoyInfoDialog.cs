@@ -16,8 +16,6 @@ namespace CFW.Business
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly string exe = "vJoy\\vJoySetup.exe";
 
-
-
         public static void ShowVJoyInfoDialog()
         {
             var taskDialog = new TaskDialog();
