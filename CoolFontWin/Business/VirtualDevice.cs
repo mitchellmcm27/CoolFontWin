@@ -201,10 +201,20 @@ namespace CFW.Business
 
         public void SetKeybind(string key)
         {
-            Keybind = key.ToCharArray()[0].ToString().ToUpper();
+            var keybindOld = Keybind;
+            try
+            {
+                Keybind = key.ToCharArray()[0].ToString().ToUpper();
 
-            // http://www.pinvoke.net/default.aspx/user32/MapVirtualKey.html
-            _VirtualKeyCode = (SendInputWrapper.ScanCodeShort)SendInputWrapper.MapVirtualKey((uint)(Keys)Enum.Parse(typeof(Keys), _Keybind, true), 0x00);
+                // http://www.pinvoke.net/default.aspx/user32/MapVirtualKey.html
+                _VirtualKeyCode = (SendInputWrapper.ScanCodeShort)SendInputWrapper.MapVirtualKey((uint)(Keys)Enum.Parse(typeof(Keys), _Keybind, true), 0x00);
+                log.Info("Changed keybind to " + Keybind);
+            }
+            catch(Exception e)
+            {
+                log.Debug("Unable to set keybind " + e.Message);
+                Keybind = keybindOld;
+            }
         }
         #endregion
 
