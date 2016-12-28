@@ -61,7 +61,8 @@
                         <Button Margin="0" Command="{Binding BonjourInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
                                 Background="Transparent" ToolTip="Bonjour is missing!"
                                 IsEnabled="{Binding BonjourNotInstalled}" Visibility="{Binding BonjourNotInstalled, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
-                            <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
+                            <materialDesign:PackIcon Kind="AlertCircleOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
+                                             ToolTip="Error installing Bonjour!"
                                              Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
                         </Button>
                     </StackPanel>

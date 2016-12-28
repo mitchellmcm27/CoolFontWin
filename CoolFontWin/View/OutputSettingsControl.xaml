@@ -24,7 +24,7 @@
         
     </UserControl.Resources>
 
-    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0" Padding="0,0,0,8">
+    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
         <DockPanel>
             <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark"  DockPanel.Dock="Top">
