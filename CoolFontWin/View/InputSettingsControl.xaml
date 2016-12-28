@@ -25,7 +25,7 @@
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
+    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0" Padding="0,0,0,8">
             <DockPanel>
                 <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark"  DockPanel.Dock="Top">
@@ -36,7 +36,8 @@
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
-                        <RowDefinition Height="64"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
                     </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -108,8 +109,14 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
-
-                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16,16,16,16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    
+                <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            ToolTip="IP Address : Port (if connecting manually)">
+                    <materialDesign:PackIcon Kind="InformationOutline" Margin="8,0,8,0" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center" Width="18" Height="18"/>
+                    <TextBlock Margin="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
+                </StackPanel>
+                    
+                <Button Name="PlayPauseButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan ="2" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
                     <Button.Content>
                         <DockPanel HorizontalAlignment="Left">
@@ -118,10 +125,6 @@
                         </DockPanel>
                     </Button.Content>
                 </Button>
-
-                <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0" 
-                           Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                               ToolTip="Local IP Address"/>
             </Grid>
             </DockPanel>
         </materialDesign:Card>
