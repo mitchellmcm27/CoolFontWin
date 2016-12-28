@@ -50,9 +50,6 @@
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock Margin="4" Grid.Row="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" HorizontalAlignment="Center"
-                               ToolTip="Local IP Address"/>
-                    
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <CheckBox VerticalAlignment ="Center" IsChecked="{Binding PrimaryDevice, Mode=OneWay}" IsEnabled="False" Margin="8,0,8,0"/>
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
@@ -95,7 +92,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <CheckBox VerticalAlignment="Center" IsChecked="{Binding XboxController, Mode=OneWay}" Margin="8,0,8,0"
                                   Command="{Binding InterceptXInputDevice}"
@@ -111,17 +108,21 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
-                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16" HorizontalAlignment="Center"
-                        Command="{Binding PlayPause}">
-                        <Button.Content>
-                            <DockPanel HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
-                                <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding PauseButtonText}" Margin="4"/>
-                            </DockPanel>
-                        </Button.Content>
 
-                    </Button>
-                </Grid>
+                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan ="2" Margin="16,16,16,16" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
+                    <Button.Content>
+                        <DockPanel HorizontalAlignment="Left">
+                            <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
+                            <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Text="{Binding PauseButtonText}" Margin="4"/>
+                        </DockPanel>
+                    </Button.Content>
+                </Button>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="0" 
+                           Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                               ToolTip="Local IP Address"/>
+            </Grid>
             </DockPanel>
         </materialDesign:Card>
 </UserControl>

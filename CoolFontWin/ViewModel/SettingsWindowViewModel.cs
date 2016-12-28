@@ -227,7 +227,7 @@ namespace CFW.ViewModel
 
             // IP address
             this.WhenAnyValue(x => x.DnsServer.Address, x => x.DnsServer.Port, 
-                    (addr, p) => string.Format(addr + ":" + p.ToString()))
+                    (addr, p) => string.Format(addr+ " : " +p.ToString()))
                 .ToProperty(this, x => x.IpAddress, out _IpAddress);
 
             // Primary device DNS service (implies that Bonjour wasn't installed)

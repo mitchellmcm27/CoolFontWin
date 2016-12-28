@@ -331,9 +331,6 @@
       <DependentUpon>WindowBarControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
-    <None Include="View\SettingsControl.xaml.cs">
-      <DependentUpon>SettingsControl.xaml</DependentUpon>
-    </None>
     <Compile Include="View\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -514,10 +511,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="View\SettingsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </None>
     <Page Include="View\InputSettingsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
