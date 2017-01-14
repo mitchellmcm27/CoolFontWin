@@ -190,7 +190,7 @@
 
 
                 <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="0" HorizontalAlignment="Center"
-                        Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding UnplugAllXboxCommand}" Content=" Reset &amp; Unplug"/>
+                        Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding UnplugAllXboxCommand}" Content="Reset"/>
 
             </Grid>
         </DockPanel>

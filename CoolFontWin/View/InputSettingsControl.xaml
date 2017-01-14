@@ -25,7 +25,7 @@
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0" Padding="0,0,0,8">
+    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
             <DockPanel>
                 <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark"  DockPanel.Dock="Top">
@@ -117,7 +117,7 @@
                     <TextBlock Margin="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
                 </StackPanel>
                     
-                <Button Name="PlayPauseButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan ="2" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                <Button Name="PlayPauseButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan ="2" Margin="0" HorizontalAlignment="Center"
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
                     <Button.Content>
                         <DockPanel HorizontalAlignment="Left">
