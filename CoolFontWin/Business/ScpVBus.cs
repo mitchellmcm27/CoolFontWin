@@ -56,7 +56,7 @@ namespace CFW.Business
         {
             log.Info("Attempt to install ScpVBus...");
             ProcessStartInfo startInfo = new ProcessStartInfo(exe, installargs);
-            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+           // startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Verb = "runas";
             try
             {

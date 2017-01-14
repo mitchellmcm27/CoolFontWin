@@ -53,7 +53,7 @@ namespace CFW.Business
             // Install ScpVBus every time application is launched
             // Must be installed synchronously
             // Uninstall it on exit (see region below)
-            scpInstaller.Install();
+            // scpInstaller.Install();
 
             DeviceManager = new DeviceManager();
             UdpServer = new UDPServer(DeviceManager);
