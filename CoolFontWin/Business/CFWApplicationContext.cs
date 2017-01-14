@@ -19,8 +19,8 @@ namespace CFW.Business
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string VersionString = "CoolFontWin";
-        private static readonly string DefaultTooltip = "PocketStrafe Companion";
+        public string VersionString = "PocketStrafe";
+        private static readonly string DefaultTooltip = "PocketStrafe PC";
         private static readonly string CurrentInstallLocation = Assembly.GetExecutingAssembly().Location;
 
         private string _Ver;
@@ -87,7 +87,10 @@ namespace CFW.Business
 
             log.Info("Show settings window...");
             ShowSettingsWindow();
+            Properties.Settings.Default.FirstInstall = false;
+            Properties.Settings.Default.Save();
 
+            // Show tooltips if deployed via ClickOnce
             if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
             {
                 log.Info("First launch after fresh install");
@@ -95,12 +98,11 @@ namespace CFW.Business
 
                 NotifyIcon.ShowBalloonTip(
                     30000,
-                    "CoolFontWin successfully installed",
-                    "Get more information at www.coolfont.co",
+                    "PocketStrafe PC successfully installed",
+                    "Get more information at www.pocketstrafe.com",
                     ToolTipIcon.Info);
-                Properties.Settings.Default.FirstInstall = false;
-                Properties.Settings.Default.Save();
             }
+
             else if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun)
             {
                 log.Info("First launch with latest version.");
@@ -108,8 +110,8 @@ namespace CFW.Business
 
                 NotifyIcon.ShowBalloonTip(
                     30000,
-                    "CoolFontWin updated",
-                    "Get update notes at www.coolfont.co",
+                    "PocketStrafe PC updated",
+                    "Get update notes at www.pocketstrafe.com",
                     ToolTipIcon.Info);
             }
 
@@ -146,7 +148,7 @@ namespace CFW.Business
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
-            Process.Start("http://www.coolfont.co");
+            Process.Start("http://www.pocketstrafe.com");
         }
 
         private void InitializeContext()
@@ -156,7 +158,7 @@ namespace CFW.Business
             {
                 ContextMenuStrip = new ContextMenuStrip(),
                 Icon = Properties.Resources.tray_icon,
-                Text = "CoolFontWin",
+                Text = "PocketStrafe PC",
             };
             
             NotifyIcon.ContextMenuStrip.Renderer = CustomRendererNormal;
@@ -196,14 +198,9 @@ namespace CFW.Business
         /// <param name="path"></param>
         private void AddFirewallRule(string path)
         {
-            if (!ApplicationDeployment.IsNetworkDeployed)
-            {
-                return;
-            }
-
             log.Info("Authorize firewall via netsh command");
 
-            string arguments = "advfirewall firewall add rule name=\"CoolFontWin\" dir=in action=allow program=\"" + path + "\" enable=yes";
+            string arguments = "advfirewall firewall add rule name=\"PocketStrafe PC\" dir=in action=allow program=\"" + path + "\" enable=yes";
             log.Info("netsh " + arguments);
             ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
             procStartInfo.RedirectStandardOutput = false;
@@ -219,14 +216,9 @@ namespace CFW.Business
         /// <param name="path"></param>
         private void DeleteFirewallRule(string path)
         {
-            if (!ApplicationDeployment.IsNetworkDeployed)
-            {
-                return;
-            }
-
             log.Info("Delete firewall rule via netsh command");
 
-            string arguments = "advfirewall firewall delete rule name=\"CoolFontWin\" program=\"" + path + "\"";
+            string arguments = "advfirewall firewall delete rule name=\"PocketStrafe PC\" program=\"" + path + "\"";
             log.Info("netsh " + arguments);
             ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
             procStartInfo.RedirectStandardOutput = false;
@@ -245,9 +237,9 @@ namespace CFW.Business
             }
             else
             {
-                version = "Debug";
+                version = "";
             }
-            return Updater.UpdateAvailable ? "Restart to apply update" : "CoolFontWin - " + version;
+            return Updater.UpdateAvailable ? "Restart to apply update" : "PocketStrafe PC " + version;
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
@@ -301,6 +293,8 @@ namespace CFW.Business
                 versionItem.Text = "Latest version";
             }
 
+            if (!ApplicationDeployment.IsNetworkDeployed) versionItem.Visible = false;
+
             ToolStripMenuItem settingsItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("&Configure", (o, i) => ShowSettingsWindow());
             settingsItem.Image = Properties.Resources.ic_settings_white_18dp;
             //settingsItem.ImageScaling = ToolStripItemImageScaling.None;
@@ -315,7 +309,7 @@ namespace CFW.Business
             NotifyIconViewModel.AddToContextMenu(NotifyIcon.ContextMenuStrip);
 
             ToolStripMenuItem restartItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Restart", Restart_Click);
-            ToolStripMenuItem quitItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Quit CoolFontWin", Exit_Click);
+            ToolStripMenuItem quitItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Quit PocketStrafe", Exit_Click);
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
                 new ToolStripItem[] { new ToolStripSeparator(), quitItem });
@@ -327,8 +321,7 @@ namespace CFW.Business
         {
             if (e.Button == MouseButtons.Left)
             {
-                MethodInfo mi = typeof(NotifyIcon).GetMethod("ShowContextMenu", BindingFlags.Instance | BindingFlags.NonPublic);
-                mi.Invoke(NotifyIcon, null);
+                ShowSettingsWindow();
             }
             else if (e.Button == MouseButtons.Right)
             {

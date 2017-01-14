@@ -32,7 +32,7 @@ namespace CFW.View
 
         public void LaunchWeb(object sender, EventArgs e)
         {
-            Process.Start("http://www.coolfont.co");
+            Process.Start("http://www.pocketstrafe.com");
         }
 
         public void LaunchDiscord(object sender, EventArgs e)

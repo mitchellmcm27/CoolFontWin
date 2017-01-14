@@ -30,7 +30,7 @@
             </Button>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
                  Foreground="{DynamicResource MaterialDesignDivider}">
-            www.coolfont.co
+            www.pocketstrafe.com
         </TextBlock>
         </StackPanel>
         </Button>

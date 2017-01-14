@@ -223,8 +223,8 @@ namespace CFW.ViewModel
             try
             {
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                log.Info(path + "\\CoolFontWin\\Log.txt");
-                System.Diagnostics.Process.Start(path + "\\CoolFontWin\\Log.txt");
+                log.Info(path + "\\PocketStrafe\\Log.txt");
+                System.Diagnostics.Process.Start(path + "\\PocketStrafe\\Log.txt");
             }
             catch (Exception ex)
             {

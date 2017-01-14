@@ -176,7 +176,7 @@ namespace CFW.Business
         public void ShowBonjourDialog()
         {
             System.Media.SystemSounds.Exclamation.Play();
-            DialogResult res = MessageBox.Show("Bonjour for Windows is required. Please download Bonjour from Apple and restart CoolFontWin. \n\n Go to download page?", "Bonjour not Installed", MessageBoxButtons.YesNo);
+            DialogResult res = MessageBox.Show("Bonjour for Windows is required. Please download Bonjour from Apple and restart the app. \n\n Go to download page?", "Bonjour not Installed", MessageBoxButtons.YesNo);
             if (res == DialogResult.Yes)
             {
                 // go to website

@@ -148,12 +148,12 @@ namespace CFW.Business
             taskDialog.Width = 200;
             taskDialog.AllowDialogCancellation = true;
 
-            taskDialog.WindowTitle = "CoolFontWin - An important component was not installed";
+            taskDialog.WindowTitle = "An important component was not installed";
             taskDialog.MainIcon = TaskDialogIcon.Warning;
 
             taskDialog.MainInstruction = "ScpVBus failed to install";
             taskDialog.Content = "Xbox controller emulation requires ScpVBus.\n";
-            taskDialog.Content += "First try running CoolFontWin as Administrator.\nIf that doesn't work, you can download and install ScpVBus yourself, or continue using only keyboard/joystick emulation.";
+            taskDialog.Content += "ScpVBus is installed with PocketStrafe but it seems to have failed. Download and install ScpVBus yourself, or continue using only keyboard/joystick emulation.";
 
             taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
             var customButton = new TaskDialogButton(ButtonType.Custom);
@@ -165,7 +165,7 @@ namespace CFW.Business
 
             taskDialog.ExpandFooterArea = true;
             taskDialog.ExpandedControlText = "Installation tips";
-            taskDialog.ExpandedInformation = "1.  Download ScpVbus-x64.zip and extract it anywhere\n2.  Follow the directions on the website to install\n3.  Restart CoolFontWin";
+            taskDialog.ExpandedInformation = "1.  Download ScpVbus-x64.zip and extract it anywhere\n2.  Follow the directions on the website to install\n3.  Restart app";
             taskDialog.VerificationText = "Don't show this warning again";
 
             new Thread(() =>

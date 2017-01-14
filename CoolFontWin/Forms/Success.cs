@@ -52,7 +52,7 @@ namespace CFW.Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("http://coolfont.co");
+            System.Diagnostics.Process.Start("http://pocketstrafe.com");
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

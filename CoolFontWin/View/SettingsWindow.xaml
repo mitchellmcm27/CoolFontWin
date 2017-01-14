@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d" 
     x:Class="CFW.View.SettingsWindow"
-    Title="CoolFontWin" 
+    Title="PocketStrafe PC" 
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     Background="{DynamicResource MaterialDesignPaper}"
     TextElement.FontWeight="Normal"
