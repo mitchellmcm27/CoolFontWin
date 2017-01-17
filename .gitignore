@@ -1,5 +1,5 @@
 ### Inno setup output ###
-[Oo]utput/*.exe
+install/Output/*.exe
 
 # Created by https://www.gitignore.io/api/visualstudiocode,csharp
 
