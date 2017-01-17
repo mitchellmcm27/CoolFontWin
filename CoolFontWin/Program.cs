@@ -3,9 +3,6 @@ using System.Threading;
 using System.Windows.Forms;
 using log4net;
 
-
-//using MutexManager;
-
 namespace CFW.Business
 {
     static class Program
@@ -30,10 +27,7 @@ namespace CFW.Business
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
             var applicationContext = new CFWApplicationContext();
-
-            //applicationContext.CheckForUpdates();
 
             try
             {
