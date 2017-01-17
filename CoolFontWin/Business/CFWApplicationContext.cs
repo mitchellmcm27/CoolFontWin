@@ -76,7 +76,7 @@ namespace CFW.Business
             }
 
             NotifyIconViewModel = new NotifyIconViewModel(DeviceManager, DnsServer);
-            NotifyIcon.Text = GetVersionItemString();
+            NotifyIcon.Text = "Please download the latest release from pocketstrafe.com";
             NotifyIcon.Visible = true;
 
             log.Info("Load settings window...");
@@ -88,30 +88,12 @@ namespace CFW.Business
             log.Info("Show settings window...");
             ShowSettingsWindow();
 
-            if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
-            {
-                log.Info("First launch after fresh install");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                NotifyIcon.ShowBalloonTip(
-                    30000,
-                    "CoolFontWin successfully installed",
-                    "Get more information at www.coolfont.co",
-                    ToolTipIcon.Info);
-                Properties.Settings.Default.FirstInstall = false;
-                Properties.Settings.Default.Save();
-            }
-            else if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun)
-            {
-                log.Info("First launch with latest version.");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                NotifyIcon.ShowBalloonTip(
-                    30000,
-                    "CoolFontWin updated",
-                    "Get update notes at www.coolfont.co",
-                    ToolTipIcon.Info);
-            }
+            // Warn of outdated software
+            NotifyIcon.ShowBalloonTip(
+                30000,
+                "This version of CoolFontWin is outdated!",
+                "Please download the new version at www.pocketstrafe.com (click here).",
+                ToolTipIcon.Warning);
 
             try
             {
@@ -146,7 +128,7 @@ namespace CFW.Business
 
         private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
-            Process.Start("http://www.coolfont.co");
+            Process.Start("http://www.pocketstrafe.com/setting-up");
         }
 
         private void InitializeContext()
@@ -155,7 +137,7 @@ namespace CFW.Business
             NotifyIcon = new NotifyIcon(Components)
             {
                 ContextMenuStrip = new ContextMenuStrip(),
-                Icon = Properties.Resources.tray_icon,
+                Icon = Properties.Resources.tray_icon_notification,
                 Text = "CoolFontWin",
             };
             
@@ -238,24 +220,12 @@ namespace CFW.Business
 
         private string GetVersionItemString()
         {
-            string version;
-            if (ApplicationDeployment.IsNetworkDeployed)
-            {
-                version = ApplicationDeployment.CurrentDeployment.CurrentVersion.ToString();
-            }
-            else
-            {
-                version = "Debug";
-            }
-            return Updater.UpdateAvailable ? "Restart to apply update" : "CoolFontWin - " + version;
+            return "Please download the latest release from pocketstrafe.com";
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
         {
-            if (Updater.UpdateAvailable)
-            {
-                Application.Restart();
-            }
+            Process.Start("http://www.pocketstrafe.com/setting-up");
         }
 
         private static readonly CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
@@ -285,21 +255,13 @@ namespace CFW.Business
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
             ToolStripMenuItem versionItem = new ToolStripMenuItem(GetVersionItemString());
-            if (Updater.UpdateAvailable)
-            {
-                versionItem.Enabled = true;
-                versionItem.Click += VersionItem_Click;
-                versionItem.Font = new System.Drawing.Font(versionItem.Font, (versionItem.Font.Style | System.Drawing.FontStyle.Bold));
-                versionItem.Image = Properties.Resources.ic_refresh_blue_18dp;
-                versionItem.ImageScaling = ToolStripItemImageScaling.None;
-            }
-            else
-            {
-                versionItem.Enabled = false;
-                versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
-                versionItem.ImageScaling = ToolStripItemImageScaling.None;
-                versionItem.Text = "Latest version";
-            }
+            versionItem.Click += VersionItem_Click;
+            versionItem.Enabled = true;
+            versionItem.Image = Properties.Resources.ic_error_outline_orange_18dp;
+            versionItem.ImageScaling = ToolStripItemImageScaling.None;
+            versionItem.Text = "Installation outdated";
+            versionItem.ToolTipText = "This version is no longer supported.\nDownload the latest release from pocketstrafe.com (click here).";
+            
 
             ToolStripMenuItem settingsItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("&Configure", (o, i) => ShowSettingsWindow());
             settingsItem.Image = Properties.Resources.ic_settings_white_18dp;
