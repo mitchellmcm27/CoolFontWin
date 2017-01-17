@@ -7,9 +7,9 @@ namespace CFW.View
     /// <summary>
     /// Interaction logic for UpdateControl.xaml
     /// </summary>
-    public partial class UpdateControl : UserControl
+    public partial class ToolbarControl : UserControl
     {
-        public UpdateControl()
+        public ToolbarControl()
         {
             InitializeComponent();
         }

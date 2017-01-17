@@ -31,7 +31,7 @@
                 <DockPanel>
                     <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
                                 Style="{StaticResource MaterialDesignToolForegroundButton}">
-                        <materialDesign:PackIcon Kind="Settings" Height="18" Width="18"/>
+                        <materialDesign:PackIcon Kind="Gauge" Height="24" Width="24"/>
                     </Button>
                     <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16"
                            Text="Output device"/>
@@ -107,7 +107,7 @@
                         <Button Margin="0" Command="{Binding VXboxInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
                                 Background="Transparent" ToolTip="Info on installing virtual joysticks"
                                 IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
-                            <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
+                            <materialDesign:PackIcon Kind="AlertCircleOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
                                              Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
                         </Button>
                     </StackPanel>
@@ -126,7 +126,7 @@
                 </Grid>
 
                 <materialDesign:Chip Grid.Column="2" Grid.Row="1" IsEnabled="False"
-                                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16" Background="{DynamicResource MaterialDesignDivider}">
+                                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16" Background="{DynamicResource MaterialDesignPaper}">
                     <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </materialDesign:Chip>
 

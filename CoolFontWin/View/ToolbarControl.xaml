@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="CFW.View.UpdateControl"
+﻿<UserControl x:Class="CFW.View.ToolbarControl"
  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -27,7 +27,7 @@
             <TextBlock Margin="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Margin="16,0,16,0"
+            <Button Margin="0,0,16,0"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
                     Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button.ToolTip>

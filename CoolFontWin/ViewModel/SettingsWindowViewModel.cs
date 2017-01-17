@@ -11,6 +11,8 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using MaterialDesignThemes.Wpf;
+using System.Text.RegularExpressions;
 
 namespace CFW.ViewModel
 {
@@ -24,6 +26,7 @@ namespace CFW.ViewModel
 
         private readonly List<string> _modes = new List<string>(CFWMode.GetDescriptions());
 
+        // Toolbar
         readonly ObservableAsPropertyHelper<bool> _UpdateAvailable;
         public bool UpdateAvailable
         {
@@ -42,12 +45,19 @@ namespace CFW.ViewModel
             get { return _UpdateToolTip.Value; }
         }
 
+        readonly ObservableAsPropertyHelper<string> _LightDarkIcon;
+        public string LightDarkIcon
+        {
+            get { return _LightDarkIcon.Value; }
+        }
+
         readonly ObservableAsPropertyHelper<string> _IpAddress;
         public string IpAddress
         {
             get { return _IpAddress.Value; }
         }
 
+        // Input devices
         readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
         private uint CurrentDeviceID
         {
@@ -258,8 +268,7 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.UpdateToolTip, out _UpdateToolTip);
 
             DownloadUpdate = ReactiveCommand.CreateFromTask(async _ =>
-                await Task.Run(()=>Updater.DownloadUpdate())
-                );
+                await Task.Run(() => Updater.DownloadUpdate()));
 
             // DNS Server
             // IP address
@@ -435,6 +444,7 @@ namespace CFW.ViewModel
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
         }
 
+        public ReactiveCommand ToggleLightDark { get; set; }
         public ReactiveCommand DownloadUpdate { get; set; }
         public ReactiveCommand KeyboardMode { get; set; }
         public ReactiveCommand VJoyMode { get; set; }

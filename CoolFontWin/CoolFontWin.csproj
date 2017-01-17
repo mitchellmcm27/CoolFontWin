@@ -336,8 +336,8 @@
     <Compile Include="View\SocialMediaControl.xaml.cs">
       <DependentUpon>SocialMediaControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\UpdateControl.xaml.cs">
-      <DependentUpon>UpdateControl.xaml</DependentUpon>
+    <Compile Include="View\ToolbarControl.xaml.cs">
+      <DependentUpon>ToolbarControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\WindowBarControl.xaml.cs">
       <DependentUpon>WindowBarControl.xaml</DependentUpon>
@@ -539,7 +539,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\UpdateControl.xaml">
+    <Page Include="View\ToolbarControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
