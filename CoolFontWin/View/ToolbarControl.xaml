@@ -23,8 +23,8 @@
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal"  ToolTip="IP Address : Port (if connecting manually)">
-            <materialDesign:PackIcon Kind="InformationOutline" Margin="8,0,8,0" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center" Width="18" Height="18"/>
-            <TextBlock Margin="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
+            <Image Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,8,0"/>
+            <TextBlock Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Margin="0,0,16,0"
@@ -33,16 +33,64 @@
                 <Button.ToolTip>
                     <ToolTip Content="{Binding UpdateToolTip}" />
                 </Button.ToolTip>
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
                 <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="18" Height="18" />
             </Button>
             <Separator/>
-            <Button DockPanel.Dock="Right"
-                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click">
+            <Button DockPanel.Dock="Right" 
+                    Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
                 <materialDesign:PackIcon Kind="Minus" Width="18" Height="18"/>
             </Button>
 
             <Button DockPanel.Dock="Right"
-                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click">
+                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click" Opacity="0.6">
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard >
+                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
                 <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
             </Button>
         </StackPanel>

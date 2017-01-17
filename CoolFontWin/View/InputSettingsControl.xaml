@@ -28,7 +28,7 @@
     <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
             <DockPanel>
                 <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                                            Mode="PrimaryMid"  DockPanel.Dock="Top">
                     <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16">Input devices</TextBlock>
                 </materialDesign:ColorZone>
                 <Grid DockPanel.Dock="Top" Margin="8">

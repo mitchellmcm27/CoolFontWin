@@ -27,7 +27,7 @@
     <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
         <DockPanel>
             <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                                            Mode="PrimaryMid"  DockPanel.Dock="Top">
                 <DockPanel>
                     <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
                                 Style="{StaticResource MaterialDesignToolForegroundButton}">
@@ -126,7 +126,7 @@
                 </Grid>
 
                 <materialDesign:Chip Grid.Column="2" Grid.Row="1" IsEnabled="False"
-                                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16" Background="{DynamicResource MaterialDesignPaper}">
+                                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16" Background="{DynamicResource MaterialDesignDivider}">
                     <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </materialDesign:Chip>
 
