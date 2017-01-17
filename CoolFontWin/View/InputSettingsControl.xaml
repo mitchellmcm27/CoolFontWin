@@ -110,13 +110,7 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
-                    
-                <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            ToolTip="IP Address : Port (if connecting manually)">
-                    <materialDesign:PackIcon Kind="InformationOutline" Margin="8,0,8,0" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center" Width="18" Height="18"/>
-                    <TextBlock Margin="0" Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
-                </StackPanel>
-                    
+                          
                 <Button Name="PlayPauseButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan ="2" Margin="0" HorizontalAlignment="Center"
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
                     <Button.Content>

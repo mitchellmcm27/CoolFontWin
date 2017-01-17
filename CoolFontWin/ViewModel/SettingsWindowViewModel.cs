@@ -24,6 +24,24 @@ namespace CFW.ViewModel
 
         private readonly List<string> _modes = new List<string>(CFWMode.GetDescriptions());
 
+        readonly ObservableAsPropertyHelper<bool> _UpdateAvailable;
+        public bool UpdateAvailable
+        {
+            get { return _UpdateAvailable.Value; }
+        }
+
+        readonly ObservableAsPropertyHelper<string> _UpdateIcon;
+        public string UpdateIcon
+        {
+            get { return _UpdateIcon.Value; }
+        }
+
+        readonly ObservableAsPropertyHelper<string> _UpdateToolTip;
+        public string UpdateToolTip
+        {
+            get { return _UpdateToolTip.Value; }
+        }
+
         readonly ObservableAsPropertyHelper<string> _IpAddress;
         public string IpAddress
         {
@@ -215,16 +233,35 @@ namespace CFW.ViewModel
 
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
+        private readonly AppCastUpdater Updater;
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
 
-        public SettingsWindowViewModel(DeviceManager d, DNSNetworkService s)
+        public SettingsWindowViewModel(DeviceManager d, DNSNetworkService s, AppCastUpdater u)
         {
             DeviceManager = d;
             DnsServer = s;
+            Updater = u;
 
             // Responding to model changes
 
+            // Updater
+            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
+                .ToProperty(this, x => x.UpdateAvailable, out _UpdateAvailable);
+
+            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
+                .Select(x=> x ? "Download" : "Check")
+                .ToProperty(this, x => x.UpdateIcon, out _UpdateIcon);
+
+            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
+                .Select(x => x ? "An update is available" : "Up-to-date")
+                .ToProperty(this, x => x.UpdateToolTip, out _UpdateToolTip);
+
+            DownloadUpdate = ReactiveCommand.CreateFromTask(async _ =>
+                await Task.Run(()=>Updater.DownloadUpdate())
+                );
+
+            // DNS Server
             // IP address
             this.WhenAnyValue(x => x.DnsServer.Address, x => x.DnsServer.Port, 
                     (addr, p) => string.Format(addr+ " : " +p.ToString()))
@@ -242,6 +279,7 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 1)
                 .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
 
+            // Device Manager
             // Xbox controller intercepted
             this.WhenAnyValue(x => x.DeviceManager.InterceptXInputDevice)
                 .ToProperty(this, x => x.XboxController, out _XboxController);
@@ -397,6 +435,7 @@ namespace CFW.ViewModel
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
         }
 
+        public ReactiveCommand DownloadUpdate { get; set; }
         public ReactiveCommand KeyboardMode { get; set; }
         public ReactiveCommand VJoyMode { get; set; }
         public ReactiveCommand XboxMode { get; set; }

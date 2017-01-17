@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Deployment.Application;
 using System.Timers;
+using NAppUpdate.Framework;
 using log4net;
 
 namespace CFW.Business
@@ -14,6 +15,7 @@ namespace CFW.Business
         private readonly ApplicationDeployment Deployment;
         private readonly Timer CheckTimer = new Timer(TimeSpan.FromMinutes(20).TotalMilliseconds);
         private bool processing;
+        private bool _ClickOnce = true;
 
         public event EventHandler<DeploymentProgressChangedEventArgs> ProgressChanged;
         public event EventHandler<EventArgs> Completed;
@@ -50,7 +52,16 @@ namespace CFW.Business
 
         public SilentUpdater()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed) return;
+            if (!ApplicationDeployment.IsNetworkDeployed)
+            {
+                _ClickOnce = false;
+                // use NAppUpdater
+                UpdateManager.Instance.UpdateSource = new NAppUpdate.Framework.Sources.SimpleWebSource("http://mydomain.com/feed.xml"); // provided is the URL for the updates feed
+                UpdateManager.Instance.ReinstateIfRestarted(); // required to be able to restore state after app restart
+                return;
+            }
+
+            // use ClickOnce
  
             log.Info("Checking for updates...");
             Deployment = ApplicationDeployment.CurrentDeployment;
@@ -64,6 +75,7 @@ namespace CFW.Business
 
         public void CheckForUpdate(object sender, EventArgs eventargs)
         {
+            if (_ClickOnce)
             {
                 if (processing)
                     return;
@@ -73,7 +85,7 @@ namespace CFW.Business
                     // bool: Persist update to disk?
                     // false: Apply update silently
                     // true: Show prompt and allow user to skip update (not desired)
-                    if (Deployment.CheckForUpdate(false)) 
+                    if (Deployment.CheckForUpdate(false))
                         Deployment.UpdateAsync();
                     else
                         processing = false;
@@ -83,7 +95,17 @@ namespace CFW.Business
                     log.Warn("Check for update failed. " + ex.Message);
                     processing = false;
                 }
-            };
+            }
+            else
+            {
+                if (UpdateManager.Instance.IsWorking) return;
+
+                UpdateManager.Instance.CheckForUpdates();
+                if (UpdateManager.Instance.UpdatesAvailable > 0)
+                {
+                    UpdateManager.Instance.PrepareUpdates();
+                }
+            }        
         }
 
         private void BeginUpdate()

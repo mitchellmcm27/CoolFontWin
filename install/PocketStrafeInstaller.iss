@@ -21,27 +21,43 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
-OutputBaseFilename=setup
+OutputBaseFilename=PocketStrafeSetup
 Compression=lzma
 SolidCompression=yes
+DisableReadyPage=yes
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+PrivilegesRequired=admin
+SignTool=signtool
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}";
 
 [Files]
+Source: "F:\Program Files (x86)\Microsoft Visual Studio 14.0\SDK\Bootstrapper\Packages\BonjourForWindows\Bonjour64.msi"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\CoolFontWin.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\*"; Excludes: "*.pdb, *.xml, *.manifest, *vshost*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Run]
+Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\Bonjour64.msi"""; Check: IsBonjourNotInstalled; Description: "Install Bonjour (required)"
+Filename: "{app}\scpvbus\devcon.exe"; Parameters: "install ScpVBus.inf Root\ScpVBus"; Description: "Install virtual Xbox controllers"; Flags: runhidden runascurrentuser;
+Filename: "{app}\vJoy\vJoySetup.exe"; Description: "Install virtual joystick (optional)"; Flags: postinstall unchecked
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: "{app}\scpvbus\devcon.exe"; Parameters: "remove Root\ScpVBus"; Flags: runhidden runascurrentuser;
+
+[Code] 
+function IsBonjourNotInstalled():Boolean;
+begin
+    Result := not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Apple Inc.\Bonjour');
+end;
 

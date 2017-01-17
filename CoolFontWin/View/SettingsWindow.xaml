@@ -10,16 +10,15 @@
     x:Class="CFW.View.SettingsWindow"
     Title="PocketStrafe PC" 
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-    Background="{DynamicResource MaterialDesignPaper}"
+    Background="Transparent"
     TextElement.FontWeight="Normal"
     TextElement.FontSize="12"
     FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
     TextOptions.TextFormattingMode="Ideal" 
     TextOptions.TextRenderingMode="Auto"   
     Icon="/Assets/tray-icon-transparent.ico" 
-    ResizeMode="CanMinimize" 
     SizeToContent="WidthAndHeight"
-    UseLayoutRounding="True">
+    UseLayoutRounding="True" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanMinimize">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -33,18 +32,30 @@
         </ResourceDictionary>
     </Window.Resources>
 
-        <Grid Margin="8,8,8,0">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <View:InputSettingsControl Grid.Row="0" Grid.Column="0"/>
-        <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
-        <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch"/>
-        </Grid>
+    <Grid Margin="20">
+        <Border MouseLeftButtonDown="Window_MouseLeftButtonDown" Background="{DynamicResource MaterialDesignPaper}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" Direction="320" RenderingBias="Quality" ShadowDepth="8" Opacity="0.3"/>
+            </Border.Effect>
+        </Border>
+        <StackPanel Orientation="Vertical">
+            <View:UpdateControl Margin="8,8,8,0" HorizontalAlignment="Stretch"/>
+            <Grid Margin="8,8,8,0">
+                <Grid.RowDefinitions>
+
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <View:InputSettingsControl Grid.Row="0" Grid.Column="0"/>
+                <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
+                <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch"/>
+            </Grid>
+        </StackPanel>
+    </Grid>
 </Window>

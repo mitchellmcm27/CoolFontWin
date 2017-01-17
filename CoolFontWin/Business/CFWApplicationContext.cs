@@ -5,12 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Diagnostics;
 using System.Deployment.Application;
-using System.ComponentModel;
 using System.Collections.Generic;
 using log4net;
 
 using CFW.ViewModel;
-
 
 namespace CFW.Business
 {
@@ -33,7 +31,6 @@ namespace CFW.Business
             }
         }
 
-        public SilentUpdater Updater { get; private set; }
         private NotifyIconViewModel NotifyIconViewModel;
         private System.ComponentModel.IContainer Components;
         private NotifyIcon NotifyIcon;
@@ -42,14 +39,10 @@ namespace CFW.Business
         private UDPServer UdpServer;
         private DNSNetworkService DnsServer;
         private DeviceManager DeviceManager;
+        private AppCastUpdater AppCastUpdater;
 
         public CFWApplicationContext()
         {
-
-            Updater = new SilentUpdater(); // checks immediately then starts 20 min timer
-            Updater.Completed += Updater_Completed;
-            Updater.PropertyChanged += Updater_PropertyChanged;
-
             // Install ScpVBus every time application is launched
             // Must be installed synchronously
             // Uninstall it on exit (see region below)
@@ -57,6 +50,8 @@ namespace CFW.Business
 
             DeviceManager = new DeviceManager();
             UdpServer = new UDPServer(DeviceManager);
+            AppCastUpdater = new AppCastUpdater("http://coolfont.win.app.s3.amazonaws.com/publish/currentversion.xml");
+            AppCastUpdater.Start();
 
             InitializeContext();
 
@@ -90,31 +85,6 @@ namespace CFW.Business
             Properties.Settings.Default.FirstInstall = false;
             Properties.Settings.Default.Save();
 
-            // Show tooltips if deployed via ClickOnce
-            if (ApplicationDeployment.IsNetworkDeployed && Properties.Settings.Default.FirstInstall)
-            {
-                log.Info("First launch after fresh install");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                NotifyIcon.ShowBalloonTip(
-                    30000,
-                    "PocketStrafe PC successfully installed",
-                    "Get more information at www.pocketstrafe.com",
-                    ToolTipIcon.Info);
-            }
-
-            else if (ApplicationDeployment.IsNetworkDeployed && ApplicationDeployment.CurrentDeployment.IsFirstRun)
-            {
-                log.Info("First launch with latest version.");
-                log.Info("Install location " + CurrentInstallLocation);
-
-                NotifyIcon.ShowBalloonTip(
-                    30000,
-                    "PocketStrafe PC updated",
-                    "Get update notes at www.pocketstrafe.com",
-                    ToolTipIcon.Info);
-            }
-
             try
             {
                 ForceFirewallWindow();
@@ -123,26 +93,6 @@ namespace CFW.Business
             {
                 log.Error("Unable to open temp TCP socket because: " + e.Message);
                 log.Info("Windows Firewall should prompt on the next startup.");
-            }
-        }
-
-        private void Updater_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-        }
-
-        private void Updater_Completed(object sender, EventArgs e)
-        {
-            // ResourceSoundPlayer.TryToPlay(Properties.Resources.reverb_good);
-            Ver = GetVersionItemString();
-            NotifyIcon.Text = Ver;
-
-            if (Updater.UpdateAvailable)
-            {
-                NotifyIcon.Icon = Properties.Resources.tray_icon_notification;
-            }
-            else
-            {
-                NotifyIcon.Icon = Properties.Resources.tray_icon;
             }
         }
 
@@ -239,15 +189,11 @@ namespace CFW.Business
             {
                 version = "";
             }
-            return Updater.UpdateAvailable ? "Restart to apply update" : "PocketStrafe PC " + version;
+            return "PocketStrafe PC " + version;
         }
 
         private void VersionItem_Click(object sender, EventArgs e)
         {
-            if (Updater.UpdateAvailable)
-            {
-                Application.Restart();
-            }
         }
 
         private static readonly CFWContextMenuRenderer CustomRendererVR = new CFWContextMenuRenderer(UIStyle.UIStyleVR);
@@ -276,34 +222,9 @@ namespace CFW.Business
 
             NotifyIcon.ContextMenuStrip.Items.Clear();
 
-            ToolStripMenuItem versionItem = new ToolStripMenuItem(GetVersionItemString());
-            if (Updater.UpdateAvailable)
-            {
-                versionItem.Enabled = true;
-                versionItem.Click += VersionItem_Click;
-                versionItem.Font = new System.Drawing.Font(versionItem.Font, (versionItem.Font.Style | System.Drawing.FontStyle.Bold));
-                versionItem.Image = Properties.Resources.ic_refresh_blue_18dp;
-                versionItem.ImageScaling = ToolStripItemImageScaling.None;
-            }
-            else
-            {
-                versionItem.Enabled = false;
-                versionItem.Image = Properties.Resources.ic_cloud_done_white_18dp;
-                versionItem.ImageScaling = ToolStripItemImageScaling.None;
-                versionItem.Text = "Latest version";
-            }
-
-            if (!ApplicationDeployment.IsNetworkDeployed) versionItem.Visible = false;
-
             ToolStripMenuItem settingsItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("&Configure", (o, i) => ShowSettingsWindow());
             settingsItem.Image = Properties.Resources.ic_settings_white_18dp;
             //settingsItem.ImageScaling = ToolStripItemImageScaling.None;
-
-            NotifyIcon.ContextMenuStrip.Items.AddRange( new ToolStripItem[] {
-                    versionItem,
-                    new ToolStripSeparator(),
-                    settingsItem,
-            });
 
             // Add VDevice handling items
             NotifyIconViewModel.AddToContextMenu(NotifyIcon.ContextMenuStrip);
@@ -312,9 +233,7 @@ namespace CFW.Business
             ToolStripMenuItem quitItem = NotifyIconViewModel.ToolStripMenuItemWithHandler("Quit PocketStrafe", Exit_Click);
 
             NotifyIcon.ContextMenuStrip.Items.AddRange(
-                new ToolStripItem[] { new ToolStripSeparator(), quitItem });
-
-         //   AddDebugMenuItems(); // called only if DEBUG is defined
+                new ToolStripItem[] { settingsItem, restartItem, quitItem });
         }
 
         private void NotifyIcon_MouseUp(Object sender, MouseEventArgs e)
@@ -340,7 +259,7 @@ namespace CFW.Business
             if (SettingsWindow == null)
             {
                 SettingsWindow = new View.SettingsWindow();
-                SettingsWindowViewModel = new SettingsWindowViewModel(DeviceManager, DnsServer);
+                SettingsWindowViewModel = new SettingsWindowViewModel(DeviceManager, DnsServer, AppCastUpdater);
                 SettingsWindow.DataContext = SettingsWindowViewModel;
                 SettingsWindow.Closed += (o, i) => SettingsWindow = null;
                 ElementHost.EnableModelessKeyboardInterop(SettingsWindow);
