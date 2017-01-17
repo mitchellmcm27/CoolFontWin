@@ -35,8 +35,8 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.5.0")] // only change for non-backwards compatible builds
-[assembly: AssemblyInformationalVersion("0.1")] // consumer-facing description of project version, could be anything
+[assembly: AssemblyVersion("1.2.0.0")] // only change for non-backwards compatible builds
+[assembly: AssemblyInformationalVersion("1.2")] // consumer-facing description of project version, could be anything
 
 // Logging
 [assembly: log4net.Config.XmlConfigurator(Watch = true)]
