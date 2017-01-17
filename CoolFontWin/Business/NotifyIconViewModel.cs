@@ -269,7 +269,7 @@ namespace CFW.ViewModel
             logItem.Image = Properties.Resources.ic_folder_open_white_18dp;
             logItem.ImageScaling = ToolStripItemImageScaling.None;
 
-            ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Debug options");
+            ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Options");
             ConfigureOutputSubmenu.Image = null;
             ConfigureOutputSubmenu.ImageScaling = ToolStripItemImageScaling.None;
             ConfigureOutputSubmenu.DropDownItems.AddRange(new ToolStripItem[] {

@@ -14,7 +14,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <System:Double x:Key="IconSize">18</System:Double>
             <System:Double x:Key="ButtonSize">24</System:Double>
 
@@ -28,7 +28,8 @@
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Margin="16,0,16,0"
-                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}">
+                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
+                    Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button.ToolTip>
                     <ToolTip Content="{Binding UpdateToolTip}" />
                 </Button.ToolTip>
