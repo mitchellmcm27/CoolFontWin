@@ -36,9 +36,8 @@
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
-                        <RowDefinition Height="32"/>
-                        <RowDefinition Height="32"/>
-                    </Grid.RowDefinitions>
+                    <RowDefinition Height="64"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -110,8 +109,9 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
-                          
-                <Button Name="PlayPauseButton" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan ="2" Margin="0" HorizontalAlignment="Center"
+
+                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,24,16,8" HorizontalAlignment="Center"
+
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
                     <Button.Content>
                         <DockPanel HorizontalAlignment="Left">

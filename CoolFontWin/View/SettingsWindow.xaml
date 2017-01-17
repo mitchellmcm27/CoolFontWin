@@ -40,15 +40,14 @@
         </Border>
         <StackPanel Orientation="Vertical">
             <View:UpdateControl Margin="8,8,8,0" HorizontalAlignment="Stretch"/>
-            <Grid Margin="8,8,8,0">
+            <Grid Margin="4,8,4,0">
                 <Grid.RowDefinitions>
-
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="4"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 

@@ -32,17 +32,17 @@
                 <Button.ToolTip>
                     <ToolTip Content="{Binding UpdateToolTip}" />
                 </Button.ToolTip>
-                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" />
+                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="18" Height="18" />
             </Button>
             <Separator/>
-            <Button Margin="8,0,8,0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" DockPanel.Dock="Right"
+            <Button DockPanel.Dock="Right"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click">
-                <materialDesign:PackIcon Kind="WindowMinimize" />
+                <materialDesign:PackIcon Kind="Minus" Width="18" Height="18"/>
             </Button>
 
-            <Button Margin="8,0,8,0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" DockPanel.Dock="Right"
+            <Button DockPanel.Dock="Right"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click">
-                <materialDesign:PackIcon Kind="Close" />
+                <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
             </Button>
         </StackPanel>
     </DockPanel>

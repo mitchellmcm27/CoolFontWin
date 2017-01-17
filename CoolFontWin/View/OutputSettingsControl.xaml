@@ -43,8 +43,7 @@
                     <RowDefinition Height="64"/>
                     <RowDefinition Height="64"/>
                     <RowDefinition Height="64"/>
-                    <RowDefinition Height="32"/>
-                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="64"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -189,7 +188,7 @@
                 </DockPanel>
 
 
-                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="0" HorizontalAlignment="Center"
+                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="16,24,16,8" HorizontalAlignment="Center"
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding UnplugAllXboxCommand}" Content="Reset"/>
 
             </Grid>
