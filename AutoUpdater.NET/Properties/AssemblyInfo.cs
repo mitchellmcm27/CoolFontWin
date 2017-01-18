@@ -1,21 +1,18 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Resources;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PocketStrafe PC")]
+[assembly: AssemblyTitle("AutoUpdater.NET")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PocketStrafe PC")]
-[assembly: AssemblyCopyright("Copyright © 2017")]
+[assembly: AssemblyCompany("RBSoft")]
+[assembly: AssemblyProduct("AutoUpdater.NET")]
+[assembly: AssemblyCopyright("Copyright © 2012-2015 RBSoft")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-// Make app Squirrel-aware
-// [assembly: AssemblyMetadata("SquirrelAwareVersion", "1")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -23,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ba180a90-96c9-422d-916d-4a07643e8558")]
+[assembly: Guid("a4037a6f-fdf7-46c8-a303-c3c4fcddb015")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,8 +32,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.0")] // only change for non-backwards compatible builds
-[assembly: AssemblyInformationalVersion("1.2")] // consumer-facing description of project version, could be anything
-
-// Logging
-[assembly: log4net.Config.XmlConfigurator(Watch = true)]
+[assembly: AssemblyVersion("1.3.2.0")]
+[assembly: AssemblyFileVersion("1.3.2.0")]
+[assembly: NeutralResourcesLanguageAttribute("en")]

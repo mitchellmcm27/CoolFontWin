@@ -14,51 +14,95 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
             <System:Double x:Key="IconSize">18</System:Double>
             <System:Double x:Key="ButtonSize">24</System:Double>
-            
+            <Storyboard x:Key="FadeIn">
+                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
+            </Storyboard>
+            <Storyboard x:Key="FadeOut">
+                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
+            </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <DockPanel Grid.Row="1">
         <Button Click="LaunchWeb" Style="{StaticResource MaterialDesignToolForegroundButton}">
-        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Opacity="0.6">
+                <StackPanel.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    </EventTrigger>
+                </StackPanel.Triggers>
             <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
-                Style="{DynamicResource MaterialDesignToolButton}">
+                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}">
                 <materialDesign:PackIcon Kind="Web" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" />
             </Button>
             <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center"
-                 Foreground="{DynamicResource MaterialDesignDivider}">
+                 Foreground="{DynamicResource MaterialDesignBody}">
             www.pocketstrafe.com
         </TextBlock>
         </StackPanel>
         </Button>
 
         <StackPanel Orientation="Horizontal" Margin="4" DockPanel.Dock="Right" HorizontalAlignment="Right">
-        <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" Opacity="0.6"
                 Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchFacebook"
                     ToolTip="Facebook">
-            <materialDesign:PackIcon Kind="Facebook" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="CornflowerBlue" Opacity="0.5"/>
+            <materialDesign:PackIcon Kind="Facebook" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="CornflowerBlue" />
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    </EventTrigger>
+                </Button.Triggers>
             </Button>
 
-        <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}"  Opacity="0.6"
                 Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchTwitter"
                 ToolTip="Twitter">
-            <materialDesign:PackIcon Kind="Twitter" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="LightBlue" Opacity="0.7"/>
+            <materialDesign:PackIcon Kind="Twitter" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="LightBlue"/>
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    </EventTrigger>
+                </Button.Triggers>
             </Button>
 
-            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" Opacity="0.6"
                 Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchYoutube"
                 ToolTip="Youtube">
-                <materialDesign:PackIcon Kind="YoutubePlay" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="Tomato" Opacity="0.5"/>
+                <materialDesign:PackIcon Kind="YoutubePlay" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="Tomato"/>
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    </EventTrigger>
+                </Button.Triggers>
             </Button>
 
-            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" 
+            <Button Margin="0" Width="{StaticResource ButtonSize}" Height="{StaticResource ButtonSize}" Opacity="0.6"
                 Style="{DynamicResource MaterialDesignToolButton}" Click="LaunchDiscord"
                 ToolTip="Discord">
-            <materialDesign:PackIcon Kind="Discord" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="SlateBlue" Opacity="0.6"/>
-        </Button>
+            <materialDesign:PackIcon Kind="Discord" Height="{StaticResource IconSize}" Width="{StaticResource IconSize}" Foreground="SlateBlue"/>
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    </EventTrigger>
+                </Button.Triggers>
+            </Button>
 
     </StackPanel>
     </DockPanel>

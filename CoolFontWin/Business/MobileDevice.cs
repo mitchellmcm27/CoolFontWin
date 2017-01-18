@@ -31,9 +31,9 @@ namespace CFW.Business
             LastCount = Count;
 
             DeviceTimeoutTimer.AutoReset = true;
-            DeviceTimeoutTimer.Enabled = true;
             DeviceTimeoutTimer.Interval = DeviceTimeout;
             DeviceTimeoutTimer.Elapsed += CheckDeviceTimeout;
+            DeviceTimeoutTimer.Enabled = true;
         }
 
         private void CheckDeviceTimeout(object sender, EventArgs eventargs)

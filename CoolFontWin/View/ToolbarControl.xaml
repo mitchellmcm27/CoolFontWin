@@ -17,7 +17,12 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <System:Double x:Key="IconSize">18</System:Double>
             <System:Double x:Key="ButtonSize">24</System:Double>
-
+            <Storyboard x:Key="FadeIn">
+                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
+            </Storyboard>
+            <Storyboard x:Key="FadeOut">
+                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
+            </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -27,7 +32,7 @@
             <TextBlock Text="{Binding IpAddress}" Foreground="{DynamicResource MaterialDesignDivider}" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Margin="0,0,16,0"
+            <Button Margin="0,0,16,0" Opacity="0.6"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
                     Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button.ToolTip>
@@ -35,63 +40,39 @@
                 </Button.ToolTip>
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
                     </EventTrigger>
                     <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
                     </EventTrigger>
                 </Button.Triggers>
-                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="18" Height="18" />
+                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
             </Button>
             <Separator/>
             <Button DockPanel.Dock="Right" 
                     Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
                     </EventTrigger>
                     <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
                     </EventTrigger>
                 </Button.Triggers>
-                <materialDesign:PackIcon Kind="Minus" Width="18" Height="18"/>
+                <materialDesign:PackIcon Kind="Minus" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}"/>
             </Button>
 
             <Button DockPanel.Dock="Right"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click" Opacity="0.6">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
                     </EventTrigger>
                     <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard>
-                            <Storyboard >
-                                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
                     </EventTrigger>
                 </Button.Triggers>
-                <materialDesign:PackIcon Kind="Close" Width="18" Height="18" />
+                <materialDesign:PackIcon Kind="Close" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
             </Button>
         </StackPanel>
     </DockPanel>

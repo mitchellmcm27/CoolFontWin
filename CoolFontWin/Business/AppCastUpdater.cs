@@ -7,6 +7,7 @@ using log4net;
 using AutoUpdaterDotNET;
 using ReactiveUI;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace CFW.Business
 {
@@ -34,22 +35,29 @@ namespace CFW.Business
         public AppCastUpdater(string appCastPath)
         {
             _AppCastPath = appCastPath;
+            AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
+        }
+
+        private void UpdateTimerTick(object sender, EventArgs e)
+        {
+            Start();
         }
 
         public void Start()
         {
             log.Info("Start checking for update...");
-            AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
             AutoUpdater.Start(_AppCastPath);
         }
 
         private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
         {
+            
             log.Info("Update Check completed.");
 
             if (args == null)
             {
                 log.Info("Returned null.");
+                UpdateAvailable = false;
                 return; // no update or failed
             }
 
@@ -60,16 +68,20 @@ namespace CFW.Business
             {
                 UpdateAvailable = true;
             }
+            else
+            {
+                UpdateAvailable = false;
+            }
         }
 
         public void DownloadUpdate()
         {
             if (!UpdateAvailable) return;
-
+            AutoUpdater.CheckForUpdateEvent -= AutoUpdaterOnCheckForUpdateEvent;
             try
             {
-                AutoUpdater.CheckForUpdateEvent -= AutoUpdaterOnCheckForUpdateEvent;
                 AutoUpdater.Start(_AppCastPath);
+                
                 //You can use Download Update dialog used by AutoUpdater.NET to download the update.
                 // AutoUpdater.DownloadUpdate();
             }
@@ -77,7 +89,7 @@ namespace CFW.Business
             {
                 MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-            }
+            }   
         }
         
     }
