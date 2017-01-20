@@ -247,11 +247,11 @@ namespace CFW.ViewModel
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
 
-        public SettingsWindowViewModel(DeviceManager d, DNSNetworkService s, AppCastUpdater u)
+        public SettingsWindowViewModel(AppBootstrapper bs)
         {
-            DeviceManager = d;
-            DnsServer = s;
-            Updater = u;
+            DeviceManager = bs.DeviceManager;
+            DnsServer = bs.DnsServer;
+            Updater = bs.AppCastUpdater;
 
             // Responding to model changes
 
@@ -432,6 +432,9 @@ namespace CFW.ViewModel
 
             // depends on checkbox state (bool parameter)
             AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
+            AddRemoveSecondaryDevice
+                .ThrownExceptions
+                .Subscribe(ex => log.Error("AddRemoveSecondaryDevice\n" + ex));
          
             PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);

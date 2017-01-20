@@ -1,4 +1,4 @@
-﻿<Window 
+﻿<UserControl 
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,54 +7,22 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d" 
-    x:Class="CFW.View.SettingsWindow"
-    Title="PocketStrafe PC" 
-    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
-    Background="Transparent"
-    TextElement.FontWeight="Normal"
-    TextElement.FontSize="12"
-    FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-    TextOptions.TextFormattingMode="Ideal" 
-    TextOptions.TextRenderingMode="Auto"   
-    Icon="/Assets/tray-icon-transparent.ico" 
-    SizeToContent="WidthAndHeight"
-    UseLayoutRounding="True" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanMinimize">
+    x:Class="CFW.View.SettingsWindow">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Dark.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Orange.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
 
-    <Grid Margin="20">
-        <Border MouseLeftButtonDown="Window_MouseLeftButtonDown" Background="{DynamicResource MaterialDesignPaper}">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20" Direction="320" RenderingBias="Quality" ShadowDepth="8" Opacity="0.3"/>
-            </Border.Effect>
-        </Border>
-        <StackPanel Orientation="Vertical">
-            <View:ToolbarControl Margin="8,8,8,0" HorizontalAlignment="Stretch"/>
-            <Grid Margin="4,8,4,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+    <Grid Margin="4,8,4,0" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-                <View:InputSettingsControl Grid.Row="0" Grid.Column="0"/>
-                <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
-                <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch"/>
-            </Grid>
-        </StackPanel>
+        <View:InputSettingsControl Grid.Row="0" Grid.Column="0"/>
+        <View:OutputSettingsControl Grid.Row="0" Grid.Column="2"/>
+        <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch"/>
     </Grid>
-</Window>
+</UserControl>

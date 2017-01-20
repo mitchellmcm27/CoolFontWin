@@ -1,18 +1,12 @@
-﻿using System.Windows;
-using System.Windows.Shell;
+﻿using System.Windows.Controls;
 
 namespace CFW.View
 {
-    public partial class SettingsWindow : Window
+    public partial class SettingsWindow : UserControl
     {
         public SettingsWindow()
         {
             InitializeComponent();
-        }
-
-        protected void Window_MouseLeftButtonDown(object sender, RoutedEventArgs e)
-        {
-            DragMove();
         }
     }
 }

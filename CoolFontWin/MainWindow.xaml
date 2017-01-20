@@ -1,0 +1,34 @@
+﻿<Window xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:View="clr-namespace:CFW.View"
+    xmlns:ViewModel="clr-namespace:CFW.ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    mc:Ignorable="d" 
+    x:Class="CFW.MainWindow"
+    Title="PocketStrafe PC" 
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    Background="Transparent"
+    TextElement.FontWeight="Normal"
+    TextElement.FontSize="12"
+    FontFamily="{DynamicResource MaterialDesignFont}"
+    TextOptions.TextFormattingMode="Ideal" 
+    TextOptions.TextRenderingMode="Auto"   
+    Width="600" Height="500"
+    UseLayoutRounding="True" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanMinimize">
+
+    <Grid Margin="20">
+        <Border MouseLeftButtonDown="Window_MouseLeftButtonDown" Background="{DynamicResource MaterialDesignPaper}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="20" Direction="320" RenderingBias="Quality" ShadowDepth="8" Opacity="0.3"/>
+            </Border.Effect>
+        </Border>
+        <StackPanel Orientation="Vertical">
+            <View:ToolbarControl x:Name="toolbarControl" Margin="8,8,8,0" HorizontalAlignment="Stretch" DataContext="{Binding SettingsVM}"/>
+            <ContentControl x:Name="splashControl" DataContext="{Binding SplashVM}"/>
+            <ContentControl x:Name="contentControl" DataContext="{Binding SettingsVM}"/>
+        </StackPanel>
+    </Grid>
+
+</Window>

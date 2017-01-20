@@ -49,7 +49,7 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _DeviceCount, value); }
         }
 
-        private int _Port;
+        private int _Port = 0;
         public int Port
         {
             get { return _Port; }
@@ -58,9 +58,8 @@ namespace CFW.Business
 
         private DeviceManager DeviceHub;
 
-        public DNSNetworkService(int port, DeviceManager deviceHub)
+        public DNSNetworkService(DeviceManager deviceHub)
         {
-            Port = port;
             DeviceHub = deviceHub;
         }
 
@@ -126,6 +125,7 @@ namespace CFW.Business
 
         public bool Publish(int port, string appendToName)
         {
+            Port = port;
             RegisterService service;
             try
             {
