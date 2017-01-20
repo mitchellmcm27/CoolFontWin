@@ -27,21 +27,13 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" MouseDown="StackPanel_MouseDown">
-            <StackPanel.Style>
-                <Style TargetType="StackPanel">
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="true">
-                            <Setter Property="Cursor" Value="Hand"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </StackPanel.Style>
+        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
             <Image Margin="4" Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
-            <TextBlock Text="PocketStrafe" VerticalAlignment="Center"/>
-            <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <StackPanel.ContextMenu>
-                <ContextMenu>
+            <Menu IsMainMenu="True">
+                <MenuItem Header="PocketStrafe">
+                    <MenuItem.Icon>
+                        <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </MenuItem.Icon>
                     <MenuItem Header="This PC">
                         <MenuItem.Icon>
                             <materialDesign:PackIcon Kind="InformationOutline"/>
@@ -70,28 +62,44 @@
                     </MenuItem>
                     <Separator/>
                     <MenuItem Header="Quit" Click="Close_Click"/>
-                </ContextMenu>
-            </StackPanel.ContextMenu>
+                </MenuItem>
+            </Menu>
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Margin="0,0,16,0" Opacity="0.6"
+            <Button Margin="0,0,16,0" Opacity="1"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
                     Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button.ToolTip>
                     <ToolTip Content="{Binding UpdateToolTip}" />
                 </Button.ToolTip>
+                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
+                <Button.RenderTransform>
+                    <ScaleTransform x:Name="ImageScale" ScaleX="1" ScaleY="1" />
+                </Button.RenderTransform>
+                <Button.RenderTransformOrigin>
+                    0.5, 0.5
+                </Button.RenderTransformOrigin>
                 <Button.Triggers>
-                    <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
-                    </EventTrigger>
-                    <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                    <EventTrigger RoutedEvent="Loaded">
+                        <BeginStoryboard>
+                            <Storyboard RepeatBehavior="10x">
+                                <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleX)" To="1.2" Duration="0:0:1" AutoReverse="True">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetName="ImageScale" Storyboard.TargetProperty="(ScaleTransform.ScaleY)" To="1.2" Duration="0:0:1" AutoReverse="True">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
                     </EventTrigger>
                 </Button.Triggers>
-                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
             </Button>
             <Separator/>
-            <Button DockPanel.Dock="Right" 
+            <Button DockPanel.Dock="Right"
                     Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">

@@ -25,18 +25,5 @@ namespace CFW.View
             var myWindow = Window.GetWindow(this);
             myWindow.WindowState = WindowState.Minimized;
         }
-
-        protected void StackPanel_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.ChangedButton == MouseButton.Left)
-            {
-                StackPanel sp = sender as StackPanel;
-                ContextMenu contextMenu = sp.ContextMenu;
-                contextMenu.PlacementTarget = sp;
-                contextMenu.IsOpen = true;
-            }
-
-           
-        }
     }
 }

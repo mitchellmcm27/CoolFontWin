@@ -980,6 +980,7 @@ namespace CFW.Business
 
         public void GetEnabledDevices()
         {
+            Joystick = new vDev();
             log.Info("Get virtual devices able to be acquired...");
             List<int> enabledDevs = new List<int>();
 

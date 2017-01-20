@@ -8,6 +8,7 @@ using System.Windows;
 using log4net;
 using System.Threading;
 using System.Windows.Forms.Integration;
+using System.Windows.Media.Animation;
 
 namespace CFW
 {
@@ -43,18 +44,19 @@ namespace CFW
         private Business.AppBootstrapper bs;
         private async void StartAsync()
         {
-            bs = new Business.AppBootstrapper();
             var main = new MainWindow();
+            bs = new Business.AppBootstrapper();
+            main.DataContext = new ViewModel.MainViewModel(bs);
             ElementHost.EnableModelessKeyboardInterop(main);
+
             var splash = new View.Splash();
             main.splashControl.Content = splash;
 
             var settings = new View.SettingsView();
-            main.contentControl.Content = settings;
             main.contentControl.Visibility = Visibility.Hidden;
-            main.Show();
-            main.DataContext = new ViewModel.MainViewModel(bs);         
+            main.contentControl.Content = settings;
 
+            main.Show();
             await Task.Run(()=>bs.Start());
 
             main.splashControl.Visibility = Visibility.Collapsed;

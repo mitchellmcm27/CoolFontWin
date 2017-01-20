@@ -23,7 +23,7 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _Status, value); }
         }
 
-        private ScpVBus scpInstaller;
+        public ScpVBus ScpVBus;
         public UDPServer UdpServer { get; set; }
         public DNSNetworkService DnsServer { get; set; }
         public DeviceManager DeviceManager { get; set; }
@@ -31,11 +31,12 @@ namespace CFW.Business
 
         public AppBootstrapper()
         {
-            scpInstaller = new ScpVBus();
+            ScpVBus = new ScpVBus();
             DeviceManager = new DeviceManager();
             UdpServer = new UDPServer(DeviceManager);
             AppCastUpdater = new AppCastUpdater("http://coolfont.win.app.s3.amazonaws.com/publish/currentversion.xml");
             DnsServer = new DNSNetworkService(DeviceManager);
+            Status = "Initializing";
             
         }
 
@@ -47,11 +48,11 @@ namespace CFW.Business
             // scpInstaller.Install();
 
             Status = "Checking for updates";
-            Thread.Sleep(300);
+            Thread.Sleep(500);
             AppCastUpdater.Start();
 
             Status = "Starting network services";
-            Thread.Sleep(300);
+            Thread.Sleep(500);
             // Get number of expected mobile device inputs from Default
             List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
             DeviceManager.MobileDevicesCount = names.Count;
@@ -66,8 +67,8 @@ namespace CFW.Business
                 DnsServer.Publish(port, names[i]);
             }
 
-            Status = "Loading window";
-            Thread.Sleep(300);
+            Status = "Finding virtual devices";
+            Thread.Sleep(500);
             log.Info("Get enabled devices...");
             DeviceManager.VDevice.GetEnabledDevices();
             Properties.Settings.Default.FirstInstall = false;

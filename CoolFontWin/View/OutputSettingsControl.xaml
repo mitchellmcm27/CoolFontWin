@@ -106,7 +106,7 @@
                         <TextBlock VerticalAlignment="Center" Text="vXbox" />
                         <Button Margin="0" Command="{Binding VXboxInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
                                 Background="Transparent" ToolTip="Info on installing virtual joysticks"
-                                IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
+                                IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BoolToHiddenConverter}, FallbackValue=Hidden}">
                             <materialDesign:PackIcon Kind="AlertCircleOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
                                              Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
                         </Button>
@@ -125,7 +125,7 @@
                     </StackPanel>
                 </Grid>
 
-                <materialDesign:Chip Grid.Column="2" Grid.Row="1" IsEnabled="False"
+                <materialDesign:Chip Grid.Column="2" Grid.Row="1" IsEnabled="False" Width="40"
                                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16" Background="{DynamicResource MaterialDesignDivider}">
                     <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </materialDesign:Chip>
@@ -155,7 +155,7 @@
                         <TextBlock VerticalAlignment="Center" Text="vJoy" />
                         <Button Margin="0" Command="{Binding VJoyInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
                                 Background="Transparent" ToolTip="Info on installing virtual joysticks" 
-                                IsEnabled="{Binding NoVJoyDevices}" Visibility="{Binding NoVJoyDevices, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
+                                IsEnabled="{Binding NoVJoyDevices}" Visibility="{Binding NoVJoyDevices, Converter={StaticResource BoolToHiddenConverter}, FallbackValue=Hidden}">
                             <materialDesign:PackIcon Kind="InformationOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
                                              Width="18" Height="18" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
                         </Button>

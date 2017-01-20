@@ -16,7 +16,7 @@ namespace CFW.Business
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private bool _UpdateAvailable;
+        private bool _UpdateAvailable = false;
         public bool UpdateAvailable
         {
             get { return _UpdateAvailable; }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CFW.Business;
 using System.Diagnostics;
 using System.Windows;
+using Ookii.Dialogs;
 
 namespace CFW.ViewModel
 {
@@ -143,6 +144,7 @@ namespace CFW.ViewModel
 
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
+        private readonly ScpVBus ScpVBus;
 
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
@@ -151,6 +153,15 @@ namespace CFW.ViewModel
         {
             DeviceManager = bs.DeviceManager;
             DnsServer = bs.DnsServer;
+            ScpVBus = bs.ScpVBus;
+
+            this.WhenAnyValue(x => x.ScpVBus.InstallSuccess)
+                .Where(x => x)
+                .Subscribe(x => 
+                {
+                    log.Info("ScpVBis Installation Succeeded");
+                    ShowRestartMessage();
+                });
 
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
@@ -159,10 +170,7 @@ namespace CFW.ViewModel
 
             // Keybind
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Keybind)
-                .Do(x =>
-                {
-                    Keybind = x;
-                })
+                .Do(x => Keybind = x)
                 .Subscribe();
 
             // Cascade down Mode and Current Device ID
@@ -206,6 +214,7 @@ namespace CFW.ViewModel
 
             // When the user changes VJoy ID, but hasn't acquired it yet, set VJoyDevice changed to true
             this.WhenAnyValue(x => x.CurrentVJoyDevice)
+                .Skip(2)
                 .Do(_ => VJoyDeviceChanged = true)
                 .Subscribe();
 
@@ -281,7 +290,9 @@ namespace CFW.ViewModel
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
 
             VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => VJoyInfoDialog.ShowVJoyInfoDialog()));
-            VXboxInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => ScpVBus.ShowScpVbusDialog()));
+            VXboxInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => ShowScpVbusDialog()));
+            VXboxInfo.ThrownExceptions.Subscribe(ex => log.Error(ex.Message));
+
             JoyCplCommand = ReactiveCommand.Create(() => Process.Start("joy.cpl"));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
         }
@@ -356,6 +367,44 @@ namespace CFW.ViewModel
                 case 1004:
                     return "/CoolFontWin;component/Resources/ic_xbox_4p_blue_18dp.png";
             }
+        }
+
+        public async Task ShowScpVbusDialog()
+        {
+            var taskDialog = new TaskDialog();
+            taskDialog.Width = 200;
+            taskDialog.AllowDialogCancellation = true;
+
+            taskDialog.WindowTitle = "An important component was not installed";
+            taskDialog.MainIcon = TaskDialogIcon.Shield;
+
+            taskDialog.MainInstruction = "ScpVBus failed to install";
+            taskDialog.Content = "Xbox controller emulation requires ScpVBus.\n";
+            taskDialog.Content += "ScpVBus is installed with PocketStrafe but it seems to have failed. You can try again here, or continue using only keyboard/joystick emulation.";
+
+            taskDialog.ButtonStyle = TaskDialogButtonStyle.Standard;
+
+            var customButton = new TaskDialogButton(ButtonType.Custom);
+            customButton.CommandLinkNote = "Virtual Xbox controller driver";
+            customButton.Text = "Install ScpVBus";
+            customButton.Default = true;
+
+            taskDialog.Buttons.Add(customButton);
+            taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Close));
+
+            await Task.Run(()=>
+            {
+                TaskDialogButton res = taskDialog.Show(); // Windows Vista and later
+                if (res != null && res.ButtonType == ButtonType.Custom)
+                {
+                    ScpVBus.Install();
+                }
+            });
+        }
+
+        public void ShowRestartMessage()
+        {
+            MessageBox.Show("Restart PocketStrafe PC to use vXbox","Success!",MessageBoxButton.OK,MessageBoxImage.Information);
         }
     }
 }

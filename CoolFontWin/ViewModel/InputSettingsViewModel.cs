@@ -114,9 +114,7 @@ namespace CFW.ViewModel
                 });
 
             AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
-            AddRemoveSecondaryDevice
-                .ThrownExceptions
-                .Subscribe(ex => log.Error("AddRemoveSecondaryDevice\n" + ex));
+            AddRemoveSecondaryDevice.ThrownExceptions.Subscribe(ex => log.Error("AddRemoveSecondaryDevice\n" + ex));
 
             
             BonjourInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => DnsServer.ShowBonjourDialog()));

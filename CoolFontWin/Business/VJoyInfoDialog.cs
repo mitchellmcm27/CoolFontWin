@@ -22,16 +22,15 @@ namespace CFW.Business
             taskDialog.Width = 200;
             taskDialog.AllowDialogCancellation = true;
 
-            taskDialog.WindowTitle = "Install vJoy driver?";
-            taskDialog.MainIcon = TaskDialogIcon.Information;
+            taskDialog.WindowTitle = "vJoy not found";
+            taskDialog.MainIcon = TaskDialogIcon.Shield;
 
-            taskDialog.MainInstruction = "Install vJoy to enable virtual joystick output";
-            taskDialog.Content = "A few games work well with a virtual joystick (vJoy), because it is more customizable than controllers.\n\n";
-            taskDialog.Content += "You can install the vJoy driver here, or find the latest version online. Beware that some games do not play well with joysticks, but you can always disable or uninstall the driver.";
+            taskDialog.MainInstruction = "Enable vJoy";
+            taskDialog.Content = "vJoy is either not installed or not enabled. If it's installed, enable vJoy using vJoy Config.";
 
             taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
             var customButton = new TaskDialogButton(ButtonType.Custom);
-            customButton.CommandLinkNote = "May require administrator priveleges";
+            customButton.CommandLinkNote = "Virtual joysticks";
             customButton.Text = "Install vJoy driver";
             customButton.Default = true;
             taskDialog.Buttons.Add(customButton);

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"           
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
+             xmlns:local="clr-namespace:CFW.View"
              d:DataContext="{d:DesignInstance ViewModel:InputSettingsViewModel}"
              mc:Ignorable="d" Height="Auto" Width="Auto">
 
@@ -20,6 +21,7 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -59,7 +61,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Primary mobile</TextBlock>
                         <Button Margin="0" Command="{Binding BonjourInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
                                 Background="Transparent" ToolTip="Bonjour is missing!"
-                                IsEnabled="{Binding BonjourNotInstalled}" Visibility="{Binding BonjourNotInstalled, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Hidden}">
+                                IsEnabled="{Binding BonjourNotInstalled}" Visibility="{Binding BonjourNotInstalled, Converter={StaticResource BoolToHiddenConverter}, FallbackValue=Hidden}">
                             <materialDesign:PackIcon Kind="AlertCircleOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
                                              ToolTip="Error installing Bonjour!"
                                              Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>

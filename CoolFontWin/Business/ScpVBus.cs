@@ -1,13 +1,11 @@
 ﻿using System;
 using log4net;
 using System.Diagnostics;
-using System.ComponentModel;
-using Ookii.Dialogs;
-using System.Threading;
+using ReactiveUI;
 
 namespace CFW.Business
 {
-    public class ScpVBus : INotifyPropertyChanged
+    public class ScpVBus : ReactiveObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -27,26 +25,19 @@ namespace CFW.Business
         private static readonly string installargs = "install scpvbus\\ScpVBus.inf Root\\ScpVBus";
         private static readonly string uninstallargs = "remove Root\\ScpVBus";
         private readonly Process proc = new Process();
-        private bool _installSuccess;
+
+        private bool _InstallSuccess;
         public bool InstallSuccess
         {
-            get { return _installSuccess; }
+            get { return _InstallSuccess; }
             set
             {
-                _installSuccess = value;
-                OnPropertyChanged("InstallSuccess");
-                if (_installSuccess) Installed = true;
+                this.RaiseAndSetIfChanged(ref _InstallSuccess, value);
+                if (_InstallSuccess) Installed = true;
             }
         }
 
         public bool Installed = false;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         /// <summary>
         /// Install ScpVBus async
@@ -102,11 +93,6 @@ namespace CFW.Business
                     InstallSuccess = false;
                     break;
             }
-
-            if (!InstallSuccess)
-            {
-                ShowScpVbusDialog();
-            }
         }
 
         /// <summary>
@@ -140,57 +126,6 @@ namespace CFW.Business
                 log.Warn("Failed to start devcon.exe to uninstall ScpVBus: " + e.Message);
                 return false;
             }
-        }
-
-        public static void ShowScpVbusDialog()
-        {
-            var taskDialog = new TaskDialog();
-            taskDialog.Width = 200;
-            taskDialog.AllowDialogCancellation = true;
-
-            taskDialog.WindowTitle = "An important component was not installed";
-            taskDialog.MainIcon = TaskDialogIcon.Warning;
-
-            taskDialog.MainInstruction = "ScpVBus failed to install";
-            taskDialog.Content = "Xbox controller emulation requires ScpVBus.\n";
-            taskDialog.Content += "ScpVBus is installed with PocketStrafe but it seems to have failed. Download and install ScpVBus yourself, or continue using only keyboard/joystick emulation.";
-
-            taskDialog.ButtonStyle = TaskDialogButtonStyle.CommandLinks;
-            var customButton = new TaskDialogButton(ButtonType.Custom);
-            customButton.CommandLinkNote = "github.com/shauleiz/ScpVBus";
-            customButton.Text = "ScpVBus download page";
-            customButton.Default = true;
-            taskDialog.Buttons.Add(customButton);
-            taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Close));
-
-            taskDialog.ExpandFooterArea = true;
-            taskDialog.ExpandedControlText = "Installation tips";
-            taskDialog.ExpandedInformation = "1.  Download ScpVbus-x64.zip and extract it anywhere\n2.  Follow the directions on the website to install\n3.  Restart app";
-            taskDialog.VerificationText = "Don't show this warning again";
-
-            new Thread(() =>
-            {
-                try
-                {
-                    TaskDialogButton res = taskDialog.Show(); // Windows Vista and later
-                    if (res != null && res.ButtonType == ButtonType.Custom)
-                    {
-                        Process.Start("https://github.com/shauleiz/ScpVBus/releases/tag/v1.7.1.2");
-                    }
-
-                    if (taskDialog.IsVerificationChecked)
-                    {
-                        Properties.Settings.Default.ShowScpVbusDialog = false;
-                        Properties.Settings.Default.Save();
-                    }
-                }
-                catch (Exception e)
-                {
-                    log.Warn("ScpVBus install dialog not shown, probably because operating system was earlier than Windows Vista.");
-                    log.Warn(e.Message);
-                    return;
-                }
-            }).Start();
         }
     }
 }
