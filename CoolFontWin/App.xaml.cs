@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using log4net;
 using System.Threading;
+using System.Windows.Forms.Integration;
 
 namespace CFW
 {
@@ -39,21 +40,22 @@ namespace CFW
             base.OnStartup(e);
         }
 
-        Business.AppBootstrapper bs;
+        private Business.AppBootstrapper bs;
         private async void StartAsync()
         {
             bs = new Business.AppBootstrapper();
             var main = new MainWindow();
-            var splash = new View.SplashScreen();
-            main.DataContext = new ViewModel.MainViewModel(bs);
+            ElementHost.EnableModelessKeyboardInterop(main);
+            var splash = new View.Splash();
             main.splashControl.Content = splash;
-            main.contentControl.Visibility = Visibility.Collapsed;
-            
+
+            var settings = new View.SettingsView();
+            main.contentControl.Content = settings;
+            main.contentControl.Visibility = Visibility.Hidden;
             main.Show();
+            main.DataContext = new ViewModel.MainViewModel(bs);         
 
             await Task.Run(()=>bs.Start());
-            var settings = new View.SettingsWindow();
-            main.contentControl.Content = settings;
 
             main.splashControl.Visibility = Visibility.Collapsed;
             main.contentControl.Visibility = Visibility.Visible;          

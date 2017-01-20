@@ -47,13 +47,11 @@ namespace CFW.Business
             // scpInstaller.Install();
 
             Status = "Checking for updates";
-            Thread.Sleep(1000);
-
-           
+            Thread.Sleep(300);
             AppCastUpdater.Start();
-            Status = "Starting network services";
-            Thread.Sleep(1000);
 
+            Status = "Starting network services";
+            Thread.Sleep(300);
             // Get number of expected mobile device inputs from Default
             List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
             DeviceManager.MobileDevicesCount = names.Count;
@@ -69,8 +67,7 @@ namespace CFW.Business
             }
 
             Status = "Loading window";
-            Thread.Sleep(1000);
-
+            Thread.Sleep(300);
             log.Info("Get enabled devices...");
             DeviceManager.VDevice.GetEnabledDevices();
             Properties.Settings.Default.FirstInstall = false;

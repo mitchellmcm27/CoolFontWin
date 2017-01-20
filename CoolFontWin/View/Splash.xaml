@@ -3,7 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    x:Class="CFW.View.SplashScreen"
+    x:Class="CFW.View.Splash"
     xmlns:View="clr-namespace:CFW.View"
     xmlns:ViewModel="clr-namespace:CFW.ViewModel">
 
@@ -12,7 +12,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Image Grid.Row="0" Source="/CoolFontWin;component/Assets/tray-icon-notification.ico" Width="50" Height="50"/>
+        <Image Grid.Row="0" Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="50" Height="50"/>
         <TextBlock Text="{Binding StatusText, Mode=OneWay}" Margin="0" Grid.Row="1"/>
     </Grid>
     

@@ -11,13 +11,17 @@ namespace CFW.ViewModel
 {
     class MainViewModel : ReactiveObject
     {
-        public SettingsWindowViewModel SettingsVM { get; set; }
+        public InputSettingsViewModel InputSettingsVM { get; set; }
+        public OutputSettingsViewModel OutputSettingsVM { get; set; }
         public SplashScreenViewModel SplashVM { get; set; }
+        public ToolbarViewModel ToolbarVM { get; set; }
 
         public MainViewModel(Business.AppBootstrapper bs)
         {
             SplashVM = new SplashScreenViewModel(bs);
-            SettingsVM = new SettingsWindowViewModel(bs);
+            InputSettingsVM = new InputSettingsViewModel(bs);
+            OutputSettingsVM = new OutputSettingsViewModel(bs);
+            ToolbarVM = new ToolbarViewModel(bs);
         }
     }
 }

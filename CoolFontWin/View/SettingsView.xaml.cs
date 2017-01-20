@@ -2,9 +2,9 @@
 
 namespace CFW.View
 {
-    public partial class SettingsWindow : UserControl
+    public partial class SettingsView : UserControl
     {
-        public SettingsWindow()
+        public SettingsView()
         {
             InitializeComponent();
         }

@@ -1,61 +1,23 @@
-﻿using CFW.Business;
-using log4net;
+﻿using log4net;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using CFW.Business;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Input;
-using MaterialDesignThemes.Wpf;
-using System.Text.RegularExpressions;
 
 namespace CFW.ViewModel
 {
-    public class SettingsWindowViewModel : ReactiveObject
+    public class OutputSettingsViewModel : ReactiveObject
     {
-
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
-
-        private readonly List<string> _modes = new List<string>(CFWMode.GetDescriptions());
-
-        // Toolbar
-        readonly ObservableAsPropertyHelper<bool> _UpdateAvailable;
-        public bool UpdateAvailable
-        {
-            get { return _UpdateAvailable.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _UpdateIcon;
-        public string UpdateIcon
-        {
-            get { return _UpdateIcon.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _UpdateToolTip;
-        public string UpdateToolTip
-        {
-            get { return _UpdateToolTip.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _LightDarkIcon;
-        public string LightDarkIcon
-        {
-            get { return _LightDarkIcon.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _IpAddress;
-        public string IpAddress
-        {
-            get { return _IpAddress.Value; }
-        }
 
         // Input devices
         readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
@@ -64,44 +26,11 @@ namespace CFW.ViewModel
             get { return _CurrentDeviceID.Value; }
         }
 
-        public IEnumerable<string> Modes
-        {
-            get { return _modes; }
-        }
-
-        // Input devices
-
-        readonly ObservableAsPropertyHelper<bool> _BonjourNotInstalled;
-        public bool BonjourNotInstalled
-        {
-            get { return _BonjourNotInstalled.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<bool> _PrimaryDevice;
-        public bool PrimaryDevice
-        {
-            get { return _PrimaryDevice.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<bool> _SecondaryDevice;
-        public bool SecondaryDevice
-        {
-            get { return _SecondaryDevice.Value; }
-        }
-
         readonly ObservableAsPropertyHelper<string> _XboxLedImage;
         public string XboxLedImage
         {
             get { return _XboxLedImage.Value; }
         }
-
-        readonly ObservableAsPropertyHelper<bool> _XboxController;
-        public bool XboxController
-        {
-            get { return _XboxController.Value; }
-        }
-
-        // Output devices
 
         readonly ObservableAsPropertyHelper<bool> _KeyboardOutput;
         public bool KeyboardOutput
@@ -131,7 +60,7 @@ namespace CFW.ViewModel
         public bool XboxOutput
         {
             get { return _XboxOutput.Value; }
-        } 
+        }
 
         readonly ObservableAsPropertyHelper<bool> _XboxOutputButtonIsEnabled;
         public bool XboxDevicesExist
@@ -198,35 +127,6 @@ namespace CFW.ViewModel
             get { return _VJoyDevices.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _IsPaused;
-        public bool IsPaused
-        {
-            get { return _IsPaused.Value; }
-            set
-            {
-                IsNotPaused = !value;
-            }
-        }
-
-        bool _IsNotPaused;
-        public bool IsNotPaused
-        {
-            get { return _IsNotPaused; }
-            set { this.RaiseAndSetIfChanged(ref _IsNotPaused, value); }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _PauseButtonText;
-        public string PauseButtonText
-        {
-            get { return _PauseButtonText.Value; }
-        }
-
-        readonly ObservableAsPropertyHelper<string> _PauseButtonIcon;
-        public string PauseButtonIcon
-        {
-            get { return _PauseButtonIcon.Value; }
-        }
-
         Visibility _VJoyVisibility;
         public Visibility VJoyVisibility
         {
@@ -243,64 +143,19 @@ namespace CFW.ViewModel
 
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
-        private readonly AppCastUpdater Updater;
+
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
 
-        public SettingsWindowViewModel(AppBootstrapper bs)
+        public OutputSettingsViewModel(AppBootstrapper bs)
         {
             DeviceManager = bs.DeviceManager;
             DnsServer = bs.DnsServer;
-            Updater = bs.AppCastUpdater;
-
-            // Responding to model changes
-
-            // Updater
-            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
-                .ToProperty(this, x => x.UpdateAvailable, out _UpdateAvailable);
-
-            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
-                .Select(x=> x ? "Download" : "Check")
-                .ToProperty(this, x => x.UpdateIcon, out _UpdateIcon);
-
-            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
-                .Select(x => x ? "An update is available" : "Up-to-date")
-                .ToProperty(this, x => x.UpdateToolTip, out _UpdateToolTip);
-
-            DownloadUpdate = ReactiveCommand.CreateFromTask(async _ =>
-                await Task.Run(() => Updater.DownloadUpdate()));
-
-            // DNS Server
-            // IP address
-            this.WhenAnyValue(x => x.DnsServer.Address, x => x.DnsServer.Port, 
-                    (addr, p) => string.Format(addr+ " : " +p.ToString()))
-                .ToProperty(this, x => x.IpAddress, out _IpAddress);
-
-            // Primary device DNS service (implies that Bonjour wasn't installed)
-            this.WhenAnyValue(x => x.DnsServer.BonjourInstalled, x => !x)
-                .ToProperty(this, x => x.BonjourNotInstalled, out _BonjourNotInstalled);
-
-            // Primary device DNS service
-            this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 0)
-                .ToProperty(this, x => x.PrimaryDevice, out _PrimaryDevice);
-
-            // Secondary device DNS service
-            this.WhenAnyValue(x => x.DnsServer.DeviceCount, x => x > 1)
-                .ToProperty(this, x => x.SecondaryDevice, out _SecondaryDevice);
-
-            // Device Manager
-            // Xbox controller intercepted
-            this.WhenAnyValue(x => x.DeviceManager.InterceptXInputDevice)
-                .ToProperty(this, x => x.XboxController, out _XboxController);
 
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
                 .Throttle(TimeSpan.FromMilliseconds(250))
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
-
-            // Mode
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.Mode)
-                .ToProperty(this, x => x.Mode, out _Mode);
 
             // Keybind
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Keybind)
@@ -311,6 +166,8 @@ namespace CFW.ViewModel
                 .Subscribe();
 
             // Cascade down Mode and Current Device ID
+            this.WhenAnyValue(x => x.DeviceManager.VDevice.Mode)
+                .ToProperty(this, x => x.Mode, out _Mode);
 
             this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
@@ -328,15 +185,6 @@ namespace CFW.ViewModel
 
             this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
                 .ToProperty(this, x => x.CoupledText, out _CoupledText);
-
-            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModePaused)
-                .ToProperty(this, x => x.IsPaused, out _IsPaused);
-
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
-                .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
-
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause") // Google material icon names
-                .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
             // Filter list of enabled devices to VJoyDevices list
             this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
@@ -419,36 +267,25 @@ namespace CFW.ViewModel
                 }
             });
 
-            InterceptXInputDevice = ReactiveCommand.CreateFromTask<bool>(async wasChecked => 
+            InterceptXInputDevice = ReactiveCommand.CreateFromTask<bool>(async wasChecked =>
             {
                 if (wasChecked)
                 {
-                    await Task.Run(()=>DeviceManager.AcquireXInputDevice());
+                    await Task.Run(() => DeviceManager.AcquireXInputDevice());
                 }
                 else DeviceManager.InterceptXInputDevice = false;
             });
 
             AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID)));
 
-            // depends on checkbox state (bool parameter)
-            AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
-            AddRemoveSecondaryDevice
-                .ThrownExceptions
-                .Subscribe(ex => log.Error("AddRemoveSecondaryDevice\n" + ex));
-         
-            PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
 
-            VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(()=>VJoyInfoDialog.ShowVJoyInfoDialog()));
+            VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => VJoyInfoDialog.ShowVJoyInfoDialog()));
             VXboxInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => ScpVBus.ShowScpVbusDialog()));
-            BonjourInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => DnsServer.ShowBonjourDialog())); 
-
-            JoyCplCommand = ReactiveCommand.Create(()=>Process.Start("joy.cpl"));
+            JoyCplCommand = ReactiveCommand.Create(() => Process.Start("joy.cpl"));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
         }
 
-        public ReactiveCommand ToggleLightDark { get; set; }
-        public ReactiveCommand DownloadUpdate { get; set; }
         public ReactiveCommand KeyboardMode { get; set; }
         public ReactiveCommand VJoyMode { get; set; }
         public ReactiveCommand XboxMode { get; set; }
@@ -465,16 +302,7 @@ namespace CFW.ViewModel
 
         public ReactiveCommand VJoyInfo { get; set; }
         public ReactiveCommand VXboxInfo { get; set; }
-        public ReactiveCommand BonjourInfo { get; set; }
 
-        // public Commands return ICommand using DelegateCommand class
-        // and are backed by private methods
-
-        private async Task AddRemoveSecondaryDeviceImpl()
-        {
-            if (!SecondaryDevice) await Task.Run(()=> DnsServer.AddService("Secondary"));
-            else await Task.Run(()=> DnsServer.RemoveLastService());
-        }
         private async Task CoupledDecoupledImpl()
         {
             if (KeyboardOutput) return;
@@ -490,33 +318,28 @@ namespace CFW.ViewModel
 
         private async Task ChangeKeybindImpl()
         {
-            await Task.Run(()=> DeviceManager.VDevice.SetKeybind(Keybind));
+            await Task.Run(() => DeviceManager.VDevice.SetKeybind(Keybind));
             KeybindChanged = false;
         }
 
         private async Task UpdateMode(int mode)
         {
-            await Task.Run(()=> DeviceManager.TryMode(mode));
+            await Task.Run(() => DeviceManager.TryMode(mode));
         }
 
         private async Task UnplugAllXboxImpl()
         {
-            await Task.Run(()=> DeviceManager.ForceUnplugAllXboxControllers());
+            await Task.Run(() => DeviceManager.ForceUnplugAllXboxControllers());
             await UpdateMode((int)SimulatorMode.ModeWASD);
         }
 
-        private int previousMode;
-        private async Task PlayPauseImpl()
+        private async Task AcquireVJoyDeviceImpl()
         {
-            if (!IsPaused)
-            {
-                if (DeviceManager.Mode != SimulatorMode.ModePaused) previousMode = (int)DeviceManager.Mode;
-                await UpdateMode((int)SimulatorMode.ModePaused);
-            }
-            else await UpdateMode(previousMode);
-        }   
+            uint id = (uint)(CurrentVJoyDevice ?? VJoyDevices.FirstOrDefault());
 
-        // Helper methods
+            await Task.Run(() => DeviceManager.AcquireVDev(id));
+            await Task.Run(() => DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
+        }
 
         private string XboxLedImagePath(int id)
         {
@@ -533,14 +356,6 @@ namespace CFW.ViewModel
                 case 1004:
                     return "/CoolFontWin;component/Resources/ic_xbox_4p_blue_18dp.png";
             }
-        }
-
-        private async Task AcquireVJoyDeviceImpl()
-        {
-            uint id = (uint)(CurrentVJoyDevice ?? VJoyDevices.FirstOrDefault());
-
-            await Task.Run(()=>DeviceManager.AcquireVDev(id));
-            await Task.Run(()=>DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
         }
     }
 }

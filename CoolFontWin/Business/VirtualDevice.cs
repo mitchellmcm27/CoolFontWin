@@ -876,11 +876,12 @@ namespace CFW.Business
             switch (devType)
             {
                 case DevType.vJoy:
+                    log.Info("vJoy Version: " + Joystick.GetvJoyVersion());
                     if (!Joystick.vJoyEnabled())
                     {
                         log.Info("vJoy driver not enabled: Failed Getting vJoy attributes.");
                         return false;
-                    }
+                    }          
                     break;
 
                 case DevType.vXbox:

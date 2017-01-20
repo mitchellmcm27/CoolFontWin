@@ -4,7 +4,8 @@
     xmlns:View="clr-namespace:CFW.View"
     xmlns:ViewModel="clr-namespace:CFW.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Icon="Assets/tray-icon-transparent.ico"
     mc:Ignorable="d" 
     x:Class="CFW.MainWindow"
     Title="PocketStrafe PC" 
@@ -15,7 +16,7 @@
     FontFamily="{DynamicResource MaterialDesignFont}"
     TextOptions.TextFormattingMode="Ideal" 
     TextOptions.TextRenderingMode="Auto"   
-    Width="600" Height="500"
+    SizeToContent="WidthAndHeight"
     UseLayoutRounding="True" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanMinimize">
 
     <Grid Margin="20">
@@ -24,11 +25,15 @@
                 <DropShadowEffect BlurRadius="20" Direction="320" RenderingBias="Quality" ShadowDepth="8" Opacity="0.3"/>
             </Border.Effect>
         </Border>
-        <StackPanel Orientation="Vertical">
-            <View:ToolbarControl x:Name="toolbarControl" Margin="8,8,8,0" HorizontalAlignment="Stretch" DataContext="{Binding SettingsVM}"/>
-            <ContentControl x:Name="splashControl" DataContext="{Binding SplashVM}"/>
-            <ContentControl x:Name="contentControl" DataContext="{Binding SettingsVM}"/>
-        </StackPanel>
+        <DockPanel>
+            <View:ToolbarControl x:Name="toolbarControl" Margin="8,8,8,0" VerticalAlignment ="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Top" DataContext="{Binding ToolbarVM}"/>
+            <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" DockPanel.Dock="Bottom"/>
+            <Grid>
+                <ContentControl x:Name="splashControl" DataContext="{Binding SplashVM}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Top"/>
+                <ContentControl x:Name="contentControl" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+
+        </DockPanel>
     </Grid>
 
 </Window>

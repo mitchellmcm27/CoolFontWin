@@ -70,7 +70,7 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _BonjourInstalled, value); }
         }
 
-        private string _Address = "Address not initialized";
+        private string _Address;
         public string Address
         {
             get { return _Address; }

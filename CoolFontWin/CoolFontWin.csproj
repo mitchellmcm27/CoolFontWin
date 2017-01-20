@@ -304,10 +304,16 @@
     <Compile Include="Business\Colors.cs" />
     <Compile Include="Business\AppBootstrapper.cs" />
     <Compile Include="Business\CFWContextMenuRenderer.cs" />
+    <Compile Include="ViewModel\InputSettingsViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\OutputSettingsViewModel.cs" />
     <Compile Include="ViewModel\SplashScreenViewModel.cs" />
-    <Compile Include="View\SplashScreen.xaml.cs">
-      <DependentUpon>SplashScreen.xaml</DependentUpon>
+    <Compile Include="ViewModel\ToolbarViewModel.cs" />
+    <Compile Include="View\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\Splash.xaml.cs">
+      <DependentUpon>Splash.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\BoolToVisibilityConverter.cs" />
     <Compile Include="View\InputSettingsControl.xaml.cs">
@@ -321,13 +327,6 @@
     </Compile>
     <Compile Include="View\ToolbarControl.xaml.cs">
       <DependentUpon>ToolbarControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="View\WindowBarControl.xaml.cs">
-      <DependentUpon>WindowBarControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ViewModel\SettingsWindowViewModel.cs" />
-    <Compile Include="View\SettingsWindow.xaml.cs">
-      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -506,7 +505,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SplashScreen.xaml">
+    <Page Include="View\SettingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\Splash.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -518,19 +521,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SettingsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="View\SocialMediaControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ToolbarControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\WindowBarControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
