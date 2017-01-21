@@ -58,6 +58,12 @@ namespace AutoUpdaterDotNET
                     Environment.Exit(0);
                 }
             }
+
+            if (e.Error != null)
+            {
+                Console.WriteLine(e.Error);
+            }
+            _webClient.Dispose();
         }
 
         private static string GetFileName(string url)
@@ -66,32 +72,36 @@ namespace AutoUpdaterDotNET
             var uri = new Uri(url);
             if (uri.Scheme.Equals(Uri.UriSchemeHttp) || uri.Scheme.Equals(Uri.UriSchemeHttps))
             {
-                var httpWebRequest = (HttpWebRequest) WebRequest.Create(uri);
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
                 httpWebRequest.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
                 httpWebRequest.Method = "HEAD";
                 httpWebRequest.AllowAutoRedirect = false;
-                var httpWebResponse = (HttpWebResponse) httpWebRequest.GetResponse();
-                if (httpWebResponse.StatusCode.Equals(HttpStatusCode.Redirect) ||
-                    httpWebResponse.StatusCode.Equals(HttpStatusCode.Moved) ||
-                    httpWebResponse.StatusCode.Equals(HttpStatusCode.MovedPermanently))
+                using (var httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                 {
-                    if (httpWebResponse.Headers["Location"] != null)
+                    if (httpWebResponse.StatusCode.Equals(HttpStatusCode.Redirect) ||
+                        httpWebResponse.StatusCode.Equals(HttpStatusCode.Moved) ||
+                        httpWebResponse.StatusCode.Equals(HttpStatusCode.MovedPermanently))
                     {
-                        var location = httpWebResponse.Headers["Location"];
-                        fileName = GetFileName(location);
-                        return fileName;
+                        if (httpWebResponse.Headers["Location"] != null)
+                        {
+                            var location = httpWebResponse.Headers["Location"];
+                            fileName = GetFileName(location);
+                            return fileName;
+                        }
                     }
-                }
-                var contentDisposition = httpWebResponse.Headers["content-disposition"];
-                if (!string.IsNullOrEmpty(contentDisposition))
-                {
-                    const string lookForFileName = "filename=";
-                    var index = contentDisposition.IndexOf(lookForFileName, StringComparison.CurrentCultureIgnoreCase);
-                    if (index >= 0)
-                        fileName = contentDisposition.Substring(index + lookForFileName.Length);
-                    if (fileName.StartsWith("\"") && fileName.EndsWith("\""))
+                    var contentDisposition = httpWebResponse.Headers["content-disposition"];
+
+
+                    if (!string.IsNullOrEmpty(contentDisposition))
                     {
-                        fileName = fileName.Substring(1, fileName.Length - 2);
+                        const string lookForFileName = "filename=";
+                        var index = contentDisposition.IndexOf(lookForFileName, StringComparison.CurrentCultureIgnoreCase);
+                        if (index >= 0)
+                            fileName = contentDisposition.Substring(index + lookForFileName.Length);
+                        if (fileName.StartsWith("\"") && fileName.EndsWith("\""))
+                        {
+                            fileName = fileName.Substring(1, fileName.Length - 2);
+                        }
                     }
                 }
             }
@@ -105,6 +115,11 @@ namespace AutoUpdaterDotNET
         private void DownloadUpdateDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
             _webClient.CancelAsync();
+        }
+
+        private void progressBar_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

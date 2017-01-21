@@ -38,7 +38,6 @@ namespace AutoUpdaterDotNET
             this.buttonUpdate = new System.Windows.Forms.Button();
             this.buttonRemindLater = new System.Windows.Forms.Button();
             this.pictureBoxIcon = new System.Windows.Forms.PictureBox();
-            this.buttonSkip = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxIcon)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,6 +45,7 @@ namespace AutoUpdaterDotNET
             // 
             resources.ApplyResources(this.webBrowser, "webBrowser");
             this.webBrowser.Name = "webBrowser";
+            this.webBrowser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser_DocumentCompleted);
             // 
             // labelUpdate
             // 
@@ -87,15 +87,6 @@ namespace AutoUpdaterDotNET
             this.pictureBoxIcon.Name = "pictureBoxIcon";
             this.pictureBoxIcon.TabStop = false;
             // 
-            // buttonSkip
-            // 
-            this.buttonSkip.DialogResult = System.Windows.Forms.DialogResult.Abort;
-            this.buttonSkip.Image = global::AutoUpdaterDotNET.Properties.Resources.hand_point;
-            resources.ApplyResources(this.buttonSkip, "buttonSkip");
-            this.buttonSkip.Name = "buttonSkip";
-            this.buttonSkip.UseVisualStyleBackColor = true;
-            this.buttonSkip.Click += new System.EventHandler(this.ButtonSkipClick);
-            // 
             // UpdateForm
             // 
             this.AcceptButton = this.buttonUpdate;
@@ -108,9 +99,7 @@ namespace AutoUpdaterDotNET
             this.Controls.Add(this.labelUpdate);
             this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.buttonUpdate);
-            this.Controls.Add(this.buttonSkip);
             this.Controls.Add(this.buttonRemindLater);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "UpdateForm";
@@ -125,7 +114,6 @@ namespace AutoUpdaterDotNET
 
         private System.Windows.Forms.Button buttonRemindLater;
         private System.Windows.Forms.Button buttonUpdate;
-        private System.Windows.Forms.Button buttonSkip;
         private System.Windows.Forms.WebBrowser webBrowser;
         private System.Windows.Forms.Label labelUpdate;
         private System.Windows.Forms.Label labelDescription;

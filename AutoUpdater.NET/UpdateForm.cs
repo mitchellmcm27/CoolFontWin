@@ -62,6 +62,10 @@ namespace AutoUpdaterDotNET
 
         private void ButtonRemindLaterClick(object sender, EventArgs e)
         {
+
+            AutoUpdater.UpdateOnShutdown = !AutoUpdater.UpdateOnShutdown;
+            return;
+
             if(AutoUpdater.LetUserSelectRemindLater)
             {
                 var remindLaterForm = new RemindLaterForm();
@@ -125,6 +129,11 @@ namespace AutoUpdaterDotNET
         {
             _timer.Stop();
             AutoUpdater.Start();
+        }
+
+        private void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+
         }
     }
 }

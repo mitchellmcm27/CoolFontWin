@@ -64,6 +64,19 @@ namespace AutoUpdaterDotNET
         /// </summary>
         public static bool OpenDownloadPage;
 
+        private static bool _UpdateOnShutdown;
+        /// <summary>
+        ///     Signifies that the user wishes to update automatically before closing the current application.
+        /// </summary>
+        public static bool UpdateOnShutdown
+        {
+            get { return _UpdateOnShutdown; }
+            set
+            {
+                _UpdateOnShutdown = value;
+                UpdateOnShutdownEvent(value,new EventArgs());
+            }
+        }
         /// <summary>
         ///     Sets the current culture of the auto update notification window. Set this value if your application supports
         ///     functionalty to change the languge of the application.
@@ -96,6 +109,8 @@ namespace AutoUpdaterDotNET
         ///     An event that clients can use to be notified whenever the update is checked.
         /// </summary>
         public static event CheckForUpdateEventHandler CheckForUpdateEvent;
+
+        public static event EventHandler UpdateOnShutdownEvent;
 
         /// <summary>
         ///     Start checking for new version of application and display dialog to the user if update is available.

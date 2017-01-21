@@ -46,6 +46,7 @@
             // 
             resources.ApplyResources(this.progressBar, "progressBar");
             this.progressBar.Name = "progressBar";
+            this.progressBar.Click += new System.EventHandler(this.progressBar_Click);
             // 
             // labelInformation
             // 

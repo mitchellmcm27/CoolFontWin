@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,7 @@ namespace CFW.ViewModel
         {
             Bs = bs;
             this.WhenAnyValue(x => x.Bs.Status)
+                .Throttle(TimeSpan.FromSeconds(1))
                 .ToProperty(this, x => x.StatusText, out _StatusText);
         }
 

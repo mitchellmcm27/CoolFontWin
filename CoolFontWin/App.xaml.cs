@@ -9,6 +9,7 @@ using log4net;
 using System.Threading;
 using System.Windows.Forms.Integration;
 using System.Windows.Media.Animation;
+using AutoUpdaterDotNET;
 
 namespace CFW
 {
@@ -60,12 +61,13 @@ namespace CFW
             await Task.Run(()=>bs.Start());
 
             main.splashControl.Visibility = Visibility.Collapsed;
-            main.contentControl.Visibility = Visibility.Visible;          
+            main.contentControl.Visibility = Visibility.Visible;
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
             log.Info("===APP SHUTDOWN===");
+
             mutex.ReleaseMutex();
             base.OnExit(e);
         }

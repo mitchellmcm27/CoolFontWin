@@ -16,7 +16,7 @@ namespace CFW.Business
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private bool _UpdateAvailable = false;
+        private bool _UpdateAvailable;
         public bool UpdateAvailable
         {
             get { return _UpdateAvailable; }
@@ -30,12 +30,29 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _UpdateProblem, value); }
         }
 
+        private bool _UpdateOnShutdown;
+        public bool UpdateOnShutdown
+        {
+            get { return _UpdateOnShutdown; }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _UpdateOnShutdown, value);
+                if (AutoUpdater.UpdateOnShutdown != value) AutoUpdater.UpdateOnShutdown = value;
+            }
+        }
+
         private string _AppCastPath = "";
 
         public AppCastUpdater(string appCastPath)
         {
             _AppCastPath = appCastPath;
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
+            AutoUpdater.UpdateOnShutdownEvent += AutoUpdaterOnUpdateOnShutdownEvent;
+        }
+
+        private void AutoUpdaterOnUpdateOnShutdownEvent(object sender, EventArgs e)
+        {
+            UpdateOnShutdown = (bool)sender;
         }
 
         private void UpdateTimerTick(object sender, EventArgs e)

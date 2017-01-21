@@ -69,16 +69,15 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.Updater.UpdateAvailable)
                 .ToProperty(this, x => x.UpdateAvailable, out _UpdateAvailable);
 
-            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
-                .Select(x => x ? "Download" : "Check")
+            this.WhenAnyValue(x => x.Updater.UpdateAvailable, x => x.Updater.UpdateOnShutdown,
+                    (available, shutdown) => shutdown ? "Check" : available ? "Download" : "Minus")
                 .ToProperty(this, x => x.UpdateIcon, out _UpdateIcon);
 
-            this.WhenAnyValue(x => x.Updater.UpdateAvailable)
-                .Select(x => x ? "An update is available" : "Up-to-date")
+            this.WhenAnyValue(x => x.Updater.UpdateAvailable, x => x.Updater.UpdateOnShutdown,
+                (available, shutdown) => shutdown ? "Will update when closed" : available ? "Update is available" : "Up to date")
                 .ToProperty(this, x => x.UpdateToolTip, out _UpdateToolTip);
 
-            DownloadUpdate = ReactiveCommand.CreateFromTask(async _ =>
-                await Task.Run(() => Updater.DownloadUpdate()));
+            DownloadUpdate = ReactiveCommand.CreateFromTask(DownloadUpdateImpl);
 
             FlipX = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(Axis.AxisX)));
             FlipY = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(Axis.AxisY)));
@@ -96,6 +95,18 @@ namespace CFW.ViewModel
 
         public ReactiveCommand ToggleLightDark { get; set; }
         public ReactiveCommand DownloadUpdate { get; set; }
+
+        private async Task DownloadUpdateImpl()
+        {
+            if (Updater.UpdateOnShutdown)
+            {
+                Updater.UpdateOnShutdown = false;
+            }
+            else
+            {
+                await Task.Run(() => Updater.DownloadUpdate());
+            }
+        }               
 
         private async Task ViewLogFileImpl()
         {
