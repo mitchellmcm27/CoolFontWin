@@ -25,7 +25,7 @@
             </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
-
+    
     <DockPanel>
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
             <Image Margin="4" Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
@@ -67,8 +67,8 @@
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Margin="0,0,16,0" Opacity="1"
-                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource PrimaryHueMidBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
-                    Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+            Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource SecondaryAccentBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
+                Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Button.ToolTip>
                     <ToolTip Content="{Binding UpdateToolTip}" />
                 </Button.ToolTip>
@@ -81,7 +81,7 @@
                 </Button.RenderTransformOrigin>
             </Button>
             <Button DockPanel.Dock="Right"
-                    Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
+                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">
                         <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
@@ -94,7 +94,7 @@
             </Button>
 
             <Button DockPanel.Dock="Right"
-                Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click" Opacity="0.6">
+            Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click" Opacity="0.6">
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Control.MouseEnter">
                         <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
@@ -107,5 +107,6 @@
             </Button>
         </StackPanel>
     </DockPanel>
+    
 </UserControl>
 

@@ -120,7 +120,7 @@
                                 <materialDesign:PackIcon Kind="CallMerge" Width="12" Height="12" />
                             </ToggleButton.Content>
                         </ToggleButton>
-                        <TextBlock FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <TextBlock FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Text="{Binding CoupledText, Mode=OneWay}"/>
                     </StackPanel>
                 </Grid>
@@ -171,7 +171,7 @@
                                 <materialDesign:PackIcon Kind="CallMerge" Width="12" Height="12" />
                             </ToggleButton.Content>
                         </ToggleButton>
-                        <TextBlock FontSize="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                        <TextBlock FontSize="12" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                    Text="{Binding CoupledText, Mode=OneWay}"/>
                     </StackPanel>
                 </Grid>

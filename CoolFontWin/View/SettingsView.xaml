@@ -9,7 +9,7 @@
     mc:Ignorable="d" 
     x:Class="CFW.View.SettingsView">
 
-    <Grid Margin="4,8,4,0" HorizontalAlignment="Stretch">
+    <Grid Margin="4,0,4,0" HorizontalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>

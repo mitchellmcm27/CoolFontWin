@@ -70,11 +70,11 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.UpdateAvailable, out _UpdateAvailable);
 
             this.WhenAnyValue(x => x.Updater.UpdateAvailable, x => x.Updater.UpdateOnShutdown,
-                    (available, shutdown) => shutdown ? "Check" : available ? "Download" : "Minus")
+                    (available, shutdown) => shutdown ? "AlarmCheck" : available ? "Download" : "Minus")
                 .ToProperty(this, x => x.UpdateIcon, out _UpdateIcon);
 
             this.WhenAnyValue(x => x.Updater.UpdateAvailable, x => x.Updater.UpdateOnShutdown,
-                (available, shutdown) => shutdown ? "Will update when closed" : available ? "Update is available" : "Up to date")
+                (available, shutdown) => shutdown ? "Update when closed" : available ? "Update is available" : "Up to date")
                 .ToProperty(this, x => x.UpdateToolTip, out _UpdateToolTip);
 
             DownloadUpdate = ReactiveCommand.CreateFromTask(DownloadUpdateImpl);

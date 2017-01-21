@@ -68,7 +68,7 @@
                         </Button>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="12" FontStyle="Italic">iPhone/Android</TextBlock>
                 </Grid>
                     
                 <Grid Grid.Row="1" Grid.Column="1">
@@ -86,7 +86,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket">Secondary mobile</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="10" FontStyle="Italic">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="12" FontStyle="Italic">iPhone/Android</TextBlock>
                 </Grid>
 
                 <Grid Grid.Row="2" Grid.Column="1">
@@ -109,7 +109,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Xbox controller</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="10" FontStyle="Italic">Physical controller</TextBlock>
+                               IsEnabled="False" FontSize="12" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
 
                 <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,24,16,8" HorizontalAlignment="Center"
