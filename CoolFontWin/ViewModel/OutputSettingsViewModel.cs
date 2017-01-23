@@ -10,6 +10,7 @@ using CFW.Business;
 using System.Diagnostics;
 using System.Windows;
 using Ookii.Dialogs;
+using System.Reactive;
 
 namespace CFW.ViewModel
 {
@@ -141,6 +142,11 @@ namespace CFW.ViewModel
             get { return _XboxVisibility; }
             set { this.RaiseAndSetIfChanged(ref _XboxVisibility, value); }
         }
+
+        // Vive controller
+        private ReactiveList<string> _Procs;
+        public ReactiveList<string> RunningProcs { get; set; }
+        public string SelectedProc { get; set; }
 
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
@@ -295,6 +301,20 @@ namespace CFW.ViewModel
 
             JoyCplCommand = ReactiveCommand.Create(() => Process.Start("joy.cpl"));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
+
+            _Procs = new ReactiveList<string>();
+            RunningProcs = new ReactiveList<string>();
+            RefreshProcs = ReactiveCommand.Create(() =>  
+            {
+                RunningProcs.Clear();
+                foreach (Process proc in Process.GetProcesses())
+                {
+                    if (proc.MainWindowTitle.Length>0) RunningProcs.Add(proc.ProcessName);
+                }
+            });
+            RefreshProcs.ThrownExceptions.Subscribe(ex => log.Error("RefreshProcs: " + ex.Message));
+
+            InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl);
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -313,6 +333,9 @@ namespace CFW.ViewModel
 
         public ReactiveCommand VJoyInfo { get; set; }
         public ReactiveCommand VXboxInfo { get; set; }
+
+        public ReactiveCommand RefreshProcs { get; set; }
+        public ReactiveCommand InjectProc { get; set; }
 
         private async Task CoupledDecoupledImpl()
         {
@@ -402,9 +425,16 @@ namespace CFW.ViewModel
             });
         }
 
+        private async Task InjectProcImpl()
+        {
+            await Task.Run(() => DeviceManager.Inject(this.SelectedProc));
+        }
+
         public void ShowRestartMessage()
         {
             MessageBox.Show("Restart PocketStrafe PC to use vXbox","Success!",MessageBoxButton.OK,MessageBoxImage.Information);
         }
+
+
     }
 }

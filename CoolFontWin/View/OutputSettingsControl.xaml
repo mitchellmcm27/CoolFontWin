@@ -44,6 +44,7 @@
                     <RowDefinition Height="64"/>
                     <RowDefinition Height="64"/>
                     <RowDefinition Height="64"/>
+                    <RowDefinition Height="64"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -187,8 +188,42 @@
                                 IsEnabled="{Binding VJoyDevicesExist}"/>
                 </DockPanel>
 
+                <Grid Grid.Row="3" Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <RadioButton Name="OpenVrOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8,0,8,0"
+                             IsChecked="{Binding OpenVrOutput, Mode=OneWay}"
+                             Command="{Binding OpenVrMode}"/>
+                        <materialDesign:PackIcon Kind="File" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8,0,8,0" 
+                                                     Width="18" Height="18"/>
+                        <TextBlock VerticalAlignment="Center" Text="Vive controller"/>
+                    </StackPanel>
 
-                <Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="16,24,16,8" HorizontalAlignment="Center"
+
+                </Grid>
+                <DockPanel  Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Button Margin="0"  ToolTip="Refresh processes" Width="24" Height="24" DockPanel.Dock="Right"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                            Foreground="{DynamicResource PrimaryHueMidBrush}"
+                            Command="{Binding RefreshProcs}">
+                        <materialDesign:PackIcon Kind="Refresh" Height="18" Width="18" />
+                    </Button>
+                    <Button Margin="0"  ToolTip="Inject process" Width="24" Height="24" DockPanel.Dock="Right"
+                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                            Foreground="{DynamicResource PrimaryHueMidBrush}"
+                            Command="{Binding InjectProc}">
+                        <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
+                    </Button>
+                    <ComboBox Grid.Row="2" Margin="0,0,0,0" 
+                              ItemsSource="{Binding RunningProcs, TargetNullValue=''}" 
+                              SelectedItem="{Binding SelectedProc, TargetNullValue=''}" 
+                              IsSynchronizedWithCurrentItem="true"/>
+                </DockPanel>
+                <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Name="RelinquishAllXboxButton" Margin="16,24,16,8" HorizontalAlignment="Center"
                         Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding UnplugAllXboxCommand}" Content="Reset"/>
 
             </Grid>
