@@ -3,8 +3,9 @@ using System.Timers;
 using System.Collections.Generic;
 using SharpDX.XInput;
 using log4net;
-using System.ComponentModel;
 using ReactiveUI;
+using Nektra.Deviare2;
+using System.Diagnostics;
 
 namespace CFW.Business
 {
@@ -18,7 +19,7 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public class DeviceManager : ReactiveObject, IDisposable
+    public class DeviceManager : ReactiveObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -136,12 +137,21 @@ namespace CFW.Business
             }
         }
 
-        // Private initialization for the singleton class.
+        static NktSpyMgr SpyMgr;
         public DeviceManager()
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
             VDevice = new VirtualDevice(UpdateInterval);
+
+            SpyMgr = new NktSpyMgr();
+            if (SpyMgr.Initialize() < 0)
+            {
+                log.Error("Cannot initialize Deviare");
+                return;
+            }
+            
+
             InitializeTimer();
         }
 
@@ -315,6 +325,71 @@ namespace CFW.Business
             VDevice.FeedVDev();
         }
 
+        private NktProcess _process = null;
+        private NktHook hook;
+        public void InjectControllerIntoProcess(string proc, string dll = "openvr_api.dll", string fname = "GetControllerState")
+        {
+            GetProcess(proc);
+            if (_process==null)
+            {
+                log.Debug("Could not get process " + proc);
+                return;
+            }
+            log.Info("Got process:\n Name: " + _process.Name + "\n Id: " + _process.Id);
+
+            NktModule module = _process.ModuleByName(dll);
+            if (module==null)
+            {
+                return;
+            }
+            log.Info("Found module " + module.Name);
+
+            NktExportedFunction function = module.FunctionByName(fname);
+            if (function==null)
+            {
+                return;
+            }
+            log.Info("Found function " + function.Name);
+
+            hook = SpyMgr.CreateHook(function, (int)(eNktHookFlags.flgRestrictAutoHookToSameExecutable | eNktHookFlags.flgOnlyPreCall));
+            if(hook==null)
+            {
+                return;
+            }
+            log.Info("Hook created: " + hook.FunctionName);
+            hook.OnFunctionCalled += OnFunctionCalled;
+         
+            // This will crash the hooked process if it hasn't loaded the dll
+            hook.Hook(true); // bool synchronous
+            hook.Attach(_process, true); // bool synchronous
+        }
+
+
+        private bool GetProcess(string proccessName)
+        {
+            NktProcessesEnum enumProcess = SpyMgr.Processes();
+            NktProcess tempProcess = enumProcess.First();   
+            while (tempProcess != null)
+            {
+                if (tempProcess.Name.Equals(proccessName, StringComparison.InvariantCultureIgnoreCase) && tempProcess.PlatformBits > 0 && tempProcess.PlatformBits <= IntPtr.Size * 8)
+                {
+                    _process = tempProcess;
+                    return true;
+                }
+                tempProcess = enumProcess.Next();
+            }
+            _process = null;
+            return false;
+        }
+
+        void OnFunctionCalled(INktHook hook, INktProcess proc, INktHookCallInfo callInfo)
+        {
+            INktParamsEnum pms = callInfo.Params();
+            INktParam p;
+            log.Info("FUNCTION CALLBACK");
+        }
+
+
         public void ForceUnplugAllXboxControllers()
         {  
             VDevice.ForceUnplugAllXboxControllers();
@@ -323,6 +398,7 @@ namespace CFW.Business
         public void Dispose()
         {
             RelinquishCurrentDevice(silent:true);
+            hook.Detach(_process);
             Properties.Settings.Default.VJoyID = (int)VDevice.Id;
             Properties.Settings.Default.Save(); 
         }    

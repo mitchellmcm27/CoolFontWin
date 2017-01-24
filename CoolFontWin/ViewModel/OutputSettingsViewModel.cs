@@ -314,6 +314,11 @@ namespace CFW.ViewModel
             });
             RefreshProcs.ThrownExceptions.Subscribe(ex => log.Error("RefreshProcs: " + ex.Message));
 
+            int start = 0;
+            Observable
+                .Generate(start, x => x < 1, x=>x+1, x => Unit.Default)
+                .InvokeCommand(this, x => x.RefreshProcs);
+
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl);
         }
 
@@ -427,7 +432,7 @@ namespace CFW.ViewModel
 
         private async Task InjectProcImpl()
         {
-            await Task.Run(() => DeviceManager.Inject(this.SelectedProc));
+            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc + ".exe"));
         }
 
         public void ShowRestartMessage()
