@@ -14,7 +14,7 @@
 AppId={{D3A3322D-5E08-4624-8D84-B19D345CC7D6}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -50,10 +50,14 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Filename: "msiexec.exe"; Parameters: "/i ""{tmp}\Bonjour64.msi"""; Check: IsBonjourNotInstalled; Description: "Install Bonjour (required)"
 Filename: "{app}\scpvbus\devcon.exe"; Parameters: "install ScpVBus.inf Root\ScpVBus"; Description: "Install virtual Xbox controllers"; Flags: runhidden runascurrentuser;
 Filename: "{app}\vJoy\vJoySetup.exe"; Description: "Install virtual joystick (optional)"; Flags: postinstall unchecked
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""PocketStrafe"" program=""{app}\{#MyAppExeName}"" dir=in action=allow enable=yes"; Flags: runhidden runascurrentuser; 
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""PocketStrafe Out"" program=""{app}\{#MyAppExeName}"" dir=out action=allow enable=yes"; Flags: runhidden runascurrentuser; 
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\scpvbus\devcon.exe"; Parameters: "remove Root\ScpVBus"; Flags: runhidden runascurrentuser;
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""PocketStrafe"" program=""{app}\{#MyAppExeName}"""; Flags: runhidden runascurrentuser;
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""PocketStrafe Out"" program=""{app}\{#MyAppExeName}"""; Flags: runhidden runascurrentuser;
 
 [Code] 
 function IsBonjourNotInstalled():Boolean;
