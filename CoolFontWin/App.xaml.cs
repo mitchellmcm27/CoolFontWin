@@ -46,22 +46,19 @@ namespace CFW
         private async void StartAsync()
         {
             var main = new MainWindow();
+            main.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            main.splashControl.Content = new View.Splash();
             bs = new Business.AppBootstrapper();
             main.DataContext = new ViewModel.MainViewModel(bs);
-            ElementHost.EnableModelessKeyboardInterop(main);
-
-            var splash = new View.Splash();
-            main.splashControl.Content = splash;
-
-            var settings = new View.SettingsView();
             main.contentControl.Visibility = Visibility.Hidden;
+            var settings = new View.SettingsView();
             main.contentControl.Content = settings;
-
             main.Show();
-            await Task.Run(()=>bs.Start());
 
+            await Task.Run(() => bs.Start());
             main.splashControl.Visibility = Visibility.Collapsed;
             main.contentControl.Visibility = Visibility.Visible;
+            ElementHost.EnableModelessKeyboardInterop(main);
         }
 
         protected override void OnExit(ExitEventArgs e)

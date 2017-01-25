@@ -321,9 +321,8 @@ namespace CFW.Business
         private bool CheckMode(SimulatorMode mode)
         {
             // Must have a vJoy device acquired if trying to switch to Joystick mode
-            if (mode != SimulatorMode.ModeWASD &&
-                mode != SimulatorMode.ModePaused &&
-                mode != SimulatorMode.ModeMouse)
+            if (mode != SimulatorMode.ModeWASD && mode != SimulatorMode.ModeSteamVr &&
+                mode != SimulatorMode.ModePaused && mode != SimulatorMode.ModeMouse)
             {
                 if (VDevAcquired)
                 {
@@ -859,7 +858,7 @@ namespace CFW.Business
             {
                 if (AcquireDevice(i, DevType.vXbox))
                 {
-                    log.Info("Acquired device " + (i+1000).ToString());
+                    log.Info("  Acquired device " + (i+1000).ToString());
                     this.Id = i+1000;
                     VDevAcquired = true;
                     GetJoystickProperties(i);
@@ -879,7 +878,7 @@ namespace CFW.Business
                     log.Info("vJoy Version: " + Joystick.GetvJoyVersion());
                     if (!Joystick.vJoyEnabled())
                     {
-                        log.Info("vJoy driver not enabled: Failed Getting vJoy attributes.");
+                        log.Info("  vJoy driver not enabled: Failed Getting vJoy attributes.");
                         return false;
                     }          
                     break;
@@ -927,12 +926,12 @@ namespace CFW.Business
             Joystick.AcquireDev(id, devType, ref this.HDev);
             if (owned || (free && HDev == 0))
             {
-                log.Info(String.Format("Failed to acquire " + (devType==DevType.vXbox?"xBox":"vJoy") + " device number {0}.\n", id));
+                log.Info(String.Format("Failed to acquire " + (devType==DevType.vXbox?"xBox":"vJoy") + " device number {0}.", id));
                 return false;
             }
             else
             {
-                log.Info(String.Format("Acquired: " + (devType == DevType.vXbox ? "xBox" : "vJoy") + " device number {0}.\n", id));
+                log.Info(String.Format("Acquired: " + (devType == DevType.vXbox ? "xBox" : "vJoy") + " device number {0}.", id));
             }
 
 
@@ -958,16 +957,42 @@ namespace CFW.Business
 
 
             // Print results
-            log.Info(String.Format("\nDevice {0} capabilities:", id));
-            log.Info(String.Format("Number of buttons\t\t{0}", nBtn));
-            log.Info(String.Format("Number of Hats\t{0}", nHat));
-            log.Info(String.Format("Number of Descrete POVs\t\t{0}", DiscPovNumber));
-            log.Info(String.Format("Axis X\t\t{0}", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Y\t\t{0}", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Z\t\t{0}", AxisX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Rx\t\t{0}", AxisRX ? "Yes" : "No"));
-            log.Info(String.Format("Axis Rz\t\t{0}", AxisRZ ? "Yes" : "No"));
-      
+            log.Info(String.Format("Device {0} capabilities:", id));
+            log.Info(String.Format("  Number of buttons\t\t{0}", nBtn));
+            log.Info(String.Format("  Number of Hats\t{0}", nHat));
+            log.Info(String.Format("  Number of Descrete POVs\t\t{0}", DiscPovNumber));
+            log.Info(String.Format("  Axis X\t\t{0}", AxisX ? "Yes" : "No"));
+            log.Info(String.Format("  Axis Y\t\t{0}", AxisY ? "Yes" : "No"));
+            log.Info(String.Format("  Axis Z\t\t{0}", AxisZ ? "Yes" : "No"));
+            log.Info(String.Format("  Axis Rx\t\t{0}", AxisRX ? "Yes" : "No"));
+            log.Info(String.Format("  Axis Ry\t\t{0}", AxisRY ? "Yes" : "No"));
+            log.Info(String.Format("  Axis Rz\t\t{0}", AxisRZ ? "Yes" : "No"));
+
+            if (devType==DevType.vXbox)
+            {
+                log.Info("Checking for valid vXbox controller");
+                log.Info("  Checking axes...");
+                if (AxisX && AxisY && AxisZ && AxisRX && AxisRY && AxisRZ)
+                {
+                    log.Info("     All axes found.");
+                }
+                else
+                {
+                    log.Info("    Required axes not found, returning false");
+                    return false;
+                }
+
+                log.Info("  Checking buttons...");
+                if (nBtn>=10)
+                {
+                    log.Info("    All buttons found.");
+                }
+                else
+                {
+                    log.Info("    Buttons not found, returning false");
+                    return false;
+                }
+            }
             return true;
         }
 

@@ -9,14 +9,9 @@
     mc:Ignorable="d" 
     x:Class="CFW.View.SettingsView">
 
-    <Grid Margin="4,0,4,0" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <View:InputSettingsControl Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Margin="0,0,2,0" DataContext="{Binding InputSettingsVM}"/>
-        <View:OutputSettingsControl Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="2,0,0,0" DataContext="{Binding OutputSettingsVM}"/>
-    </Grid>
+    <StackPanel Orientation="Horizontal" Margin="4,0,4,0" Height="340">
+        <View:InputSettingsControl  Margin="0,0,2,0" DataContext="{Binding InputSettingsVM}" Width="250"/>
+        <View:OutputSettingsControl Margin="2,0,0,0" DataContext="{Binding OutputSettingsVM}" Width="250"/>
+    </StackPanel>
     
 </UserControl>

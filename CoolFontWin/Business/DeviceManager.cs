@@ -382,6 +382,22 @@ namespace CFW.Business
             return false;
         }
 
+        public List<string> GetProcessesWithModule(string dllName)
+        {
+            var list = new List<string>();
+            NktProcessesEnum enumProcess = SpyMgr.Processes();
+            NktProcess tempProcess = enumProcess.First();
+            while (tempProcess != null)
+            {
+                if ((dllName.Length == 0 || tempProcess.ModuleByName(dllName) != null) && tempProcess.PlatformBits > 0 && tempProcess.PlatformBits <= IntPtr.Size * 8)
+                {
+                    list.Add(tempProcess.Name);
+                }
+                tempProcess = enumProcess.Next();
+            }
+            return list;
+        }
+
         void OnFunctionCalled(INktHook hook, INktProcess proc, INktHookCallInfo callInfo)
         {
             INktParamsEnum pms = callInfo.Params();

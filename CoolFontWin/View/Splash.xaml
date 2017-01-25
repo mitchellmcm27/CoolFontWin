@@ -3,9 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    x:Class="CFW.View.Splash"
-    xmlns:View="clr-namespace:CFW.View"
-    xmlns:ViewModel="clr-namespace:CFW.ViewModel">
+    x:Class="CFW.View.Splash">
 
     <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.RowDefinitions>
@@ -17,7 +15,7 @@
                      Value="0"
                      IsIndeterminate="True"
                      Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.5"/>
-        <TextBlock Margin="12 12 12 12" Text="{Binding StatusText, Mode=OneWay}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       <!-- <TextBlock Margin="12 12 12 12" Text="{Binding StatusText, Mode=OneWay}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/> -->
         
     </Grid>
    

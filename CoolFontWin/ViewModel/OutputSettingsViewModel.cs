@@ -11,6 +11,9 @@ using System.Diagnostics;
 using System.Windows;
 using Ookii.Dialogs;
 using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Threading;
+using CFW.Business.Extensions;
 
 namespace CFW.ViewModel
 {
@@ -20,6 +23,9 @@ namespace CFW.ViewModel
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
+
+        private ObservableAsPropertyHelper<SimulatorMode> _Mode;
+        private SimulatorMode Mode { get { return (_Mode.Value); } }
 
         // Input devices
         readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
@@ -40,7 +46,7 @@ namespace CFW.ViewModel
             get { return _KeyboardOutput.Value; }
         }
 
-        private string _Keybind;
+        string _Keybind;
         public string Keybind
         {
             get { return _Keybind; }
@@ -51,7 +57,7 @@ namespace CFW.ViewModel
             }
         }
 
-        private bool _KeybindChanged;
+        bool _KeybindChanged;
         public bool KeybindChanged
         {
             get { return _KeybindChanged; }
@@ -64,10 +70,10 @@ namespace CFW.ViewModel
             get { return _XboxOutput.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _XboxOutputButtonIsEnabled;
+        readonly ObservableAsPropertyHelper<bool> _XboxDevicesExist;
         public bool XboxDevicesExist
         {
-            get { return _XboxOutputButtonIsEnabled.Value; }
+            get { return _XboxDevicesExist.Value; }
         }
 
         readonly ObservableAsPropertyHelper<bool> _VJoyOutput;
@@ -76,7 +82,13 @@ namespace CFW.ViewModel
             get { return _VJoyOutput.Value; }
         }
 
-        private int? _CurrentVJoyDevice;
+        readonly ObservableAsPropertyHelper<bool> _VrOutput;
+        public bool VrOutput
+        {
+            get { return _VrOutput.Value; }
+        }
+
+        int? _CurrentVJoyDevice;
         public int? CurrentVJoyDevice // nullable
         {
             get { return _CurrentVJoyDevice; }
@@ -86,17 +98,17 @@ namespace CFW.ViewModel
             }
         }
 
-        private bool _VJoyDeviceChanged;
+        bool _VJoyDeviceChanged;
         public bool VJoyDeviceChanged
         {
             get { return _VJoyDeviceChanged; }
             set { this.RaiseAndSetIfChanged(ref _VJoyDeviceChanged, value); }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _vJoyOutputButtonIsEnabled;
+        readonly ObservableAsPropertyHelper<bool> _vJoyDevicesExist;
         public bool VJoyDevicesExist
         {
-            get { return _vJoyOutputButtonIsEnabled.Value; }
+            get { return _vJoyDevicesExist.Value; }
         }
 
         readonly ObservableAsPropertyHelper<bool> _NoVJoyDevices;
@@ -144,16 +156,51 @@ namespace CFW.ViewModel
         }
 
         // Vive controller
-        private ReactiveList<string> _Procs;
+
+        static readonly List<string> _SupportedVrSystems = new List<string> { "SteamVR" };
+        public List<string> SupportedVrSystems { get { return _SupportedVrSystems; } }
+
+        int _SelectedVrSystemIndex = 0;
+        public int SelectedVrSystemIndex
+        {
+            get { return _SelectedVrSystemIndex; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedVrSystemIndex, value); }
+        }
+        
         public ReactiveList<string> RunningProcs { get; set; }
         public string SelectedProc { get; set; }
+
+        readonly ObservableAsPropertyHelper<bool> _ProcsRefreshing;
+        public bool ProcsRefreshing
+        {
+            get { return _ProcsRefreshing.Value; }
+        }
+        readonly ObservableAsPropertyHelper<bool> _ProcsDoneRefreshing;
+        public bool ProcsDoneRefreshing
+        {
+            get { return _ProcsDoneRefreshing.Value; }
+        }
+
+        string _HookedDllName = "openvr_api.dll";
+        public string HookedDllName
+        {
+            get { return _HookedDllName; }
+            set { this.RaiseAndSetIfChanged(ref _HookedDllName, value); }
+        }
+
+        string _HookedFnName = "GetControllerState";
+        public string HookedFnName
+        {
+            get { return _HookedFnName; }
+            set { this.RaiseAndSetIfChanged(ref _HookedFnName, value); }
+        }
+
+
+        // Constructor
 
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
         private readonly ScpVBus ScpVBus;
-
-        private ObservableAsPropertyHelper<SimulatorMode> _Mode;
-        private SimulatorMode Mode { get { return (_Mode.Value); } }
 
         public OutputSettingsViewModel(AppBootstrapper bs)
         {
@@ -171,7 +218,6 @@ namespace CFW.ViewModel
 
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
-                .Throttle(TimeSpan.FromMilliseconds(250))
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
             // Keybind
@@ -197,6 +243,9 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
                 .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
 
+            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeSteamVr)
+                .ToProperty(this, x => x.VrOutput, out _VrOutput);
+
             this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
                 .ToProperty(this, x => x.CoupledText, out _CoupledText);
 
@@ -206,10 +255,10 @@ namespace CFW.ViewModel
 
             // Set *DevicesExist property based on *Devices lists having values
             this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
-                .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyOutputButtonIsEnabled);
+                .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyDevicesExist);
 
             this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
-                .ToProperty(this, x => x.XboxDevicesExist, out _XboxOutputButtonIsEnabled);
+                .ToProperty(this, x => x.XboxDevicesExist, out _XboxDevicesExist);
 
             // No*Devices is the inverse of *DevicesExist
             this.WhenAnyValue(x => x.VJoyDevicesExist, x => !x)
@@ -282,6 +331,12 @@ namespace CFW.ViewModel
                 }
             });
 
+            VrMode = ReactiveCommand.CreateFromTask(async _ =>
+            {
+                await Task.Run(() => DeviceManager.RelinquishCurrentDevice(silent: true));
+                await UpdateMode((int)SimulatorMode.ModeSteamVr);
+            });
+
             InterceptXInputDevice = ReactiveCommand.CreateFromTask<bool>(async wasChecked =>
             {
                 if (wasChecked)
@@ -291,40 +346,51 @@ namespace CFW.ViewModel
                 else DeviceManager.InterceptXInputDevice = false;
             });
 
-            AcquireDevice = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID)));
-
+            AcquireDevice = ReactiveCommand.CreateFromTask(async _ => 
+            {
+                await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID));
+            });
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
-
-            VJoyInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => VJoyInfoDialog.ShowVJoyInfoDialog()));
-            VXboxInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => ShowScpVbusDialog()));
+            VJoyInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => VJoyInfoDialog.ShowVJoyInfoDialog()));
+            VXboxInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => ShowScpVbusDialog()));
             VXboxInfo.ThrownExceptions.Subscribe(ex => log.Error(ex.Message));
 
-            JoyCplCommand = ReactiveCommand.Create(() => Process.Start("joy.cpl"));
+            JoyCplCommand = ReactiveCommand.CreateFromTask(async _=> await Task.Run(()=>Process.Start("joy.cpl")));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
 
-            _Procs = new ReactiveList<string>();
             RunningProcs = new ReactiveList<string>();
-            RefreshProcs = ReactiveCommand.Create(() =>  
+            RefreshProcs = ReactiveCommand.CreateFromTask(async () =>
             {
                 RunningProcs.Clear();
-                foreach (Process proc in Process.GetProcesses())
+                var procs = await Task.Run(() =>
+                    {
+                        Thread.Sleep(2000);
+                        return DeviceManager.GetProcessesWithModule(HookedDllName).Distinct();
+                    });
+                foreach (string proc in procs)
                 {
-                    if (proc.MainWindowTitle.Length>0) RunningProcs.Add(proc.ProcessName);
+                    RunningProcs.Add(proc);
                 }
             });
-            RefreshProcs.ThrownExceptions.Subscribe(ex => log.Error("RefreshProcs: " + ex.Message));
+            RefreshProcs.ThrownExceptions
+                .Subscribe(ex => log.Error("RefreshProcs: " + ex.Message));
 
-            int start = 0;
-            Observable
-                .Generate(start, x => x < 1, x=>x+1, x => Unit.Default)
-                .InvokeCommand(this, x => x.RefreshProcs);
+            RefreshProcs.IsExecuting
+                .ToProperty(this, x => x.ProcsRefreshing, out _ProcsRefreshing);
 
+            this.WhenAnyValue(x => x.ProcsRefreshing)
+                .Select(x=>!x)
+                .ToProperty(this, x => x.ProcsDoneRefreshing, out _ProcsDoneRefreshing);
+
+            Observable.Return(Unit.Default)
+                .InvokeCommand(RefreshProcs);
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl);
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
         public ReactiveCommand VJoyMode { get; set; }
         public ReactiveCommand XboxMode { get; set; }
+        public ReactiveCommand VrMode { get; set; }
         public ReactiveCommand AcquireDevice { get; set; }
         public ReactiveCommand AddRemoveSecondaryDevice { get; set; }
         public ReactiveCommand PlayPause { get; set; }
@@ -380,6 +446,11 @@ namespace CFW.ViewModel
             await Task.Run(() => DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
         }
 
+        private async Task InjectProcImpl()
+        {
+            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc + ".exe", dll: HookedDllName, fname: HookedFnName));
+        }
+
         private string XboxLedImagePath(int id)
         {
             switch (id)
@@ -428,11 +499,6 @@ namespace CFW.ViewModel
                     ScpVBus.Install();
                 }
             });
-        }
-
-        private async Task InjectProcImpl()
-        {
-            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc + ".exe"));
         }
 
         public void ShowRestartMessage()

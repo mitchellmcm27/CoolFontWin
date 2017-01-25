@@ -22,23 +22,6 @@ namespace CFW.ViewModel
             DnsServer = dnsServer;
         }
 
-        private Image ImageFromMode(SimulatorMode mode)
-        {
-            switch (mode)
-            {
-                case SimulatorMode.ModeWASD:
-                    return Properties.Resources.ic_keyboard_white_18dp;
-                case SimulatorMode.ModeJoystickCoupled:
-                case SimulatorMode.ModeJoystickDecoupled:
-                case SimulatorMode.ModeJoystickTurn:
-                    return Properties.Resources.ic_videogame_asset_white_18dp;
-                case SimulatorMode.ModePaused:
-                    return Properties.Resources.ic_pause_white_18dp;
-                default:
-                    return null;
-            }
-        }
-
         private void SmoothingDouble_Click(object sender, EventArgs e)
         {
             DeviceManager.SmoothingFactor*=2;
@@ -266,7 +249,6 @@ namespace CFW.ViewModel
             smoothingHalfItem.Image = Drawing.CreateBitmapImage("-", Color.White);
 
             ToolStripMenuItem logItem = ToolStripMenuItemWithHandler("View log file", ViewLog_Click);
-            logItem.Image = Properties.Resources.ic_folder_open_white_18dp;
             logItem.ImageScaling = ToolStripItemImageScaling.None;
 
             ToolStripMenuItem ConfigureOutputSubmenu = new ToolStripMenuItem("Options");

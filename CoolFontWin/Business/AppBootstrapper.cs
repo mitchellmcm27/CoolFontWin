@@ -52,20 +52,16 @@ namespace CFW.Business
 
             Status = "Starting network services";
             // Get number of expected mobile device inputs from Default
-            List<string> names = Properties.Settings.Default.ConnectedDevices.Cast<string>().ToList();
-            DeviceManager.MobileDevicesCount = names.Count;
+            DeviceManager.MobileDevicesCount = 1;
             UdpServer.Start(Properties.Settings.Default.LastPort);
             int port = UdpServer.Port;
             Properties.Settings.Default.LastPort = port;
             Properties.Settings.Default.Save();
 
-            // publish 1 network service for each device
-            for (int i = 0; i < names.Count; i++)
-            {
-                DnsServer.Publish(port, names[i]);
-            }
+            // publish network service for primary device
+            DnsServer.Publish(port, "Primary");
 
-            Status = "Finding virtual devices";
+            Status = "Creating virtual devices";
             log.Info("Get enabled devices...");
             DeviceManager.VDevice.GetEnabledDevices();
             Properties.Settings.Default.FirstInstall = false;
@@ -106,42 +102,6 @@ namespace CFW.Business
             System.Net.Sockets.TcpListener t = new System.Net.Sockets.TcpListener(ipLocalEndPoint);
             t.Start();
             t.Stop();
-        }
-
-        /// <summary>
-        /// Not used. Open and close TCP port instead.
-        /// </summary>
-        /// <param name="path"></param>
-        private void AddFirewallRule(string path)
-        {
-            log.Info("Authorize firewall via netsh command");
-
-            string arguments = "advfirewall firewall add rule name=\"PocketStrafe PC\" dir=in action=allow program=\"" + path + "\" enable=yes";
-            log.Info("netsh " + arguments);
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
-            procStartInfo.RedirectStandardOutput = false;
-            procStartInfo.UseShellExecute = true;
-            procStartInfo.CreateNoWindow = true;
-            procStartInfo.Verb = "runas";
-            Process.Start(procStartInfo);
-        }
-
-        /// <summary>
-        /// Not used. Open and close TCP port instead.
-        /// </summary>
-        /// <param name="path"></param>
-        private void DeleteFirewallRule(string path)
-        {
-            log.Info("Delete firewall rule via netsh command");
-
-            string arguments = "advfirewall firewall delete rule name=\"PocketStrafe PC\" program=\"" + path + "\"";
-            log.Info("netsh " + arguments);
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("netsh", arguments);
-            procStartInfo.RedirectStandardOutput = false;
-            procStartInfo.UseShellExecute = true;
-            procStartInfo.CreateNoWindow = true;
-            procStartInfo.Verb = "runas";
-            Process.Start(procStartInfo);
         }
     }
 }

@@ -15,7 +15,8 @@
         TextElement.FontSize="14"
         FontFamily="{DynamicResource MaterialDesignFont}"
         TextOptions.TextFormattingMode="Ideal" 
-        TextOptions.TextRenderingMode="Auto"   
+        TextOptions.TextRenderingMode="Auto"
+        Width="600" Height="600"
         SizeToContent="WidthAndHeight"
         UseLayoutRounding="True" WindowStyle="None" AllowsTransparency="True" ResizeMode="CanMinimize"
         Closing="Window_Closing">
@@ -30,8 +31,8 @@
             <View:ToolbarControl x:Name="toolbarControl" Margin="8,0,8,0" VerticalAlignment ="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Top" DataContext="{Binding ToolbarVM}"/>
             <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" DockPanel.Dock="Bottom"/>
             <Grid>
-                <ContentControl x:Name="splashControl" DataContext="{Binding SplashVM}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Top"/>
-                <ContentControl x:Name="contentControl" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ContentControl x:Name="splashControl" HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top"/>
+                <ContentControl x:Name="contentControl" HorizontalAlignment="Left" VerticalAlignment="Top"/>
             </Grid>
 
         </DockPanel>

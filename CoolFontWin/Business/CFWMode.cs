@@ -23,6 +23,9 @@ namespace CFW.Business
         [Description("Decoupled gamepad")]
         ModeJoystickDecoupled, // phone direction decides which direction the character strafes (no turning)
 
+        [Description("SteamVR")]
+        ModeSteamVr,
+
         [Description("Gamepad+Mouse")]
         ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
 
@@ -38,9 +41,9 @@ namespace CFW.Business
     {
 
 #if DEBUG
-        private static readonly int ModeCount = 7;
+        private static readonly int ModeCount = 8;
 #else
-        private static readonly int ModeCount = 4;
+        private static readonly int ModeCount = 5;
 #endif
 
         /// <summary>

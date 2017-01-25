@@ -85,17 +85,18 @@ namespace CFW.Business
 
             List<IPAddress> localAddrs = new List<IPAddress>();
             try
-            { 
-                log.Info("Will search for LAN IPv4 addresses for this computer...");
+            {
+                log.Info("Searching for network interfaces...");
+                log.Info("  LAN IPv4...");
                 localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetwork));
 
-                log.Info("Will search for WiFi IPv4 addresses...");
+                log.Info("  WiFi IPv4...");
                 localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetwork));
 
-                log.Info("Will search for LAN IPv6 addresses for this computer...");
+                log.Info("  LAN IPv6...");
                 localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Ethernet, AddressFamily.InterNetworkV6));
 
-                log.Info("Will search for WiFi IPv6 addresses...");
+                log.Info("  WiFi IPv6...");
                 localAddrs.AddRange(GetAddresses(NetworkInterfaceType.Wireless80211, AddressFamily.InterNetworkV6));
             }
             catch (Exception e)
@@ -235,12 +236,6 @@ namespace CFW.Business
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);    
             }
             DeviceHub.MobileDevicesCount = DeviceNames.Count;
-
-            // update Defaults with this name
-            StringCollection collection = new StringCollection();
-            collection.AddRange(DeviceNames.ToArray());
-            Properties.Settings.Default.ConnectedDevices = collection;
-            Properties.Settings.Default.Save();
         }
 
         /// <summary>
@@ -264,13 +259,6 @@ namespace CFW.Business
             // unpublish service containing this name
             Unpublish(name);
             ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-
-            // update Defaults 
-            StringCollection collection = new StringCollection();
-            collection.AddRange(DeviceNames.ToArray());
-            Properties.Settings.Default.ConnectedDevices = collection;
-            Properties.Settings.Default.Save();
-
             DeviceHub.MobileDevicesCount = DeviceNames.Count;
         }
 
@@ -281,15 +269,14 @@ namespace CFW.Business
             // Return string array
 
             List<IPAddress> ipAddrList = new List<IPAddress>();
-            log.Info("Try to get " + family.ToString() + " addresses on interface " + type.ToString()+".");
             foreach (NetworkInterface item in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (item.NetworkInterfaceType == type && item.OperationalStatus == OperationalStatus.Up)
                 {
-                    log.Info("Found operational item: " + item.Name);
+                    log.Info("    Found operational item: " + item.Name);
                     if (item.Name.Equals("Hamachi"))
                     {
-                        log.Info("Skipping Hamachi interface");
+                        log.Info("    Skipping Hamachi interface");
                         continue;
                     }
 
@@ -297,9 +284,10 @@ namespace CFW.Business
                     {
                         if (ip.Address.AddressFamily == family)
                         {
-                            log.Info("ADDRESS");
-                            log.Info("Inforamation:\n" + "...Address: " + ip.Address.ToString() + "\n...IPv4 Mask: " + ip.IPv4Mask.ToString());
-                            log.Info("...DNS Eligible?: " + ip.IsDnsEligible.ToString() + "\n...DHCP Lifetime: " + ip.DhcpLeaseLifetime.ToString());
+                            log.Info("    Address Info:");
+                            log.Info("      Address " + ip.Address.ToString());
+                            log.Info("      IPv4 Mask " + ip.IPv4Mask.ToString());
+                            log.Info("      DNS Eligible " + ip.IsDnsEligible.ToString());
                             ipAddrList.Add(ip.Address);
                         }
                     }

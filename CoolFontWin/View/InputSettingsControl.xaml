@@ -7,7 +7,7 @@
              xmlns:ViewModel="clr-namespace:CFW.ViewModel"
              xmlns:local="clr-namespace:CFW.View"
              d:DataContext="{d:DesignInstance ViewModel:InputSettingsViewModel}"
-             mc:Ignorable="d" Height="Auto" Width="Auto">
+             mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -27,7 +27,7 @@
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
+    <materialDesign:Card Grid.Column="0" materialDesign:ShadowAssist.ShadowDepth="Depth0">
             <DockPanel>
                 <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryMid"  DockPanel.Dock="Top">
@@ -38,7 +38,7 @@
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
                         <RowDefinition Height="64"/>
-                    <RowDefinition Height="64"/>
+                        <RowDefinition Height="16"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -51,21 +51,30 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-
+                    
                     <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <CheckBox VerticalAlignment ="Center" IsChecked="{Binding PrimaryDevice, Mode=OneWay}" IsEnabled="False" Margin="8,0,8,0"/>
+                        <Button Style="{StaticResource MaterialDesignToolButton}"
+                                Margin="4,0,4,0" 
+                                VerticalAlignment="Center"
+                                Command="{Binding BonjourInfo}"
+                                ToolTip="Bonjour is missing!"
+                                IsEnabled="{Binding BonjourNotInstalled}" Visibility="{Binding BonjourNotInstalled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <materialDesign:PackIcon Kind="AlertCircle" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
+                                             ToolTip="Error installing Bonjour!"
+                                             Width="19" Height="19" Foreground="{DynamicResource SecondaryAccentBrush}"/>
+                        </Button>
+                        <CheckBox 
+                            VerticalAlignment ="Center" 
+                            IsChecked="{Binding PrimaryDevice, Mode=OneWay}"
+                            Visibility="{Binding PrimaryDevice, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            IsEnabled="False" 
+                            Margin="8,0,8,0"/>
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18"                                                 
                                                  />
                         
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Primary mobile</TextBlock>
-                        <Button Margin="0" Command="{Binding BonjourInfo}" Style="{StaticResource MaterialDesignToolForegroundButton}" 
-                                Background="Transparent" ToolTip="Bonjour is missing!"
-                                IsEnabled="{Binding BonjourNotInstalled}" Visibility="{Binding BonjourNotInstalled, Converter={StaticResource BoolToHiddenConverter}, FallbackValue=Hidden}">
-                            <materialDesign:PackIcon Kind="AlertCircleOutline" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Padding="0"
-                                             ToolTip="Error installing Bonjour!"
-                                             Width="18" Height="18" Foreground="{DynamicResource SecondaryAccentBrush}"/>
-                        </Button>
+                        
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="12" FontStyle="Italic">iPhone/Android</TextBlock>
@@ -111,10 +120,10 @@
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="12" FontStyle="Italic">Physical controller</TextBlock>
                 </Grid>
-
-                <Button Name="PlayPauseButton" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Margin="16,24,16,8" HorizontalAlignment="Center"
-
-                        Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
+            </Grid>
+            <Button Name="PlayPauseButton" 
+                    DockPanel.Dock="Bottom" Margin="16" HorizontalAlignment="Center"
+                    Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
                     <Button.Content>
                         <DockPanel HorizontalAlignment="Left">
                             <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>
@@ -122,7 +131,7 @@
                         </DockPanel>
                     </Button.Content>
                 </Button>
-            </Grid>
+            
             </DockPanel>
         </materialDesign:Card>
 </UserControl>
