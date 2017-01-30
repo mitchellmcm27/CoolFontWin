@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using SharpDX.XInput;
 using log4net;
 using ReactiveUI;
-using Nektra.Deviare2;
 using System.Diagnostics;
+using EasyHook;
+using System.Reflection;
 
 namespace CFW.Business
 {
@@ -137,21 +138,12 @@ namespace CFW.Business
             }
         }
 
-        static NktSpyMgr SpyMgr;
+
         public DeviceManager()
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
-            VDevice = new VirtualDevice(UpdateInterval);
-
-            SpyMgr = new NktSpyMgr();
-            if (SpyMgr.Initialize() < 0)
-            {
-                log.Error("Cannot initialize Deviare");
-                return;
-            }
-            
-
+            VDevice = new VirtualDevice(UpdateInterval);   
             InitializeTimer();
         }
 
@@ -160,9 +152,7 @@ namespace CFW.Business
         /// </summary>
         /// <returns>Returns boolean indicating if a controller was acquired.</returns>
         public bool AcquireXInputDevice()
-        {
-            InterceptXInputDevice = true;
-                 
+        {                 
             uint id = VDevice.Id;
             if (id > 1000)
             {
@@ -180,6 +170,7 @@ namespace CFW.Business
                 XInputDeviceConnected = true;
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good, afterMilliseconds: 1000);
                 xDeviceAcquired = true;
+                
                 if (id == 0)
                 {
                     VDevice.AcquireUnusedVDev();
@@ -190,11 +181,13 @@ namespace CFW.Business
                 }
 
                 TryMode((int)SimulatorMode.ModeJoystickCoupled);
+                InterceptXInputDevice = true;
             }
             else
             {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad, afterMilliseconds: 1000);
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 xDeviceAcquired = false;
+                InterceptXInputDevice = true;
                 InterceptXInputDevice = false;
                 AcquireVDev(id);
             }
@@ -325,86 +318,55 @@ namespace CFW.Business
             VDevice.FeedVDev();
         }
 
-        private NktProcess _process = null;
-        private NktHook hook;
-        public void InjectControllerIntoProcess(string proc, string dll = "openvr_api.dll", string fname = "GetControllerState")
+        public void InjectControllerIntoProcess(string proc)
         {
-            GetProcess(proc);
-            if (_process==null)
-            {
-                log.Debug("Could not get process " + proc);
-                return;
-            }
-            log.Info("Got process:\n Name: " + _process.Name + "\n Id: " + _process.Id);
+            string channelName = null;
+            try
+            { 
+                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
+                log.Info("Create IPC server...");
 
-            NktModule module = _process.ModuleByName(dll);
-            if (module==null)
-            {
-                return;
-            }
-            log.Info("Found module " + module.Name);
+                RemoteHooking.IpcCreateServer<Main>(
+                    ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
+                
+                log.Info("Inject the dll...");
 
-            NktExportedFunction function = module.FunctionByName(fname);
-            if (function==null)
-            {
-                return;
+                RemoteHooking.Inject(
+                    Process.GetProcessesByName(proc)[0].Id,
+                    InjectionOptions.DoNotRequireStrongName,
+                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
+                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
+                    channelName);
             }
-            log.Info("Found function " + function.Name);
+            catch (Exception e)
+            {
+                log.Error("  EasyHook Error: " + e.Message);
+                log.Error(e);
+            }
 
-            hook = SpyMgr.CreateHook(function, (int)(eNktHookFlags.flgRestrictAutoHookToSameExecutable | eNktHookFlags.flgOnlyPreCall));
-            if(hook==null)
-            {
-                return;
-            }
-            log.Info("Hook created: " + hook.FunctionName);
-            hook.OnFunctionCalled += OnFunctionCalled;
-         
-            // This will crash the hooked process if it hasn't loaded the dll
-            hook.Hook(true); // bool synchronous
-            hook.Attach(_process, true); // bool synchronous
         }
 
-
-        private bool GetProcess(string proccessName)
+        private static readonly HashSet<string> DllNames = new HashSet<string>
         {
-            NktProcessesEnum enumProcess = SpyMgr.Processes();
-            NktProcess tempProcess = enumProcess.First();   
-            while (tempProcess != null)
-            {
-                if (tempProcess.Name.Equals(proccessName, StringComparison.InvariantCultureIgnoreCase) && tempProcess.PlatformBits > 0 && tempProcess.PlatformBits <= IntPtr.Size * 8)
-                {
-                    _process = tempProcess;
-                    return true;
-                }
-                tempProcess = enumProcess.Next();
-            }
-            _process = null;
-            return false;
-        }
+            "openvr_api.dll",
+            "ovrplugin.dll",
+            "vrclient.dll",
+
+        };
 
         public List<string> GetProcessesWithModule(string dllName)
         {
+            var thisName = Process.GetCurrentProcess().ProcessName;
             var list = new List<string>();
-            NktProcessesEnum enumProcess = SpyMgr.Processes();
-            NktProcess tempProcess = enumProcess.First();
-            while (tempProcess != null)
+            foreach(var proc in Process.GetProcesses())
             {
-                if ((dllName.Length == 0 || tempProcess.ModuleByName(dllName) != null) && tempProcess.PlatformBits > 0 && tempProcess.PlatformBits <= IntPtr.Size * 8)
+                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName))
                 {
-                    list.Add(tempProcess.Name);
+                    list.Add(proc.ProcessName);
                 }
-                tempProcess = enumProcess.Next();
             }
             return list;
         }
-
-        void OnFunctionCalled(INktHook hook, INktProcess proc, INktHookCallInfo callInfo)
-        {
-            INktParamsEnum pms = callInfo.Params();
-            INktParam p;
-            log.Info("FUNCTION CALLBACK");
-        }
-
 
         public void ForceUnplugAllXboxControllers()
         {  
@@ -414,7 +376,6 @@ namespace CFW.Business
         public void Dispose()
         {
             RelinquishCurrentDevice(silent:true);
-            hook.Detach(_process);
             Properties.Settings.Default.VJoyID = (int)VDevice.Id;
             Properties.Settings.Default.Save(); 
         }    

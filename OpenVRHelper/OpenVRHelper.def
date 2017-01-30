@@ -1,0 +1,4 @@
+LIBRARY	"OpenVRHelper"
+EXPORTS
+GetOpenVRFunctionAddress
+

@@ -63,9 +63,9 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
-                                Visibility="{Binding KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Visibility="{Binding IsChecked, ElementName=KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <RadioButton Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8"
+                        <RadioButton x:Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8"
                              IsChecked="{Binding KeyboardOutput, Mode=OneWay}"
                              Command="{Binding KeyboardMode}"/>
                         <materialDesign:PackIcon Kind="Keyboard" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
@@ -73,11 +73,11 @@
                         <TextBlock VerticalAlignment="Center" Text="Keyboard"/>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Margin="0,0,0,24"
-                                Visibility="{Binding KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Visibility="{Binding IsChecked, ElementName=KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </Grid>
 
                 <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center"
-                           Visibility="{Binding KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding IsChecked, ElementName=KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Button x:Name="AcceptKeybindButton" DockPanel.Dock="Right" Margin="0"  ToolTip="Accept" Width="24" Height="24"
                             Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}"
                             Visibility="{Binding KeybindChanged, Converter={StaticResource BoolToHiddenConverter}}"
@@ -103,7 +103,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
-                                Visibility="{Binding XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Visibility="{Binding IsChecked, ElementName=XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="1" ToolTip="Virtual Xbox 360 controller">
                         <Button Style="{StaticResource MaterialDesignToolButton}"
@@ -115,7 +115,7 @@
                             <materialDesign:PackIcon Kind="AlertCircle" VerticalAlignment="Center" HorizontalAlignment="Center"
                                              Width="19" Height="19" Foreground="{DynamicResource SecondaryAccentBrush}"/>
                         </Button>
-                        <RadioButton Name="XboxOutput"  
+                        <RadioButton x:Name="XboxOutput"  
                                      GroupName="Output" 
                                      HorizontalAlignment="Center" 
                                      VerticalAlignment="Center"  
@@ -135,7 +135,7 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="2" 
-                                Visibility="{Binding XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                Visibility="{Binding IsChecked, ElementName=XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 ToolTip="In coupled locomotion games, movement direction is bound to look direction"
                                 HorizontalAlignment="Left" Margin="43,0,0,24">
                         <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16" Margin="0,0,8,0"
@@ -150,7 +150,7 @@
                 </Grid>
 
                 <materialDesign:Chip Grid.Column="2" Grid.Row="1" IsEnabled="False" Width="40"
-                                     Visibility="{Binding XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                     Visibility="{Binding IsChecked, ElementName=XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"
                                      HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource MaterialDesignDivider}">
                     <Image Source="{Binding XboxLedImage}" Stretch="None" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </materialDesign:Chip>
@@ -166,7 +166,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
-                                Visibility="{Binding VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Visibility="{Binding IsChecked, ElementName=VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                         <Button Style="{StaticResource MaterialDesignToolButton}"
@@ -179,11 +179,11 @@
                             <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
                                              Width="19" Height="19"/>
                         </Button>
-                        <RadioButton  GroupName="Output" VerticalAlignment="Center" Margin="8,0,8,0"
+                        <RadioButton  GroupName="Output" x:Name="VJoyOutput" VerticalAlignment="Center" Margin="8,0,8,0"
                              IsChecked="{Binding VJoyOutput, Mode=OneWay}"
                              Visibility="{Binding VJoyDevicesExist, Converter={StaticResource BooleanToVisibilityConverter}}"
                              Command ="{Binding VJoyMode}"
-                             CommandParameter="{Binding ElementName=VJoyDevices,Path=SelectedItem}"/>
+                             CommandParameter="{Binding ElementName=VJoyDevices, Path=SelectedItem}"/>
                         <Rectangle Fill="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" Margin="8,0,8,0"
                                    Width="18" Height="18">
                             <Rectangle.OpacityMask>
@@ -195,7 +195,7 @@
 
                     <StackPanel Grid.Row="2" Orientation="Horizontal" ToolTip="In decoupled locomotion games, movement and look directions are independent"
                                 HorizontalAlignment="Left" Margin="43,0,0,24" Grid.ColumnSpan="2"
-                                Visibility="{Binding VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                Visibility="{Binding IsChecked, ElementName=VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16"
                                       IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}"  
                                       HorizontalAlignment="Center" Margin="0,0,8,0"
@@ -210,7 +210,7 @@
                 </Grid>
 
                 <DockPanel  Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right"
-                            Visibility="{Binding VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding IsChecked, ElementName=VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Button Margin="0"  ToolTip="Accept" Width="24" Height="24" DockPanel.Dock="Right" IsEnabled="{Binding VJoyDevicesExist}"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}" Foreground="{DynamicResource PrimaryHueMidBrush}"
                             Command="{Binding AcquireVJoyDevice}" Visibility="{Binding VJoyDeviceChanged, Converter={StaticResource BoolToHiddenConverter}}">
@@ -229,10 +229,10 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
-                                Visibility="{Binding VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Visibility="{Binding IsChecked, ElementName=VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <RadioButton Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
+                        <RadioButton x:Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
                              IsChecked="{Binding VrOutput, Mode=OneWay}"
                              Command="{Binding VrMode}"/>
                         <materialDesign:PackIcon Kind="Steam" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
@@ -248,7 +248,7 @@
 
                 <DockPanel  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" 
                             VerticalAlignment="Center" HorizontalAlignment="Right"
-                            Visibility="{Binding VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Button Margin="0"
                             ToolTip="Inject process" 
                             Width="24" Height="24" 

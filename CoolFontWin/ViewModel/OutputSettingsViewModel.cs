@@ -181,6 +181,7 @@ namespace CFW.ViewModel
             get { return _ProcsDoneRefreshing.Value; }
         }
 
+        //OVRPlugin.dll
         string _HookedDllName = "openvr_api.dll";
         public string HookedDllName
         {
@@ -188,7 +189,7 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _HookedDllName, value); }
         }
 
-        string _HookedFnName = "GetControllerState";
+        string _HookedFnName = "GetControllerStateWithPose";
         public string HookedFnName
         {
             get { return _HookedFnName; }
@@ -202,11 +203,11 @@ namespace CFW.ViewModel
         private readonly DNSNetworkService DnsServer;
         private readonly ScpVBus ScpVBus;
 
-        public OutputSettingsViewModel(AppBootstrapper bs)
+        public OutputSettingsViewModel(PocketStrafe ps)
         {
-            DeviceManager = bs.DeviceManager;
-            DnsServer = bs.DnsServer;
-            ScpVBus = bs.ScpVBus;
+            DeviceManager = ps.DeviceManager;
+            DnsServer = ps.DnsServer;
+            ScpVBus = ps.ScpVBus;
 
             this.WhenAnyValue(x => x.ScpVBus.InstallSuccess)
                 .Where(x => x)
@@ -337,15 +338,6 @@ namespace CFW.ViewModel
                 await UpdateMode((int)SimulatorMode.ModeSteamVr);
             });
 
-            InterceptXInputDevice = ReactiveCommand.CreateFromTask<bool>(async wasChecked =>
-            {
-                if (wasChecked)
-                {
-                    await Task.Run(() => DeviceManager.AcquireXInputDevice());
-                }
-                else DeviceManager.InterceptXInputDevice = false;
-            });
-
             AcquireDevice = ReactiveCommand.CreateFromTask(async _ => 
             {
                 await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID));
@@ -365,7 +357,7 @@ namespace CFW.ViewModel
                 var procs = await Task.Run(() =>
                     {
                         Thread.Sleep(2000);
-                        return DeviceManager.GetProcessesWithModule(HookedDllName).Distinct();
+                        return DeviceManager.GetProcessesWithModule("").Distinct().OrderBy(s => s[0]);
                     });
                 foreach (string proc in procs)
                 {
@@ -395,7 +387,6 @@ namespace CFW.ViewModel
         public ReactiveCommand AddRemoveSecondaryDevice { get; set; }
         public ReactiveCommand PlayPause { get; set; }
         public ReactiveCommand CoupledDecoupled { get; set; }
-        public ReactiveCommand InterceptXInputDevice { get; set; }
         public ReactiveCommand StartKeybind { get; set; }
         public ReactiveCommand ChangeKeybind { get; set; }
         public ReactiveCommand JoyCplCommand { get; set; }
@@ -448,7 +439,7 @@ namespace CFW.ViewModel
 
         private async Task InjectProcImpl()
         {
-            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc + ".exe", dll: HookedDllName, fname: HookedFnName));
+            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
         }
 
         private string XboxLedImagePath(int id)

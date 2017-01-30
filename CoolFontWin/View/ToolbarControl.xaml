@@ -32,7 +32,7 @@
             <Menu IsMainMenu="True">
                 <MenuItem Header="PocketStrafe">
                     <MenuItem.Icon>
-                        <materialDesign:PackIcon Kind="ChevronDown" Width="16" Height="16" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <materialDesign:PackIcon Kind="Menu"/>
                     </MenuItem.Icon>
                     <MenuItem Header="This PC">
                         <MenuItem.Icon>

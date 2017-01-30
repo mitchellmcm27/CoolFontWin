@@ -42,13 +42,13 @@ namespace CFW
             base.OnStartup(e);
         }
 
-        private Business.AppBootstrapper bs;
+        private Business.PocketStrafe bs;
         private async void StartAsync()
         {
             var main = new MainWindow();
             main.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             main.splashControl.Content = new View.Splash();
-            bs = new Business.AppBootstrapper();
+            bs = new Business.PocketStrafe();
             main.DataContext = new ViewModel.MainViewModel(bs);
             main.contentControl.Visibility = Visibility.Hidden;
             var settings = new View.SettingsView();
@@ -94,7 +94,6 @@ namespace CFW
             if (res == MessageBoxResult.Yes || res == MessageBoxResult.OK)
             {
                 Business.LogFileManager.EmailLogFile();
-
             }
 
         }

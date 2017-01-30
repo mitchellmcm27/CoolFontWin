@@ -54,11 +54,11 @@ namespace CFW.ViewModel
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
         private SimulatorMode Mode { get { return (_Mode.Value); } }
 
-        public ToolbarViewModel(AppBootstrapper bs)
+        public ToolbarViewModel(PocketStrafe ps)
         {
-            Updater = bs.AppCastUpdater;
-            DnsServer = bs.DnsServer;
-            DeviceManager = bs.DeviceManager;
+            Updater = ps.AppCastUpdater;
+            DnsServer = ps.DnsServer;
+            DeviceManager = ps.DeviceManager;
 
             // IP address
             this.WhenAnyValue(x => x.DnsServer.Address, x => x.DnsServer.Port, (addr, p) => string.Format(addr + " : " + p.ToString()))

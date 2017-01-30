@@ -17,12 +17,12 @@ namespace CFW.ViewModel
             get { return _StatusText.Value; }
         }
 
-        private Business.AppBootstrapper Bs;
+        private Business.PocketStrafe ps;
 
-        public SplashScreenViewModel(Business.AppBootstrapper bs)
+        public SplashScreenViewModel(Business.PocketStrafe bs)
         {
-            Bs = bs;
-            this.WhenAnyValue(x => x.Bs.Status)
+            ps = bs;
+            this.WhenAnyValue(x => x.ps.Status)
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ToProperty(this, x => x.StatusText, out _StatusText);
         }

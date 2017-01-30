@@ -10,7 +10,7 @@ using ReactiveUI;
 
 namespace CFW.Business
 {
-    public class AppBootstrapper : ReactiveObject
+    public class PocketStrafe : ReactiveObject
     {
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -29,7 +29,7 @@ namespace CFW.Business
         public DeviceManager DeviceManager { get; set; }
         public AppCastUpdater AppCastUpdater { get; set; }
 
-        public AppBootstrapper()
+        public PocketStrafe()
         {
             ScpVBus = new ScpVBus();
             DeviceManager = new DeviceManager();

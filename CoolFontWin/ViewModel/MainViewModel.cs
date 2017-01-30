@@ -16,12 +16,12 @@ namespace CFW.ViewModel
         public SplashScreenViewModel SplashVM { get; set; }
         public ToolbarViewModel ToolbarVM { get; set; }
 
-        public MainViewModel(Business.AppBootstrapper bs)
+        public MainViewModel(Business.PocketStrafe ps)
         {
-            SplashVM = new SplashScreenViewModel(bs);
-            InputSettingsVM = new InputSettingsViewModel(bs);
-            OutputSettingsVM = new OutputSettingsViewModel(bs);
-            ToolbarVM = new ToolbarViewModel(bs);
+            SplashVM = new SplashScreenViewModel(ps);
+            InputSettingsVM = new InputSettingsViewModel(ps);
+            OutputSettingsVM = new OutputSettingsViewModel(ps);
+            ToolbarVM = new ToolbarViewModel(ps);
         }
     }
 }

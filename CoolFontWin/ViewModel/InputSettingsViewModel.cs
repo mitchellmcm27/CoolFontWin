@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CFW.Business;
+using System.Reactive.Linq;
 
 namespace CFW.ViewModel
 {
@@ -70,10 +71,10 @@ namespace CFW.ViewModel
         private readonly DeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
 
-        public InputSettingsViewModel(AppBootstrapper bs)
+        public InputSettingsViewModel(PocketStrafe ps)
         {
-            DeviceManager = bs.DeviceManager;
-            DnsServer = bs.DnsServer;
+            DeviceManager = ps.DeviceManager;
+            DnsServer = ps.DnsServer;
 
             // Primary device DNS service (implies that Bonjour wasn't installed)
             this.WhenAnyValue(x => x.DnsServer.BonjourInstalled, x => !x)
@@ -110,7 +111,7 @@ namespace CFW.ViewModel
                     {
                         await Task.Run(() => DeviceManager.AcquireXInputDevice());
                     }
-                    else DeviceManager.InterceptXInputDevice = false;
+                    else DeviceManager.InterceptXInputDevice = false; 
                 });
 
             AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
