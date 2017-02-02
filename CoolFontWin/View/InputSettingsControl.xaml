@@ -30,15 +30,14 @@
     <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth0">
             <DockPanel>
                 <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryMid"  DockPanel.Dock="Top">
+                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
                     <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16">Input devices</TextBlock>
                 </materialDesign:ColorZone>
                 <Grid DockPanel.Dock="Top" Margin="8">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="64"/>
-                        <RowDefinition Height="64"/>
-                        <RowDefinition Height="64"/>
-                        <RowDefinition Height="16"/>
+                        <RowDefinition Height="72"/>
+                        <RowDefinition Height="72"/>
+                        <RowDefinition Height="72"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -123,7 +122,9 @@
             </Grid>
             <Button Name="PlayPauseButton" 
                     DockPanel.Dock="Bottom" Margin="16" HorizontalAlignment="Center"
-                    Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding PlayPause}">
+                    Style="{DynamicResource MaterialDesignFlatButton}"
+                    VerticalAlignment="Bottom"
+                    Command="{Binding PlayPause}">
                     <Button.Content>
                         <DockPanel HorizontalAlignment="Left">
                             <materialDesign:PackIcon Kind="{Binding PauseButtonIcon}" DockPanel.Dock="Left" Margin="4"/>

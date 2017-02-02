@@ -139,7 +139,7 @@ namespace CFW.Business
 
                 while (true)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(10);
                     bool running = Interface.UserIsRunning;
                     if (running != UserRunning)
                     {
@@ -147,7 +147,7 @@ namespace CFW.Business
                         ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
 
                         UserRunning = running;
-                        MyEvent = new VREvent();
+                        MyEvent = new ButtonEvent();
                         MyEvent.Queued = true;
                     }
                 }
@@ -181,7 +181,7 @@ namespace CFW.Business
             }
         }
 
-        public class VREvent
+        public class ButtonEvent
         {
             public bool Queued = false;
             public bool ShouldTouch = true;
@@ -190,7 +190,7 @@ namespace CFW.Business
             public bool PressDone = false;
         }
 
-        public VREvent MyEvent = new VREvent();
+        public ButtonEvent MyEvent = new ButtonEvent();
 
         private bool CreateEvent(ref VREvent_t pEvent)
         {

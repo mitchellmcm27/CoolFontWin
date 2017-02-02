@@ -27,20 +27,26 @@
     </UserControl.Resources>
 
     <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
-        <DockPanel>
+        <DockPanel VerticalAlignment="Stretch">
             <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryMid"  DockPanel.Dock="Top">
-                <DockPanel>
+                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16"
+                           Text="Output device"/>
                     <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
                                 Style="{StaticResource MaterialDesignToolForegroundButton}">
                         <materialDesign:PackIcon Kind="Gauge" Height="24" Width="24"/>
                     </Button>
-                    <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16"
-                           Text="Output device"/>
-                </DockPanel>
+
+                </StackPanel>
             </materialDesign:ColorZone>
-            <Button DockPanel.Dock="Bottom" Name="RelinquishAllXboxButton" Margin="16" HorizontalAlignment="Center"
-                        Style="{DynamicResource MaterialDesignFlatButton}" Command="{Binding UnplugAllXboxCommand}" Content="Reset"/>
+            <Button DockPanel.Dock="Bottom" 
+                Name="RelinquishAllXboxButton" 
+                Margin="16" 
+                HorizontalAlignment="Center"       
+                VerticalAlignment="Bottom"
+                Style="{DynamicResource MaterialDesignFlatButton}" 
+                Command="{Binding UnplugAllXboxCommand}" Content="Reset"/>
             <Grid Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -48,7 +54,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="16"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -228,10 +233,10 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Margin="0,0,0,8"
+                    <StackPanel Grid.Row="0" Margin="0,0,0,24"
                                 Visibility="{Binding IsChecked, ElementName=VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                    
+
                     <StackPanel Grid.Row="1" Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
@@ -253,7 +258,7 @@
                 <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="24,0,0,0"
                    Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                    <DockPanel>
+                    <DockPanel Margin="0,8,0,0">
                         <Button ToolTip="Refresh"
                                 Margin="3,0,3,0"
                                 Width="24" 
@@ -274,7 +279,8 @@
                                      Visibility="{Binding ProcsRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}"
                                      Value="0"
                                      Width="18" Height="18"/>
-                        <ComboBox Grid.Row="2" Width="128"
+                        <ComboBox Grid.Row="2" Width="152"
+                                  Margin="8,0,8,0"
                                   DockPanel.Dock="Right"
                                   HorizontalAlignment="Right"
                                   FontSize="11"     
@@ -282,23 +288,28 @@
                                   ItemsSource="{Binding RunningProcs, TargetNullValue=''}" 
                                   SelectedItem="{Binding SelectedProc, TargetNullValue=''}"
                                   IsSynchronizedWithCurrentItem="true"/>
-                        <TextBlock VerticalAlignment="Center" 
+                        <TextBlock VerticalAlignment="Center"
+                                   FontSize="11"
                                    Margin="0,0,8,0"
                                    DockPanel.Dock="Left"
                                    Text="Game"/>
                     </DockPanel>
-                    <DockPanel>
+                    <DockPanel Margin="0,0,0,4">
                         <TextBlock VerticalAlignment="Center" 
                                    Margin="0,0,8,0"
                                    DockPanel.Dock="Left"
+                                   FontSize="11"
                                    Text="Binding"/>
-                        <Button Margin="0"
+                        <Button Margin="3,0,3,0"
+                                Width="24" 
+                                Height="24"
                                 ToolTip="Update" 
                                 DockPanel.Dock="Right"
                                 Style="{DynamicResource MaterialDesignToolForegroundButton}" 
                                 Foreground="{DynamicResource PrimaryHueMidBrush}"
                                 Command="{Binding UpdateHookInterface}"
-                                IsEnabled="{Binding ViveBindingsChanged}">
+                                IsEnabled="{Binding ViveBindingsChanged}"
+                                Visibility="{Binding ViveBindingsChanged, Converter={StaticResource BoolToHiddenConverter}}">
                             <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
                         </Button>
                         <ComboBox VerticalAlignment="Center"
@@ -308,6 +319,7 @@
                                   FontSize="11" 
                                   ItemsSource="{Binding ViveControllerButton}"
                                   SelectedIndex="{Binding SelectedViveControllerButtonIndex}"
+                                  materialDesign:HintAssist.Hint="Button"
                                   IsSynchronizedWithCurrentItem="true"/>
                         <ComboBox VerticalAlignment="Center"
                                   DockPanel.Dock="Right"
@@ -315,16 +327,16 @@
                                   FontSize="11" 
                                   ItemsSource="{Binding ControllerHand}"
                                   SelectedIndex="{Binding SelectedControllerHandIndex}"
+                                  materialDesign:HintAssist.Hint="Controller"
                                   IsSynchronizedWithCurrentItem="true"/>
                     </DockPanel>
-
-
-                    <Button ToolTip="Inject process" 
-                            HorizontalAlignment="Center"
-                            Margin="8"
+                    <Button HorizontalAlignment="Center"
+                            ToolTip="Inject process" 
+                            Margin="4"
                             Style="{DynamicResource MaterialDesignRaisedButton}" 
-                            Command="{Binding InjectProc}">
-                        <TextBlock VerticalAlignment="Center" Margin="0,0,4,0">Inject</TextBlock>
+                            Command="{Binding InjectProc}"
+                            Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock VerticalAlignment="Center" FontSize="11">Inject</TextBlock>
                     </Button>
                 </StackPanel>
             </Grid>

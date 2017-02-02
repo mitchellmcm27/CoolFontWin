@@ -187,6 +187,13 @@ namespace CFW.ViewModel
             get { return _ProcsDoneRefreshing.Value; }
         }
 
+        bool _Injected;
+        public bool Injected
+        {
+            get { return _Injected; }
+            set { this.RaiseAndSetIfChanged(ref _Injected, value); }
+        }
+
         List<string> _ControllerHand = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
         public List<string> ControllerHand { get { return _ControllerHand; } }
 
@@ -198,9 +205,9 @@ namespace CFW.ViewModel
         }
 
         List<string> _ViveControllerButton = new List<string> { "Grip", "Touch Pad", "Trigger" };
-        public List<string> ViveControllerButton { get { return _ViveControllerButton; } }
+        public  List<string> ViveControllerButton { get { return _ViveControllerButton; } }
 
-        int _SelectedViveControllerButtonIndex = 0;
+        int _SelectedViveControllerButtonIndex;
         public int SelectedViveControllerButtonIndex
         {
             get { return _SelectedViveControllerButtonIndex; }
@@ -385,12 +392,12 @@ namespace CFW.ViewModel
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
 
             RunningProcs = new ReactiveList<string>();
+
             RefreshProcs = ReactiveCommand.CreateFromTask(async () =>
             {
                 RunningProcs.Clear();
                 var procs = await Task.Run(() =>
                     {
-                        Thread.Sleep(2000);
                         return DeviceManager.GetProcesses().Distinct().OrderBy(x => x);
                     });
                 foreach (string proc in procs)
@@ -402,10 +409,10 @@ namespace CFW.ViewModel
                 .Subscribe(ex => log.Error("RefreshProcs: " + ex));
 
             RefreshProcs.IsExecuting
+                .Throttle(TimeSpan.FromMilliseconds(250))
                 .ToProperty(this, x => x.ProcsRefreshing, out _ProcsRefreshing);
 
-            this.WhenAnyValue(x => x.ProcsRefreshing)
-                .Select(x=>!x)
+            this.WhenAnyValue(x => x.ProcsRefreshing, x => !x)
                 .ToProperty(this, x => x.ProcsDoneRefreshing, out _ProcsDoneRefreshing);
 
             Observable.Return(Unit.Default)
@@ -420,8 +427,9 @@ namespace CFW.ViewModel
 
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
 
-            this.WhenAnyValue(x => x.SelectedViveControllerButtonIndex, x => x.SelectedControllerHandIndex)
-                .Do(_ => ViveBindingsChanged = true)
+            this.WhenAnyValue(x => x.SelectedViveControllerButtonIndex, x => x.SelectedControllerHandIndex, x=>x.Injected,
+                (but, hand, injected) => injected)
+                .Do(x => ViveBindingsChanged = x)
                 .Subscribe();
 
             UpdateHookInterface = ReactiveCommand.CreateFromTask(UpdateHookInterfaceImpl);
@@ -491,7 +499,8 @@ namespace CFW.ViewModel
 
         private async Task InjectProcImpl()
         {
-            await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
+            bool success = await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
+            Injected = success; 
         }
 
         private async Task UpdateHookInterfaceImpl()

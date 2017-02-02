@@ -322,7 +322,7 @@ namespace CFW.Business
 
         public PSInterface Iface;
 
-        public void InjectControllerIntoProcess(string proc)
+        public bool InjectControllerIntoProcess(string proc)
         {
             string channelName = null;
             try
@@ -351,11 +351,13 @@ namespace CFW.Business
                     System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
                     System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
                     channelName);
+                return true;
             }
             catch (Exception e)
             {
                 log.Error("  EasyHook Error: " + e.Message);
                 log.Error(e);
+                return false;
             }
 
         }
