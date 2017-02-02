@@ -28,7 +28,7 @@
             </Border.Effect>
         </Border>
         <DockPanel>
-            <View:ToolbarControl x:Name="toolbarControl" Margin="8,0,8,0" VerticalAlignment ="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Top" DataContext="{Binding ToolbarVM}"/>
+            <View:ToolbarControl x:Name="toolbarControl" Margin="0,0,8,0" VerticalAlignment ="Top" HorizontalAlignment="Stretch" DockPanel.Dock="Top" DataContext="{Binding ToolbarVM}"/>
             <View:SocialMediaControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" DockPanel.Dock="Bottom"/>
             <Grid>
                 <ContentControl x:Name="splashControl" HorizontalAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top"/>

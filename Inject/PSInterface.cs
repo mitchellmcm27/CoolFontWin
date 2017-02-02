@@ -1,8 +1,9 @@
 ﻿using System;
+using Valve.VR;
 
 namespace CFW.Business
 {
-    public class Main : MarshalByRefObject
+    public class PSInterface : MarshalByRefObject
     {
 
         public void ReportError(int pid, Exception e)
@@ -20,11 +21,16 @@ namespace CFW.Business
             Console.WriteLine(str);
         }
 
-        public bool IsRunning;
+        public bool UserIsRunning { get; set; }
 
-        public bool GetUserRunning()
+        public EVRButtonId RunButton { get; set; }
+        public EVRButtonType ButtonType { get; set; }
+        public EVRHand Hand { get; set; }
+        public PSInterface()
         {
-            return IsRunning;
+            RunButton = EVRButtonId.k_EButton_Axis0;
+            ButtonType = EVRButtonType.Press;
+            Hand = EVRHand.Left;
         }
     }
 }

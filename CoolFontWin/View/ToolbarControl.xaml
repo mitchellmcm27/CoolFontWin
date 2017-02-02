@@ -28,12 +28,15 @@
     
     <DockPanel>
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-            <Image Margin="4" Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
             <Menu IsMainMenu="True">
-                <MenuItem Header="PocketStrafe">
-                    <MenuItem.Icon>
-                        <materialDesign:PackIcon Kind="Menu"/>
-                    </MenuItem.Icon>
+                <MenuItem>
+                    <MenuItem.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Margin="0,0,8,0" Source="/CoolFontWin;component/Assets/tray-icon-transparent.ico" Width="24" Height="24" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            <TextBlock Margin="0" VerticalAlignment="Center">PocketStrafe</TextBlock>
+                            <materialDesign:PackIcon Margin="4,0,0,0" Kind="ChevronDown" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </MenuItem.Header>
                     <MenuItem Header="This PC">
                         <MenuItem.Icon>
                             <materialDesign:PackIcon Kind="InformationOutline"/>

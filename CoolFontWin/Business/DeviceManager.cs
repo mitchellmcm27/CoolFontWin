@@ -7,6 +7,8 @@ using ReactiveUI;
 using System.Diagnostics;
 using EasyHook;
 using System.Reflection;
+using System.Linq;
+using System.Reactive.Linq;
 
 namespace CFW.Business
 {
@@ -318,6 +320,8 @@ namespace CFW.Business
             VDevice.FeedVDev();
         }
 
+        public PSInterface Iface;
+
         public void InjectControllerIntoProcess(string proc)
         {
             string channelName = null;
@@ -326,9 +330,19 @@ namespace CFW.Business
                 //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
                 log.Info("Create IPC server...");
 
-                RemoteHooking.IpcCreateServer<Main>(
+                RemoteHooking.IpcCreateServer<PSInterface>(
                     ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
-                
+
+                Iface = RemoteHooking.IpcConnectClient<PSInterface>(channelName);
+
+                Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
+                Iface.ButtonType = Valve.VR.EVRButtonType.Press;
+                Iface.Hand = Valve.VR.EVRHand.Left;
+
+                this.WhenAnyValue(x => x.VDevice.UserIsRunning)
+                    .Do(x => Iface.UserIsRunning = x)
+                    .Subscribe();
+               
                 log.Info("Inject the dll...");
 
                 RemoteHooking.Inject(
@@ -346,6 +360,38 @@ namespace CFW.Business
 
         }
 
+        public void ReceivedNewViveBindings(string buttonName, string handName)
+        {
+
+            if (Iface == null)
+            {
+                throw new ArgumentNullException("IPC Interface hasn't been initialized yet.");
+            }
+
+            var buttonNames = new List<string> { "Grip", "Touch Pad", "Trigger" };
+            var buttons = new List<Valve.VR.EVRButtonId> {
+                Valve.VR.EVRButtonId.k_EButton_Grip,
+                Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad,
+                Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger };
+
+            try
+            {
+                var handNames = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
+                var hand = (Valve.VR.EVRHand)handNames.FindIndex(x => x == handName);
+                var button = buttons[buttonNames.FindIndex(x => x == buttonName)];
+
+                log.Info(handName + " " + hand);
+                log.Info(buttonName + " " + button);
+
+                Iface.Hand = hand;
+                Iface.RunButton = button;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+        }
+
         private static readonly HashSet<string> DllNames = new HashSet<string>
         {
             "openvr_api.dll",
@@ -357,8 +403,58 @@ namespace CFW.Business
         public List<string> GetProcessesWithModule(string dllName)
         {
             var thisName = Process.GetCurrentProcess().ProcessName;
+            var found = new List<string>();
+            var noPermission = new List<string>();
+            var notFound = new List<string>();
+            var modulesList = new List<string>();
+            log.Info("Searching for processes that loaded " + dllName);
+
+            foreach (var proc in Process.GetProcesses())
+            {
+                if (proc.MainWindowTitle.Length == 0 || proc.ProcessName.Equals(thisName))
+                {
+                    continue;
+                }
+
+                ProcessModuleCollection mods;
+                try
+                {
+                    mods = proc.Modules;
+                }
+                catch (System.ComponentModel.Win32Exception ex)
+                {
+                    noPermission.Add(proc.ProcessName);
+                    continue;
+                }
+                foreach (ProcessModule mod in mods)
+                {
+                    modulesList.Add(mod.ModuleName);
+                }
+
+                if (modulesList.Contains(dllName))
+                {
+                    found.Add(proc.ProcessName);
+                }
+                else
+                {
+                    notFound.Add(proc.ProcessName);
+                }
+            }
+
+            log.Info("  Found module:");
+            found.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
+            log.Info("  Module not found:");
+            notFound.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
+            log.Info("  Lacked permissions:");
+            noPermission.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
+            return found;
+        }
+
+        public List<string> GetProcesses()
+        {
+            var thisName = Process.GetCurrentProcess().ProcessName;
             var list = new List<string>();
-            foreach(var proc in Process.GetProcesses())
+            foreach (var proc in Process.GetProcesses())
             {
                 if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName))
                 {

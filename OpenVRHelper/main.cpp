@@ -35,6 +35,7 @@
 #include <windows.h>
 #include <fstream>
 #include <stdio.h>
+#include <ctime>
 #include "openvr.h"
 
 using namespace std;
@@ -45,45 +46,142 @@ using namespace std;
 ofstream ofile;	
 char dlldir[320];
 HMODULE dllHandle;
-
 bool dllLoaded;
+void** g_deviceFunctionAddresses;
+uint32_t unLeftHandIndex;
+uint32_t unRightHandIndex;
+vr::IVRSystem *pVRSystem;
 
-uintptr_t** g_deviceFunctionAddresses;
-extern "C" __declspec(dllexport) uintptr_t* APIENTRY GetOpenVRFunctionAddress(short methodIndex)
+void* ShortJmp(char* pPtr)
+{
+	char* codePtr = pPtr;
+	add_log("JMP %d", *codePtr);
+	if (((char)0xeb) == *codePtr)
+	{
+		// Short jump instruction, second byte is the offset, which is signed value
+		char jmpOfs = *(++codePtr);
+		codePtr++;
+		codePtr += jmpOfs;
+	}
+	add_log("JMP %d", *codePtr);
+	return (void*)codePtr;
+}
+
+extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(short methodIndex, const int methodCount)
 {
 	// There are 119 functions defined in the IDirect3DDevice9 interface (including our 3 IUnknown methods QueryInterface, AddRef, and Release)
-	const int interfaceMethodCount = 44;
+	const int interfaceMethodCount = methodCount;
 
 	// If we do not yet have the addresses, we need to create our own Direct3D Device and determine the addresses of each of the methods
 	// Note: to create a Direct3D device we need a valid HWND - in this case we will create a temporary window ourselves - but it could be a HWND
 	//       passed through as a parameter of this function or some other initialisation export.
-	if (!g_deviceFunctionAddresses) {
+	if (!g_deviceFunctionAddresses) 
+	{
 		// Ensure hook dll is loaded
 
 		__try 
 		{
+			add_log("Load openvr_api.dll...");
 			HMODULE hMod = LoadLibraryA("openvr_api.dll"); // load the dll
-			// create VR object
-			vr::IVRSystem *pVRSystem = NULL;
-			vr::HmdError peError = vr::VRInitError_None;
-			pVRSystem = vr::VR_Init(&peError, vr::VRApplication_Background);
+			if (!hMod)
+			{
+				DWORD dw = GetLastError();
+				LPVOID lpMsgBuf;
 
-			if (peError != vr::VRInitError_None)
+				FormatMessage(
+					FORMAT_MESSAGE_ALLOCATE_BUFFER |
+					FORMAT_MESSAGE_FROM_SYSTEM |
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					dw,
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+					(LPTSTR)&lpMsgBuf,
+					0, NULL);
+
+				add_log("  Could not load openvr_api.dll: %i %s", dw, lpMsgBuf);
+			}
+			add_log("  Module address: 0x%x", (uintptr_t)hMod);
+
+			// create VR object
+			add_log("Instantiate IVRSystem...");
+
+			pVRSystem = NULL;
+			vr::EVRInitError eError = vr::VRInitError_None;
+			//pVRSystem = vr::VR_Init(&eError, vr::VRApplication_Background);
+
+			if (eError != vr::VRInitError_None)
+			{
+				add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
+				return 0;
+			}
+
+			bool try_again;
+			const char *ver;
+			if (!pVRSystem)
+			{
+				add_log("  pVRSystem was null");
+				add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
+				bool installed = vr::VR_IsRuntimeInstalled();
+				add_log("  Runtime installed? %s", installed ? "YES" : "NO");
+				if (installed)
+				{
+					const char * path = vr::VR_RuntimePath();
+					add_log("    %s", path);
+				}
+				bool hmd = vr::VR_IsHmdPresent();
+				add_log("  HMD Present? %s", hmd ? "YES" : "NO");
+
+				// request generic interface
+				ver = vr::IVRSystem_Version;
+				
+				bool valid_version = vr::VR_IsInterfaceVersionValid(ver);
+				add_log("  Interface version %s valid? %s", ver, valid_version ? "YES" : "NO");
+				try_again = installed & valid_version;
+			}
+
+			void *pGenericInterface;
+			if (try_again)
+			{
+				add_log("Get generic interface...");
+				pGenericInterface = vr::VR_GetGenericInterface(ver, &eError);
+
+				if (eError != vr::VRInitError_None)
+				{
+					add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
+					return 0;
+				}
+
+				if (!pGenericInterface)
+				{
+					add_log("  Generic Interface was null");
+					add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
+					return 0;
+				}
+			}
+
+			pVRSystem = static_cast<vr::IVRSystem *>(pGenericInterface);
+
+			if (!pVRSystem)
 			{
 				return 0;
 			}
 
+			add_log("Get vtable...");
 			__try 
 			{
 				// retrieve a pointer to the VTable
-				uintptr_t* pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pVRSystem;
-				g_deviceFunctionAddresses = new uintptr_t*[interfaceMethodCount]; // array size depends on how many methods
+				uintptr_t* pInterfaceVTable;
+				if (pVRSystem)
+				{
+					pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pVRSystem;
+				}
+				g_deviceFunctionAddresses = new void*[interfaceMethodCount]; // array size depends on how many methods
 
 				// Retrieve the addresses of each of the methods (note first 3 IUnknown methods)
 				// See d3d9.h IDirect3D9Device to see the list of methods, the order they appear there
 				// is the order they appear in the VTable, 1st one is index 0 and so on.
 				for (int i=0; i<interfaceMethodCount; i++) {
-					g_deviceFunctionAddresses[i] = (uintptr_t*)pInterfaceVTable[i];
+					g_deviceFunctionAddresses[i] = (void*)pInterfaceVTable[i];
 						
 					// Log the address offset
 					add_log("Method [%i] offset: 0x%x", i, pInterfaceVTable[i] - (uintptr_t)hMod);
@@ -107,6 +205,41 @@ extern "C" __declspec(dllexport) uintptr_t* APIENTRY GetOpenVRFunctionAddress(sh
 	}
 }
 
+extern "C" __declspec(dllexport) uint32_t APIENTRY GetLeftHandIndex()
+{
+	if (!pVRSystem)
+	{
+		return 0;
+	}
+
+	for (vr::TrackedDeviceIndex_t i = 0; i < 16; i++)
+	{
+		vr::ETrackedControllerRole role = pVRSystem->GetControllerRoleForTrackedDeviceIndex(i);
+		if (role == vr::TrackedControllerRole_LeftHand)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
+extern "C" __declspec(dllexport) uint32_t APIENTRY GetRightHandIndex()
+{
+	if (!pVRSystem)
+	{
+		return 0;
+	}
+
+	for (vr::TrackedDeviceIndex_t i = 0; i < 16; i++)
+	{
+		vr::ETrackedControllerRole role = pVRSystem->GetControllerRoleForTrackedDeviceIndex(i);
+		if (role == vr::TrackedControllerRole_RightHand)
+		{
+			return i;
+		}
+	}
+	return 0;
+}
 bool WINAPI DllMain(HMODULE hDll, DWORD dwReason, PVOID pvReserved)
 {
 	if(dwReason == DLL_PROCESS_ATTACH)
@@ -118,11 +251,13 @@ bool WINAPI DllMain(HMODULE hDll, DWORD dwReason, PVOID pvReserved)
 
 		// Prepare logging
 		GetModuleFileNameA(hDll, dlldir, 512);
+
 		for(int i = strlen(dlldir); i > 0; i--) { if(dlldir[i] == '\\') { dlldir[i+1] = 0; break; } }
 		ofile.open(GetDirectoryFile("OpenVRHelperLog.txt"), ios::app);
 
-		add_log("\r\n---------------------\r\nOpenVRHelper Loaded...\r\n---------------------");
-
+		add_log("\r\n---------------------\r\nOpenVRHelper Loaded\r\n---------------------");
+		time_t now = time(0);
+		add_log(ctime(&now));
 		dllLoaded = true;
 		return true;
 	}

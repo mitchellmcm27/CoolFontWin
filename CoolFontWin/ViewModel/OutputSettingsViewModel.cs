@@ -168,7 +168,13 @@ namespace CFW.ViewModel
         }
         
         public ReactiveList<string> RunningProcs { get; set; }
-        public string SelectedProc { get; set; }
+
+        string _SelectedProc;
+        public string SelectedProc
+        {
+            get { return _SelectedProc; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedProc, value); }
+        }
 
         readonly ObservableAsPropertyHelper<bool> _ProcsRefreshing;
         public bool ProcsRefreshing
@@ -180,6 +186,34 @@ namespace CFW.ViewModel
         {
             get { return _ProcsDoneRefreshing.Value; }
         }
+
+        List<string> _ControllerHand = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
+        public List<string> ControllerHand { get { return _ControllerHand; } }
+
+        int _SelectedControllerHandIndex;
+        public int SelectedControllerHandIndex
+        {
+            get { return _SelectedControllerHandIndex; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedControllerHandIndex, value); }
+        }
+
+        List<string> _ViveControllerButton = new List<string> { "Grip", "Touch Pad", "Trigger" };
+        public List<string> ViveControllerButton { get { return _ViveControllerButton; } }
+
+        int _SelectedViveControllerButtonIndex = 0;
+        public int SelectedViveControllerButtonIndex
+        {
+            get { return _SelectedViveControllerButtonIndex; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedViveControllerButtonIndex, value); }
+        }
+
+        bool _ViveBindingsChanged;
+        public bool ViveBindingsChanged
+        {
+            get { return _ViveBindingsChanged; }
+            set { this.RaiseAndSetIfChanged(ref _ViveBindingsChanged, value); }
+        }
+
 
         //OVRPlugin.dll
         string _HookedDllName = "openvr_api.dll";
@@ -357,7 +391,7 @@ namespace CFW.ViewModel
                 var procs = await Task.Run(() =>
                     {
                         Thread.Sleep(2000);
-                        return DeviceManager.GetProcessesWithModule("").Distinct().OrderBy(s => s[0]);
+                        return DeviceManager.GetProcesses().Distinct().OrderBy(x => x);
                     });
                 foreach (string proc in procs)
                 {
@@ -365,7 +399,7 @@ namespace CFW.ViewModel
                 }
             });
             RefreshProcs.ThrownExceptions
-                .Subscribe(ex => log.Error("RefreshProcs: " + ex.Message));
+                .Subscribe(ex => log.Error("RefreshProcs: " + ex));
 
             RefreshProcs.IsExecuting
                 .ToProperty(this, x => x.ProcsRefreshing, out _ProcsRefreshing);
@@ -376,7 +410,24 @@ namespace CFW.ViewModel
 
             Observable.Return(Unit.Default)
                 .InvokeCommand(RefreshProcs);
-            InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl);
+
+            var canInject = this
+                .WhenAnyValue(
+                    x => x.SelectedProc, 
+                    x => x.SelectedViveControllerButtonIndex, 
+                    x => x.SelectedControllerHandIndex,
+                    (proc, button, hand) => !string.IsNullOrEmpty(proc));
+
+            InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
+
+            this.WhenAnyValue(x => x.SelectedViveControllerButtonIndex, x => x.SelectedControllerHandIndex)
+                .Do(_ => ViveBindingsChanged = true)
+                .Subscribe();
+
+            UpdateHookInterface = ReactiveCommand.CreateFromTask(UpdateHookInterfaceImpl);
+            UpdateHookInterface.ThrownExceptions
+                .Do(_ => ViveBindingsChanged = true)
+                .Subscribe(ex => log.Debug("UpdateHookInterface error: " + ex));
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -398,6 +449,7 @@ namespace CFW.ViewModel
 
         public ReactiveCommand RefreshProcs { get; set; }
         public ReactiveCommand InjectProc { get; set; }
+        public ReactiveCommand UpdateHookInterface { get; set; }
 
         private async Task CoupledDecoupledImpl()
         {
@@ -440,6 +492,14 @@ namespace CFW.ViewModel
         private async Task InjectProcImpl()
         {
             await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
+        }
+
+        private async Task UpdateHookInterfaceImpl()
+        {
+            await Task.Run(() => DeviceManager.ReceivedNewViveBindings(
+                ViveControllerButton[this.SelectedViveControllerButtonIndex], 
+                ControllerHand[this.SelectedControllerHandIndex]));
+            ViveBindingsChanged = false;
         }
 
         private string XboxLedImagePath(int id)

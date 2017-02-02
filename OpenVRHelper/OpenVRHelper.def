@@ -1,4 +1,5 @@
-LIBRARY	"OpenVRHelper"
+LIBRARY
 EXPORTS
-GetOpenVRFunctionAddress
-
+GetIVRSystemFunctionAddress
+GetLeftHandIndex
+GetRightHandIndex

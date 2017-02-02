@@ -131,7 +131,13 @@ namespace CFW.Business
         public int MaxDevices;
         public List<MobileDevice> DeviceList; // Mobile devices to expect
 
-        public bool UserIsRunning = true;
+        private bool _UserIsRunning;
+        public bool UserIsRunning
+        {
+            get { return _UserIsRunning; }
+            set { this.RaiseAndSetIfChanged(ref _UserIsRunning, value); }
+        }
+
         public bool DriverEnabled = false;
         public bool VDevAcquired = false;
         public bool CurrentModeIsFromPhone = false;
@@ -321,8 +327,7 @@ namespace CFW.Business
         private bool CheckMode(SimulatorMode mode)
         {
             // Must have a vJoy device acquired if trying to switch to Joystick mode
-            if (mode != SimulatorMode.ModeWASD && mode != SimulatorMode.ModeSteamVr &&
-                mode != SimulatorMode.ModePaused && mode != SimulatorMode.ModeMouse)
+            if (mode == SimulatorMode.ModeGamepad || mode == SimulatorMode.ModeJoystickCoupled || mode == SimulatorMode.ModeJoystickDecoupled)
             {
                 if (VDevAcquired)
                 {
@@ -485,6 +490,7 @@ namespace CFW.Business
 
             // Use default valsf for keyboard, mouse modes
             if (Mode == SimulatorMode.ModeWASD ||
+                Mode == SimulatorMode.ModeSteamVr || 
                 Mode == SimulatorMode.ModeMouse ||
                 Mode == SimulatorMode.ModePaused)
             {
@@ -571,6 +577,18 @@ namespace CFW.Business
                         KbM.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
                     break;
+
+                case SimulatorMode.ModeSteamVr:
+                    if (valsf[0] > VirtualDevice.ThreshRun && !UserIsRunning)
+                    {
+                        UserIsRunning = true;  
+                    }
+                    else if (valsf[0] <= VirtualDevice.ThreshRun && UserIsRunning)
+                    {
+                        UserIsRunning = false;
+                    }
+                    break;
+               
 
                 case SimulatorMode.ModeJoystickCoupled:
 
@@ -703,7 +721,7 @@ namespace CFW.Business
 
         public void FeedVDev()
         {
-            if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD)
+            if (Mode == SimulatorMode.ModeMouse || Mode == SimulatorMode.ModePaused || Mode == SimulatorMode.ModeWASD || Mode==SimulatorMode.ModeSteamVr)
             {
                 return;
             }

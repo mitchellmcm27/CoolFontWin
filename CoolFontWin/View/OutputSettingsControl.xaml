@@ -228,59 +228,105 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Margin="0,0,0,24"
+                    <StackPanel Grid.Row="0" Margin="0,0,0,8"
                                 Visibility="{Binding IsChecked, ElementName=VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
-                        <RadioButton x:Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
-                             IsChecked="{Binding VrOutput, Mode=OneWay}"
-                             Command="{Binding VrMode}"/>
-                        <materialDesign:PackIcon Kind="Steam" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
-                                                     Width="18" Height="18"/>
-                        <ComboBox VerticalAlignment="Center"
-                                  ItemsSource="{Binding SupportedVrSystems}"
-                                  SelectedIndex="{Binding SelectedVrSystemIndex}"/>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
+                                 IsChecked="{Binding VrOutput, Mode=OneWay}"
+                                 Command="{Binding VrMode}"/>
+                            <materialDesign:PackIcon Kind="Steam" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
+                                                         Width="18" Height="18"/>
+                            <ComboBox VerticalAlignment="Center"
+                                      ItemsSource="{Binding SupportedVrSystems}"
+                                      SelectedIndex="{Binding SelectedVrSystemIndex}"/>
+                        </StackPanel>
                     </StackPanel>
+
                     <StackPanel Grid.Row="2" Orientation="Horizontal"
                                 HorizontalAlignment="Left" Margin="43,0,0,0" Grid.ColumnSpan="2">
                     </StackPanel>
                 </Grid>
 
-                <DockPanel  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" 
-                            VerticalAlignment="Center" HorizontalAlignment="Right"
-                            Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Button Margin="0"
-                            ToolTip="Inject process" 
-                            Width="24" Height="24" 
-                            DockPanel.Dock="Right"
-                            Style="{DynamicResource MaterialDesignToolForegroundButton}" 
-                            Foreground="{DynamicResource PrimaryHueMidBrush}"
+                <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="24,0,0,0"
+                   Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <DockPanel>
+                        <Button ToolTip="Refresh"
+                                Margin="3,0,3,0"
+                                Width="24" 
+                                Height="24"
+                                DockPanel.Dock="Right"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                Command="{Binding RefreshProcs}"
+                                Visibility="{Binding ProcsDoneRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <materialDesign:PackIcon Kind="Refresh" Height="18" Width="18" />
+                        </Button>
+                        <ProgressBar Margin="6,0,6,0"
+                                     Opacity="0.5"
+                                     DockPanel.Dock="Right"
+                                     Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                     Foreground="{DynamicResource MaterialDesignBody}"
+                                     IsIndeterminate="{Binding ProcsRefreshing}"
+                                     Visibility="{Binding ProcsRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                     Value="0"
+                                     Width="18" Height="18"/>
+                        <ComboBox Grid.Row="2" Width="128"
+                                  DockPanel.Dock="Right"
+                                  HorizontalAlignment="Right"
+                                  FontSize="11"     
+                                  materialDesign:HintAssist.Hint="Select"
+                                  ItemsSource="{Binding RunningProcs, TargetNullValue=''}" 
+                                  SelectedItem="{Binding SelectedProc, TargetNullValue=''}"
+                                  IsSynchronizedWithCurrentItem="true"/>
+                        <TextBlock VerticalAlignment="Center" 
+                                   Margin="0,0,8,0"
+                                   DockPanel.Dock="Left"
+                                   Text="Game"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock VerticalAlignment="Center" 
+                                   Margin="0,0,8,0"
+                                   DockPanel.Dock="Left"
+                                   Text="Binding"/>
+                        <Button Margin="0"
+                                ToolTip="Update" 
+                                DockPanel.Dock="Right"
+                                Style="{DynamicResource MaterialDesignToolForegroundButton}" 
+                                Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                Command="{Binding UpdateHookInterface}"
+                                IsEnabled="{Binding ViveBindingsChanged}">
+                            <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
+                        </Button>
+                        <ComboBox VerticalAlignment="Center"
+                                  DockPanel.Dock="Right"
+                                  Width="72"
+                                  Margin="8,0,8,0"
+                                  FontSize="11" 
+                                  ItemsSource="{Binding ViveControllerButton}"
+                                  SelectedIndex="{Binding SelectedViveControllerButtonIndex}"
+                                  IsSynchronizedWithCurrentItem="true"/>
+                        <ComboBox VerticalAlignment="Center"
+                                  DockPanel.Dock="Right"
+                                  Margin="8,0,8,0"
+                                  FontSize="11" 
+                                  ItemsSource="{Binding ControllerHand}"
+                                  SelectedIndex="{Binding SelectedControllerHandIndex}"
+                                  IsSynchronizedWithCurrentItem="true"/>
+                    </DockPanel>
+
+
+                    <Button ToolTip="Inject process" 
+                            HorizontalAlignment="Center"
+                            Margin="8"
+                            Style="{DynamicResource MaterialDesignRaisedButton}" 
                             Command="{Binding InjectProc}">
-                        <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,4,0">Inject</TextBlock>
                     </Button>
-                    <ComboBox Grid.Row="2" Width="128"
-                              DockPanel.Dock="Right"
-                              FontSize="11"     
-                              materialDesign:HintAssist.Hint="Choose a game"
-                              ItemsSource="{Binding RunningProcs, TargetNullValue=''}" 
-                              SelectedItem="{Binding SelectedProc, TargetNullValue=''}"
-                              IsSynchronizedWithCurrentItem="true"/>
-                    <Button ToolTip="Refresh" Width="24" Height="24"
-                        DockPanel.Dock="Right"
-                        Style="{DynamicResource MaterialDesignToolForegroundButton}" 
-                        Foreground="{DynamicResource PrimaryHueMidBrush}"
-                        Command="{Binding RefreshProcs}"
-                        Visibility="{Binding ProcsDoneRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <materialDesign:PackIcon Kind="Refresh" Height="18" Width="18" />
-                    </Button>
-                    <ProgressBar Margin="3,0,3,0"
-                                 DockPanel.Dock="Right" Opacity="0.5"
-                                 Style="{StaticResource MaterialDesignCircularProgressBar}"
-                                 Foreground="{DynamicResource MaterialDesignBody}"
-                                 IsIndeterminate="{Binding ProcsRefreshing}"
-                                 Value="0"
-                                 Width="18" Height="18"/>
-                </DockPanel>
+                </StackPanel>
             </Grid>
         </DockPanel>
     </materialDesign:Card>

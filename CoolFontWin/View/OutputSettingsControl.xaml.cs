@@ -19,5 +19,10 @@ namespace CFW.View
             TextBox tb = (TextBox)sender;
             tb.Text = string.Empty;
         }
+
+        private void ProgressBar_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
+        {
+
+        }
     }
 }
