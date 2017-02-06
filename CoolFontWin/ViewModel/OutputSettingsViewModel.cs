@@ -388,6 +388,8 @@ namespace CFW.ViewModel
             VXboxInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => ShowScpVbusDialog()));
             VXboxInfo.ThrownExceptions.Subscribe(ex => log.Error(ex.Message));
 
+            SteamVRInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => ShowSteamVrDialog()));
+
             JoyCplCommand = ReactiveCommand.CreateFromTask(async _=> await Task.Run(()=>Process.Start("joy.cpl")));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
 
@@ -426,6 +428,9 @@ namespace CFW.ViewModel
                     (proc, button, hand) => !string.IsNullOrEmpty(proc));
 
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
+            InjectProc.ThrownExceptions
+                .Do(ex => MessageBox.Show("Error ", ex.Message, MessageBoxButton.OK))
+                .Subscribe();
 
             this.WhenAnyValue(x => x.SelectedViveControllerButtonIndex, x => x.SelectedControllerHandIndex, x=>x.Injected,
                 (but, hand, injected) => injected)
@@ -454,6 +459,7 @@ namespace CFW.ViewModel
 
         public ReactiveCommand VJoyInfo { get; set; }
         public ReactiveCommand VXboxInfo { get; set; }
+        public ReactiveCommand SteamVRInfo { get; set; }
 
         public ReactiveCommand RefreshProcs { get; set; }
         public ReactiveCommand InjectProc { get; set; }
@@ -559,6 +565,17 @@ namespace CFW.ViewModel
                     ScpVBus.Install();
                 }
             });
+        }
+
+        private void ShowSteamVrDialog()
+        {
+            string text = "This feature is highly experimental, doesn't work with many games yet, and could get flagged by VAC.";
+            text += "\nUse at your own risk!";
+            text += "\n\n1. Start your game, make sure controllers have synced";
+            text += "\n2. Select the game in PocketStrafe (refresh if needed)";
+            text += "\n3. Setup the run forward binding (touchpad, trigger, or grip)";
+            text += "\n4. Click Inject";
+            MessageBox.Show(text, "SteamVR Output (Beta feature)", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void ShowRestartMessage()

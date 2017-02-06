@@ -244,9 +244,17 @@
                                  Command="{Binding VrMode}"/>
                             <materialDesign:PackIcon Kind="Steam" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="8" 
                                                          Width="18" Height="18"/>
-                            <ComboBox VerticalAlignment="Center"
-                                      ItemsSource="{Binding SupportedVrSystems}"
-                                      SelectedIndex="{Binding SelectedVrSystemIndex}"/>
+                            <TextBlock VerticalAlignment="Center"
+                                      Text="SteamVR"/>
+                            <Button Style="{StaticResource MaterialDesignToolButton}"
+                                    Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                Margin="4,0,4,0" 
+                                VerticalAlignment="Center"
+                                ToolTip="Using SteamVR output"
+                                Command="{Binding SteamVRInfo}">
+                                <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                             Width="19" Height="19"/>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
 

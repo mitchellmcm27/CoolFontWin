@@ -351,10 +351,13 @@ namespace CFW.Business
                     System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
                     System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
                     channelName);
+
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
                 return true;
             }
             catch (Exception e)
             {
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 log.Error("  EasyHook Error: " + e.Message);
                 log.Error(e);
                 return false;
