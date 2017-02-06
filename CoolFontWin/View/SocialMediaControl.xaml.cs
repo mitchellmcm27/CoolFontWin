@@ -15,6 +15,11 @@ namespace CFW.View
             InitializeComponent();
         }
 
+        public void LaunchReddit(object sender, EventArgs e)
+        {
+            Process.Start("https://www.reddit.com/r/pocketstrafe");
+        }
+
         public void LaunchFacebook(object sender, EventArgs e)
         {
             Process.Start("https://www.facebook.com/CoolFont/");
