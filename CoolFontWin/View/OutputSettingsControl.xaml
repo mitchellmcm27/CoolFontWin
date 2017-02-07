@@ -266,7 +266,7 @@
                 <StackPanel Orientation="Vertical" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Margin="24,0,0,0"
                    Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                    <DockPanel Margin="0,8,0,0">
+                    <StackPanel Margin="0,0,0,0" Orientation="Horizontal">
                         <Button ToolTip="Refresh"
                                 Margin="3,0,3,0"
                                 Width="24" 
@@ -287,27 +287,17 @@
                                      Visibility="{Binding ProcsRefreshing, Converter={StaticResource BooleanToVisibilityConverter}}"
                                      Value="0"
                                      Width="18" Height="18"/>
-                        <ComboBox Grid.Row="2" Width="152"
-                                  Margin="8,0,8,0"
-                                  DockPanel.Dock="Right"
-                                  HorizontalAlignment="Right"
+                        <ComboBox Grid.Row="2"
+                                  Margin="0,0,0,0"
+                                  Width="184"
+                                  HorizontalAlignment="Left"
                                   FontSize="11"     
-                                  materialDesign:HintAssist.Hint="Select"
+                                  materialDesign:HintAssist.Hint="Select game"
                                   ItemsSource="{Binding RunningProcs, TargetNullValue=''}" 
                                   SelectedItem="{Binding SelectedProc, TargetNullValue=''}"
                                   IsSynchronizedWithCurrentItem="true"/>
-                        <TextBlock VerticalAlignment="Center"
-                                   FontSize="11"
-                                   Margin="0,0,8,0"
-                                   DockPanel.Dock="Left"
-                                   Text="Game"/>
-                    </DockPanel>
-                    <DockPanel Margin="0,0,0,4">
-                        <TextBlock VerticalAlignment="Center" 
-                                   Margin="0,0,8,0"
-                                   DockPanel.Dock="Left"
-                                   FontSize="11"
-                                   Text="Binding"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <Button Margin="3,0,3,0"
                                 Width="24" 
                                 Height="24"
@@ -318,26 +308,33 @@
                                 Command="{Binding UpdateHookInterface}"
                                 IsEnabled="{Binding ViveBindingsChanged}"
                                 Visibility="{Binding ViveBindingsChanged, Converter={StaticResource BoolToHiddenConverter}}">
-                            <materialDesign:PackIcon Kind="KeyboardReturn" Height="18" Width="18" />
+                            <materialDesign:PackIcon Kind="Refresh" Height="18" Width="18" />
                         </Button>
                         <ComboBox VerticalAlignment="Center"
-                                  DockPanel.Dock="Right"
+                                  Margin="0,0,4,0"
+                                  FontSize="11" 
+                                  Width="48"
+                                  ItemsSource="{Binding ControllerTouch}"
+                                  SelectedIndex="{Binding SelectedControllerTouchIndex}"
+                                  materialDesign:HintAssist.Hint="Touch"
+                                  IsSynchronizedWithCurrentItem="true"/>
+                        <ComboBox VerticalAlignment="Center"
+                                  Margin="4,0,4,0"
+                                  FontSize="11"
+                                  Width="48"
+                                  ItemsSource="{Binding ControllerHand}"
+                                  SelectedIndex="{Binding SelectedControllerHandIndex}"
+                                  materialDesign:HintAssist.Hint="Controller"
+                                  IsSynchronizedWithCurrentItem="true"/>
+                        <ComboBox VerticalAlignment="Center"
                                   Width="72"
-                                  Margin="8,0,8,0"
+                                  Margin="4,0,4,0"
                                   FontSize="11" 
                                   ItemsSource="{Binding ViveControllerButton}"
                                   SelectedIndex="{Binding SelectedViveControllerButtonIndex}"
                                   materialDesign:HintAssist.Hint="Button"
                                   IsSynchronizedWithCurrentItem="true"/>
-                        <ComboBox VerticalAlignment="Center"
-                                  DockPanel.Dock="Right"
-                                  Margin="8,0,8,0"
-                                  FontSize="11" 
-                                  ItemsSource="{Binding ControllerHand}"
-                                  SelectedIndex="{Binding SelectedControllerHandIndex}"
-                                  materialDesign:HintAssist.Hint="Controller"
-                                  IsSynchronizedWithCurrentItem="true"/>
-                    </DockPanel>
+                    </StackPanel>
                     <Button HorizontalAlignment="Center"
                             ToolTip="Inject process" 
                             Margin="4"

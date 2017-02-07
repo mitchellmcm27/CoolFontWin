@@ -8,14 +8,14 @@ namespace Valve.VR
 {
     public enum EVRHand
     {
-        Left,
-        Right,
+        Left = 0,
+        Right = 1,
     }
     
     public enum EVRButtonType
     {
-        Press,
-        Touch,
+        Press = 0,
+        Touch = 1,
     }
 
     public enum OpenVRFunctionIndex

@@ -9,6 +9,8 @@ using EasyHook;
 using System.Reflection;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 
 namespace CFW.Business
 {
@@ -321,39 +323,59 @@ namespace CFW.Business
         }
 
         public PSInterface Iface;
-
+        private static System.Runtime.Remoting.Channels.Ipc.IpcServerChannel IpcServer;
         public bool InjectControllerIntoProcess(string proc)
         {
             string channelName = null;
             try
-            { 
-                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
-                log.Info("Create IPC server...");
+            {
+                log.Info("Inject PocketStrafe into " + proc + "...");
 
-                RemoteHooking.IpcCreateServer<PSInterface>(
+                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
+
+                log.Info("  Creating IPC server");
+                IpcServer = RemoteHooking.IpcCreateServer<PSInterface>(
                     ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
 
+                log.Info("  Connect to IPC as client to get interface");
                 Iface = RemoteHooking.IpcConnectClient<PSInterface>(channelName);
-
+                ;
+                log.Info("  Set interface properties");
                 Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
+                log.Info("    Interface RunButton: " + Iface.RunButton);
                 Iface.ButtonType = Valve.VR.EVRButtonType.Press;
+                log.Info("    Interface ButtonType: " + Iface.ButtonType);
                 Iface.Hand = Valve.VR.EVRHand.Left;
+                log.Info("    Interface Hand: " + Iface.Hand);
 
+
+                log.Info("  Subscribe to interface events");
+                log.Info("    UserIsRunning");
                 this.WhenAnyValue(x => x.VDevice.UserIsRunning)
                     .Do(x => Iface.UserIsRunning = x)
                     .Subscribe();
-               
-                log.Info("Inject the dll...");
-
+   
+                var p = Process.GetProcessesByName(proc)[0];
+                var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll");
+                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + p.Id);
                 RemoteHooking.Inject(
-                    Process.GetProcessesByName(proc)[0].Id,
+                    p.Id,
                     InjectionOptions.DoNotRequireStrongName,
-                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
-                    System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll"),
+                    injectDll,
+                    injectDll,
                     channelName);
 
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                return true;
+                for (int i = 0; i < 10; i++)
+                {
+                    if (Iface.Installed)
+                    {
+                        ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
+                        log.Info("Successfully injected!");
+                        return true;
+                    }
+                    System.Threading.Thread.Sleep(250);
+                }
+                throw new TimeoutException("Injecting process timed out.");
             }
             catch (Exception e)
             {
@@ -365,7 +387,7 @@ namespace CFW.Business
 
         }
 
-        public void ReceivedNewViveBindings(string buttonName, string handName)
+        public void ReceivedNewViveBindings(Valve.VR.EVRButtonType touch, Valve.VR.EVRButtonId button, Valve.VR.EVRHand hand)
         {
 
             if (Iface == null)
@@ -373,21 +395,14 @@ namespace CFW.Business
                 throw new ArgumentNullException("IPC Interface hasn't been initialized yet.");
             }
 
-            var buttonNames = new List<string> { "Grip", "Touch Pad", "Trigger" };
-            var buttons = new List<Valve.VR.EVRButtonId> {
-                Valve.VR.EVRButtonId.k_EButton_Grip,
-                Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad,
-                Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger };
-
             try
             {
                 var handNames = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
-                var hand = (Valve.VR.EVRHand)handNames.FindIndex(x => x == handName);
-                var button = buttons[buttonNames.FindIndex(x => x == buttonName)];
+                log.Info(touch);
+                log.Info(hand);
+                log.Info(button);
 
-                log.Info(handName + " " + hand);
-                log.Info(buttonName + " " + button);
-
+                Iface.ButtonType = touch;
                 Iface.Hand = hand;
                 Iface.RunButton = button;
             }
@@ -461,13 +476,29 @@ namespace CFW.Business
             var list = new List<string>();
             foreach (var proc in Process.GetProcesses())
             {
-                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName))
+                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName) && Is64Bit(proc))
                 {
                     list.Add(proc.ProcessName);
                 }
             }
             return list;
         }
+
+        public static bool Is64Bit(Process process)
+        {
+            if (Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "x86")
+                return false;
+
+            bool isWow64;
+            if (!IsWow64Process(process.Handle, out isWow64))
+                throw new Win32Exception();
+            return !isWow64;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool IsWow64Process([In] IntPtr process, [Out] out bool wow64Process);
+    
 
         public void ForceUnplugAllXboxControllers()
         {  

@@ -461,10 +461,6 @@
       <Project>{0b65e2d9-68ed-4e62-b50e-75151b4c986a}</Project>
       <Name>Inject</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PocketStrafeInterface\PocketStrafeInterface.csproj">
-      <Project>{bc2c94d2-47eb-4f74-8d0c-fa084ae99726}</Project>
-      <Name>PocketStrafeInterface</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vGenWrap\vGenWrap.csproj">
       <Project>{d90aba94-328a-4b35-978b-ba6dadabb799}</Project>
       <Name>vGenWrap</Name>

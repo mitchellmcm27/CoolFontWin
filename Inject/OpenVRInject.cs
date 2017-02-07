@@ -16,15 +16,20 @@ namespace CFW.Business
         LocalHook GetControllerStateHook;
         LocalHook GetControllerStateWithPoseHook;
         LocalHook PollNextEventHook;
+        LocalHook PollNextEventWithPoseHook;
+        LocalHook GetFloatTrackedDeviceProeprtyHook;
 
-        PSInterface Interface;
-        bool UserRunning;
         IntPtr GetControllerStatePtr;
         IntPtr GetControllerStateWithPosePtr;
         IntPtr PollNextEventPtr;
+        IntPtr PollNextEventWithPosePtr;
+        IntPtr GetFloatTrackedDevicePropertyPtr;
 
+        PSInterface Interface;
+        bool UserRunning;
         uint LeftHandIndex;
         uint RightHandIndex;
+        EVRButtonType ButtonType;
         EVRButtonId RunButton;
         EVRHand Hand;
         uint ChosenDeviceIndex;  
@@ -37,6 +42,8 @@ namespace CFW.Business
             Interface = RemoteHooking.IpcConnectClient<PSInterface>(channelName);
             RunButton = Interface.RunButton;
             Hand = Interface.Hand;
+            ButtonType = Interface.ButtonType;
+            Interface.Write("Intialized");
         }
 
         /// <summary>
@@ -55,6 +62,8 @@ namespace CFW.Business
                 IntPtr pGetControllerState = IntPtr.Zero;
                 IntPtr pGetControllerStateWithPose = IntPtr.Zero;
                 IntPtr pPollNextEvent = IntPtr.Zero;
+                IntPtr pPollNextEventWithPose = IntPtr.Zero;
+                IntPtr pGetFloatTrackedDevicePropertyPtr = IntPtr.Zero;
 
                 if (RemoteHooking.IsX64Process(pid))
                 {
@@ -62,6 +71,8 @@ namespace CFW.Business
                     pGetControllerState = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerState, (int)OpenVRFunctionIndex.Count);
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);
+                    pPollNextEventWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
+                    pGetFloatTrackedDevicePropertyPtr = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetFloatTrackedDeviceProperty, (int)OpenVRFunctionIndex.Count);
                 }
                 else
                 {
@@ -69,11 +80,15 @@ namespace CFW.Business
                     pGetControllerState = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetControllerState, (int)OpenVRFunctionIndex.Count);
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);
+                    pPollNextEventWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
+                    pGetFloatTrackedDevicePropertyPtr = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetFloatTrackedDeviceProperty, (int)OpenVRFunctionIndex.Count);
                 }
 
                 Interface.Write("GetControllerState function pointer: " + (pGetControllerState).ToString());
                 Interface.Write("GetControllerStateWithPose function pointer: " + (pGetControllerStateWithPose).ToString());
-                Interface.Write("PollEvent function pointer: " + (pPollNextEvent).ToString());
+                Interface.Write("PollNextEventEvent function pointer: " + (pPollNextEvent).ToString());
+                Interface.Write("PollNextEventWithPose function pointer: " + (pPollNextEventWithPose).ToString());
+                Interface.Write("GetFloatTrackedDeviceProperty function pointer: " + (pGetFloatTrackedDevicePropertyPtr).ToString());
 
                 GetControllerStatePtr = pGetControllerState;
                 GetControllerStateHook = LocalHook.Create(
@@ -93,14 +108,28 @@ namespace CFW.Business
                     new vr_PollNextEventDelegate(PollNextEvent_Hooked),
                     this);
 
+                PollNextEventWithPosePtr = pPollNextEventWithPose;
+                PollNextEventWithPoseHook = LocalHook.Create(
+                    pPollNextEventWithPose,
+                    new vr_PollNextEventWithPoseDelegate(PollNextEventWithPose_Hooked),
+                    this);
+
+                GetFloatTrackedDevicePropertyPtr = pGetFloatTrackedDevicePropertyPtr;
+                //GetFloatTrackedDeviceProeprtyHook = LocalHook.Create(
+                //    pGetFloatTrackedDevicePropertyPtr,
+                //    new vr_GetFloatTrackedDevicePropertyDelegate(GetFloatTrackedDeviceProperty_Hooked),
+                //    this);
+
                 /*
                  * Don't forget that all hooks will start deactivated...
                  * The following ensures that all threads are intercepted:
                  * Note: you must do this for each hook.
                  */
-                GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-                PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { });
+                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { });
+                PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { });
+                PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { });
+                //GetFloatTrackedDeviceProeprtyHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
 
             catch (Exception e)
@@ -144,11 +173,14 @@ namespace CFW.Business
                     if (running != UserRunning)
                     {
                         RunButton = Interface.RunButton;
+                        ButtonType = Interface.ButtonType;
                         ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
 
                         UserRunning = running;
                         MyEvent = new ButtonEvent();
                         MyEvent.Queued = true;
+                        MyEvent.ShouldPress = ButtonType == EVRButtonType.Press;
+                        MyEvent.ShouldTouch = true;
                     }
                 }
             }
@@ -171,10 +203,22 @@ namespace CFW.Business
         {
             if (UserRunning && unControllerDeviceIndex==ChosenDeviceIndex)
             {
-                pControllerState.ulButtonPressed = pControllerState.ulButtonPressed | (1UL << ((int)RunButton));
+                if (ButtonType == EVRButtonType.Press)
+                {
+                    pControllerState.ulButtonPressed = pControllerState.ulButtonPressed | (1UL << ((int)RunButton));
+                }
+
                 pControllerState.ulButtonTouched = pControllerState.ulButtonTouched | (1UL << ((int)RunButton));
-                pControllerState.rAxis0.y = 0.7f;
-                // Interface.Write("Touch");
+
+                if (RunButton == EVRButtonId.k_EButton_Axis0)
+                {
+                    pControllerState.rAxis0.y = 1.0f;
+                }
+                else if(RunButton == EVRButtonId.k_EButton_SteamVR_Trigger)
+                {
+                    pControllerState.rAxis1.x = 1.0f;
+                }
+                //Interface.Write("Touch");
             }
             else
             {
@@ -208,8 +252,8 @@ namespace CFW.Business
                 MyEvent.Queued = false;
             }
             pEvent.eventAgeSeconds = 0;
-            pEvent.trackedDeviceIndex = 3;
-            pEvent.data.controller.button = (uint)EVRButtonId.k_EButton_Axis0;
+            pEvent.trackedDeviceIndex = ChosenDeviceIndex;
+            pEvent.data.controller.button = (uint)RunButton;
             return true;
         }
 
@@ -220,23 +264,24 @@ namespace CFW.Business
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
-            /*
-            This.Interface.Write("GetControllerState");
-            This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
-            This.Interface.Write("  Controller state size " + (int)unControllerStateSize);
-            This.Interface.Write("    Packet num " + (int)pControllerState.unPacketNum);
-            This.Interface.Write("    Buttons pressed " + pControllerState.ulButtonPressed);
-            This.Interface.Write("    Buttons touched " + pControllerState.ulButtonTouched);
-            This.Interface.Write("    Axis 0 " + pControllerState.rAxis0.x + ", " + pControllerState.rAxis0.y);
-            This.Interface.Write("    Axis 1 " + pControllerState.rAxis1.x + ", " + pControllerState.rAxis1.y);
-            This.Interface.Write("    Axis 2 " + pControllerState.rAxis2.x + ", " + pControllerState.rAxis2.y);
-            This.Interface.Write("    Axis 3 " + pControllerState.rAxis3.x + ", " + pControllerState.rAxis3.y);
-            This.Interface.Write("    Axis 4 " + pControllerState.rAxis4.x + ", " + pControllerState.rAxis4.y);
-            */
+                      
             try
             {
                 var getControllerState = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateDelegate>(This.GetControllerStatePtr);
                 res = getControllerState(instance, unControllerDeviceIndex, ref pControllerState, unControllerStateSize);
+                /*
+                This.Interface.Write("GetControllerState");
+                This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
+                This.Interface.Write("  Controller state size " + (int)unControllerStateSize);
+                This.Interface.Write("    Packet num " + (int)pControllerState.unPacketNum);
+                This.Interface.Write("    Buttons pressed " + pControllerState.ulButtonPressed);
+                This.Interface.Write("    Buttons touched " + pControllerState.ulButtonTouched);
+                This.Interface.Write("    Axis 0 " + pControllerState.rAxis0.x + ", " + pControllerState.rAxis0.y);
+                This.Interface.Write("    Axis 1 " + pControllerState.rAxis1.x + ", " + pControllerState.rAxis1.y);
+                This.Interface.Write("    Axis 2 " + pControllerState.rAxis2.x + ", " + pControllerState.rAxis2.y);
+                This.Interface.Write("    Axis 3 " + pControllerState.rAxis3.x + ", " + pControllerState.rAxis3.y);
+                This.Interface.Write("    Axis 4 " + pControllerState.rAxis4.x + ", " + pControllerState.rAxis4.y);
+                */
                 This.SetControllerState(ref pControllerState, unControllerDeviceIndex);
             }
             catch
@@ -289,15 +334,15 @@ namespace CFW.Business
                 bool res = pollNextEvent(instance, ref pEvent, uncbVREvent);
                 if (res)
                 {
-                    // This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
-                    // This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
+                    //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
+                    //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
                 }
                 else if(This.MyEvent.Queued)
                 {
-                    res = This.CreateEvent(ref pEvent);
-                    // This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
-                    // This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
+                     res = This.CreateEvent(ref pEvent);
+                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
+                     //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
                 }
             }
@@ -307,6 +352,56 @@ namespace CFW.Business
             }
             return false;
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate float vr_GetFloatTrackedDevicePropertyDelegate(IntPtr instance, uint unDeviceIndex, ETrackedDeviceProperty prop, ref ETrackedPropertyError pError);
+        static float GetFloatTrackedDeviceProperty_Hooked(IntPtr instance, uint unDeviceIndex, ETrackedDeviceProperty prop, ref ETrackedPropertyError pError)
+        {
+            float val = 0;
+            OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
+            try
+            {
+                var GetFloatTrackedDeviceProperty = Marshal.GetDelegateForFunctionPointer<vr_GetFloatTrackedDevicePropertyDelegate>(This.GetFloatTrackedDevicePropertyPtr);
+                val = GetFloatTrackedDeviceProperty(instance, unDeviceIndex, prop, ref pError);
+                This.Interface.Write(prop + ":" + val);
+
+            }
+            catch
+            {
+            }
+            return val;
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        delegate bool vr_PollNextEventWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose);
+        static bool PollNextEventWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose)
+        {
+            OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
+            bool res = false;
+            try
+            {
+                var pollNextEventWithPose = Marshal.GetDelegateForFunctionPointer<vr_PollNextEventWithPoseDelegate>(This.PollNextEventPtr);
+                res = pollNextEventWithPose(instance, eOrigin, ref pEvent, uncbVREvent, ref pTrackedDevicePose);
+                if (res)
+                {
+                    //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
+                    //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
+                    return true;
+                }
+                else if (This.MyEvent.Queued)
+                {
+                    res = This.CreateEvent(ref pEvent);
+                    //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
+                    //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+            return res;
+        }
+
 
         /// <summary>
         /// Just ensures that the surface we created it cleaned up.

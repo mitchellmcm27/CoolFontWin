@@ -168,7 +168,7 @@ namespace CFW.ViewModel
         }
         
         public ReactiveList<string> RunningProcs { get; set; }
-
+        public ReactiveList<string> InjectedProcs { get; set; }
         string _SelectedProc;
         public string SelectedProc
         {
@@ -194,8 +194,24 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _Injected, value); }
         }
 
+        bool _InjectedIntoSelected;
+        public bool InjectedIntoSelected
+        {
+            get { return _InjectedIntoSelected; }
+            set { this.RaiseAndSetIfChanged(ref _InjectedIntoSelected, value); }
+        }
         List<string> _ControllerHand = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
         public List<string> ControllerHand { get { return _ControllerHand; } }
+
+        List<string> _ControllerTouch = Enum.GetNames(typeof(Valve.VR.EVRButtonType)).ToList();
+        public List<string> ControllerTouch { get { return _ControllerTouch; } }
+
+        int _SelectedControllerTouchIndex;
+        public int SelectedControllerTouchIndex
+        {
+            get { return _SelectedControllerTouchIndex; }
+            set { this.RaiseAndSetIfChanged(ref _SelectedControllerTouchIndex, value); }
+        }
 
         int _SelectedControllerHandIndex;
         public int SelectedControllerHandIndex
@@ -204,7 +220,13 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _SelectedControllerHandIndex, value); }
         }
 
-        List<string> _ViveControllerButton = new List<string> { "Grip", "Touch Pad", "Trigger" };
+        // must keep these 2 lists in sync
+        List<Valve.VR.EVRButtonId> _ViveControllerButtonId = new List<Valve.VR.EVRButtonId> {
+            Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad,
+            Valve.VR.EVRButtonId.k_EButton_Grip,
+            Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger
+        };
+        List<string> _ViveControllerButton = new List<string> { "Touchpad", "Grip", "Trigger" };
         public  List<string> ViveControllerButton { get { return _ViveControllerButton; } }
 
         int _SelectedViveControllerButtonIndex;
@@ -420,20 +442,30 @@ namespace CFW.ViewModel
             Observable.Return(Unit.Default)
                 .InvokeCommand(RefreshProcs);
 
+            InjectedProcs = new ReactiveList<string>();
+            InjectedProcs.ItemsAdded
+                .Select(_ => InjectedProcs.Contains(SelectedProc))
+                .Do(x => InjectedIntoSelected = x)
+                .Subscribe();
+
             var canInject = this
                 .WhenAnyValue(
-                    x => x.SelectedProc, 
-                    x => x.SelectedViveControllerButtonIndex, 
-                    x => x.SelectedControllerHandIndex,
-                    (proc, button, hand) => !string.IsNullOrEmpty(proc));
-
+                    x => x.SelectedProc,
+                    x => x.InjectedIntoSelected,
+                    (selected, _) => !string.IsNullOrEmpty(selected) && !InjectedProcs.Contains(selected));
+            
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
+
             InjectProc.ThrownExceptions
                 .Do(ex => MessageBox.Show("Error ", ex.Message, MessageBoxButton.OK))
                 .Subscribe();
 
-            this.WhenAnyValue(x => x.SelectedViveControllerButtonIndex, x => x.SelectedControllerHandIndex, x=>x.Injected,
-                (but, hand, injected) => injected)
+            this.WhenAnyValue(
+                x => x.SelectedControllerTouchIndex,
+                x => x.SelectedViveControllerButtonIndex, 
+                x => x.SelectedControllerHandIndex, 
+                x => x.Injected,
+                    (touch, but, hand, injected) => injected)
                 .Do(x => ViveBindingsChanged = x)
                 .Subscribe();
 
@@ -441,6 +473,7 @@ namespace CFW.ViewModel
             UpdateHookInterface.ThrownExceptions
                 .Do(_ => ViveBindingsChanged = true)
                 .Subscribe(ex => log.Debug("UpdateHookInterface error: " + ex));
+
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -464,6 +497,7 @@ namespace CFW.ViewModel
         public ReactiveCommand RefreshProcs { get; set; }
         public ReactiveCommand InjectProc { get; set; }
         public ReactiveCommand UpdateHookInterface { get; set; }
+        public ReactiveCommand InjectAndUpdate { get; set; }
 
         private async Task CoupledDecoupledImpl()
         {
@@ -506,14 +540,23 @@ namespace CFW.ViewModel
         private async Task InjectProcImpl()
         {
             bool success = await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
-            Injected = success; 
+            Injected = success;
+            if (Injected)
+            {
+                InjectedProcs.Add(SelectedProc);
+            }
         }
 
         private async Task UpdateHookInterfaceImpl()
         {
+            if (_ViveControllerButtonId[this.SelectedViveControllerButtonIndex] != Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad)
+            {
+                this.SelectedControllerTouchIndex = (int)Valve.VR.EVRButtonType.Press;
+            }
             await Task.Run(() => DeviceManager.ReceivedNewViveBindings(
-                ViveControllerButton[this.SelectedViveControllerButtonIndex], 
-                ControllerHand[this.SelectedControllerHandIndex]));
+                (Valve.VR.EVRButtonType)this.SelectedControllerTouchIndex,
+                _ViveControllerButtonId[this.SelectedViveControllerButtonIndex], 
+                (Valve.VR.EVRHand)this.SelectedControllerHandIndex));
             ViveBindingsChanged = false;
         }
 

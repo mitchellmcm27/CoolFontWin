@@ -82,7 +82,7 @@ namespace CFW
         static void MyHandler(object sender, UnhandledExceptionEventArgs args)
         {
             Exception e = (Exception)args.ExceptionObject;
-            log.Fatal("Unhandled Exception: " + e.Message);
+            log.Fatal("Unhandled Exception: " + e);
             log.Fatal(String.Format("Runtime terminating: {0}", args.IsTerminating));
 
             MessageBoxResult res = MessageBox.Show(

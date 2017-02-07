@@ -1,9 +1,10 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace CFW.Unused
 {
     public class PSInterface : MarshalByRefObject
-    {
 
         public void ReportError(int pid, Exception e)
         {
