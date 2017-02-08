@@ -283,11 +283,14 @@ namespace CFW.Business
             DeviceList[deviceNumber].Buttons = int.Parse(instring_sep[IndexOf.DataButtons]);
 
             // Mode from primary device only!
+            // No longer take mode from devices
+            /*
             if (deviceNumber == 0)
             {
                 SimulatorMode modeIn = (SimulatorMode)int.Parse(instring_sep[IndexOf.DataMode]);
                 ModeFromPhone(modeIn);
             }
+            */
 
             // Update MobileDevice with processed vals
             DeviceList[deviceNumber].Valsf = ParseVals(instring_sep[IndexOf.DataVals]);
