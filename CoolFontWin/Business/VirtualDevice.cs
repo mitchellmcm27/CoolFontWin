@@ -753,7 +753,6 @@ namespace CFW.Business
             Joystick.SetDevButton(HDev, 9, ((wButtons)iReport.Buttons & wButtons.ButtonLAnalog) != 0);
             Joystick.SetDevButton(HDev, 10, ((wButtons)iReport.Buttons & wButtons.ButtonRAnalog) != 0);
 
-            Console.WriteLine(iReport.POV);
             if (this.VDevType == DevType.vJoy)
             {
                 Joystick.SetDevPov(this.HDev, 1, iReport.POV);
