@@ -19,6 +19,7 @@ namespace CFW.Business
     {
         // Index of data after separating string by $
         public static readonly int DataMode = 0;
+        public static readonly int DataValidPOV = 0;
         public static readonly int DataVals = 1;
         public static readonly int DataButtons = 2;
         public static readonly int DataPacketNumber = 3;
@@ -38,6 +39,15 @@ namespace CFW.Business
         public static readonly int ValCount = 10;
     };
 
+    public struct DataModeCode
+    {
+        public static readonly int Paused = 0;
+        public static readonly int Keyboard = 1;
+        public static readonly int JoystickCoupled = 2;
+        public static readonly int JoystickDecoupled = 3;
+        public static readonly int NoGyro = 10;
+        public static readonly int GyroOK = 11;
+    }
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
@@ -251,7 +261,11 @@ namespace CFW.Business
                 deviceNumber = int.Parse(instring_sep[IndexOf.DataDeviceNumber]);
             }
 
-            if (deviceNumber > MaxDevices-1) return false;
+            if (deviceNumber > MaxDevices - 1)
+            {
+                log.Error("Data was from extraneous device! Return false.");
+                return false;
+            }
 
             DeviceList[deviceNumber].PacketNumber = int.Parse(instring_sep[IndexOf.DataPacketNumber]);
 
@@ -269,7 +283,7 @@ namespace CFW.Business
 
             // Not implemented on a per-device basis yet!
 
-            /*  
+            /* 
             if (packetNumber < this.PacketNumber && this.PacketNumber - packetNumber < MaxPacketNumber/3) // received an out-dated packet
             {
                 if (ShouldInterpolate) { InterpolateData(); }
@@ -282,33 +296,11 @@ namespace CFW.Business
             // Buttons
             DeviceList[deviceNumber].Buttons = int.Parse(instring_sep[IndexOf.DataButtons]);
 
-            // Mode from primary device only!
-            // No longer take mode from devices
-            /*
-            if (deviceNumber == 0)
-            {
-                SimulatorMode modeIn = (SimulatorMode)int.Parse(instring_sep[IndexOf.DataMode]);
-                ModeFromPhone(modeIn);
-            }
-            */
-
             // Update MobileDevice with processed vals
             DeviceList[deviceNumber].Valsf = ParseVals(instring_sep[IndexOf.DataVals]);
+            DeviceList[deviceNumber].ValidPOV = int.Parse(instring_sep[IndexOf.DataValidPOV]) != DataModeCode.NoGyro;
             DeviceList[deviceNumber].Count++;
             return true;
-        }
-
-        private void ModeFromPhone(SimulatorMode mode)
-        {
-            if (mode == Mode || mode == PreviousMode) { return; } // mode is the same as current
-            if (!CheckMode(mode)) { return; }
-
-            NeutralizeCurrentVJoyDevice();
-
-            Mode = mode;
-            PreviousMode = Mode;
-            CurrentModeIsFromPhone = true;
-            log.Info("Obtained mode from phone: " + Mode.ToString());
         }
 
         public bool ClickedMode(SimulatorMode mode)
@@ -388,12 +380,15 @@ namespace CFW.Business
                 CombinedDevice.Buttons = CombinedDevice.Buttons | DeviceList[i].Buttons; // bitmask
 
                 // rolling average of POV, no need to know beforehand how many devices are Ready
-                avgCount++;
-                avgPOV = avgPOV * (avgCount - 1) / avgCount + DeviceList[i].Valsf[IndexOf.ValPOV] / avgCount;
+                if (DeviceList[i].ValidPOV)
+                {
+                    avgCount++;
+                    avgPOV = avgPOV * (avgCount - 1) / avgCount + DeviceList[i].Valsf[IndexOf.ValPOV] / avgCount;
+                }
             }
 
             valsf[IndexOf.ValPOV] = avgPOV;
-
+            
             valsf = TranslateValuesForVDev(ProcessValues(valsf)); // converts units for specific device (e.g. vJoy)  
 
             // Filtering
@@ -441,8 +436,8 @@ namespace CFW.Business
             if (Mode == SimulatorMode.ModeJoystickDecoupled)
             {
                 // X and Y are determined by user direction and speed
-                valsf[1] = -Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
-                valsf[2] = Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                valsf[1] = Math.Sin(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
+                valsf[2] = Math.Cos(valsf[7] * Math.PI / 180) * valsf[0]; // -1 to 1 
             }
             else
             {
@@ -758,6 +753,7 @@ namespace CFW.Business
             Joystick.SetDevButton(HDev, 9, ((wButtons)iReport.Buttons & wButtons.ButtonLAnalog) != 0);
             Joystick.SetDevButton(HDev, 10, ((wButtons)iReport.Buttons & wButtons.ButtonRAnalog) != 0);
 
+            Console.WriteLine(iReport.POV);
             if (this.VDevType == DevType.vJoy)
             {
                 Joystick.SetDevPov(this.HDev, 1, iReport.POV);

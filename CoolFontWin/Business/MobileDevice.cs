@@ -15,6 +15,7 @@ namespace CFW.Business
 
         private int numAxes = IndexOf.ValCount;
         public bool Ready { get; private set; }
+        public bool ValidPOV;
         public uint Count;
         private uint LastCount;
 
