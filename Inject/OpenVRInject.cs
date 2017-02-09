@@ -17,7 +17,7 @@ namespace CFW.Business
         LocalHook GetControllerStateWithPoseHook;
         LocalHook PollNextEventHook;
         LocalHook PollNextEventWithPoseHook;
-        LocalHook GetFloatTrackedDeviceProeprtyHook;
+        LocalHook GetFloatTrackedDevicePropertyHook;
 
         IntPtr GetControllerStatePtr;
         IntPtr GetControllerStateWithPosePtr;
@@ -115,7 +115,7 @@ namespace CFW.Business
                     this);
 
                 GetFloatTrackedDevicePropertyPtr = pGetFloatTrackedDevicePropertyPtr;
-                //GetFloatTrackedDeviceProeprtyHook = LocalHook.Create(
+                // GetFloatTrackedDevicePropertyHook = LocalHook.Create(
                 //    pGetFloatTrackedDevicePropertyPtr,
                 //    new vr_GetFloatTrackedDevicePropertyDelegate(GetFloatTrackedDeviceProperty_Hooked),
                 //    this);
@@ -125,11 +125,11 @@ namespace CFW.Business
                  * The following ensures that all threads are intercepted:
                  * Note: you must do this for each hook.
                  */
-                GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { });
-                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { });
-                PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { });
-                PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { });
-                //GetFloatTrackedDeviceProeprtyHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                //GetFloatTrackedDevicePropertyHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
 
             catch (Exception e)
@@ -160,8 +160,8 @@ namespace CFW.Business
                         LeftHandIndex = GetLeftHandIndex32();
                         RightHandIndex = GetRightHandIndex32();
                     }
-                    Interface.Write("Left hand " + LeftHandIndex);
-                    Interface.Write("Right hand " + RightHandIndex);
+                    //Interface.Write("Left hand " + LeftHandIndex);
+                    //Interface.Write("Right hand " + RightHandIndex);
                     ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
                     Thread.Sleep(300);
                 }
@@ -192,11 +192,23 @@ namespace CFW.Business
             finally
             {
                 // Note: this will probably not get called if the target application closes before the 
-                //       host application. One solution would be to create and dispose the Surface for 
-                //       each capture request.
-                Interface.Write("Cleanup Hook");
+                //       host application.
+                Interface.Write("Remove and cleanup hooks");
+                Interface.Cleanup();
                 Cleanup();
             }
+        }
+
+        private void Cleanup()
+        {
+            // Remove hooks
+            GetControllerStateHook.Dispose();
+            GetControllerStateWithPoseHook.Dispose();
+            PollNextEventHook.Dispose();
+            PollNextEventWithPoseHook.Dispose();
+
+            // Finalise cleanup of hooks
+            LocalHook.Release();
         }
 
         void SetControllerState(ref VRControllerState_t pControllerState, uint unControllerDeviceIndex)
@@ -400,14 +412,6 @@ namespace CFW.Business
             {
             }
             return res;
-        }
-
-
-        /// <summary>
-        /// Just ensures that the surface we created it cleaned up.
-        /// </summary>
-        private void Cleanup()
-        {
         }
 
         /// <summary>

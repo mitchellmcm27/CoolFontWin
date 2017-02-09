@@ -365,7 +365,7 @@ namespace CFW.Business
                     injectDll,
                     channelName);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     if (Iface.Installed)
                     {
@@ -373,9 +373,9 @@ namespace CFW.Business
                         log.Info("Successfully injected!");
                         return true;
                     }
-                    System.Threading.Thread.Sleep(250);
+                    System.Threading.Thread.Sleep(300);
                 }
-                throw new TimeoutException("Injecting process timed out.");
+                throw new TimeoutException("Injecting process timed out. Make sure Steam VR is running.");
             }
             catch (Exception e)
             {
@@ -490,9 +490,18 @@ namespace CFW.Business
                 return false;
 
             bool isWow64;
-            if (!IsWow64Process(process.Handle, out isWow64))
-                throw new Win32Exception();
-            return !isWow64;
+            try
+            {
+                bool success = IsWow64Process(process.Handle, out isWow64);
+                if (!success)
+                    return false;
+                return !isWow64;
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                return false;
+            }
         }
 
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
