@@ -35,5 +35,10 @@ namespace CFW.Business
         {
             Console.WriteLine(str);
         }
+
+        public void Cleanup()
+        {
+            Installed = false;
+        }
     }
 }

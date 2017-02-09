@@ -51,21 +51,7 @@ void** g_deviceFunctionAddresses;
 uint32_t unLeftHandIndex;
 uint32_t unRightHandIndex;
 vr::IVRSystem *pVRSystem;
-
-void* ShortJmp(char* pPtr)
-{
-	char* codePtr = pPtr;
-	add_log("JMP %d", *codePtr);
-	if (((char)0xeb) == *codePtr)
-	{
-		// Short jump instruction, second byte is the offset, which is signed value
-		char jmpOfs = *(++codePtr);
-		codePtr++;
-		codePtr += jmpOfs;
-	}
-	add_log("JMP %d", *codePtr);
-	return (void*)codePtr;
-}
+void *pGenericInterface;
 
 extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(short methodIndex, const int methodCount)
 {
@@ -102,12 +88,31 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 			}
 			add_log("  Module address: 0x%x", (uintptr_t)hMod);
 
-			// create VR object
-			add_log("Instantiate IVRSystem...");
+			const char *ver;
 
+			bool installed = vr::VR_IsRuntimeInstalled();
+			add_log("  Runtime installed? %s", installed ? "YES" : "NO");
+
+			if (installed)
+			{
+				const char * path = vr::VR_RuntimePath();
+				add_log("    %s", path);
+			}
+
+			bool hmd = vr::VR_IsHmdPresent();
+			add_log("  HMD Present? %s", hmd ? "YES" : "NO");
+
+			// request generic interface
+			ver = vr::IVRSystem_Version;
+				
+			bool valid_version = vr::VR_IsInterfaceVersionValid(ver);
+			add_log("  Interface version %s valid? %s", ver, valid_version ? "YES" : "NO");
+
+			add_log("Get generic interface...");
 			pVRSystem = NULL;
 			vr::EVRInitError eError = vr::VRInitError_None;
-			//pVRSystem = vr::VR_Init(&eError, vr::VRApplication_Background);
+			pGenericInterface = NULL;
+			pGenericInterface = vr::VR_GetGenericInterface(ver, &eError);
 
 			if (eError != vr::VRInitError_None)
 			{
@@ -115,48 +120,11 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 				return 0;
 			}
 
-			bool try_again;
-			const char *ver;
-			if (!pVRSystem)
+			if (!pGenericInterface)
 			{
-				add_log("  pVRSystem was null");
+				add_log("  Generic Interface was null");
 				add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
-				bool installed = vr::VR_IsRuntimeInstalled();
-				add_log("  Runtime installed? %s", installed ? "YES" : "NO");
-				if (installed)
-				{
-					const char * path = vr::VR_RuntimePath();
-					add_log("    %s", path);
-				}
-				bool hmd = vr::VR_IsHmdPresent();
-				add_log("  HMD Present? %s", hmd ? "YES" : "NO");
-
-				// request generic interface
-				ver = vr::IVRSystem_Version;
-				
-				bool valid_version = vr::VR_IsInterfaceVersionValid(ver);
-				add_log("  Interface version %s valid? %s", ver, valid_version ? "YES" : "NO");
-				try_again = installed & valid_version;
-			}
-
-			void *pGenericInterface;
-			if (try_again)
-			{
-				add_log("Get generic interface...");
-				pGenericInterface = vr::VR_GetGenericInterface(ver, &eError);
-
-				if (eError != vr::VRInitError_None)
-				{
-					add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
-					return 0;
-				}
-
-				if (!pGenericInterface)
-				{
-					add_log("  Generic Interface was null");
-					add_log("  Error initializing: %s", VR_GetVRInitErrorAsSymbol(eError));
-					return 0;
-				}
+				return 0;
 			}
 
 			pVRSystem = static_cast<vr::IVRSystem *>(pGenericInterface);

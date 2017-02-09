@@ -449,10 +449,7 @@ namespace CFW.ViewModel
                 .Subscribe();
 
             var canInject = this
-                .WhenAnyValue(
-                    x => x.SelectedProc,
-                    x => x.InjectedIntoSelected,
-                    (selected, _) => !string.IsNullOrEmpty(selected) && !InjectedProcs.Contains(selected));
+                .WhenAnyValue(x => x.SelectedProc, x => !string.IsNullOrEmpty(x));
             
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
 
@@ -544,6 +541,7 @@ namespace CFW.ViewModel
             if (Injected)
             {
                 InjectedProcs.Add(SelectedProc);
+                await UpdateHookInterfaceImpl();
             }
         }
 
