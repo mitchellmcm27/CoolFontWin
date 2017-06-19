@@ -23,7 +23,7 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         </ResourceDictionary>
-        
+
     </UserControl.Resources>
 
     <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth0">
@@ -69,7 +69,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
                                 Visibility="{Binding IsChecked, ElementName=KeyboardOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Orientation="Horizontal"  ToolTip="Virtual keyboard">
                         <RadioButton x:Name="KeyboardOutput" GroupName="Output" DockPanel.Dock="Left" VerticalAlignment="Center"  Margin="8"
                              IsChecked="{Binding KeyboardOutput, Mode=OneWay}"
                              Command="{Binding KeyboardMode}"/>
@@ -136,7 +136,7 @@
                             </Rectangle.OpacityMask>
                         </Rectangle>
                         <TextBlock VerticalAlignment="Center" Text="vXbox" Margin="8"/>
-              
+
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="2" 
@@ -173,7 +173,7 @@
                     <StackPanel Grid.Row="0" Margin="0,0,0,24"
                                 Visibility="{Binding IsChecked, ElementName=VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" ToolTip="Virtual joystick">
                         <Button Style="{StaticResource MaterialDesignToolButton}"
                                 Margin="4,0,4,0" 
                                 VerticalAlignment="Center"
@@ -237,7 +237,7 @@
                                 Visibility="{Binding IsChecked, ElementName=VrOutput, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
 
-                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                    <StackPanel Grid.Row="1" Orientation="Vertical" ToolTip="Inject into VR controllers">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton x:Name="VrOutput" GroupName="Output" VerticalAlignment="Center"  Margin="8,0,8,0"
                                  IsChecked="{Binding VrOutput, Mode=OneWay}"

@@ -372,6 +372,7 @@
     <Content Include="OpenVRHelper64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\logo_updated_sm.png" />
     <Content Include="vJoy\vJoySetup.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -65,6 +65,10 @@ namespace CFW.Business
                 IntPtr pPollNextEventWithPose = IntPtr.Zero;
                 IntPtr pGetFloatTrackedDevicePropertyPtr = IntPtr.Zero;
 
+                // TODO: Find out version of openvr dll, which will determine the correct index of the function
+                // ver = vr::IVRSystem_Version; returns string
+                // string matching determines which enum to use
+
                 if (RemoteHooking.IsX64Process(pid))
                 {
                     Interface.Write("64 bit process");
