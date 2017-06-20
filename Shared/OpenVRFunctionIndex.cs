@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Valve.VR
+﻿namespace Valve.VR
 {
     public enum EVRHand
     {
@@ -28,6 +22,7 @@ namespace Valve.VR
         GetTimeSinceLastVsync,
         GetD3D9AdapterIndex,
         GetDXGIOutputInfo,
+        GetOutputDevice, // 1.06
         IsDisplayOnDesktop,
         SetDisplayVisibility,
         GetDeviceToAbsoluteTrackingPose,

@@ -17,13 +17,11 @@ namespace CFW.Business
         LocalHook GetControllerStateWithPoseHook;
         LocalHook PollNextEventHook;
         LocalHook PollNextEventWithPoseHook;
-        LocalHook GetFloatTrackedDevicePropertyHook;
 
         IntPtr GetControllerStatePtr;
         IntPtr GetControllerStateWithPosePtr;
         IntPtr PollNextEventPtr;
         IntPtr PollNextEventWithPosePtr;
-        IntPtr GetFloatTrackedDevicePropertyPtr;
 
         PSInterface Interface;
         bool UserRunning;
@@ -63,7 +61,6 @@ namespace CFW.Business
                 IntPtr pGetControllerStateWithPose = IntPtr.Zero;
                 IntPtr pPollNextEvent = IntPtr.Zero;
                 IntPtr pPollNextEventWithPose = IntPtr.Zero;
-                IntPtr pGetFloatTrackedDevicePropertyPtr = IntPtr.Zero;
 
                 // TODO: Find out version of openvr dll, which will determine the correct index of the function
                 // ver = vr::IVRSystem_Version; returns string
@@ -76,7 +73,6 @@ namespace CFW.Business
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);
                     pPollNextEventWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
-                    pGetFloatTrackedDevicePropertyPtr = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetFloatTrackedDeviceProperty, (int)OpenVRFunctionIndex.Count);
                 }
                 else
                 {
@@ -85,14 +81,12 @@ namespace CFW.Business
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);
                     pPollNextEventWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
-                    pGetFloatTrackedDevicePropertyPtr = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetFloatTrackedDeviceProperty, (int)OpenVRFunctionIndex.Count);
                 }
 
                 Interface.Write("GetControllerState function pointer: " + (pGetControllerState).ToString());
                 Interface.Write("GetControllerStateWithPose function pointer: " + (pGetControllerStateWithPose).ToString());
                 Interface.Write("PollNextEventEvent function pointer: " + (pPollNextEvent).ToString());
                 Interface.Write("PollNextEventWithPose function pointer: " + (pPollNextEventWithPose).ToString());
-                Interface.Write("GetFloatTrackedDeviceProperty function pointer: " + (pGetFloatTrackedDevicePropertyPtr).ToString());
 
                 GetControllerStatePtr = pGetControllerState;
                 GetControllerStateHook = LocalHook.Create(
@@ -118,12 +112,6 @@ namespace CFW.Business
                     new vr_PollNextEventWithPoseDelegate(PollNextEventWithPose_Hooked),
                     this);
 
-                GetFloatTrackedDevicePropertyPtr = pGetFloatTrackedDevicePropertyPtr;
-                // GetFloatTrackedDevicePropertyHook = LocalHook.Create(
-                //    pGetFloatTrackedDevicePropertyPtr,
-                //    new vr_GetFloatTrackedDevicePropertyDelegate(GetFloatTrackedDeviceProperty_Hooked),
-                //    this);
-
                 /*
                  * Don't forget that all hooks will start deactivated...
                  * The following ensures that all threads are intercepted:
@@ -133,7 +121,6 @@ namespace CFW.Business
                 GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-                //GetFloatTrackedDevicePropertyHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
 
             catch (Exception e)
@@ -150,7 +137,7 @@ namespace CFW.Business
             // Wait for host process termination...
             try
             {
-                ChosenDeviceIndex = 0;
+                ChosenDeviceIndex = 0; // base station
                 while (ChosenDeviceIndex == 0)
                 {
                     // wait until controller comes on?
@@ -164,8 +151,8 @@ namespace CFW.Business
                         LeftHandIndex = GetLeftHandIndex32();
                         RightHandIndex = GetRightHandIndex32();
                     }
-                    //Interface.Write("Left hand " + LeftHandIndex);
-                    //Interface.Write("Right hand " + RightHandIndex);
+                    Interface.Write("Left hand " + LeftHandIndex);
+                    Interface.Write("Right hand " + RightHandIndex);
                     ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
                     Thread.Sleep(300);
                 }
@@ -181,10 +168,12 @@ namespace CFW.Business
                         ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
 
                         UserRunning = running;
-                        MyEvent = new ButtonEvent();
-                        MyEvent.Queued = true;
-                        MyEvent.ShouldPress = ButtonType == EVRButtonType.Press;
-                        MyEvent.ShouldTouch = true;
+                        MyEvent = new ButtonEvent()
+                        {
+                            Queued = true,
+                            ShouldPress = ButtonType == EVRButtonType.Press,
+                            ShouldTouch = true
+                        };
                     }
                 }
             }
@@ -364,28 +353,9 @@ namespace CFW.Business
             }
             catch (Exception ex)
             {
-                This.Interface.Write("Error in PollNextEvent_Hooked " + ex);
+               // This.Interface.Write("Error in PollNextEvent_Hooked " + ex);
             }
             return false;
-        }
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate float vr_GetFloatTrackedDevicePropertyDelegate(IntPtr instance, uint unDeviceIndex, ETrackedDeviceProperty prop, ref ETrackedPropertyError pError);
-        static float GetFloatTrackedDeviceProperty_Hooked(IntPtr instance, uint unDeviceIndex, ETrackedDeviceProperty prop, ref ETrackedPropertyError pError)
-        {
-            float val = 0;
-            OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
-            try
-            {
-                var GetFloatTrackedDeviceProperty = Marshal.GetDelegateForFunctionPointer<vr_GetFloatTrackedDevicePropertyDelegate>(This.GetFloatTrackedDevicePropertyPtr);
-                val = GetFloatTrackedDeviceProperty(instance, unDeviceIndex, prop, ref pError);
-                This.Interface.Write(prop + ":" + val);
-
-            }
-            catch
-            {
-            }
-            return val;
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]

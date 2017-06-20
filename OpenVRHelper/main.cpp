@@ -88,6 +88,11 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 			}
 			add_log("  Module address: 0x%x", (uintptr_t)hMod);
 
+			char buffer[320];
+			GetModuleFileNameA(hMod, buffer, sizeof(buffer));
+			
+			add_log("  Module path: %s", buffer);
+
 			const char *ver;
 
 			bool installed = vr::VR_IsRuntimeInstalled();
@@ -146,7 +151,7 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 				g_deviceFunctionAddresses = new void*[interfaceMethodCount]; // array size depends on how many methods
 
 				// Retrieve the addresses of each of the methods (note first 3 IUnknown methods)
-				// See d3d9.h IDirect3D9Device to see the list of methods, the order they appear there
+				// See steamvr.h to see the list of methods, the order they appear there
 				// is the order they appear in the VTable, 1st one is index 0 and so on.
 				for (int i=0; i<interfaceMethodCount; i++) {
 					g_deviceFunctionAddresses[i] = (void*)pInterfaceVTable[i];
@@ -154,14 +159,16 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 					// Log the address offset
 					add_log("Method [%i] offset: 0x%x", i, pInterfaceVTable[i] - (uintptr_t)hMod);
 				}
+				add_log("Done");
 			}
-			__finally
+			__except(EXCEPTION_EXECUTE_HANDLER)
 			{
-				
+				add_log("Something went wrong getting the vtable");
 			}
 		}
-		__finally 
+		__except(EXCEPTION_EXECUTE_HANDLER)
 		{
+			add_log("Something went wrong");
 		}
 	}
 
@@ -185,6 +192,7 @@ extern "C" __declspec(dllexport) uint32_t APIENTRY GetLeftHandIndex()
 		vr::ETrackedControllerRole role = pVRSystem->GetControllerRoleForTrackedDeviceIndex(i);
 		if (role == vr::TrackedControllerRole_LeftHand)
 		{
+			add_log("Left hand is index %d", i);
 			return i;
 		}
 	}
@@ -203,6 +211,7 @@ extern "C" __declspec(dllexport) uint32_t APIENTRY GetRightHandIndex()
 		vr::ETrackedControllerRole role = pVRSystem->GetControllerRoleForTrackedDeviceIndex(i);
 		if (role == vr::TrackedControllerRole_RightHand)
 		{
+			add_log("Right hand is index %d", i);
 			return i;
 		}
 	}
