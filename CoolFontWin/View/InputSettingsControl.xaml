@@ -27,9 +27,9 @@
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth0">
+    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
             <DockPanel>
-                <materialDesign:ColorZone Padding="8" materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark"  DockPanel.Dock="Top">
                     <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16">Input devices</TextBlock>
                 </materialDesign:ColorZone>
@@ -76,7 +76,7 @@
                         
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="12" FontStyle="Italic">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="11">iPhone/Android</TextBlock>
                 </Grid>
                     
                 <Grid Grid.Row="1" Grid.Column="1">
@@ -94,7 +94,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket">Secondary mobile</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="12" FontStyle="Italic">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="11">iPhone/Android</TextBlock>
                 </Grid>
 
                 <Grid Grid.Row="2" Grid.Column="1">
@@ -117,7 +117,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Xbox controller</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="12" FontStyle="Italic">Physical controller</TextBlock>
+                               IsEnabled="False" FontSize="11">Physical controller</TextBlock>
                 </Grid>
             </Grid>
             <Button Name="PlayPauseButton" 

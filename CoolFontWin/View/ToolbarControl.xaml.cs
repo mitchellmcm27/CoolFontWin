@@ -25,5 +25,10 @@ namespace CFW.View
             var myWindow = Window.GetWindow(this);
             myWindow.WindowState = WindowState.Minimized;
         }
+
+        protected void Window_MouseLeftButtonDown(object sender, RoutedEventArgs e)
+        {
+            Application.Current.MainWindow.DragMove();
+        }
     }
 }

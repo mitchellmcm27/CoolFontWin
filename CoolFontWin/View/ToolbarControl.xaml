@@ -25,90 +25,92 @@
             </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-            <Menu IsMainMenu="True">
-                <MenuItem>
-                    <MenuItem.Header>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Margin="0,0,8,0" Source="../Resources/logo_updated_sm.png" Height="24" RenderOptions.BitmapScalingMode="HighQuality" Stretch="UniformToFill"/>
-                            <materialDesign:PackIcon Margin="4,0,0,0" Kind="ChevronDown" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </MenuItem.Header>
-                    <MenuItem Header="This PC">
-                        <MenuItem.Icon>
-                            <materialDesign:PackIcon Kind="InformationOutline"/>
-                        </MenuItem.Icon>
-                        <MenuItem Header="{Binding IpAddress}" IsEnabled="False"/>
-                    </MenuItem>
-                    <MenuItem Header="Options">
-                        <MenuItem Header="Flip X-axis" Command="{Binding FlipX}">
+    <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth2" Background="{DynamicResource MaterialDesignPaper}" UniformCornerRadius="0"
+                         MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        <DockPanel>
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                <Menu IsMainMenu="True" materialDesign:ShadowAssist.ShadowDepth="Depth4">
+                    <MenuItem>
+                        <MenuItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Margin="0,0,8,0" Source="../Resources/logo_updated_sm.png" Height="24" RenderOptions.BitmapScalingMode="HighQuality" Stretch="UniformToFill"/>
+                                <materialDesign:PackIcon Margin="4,0,0,0" Kind="ChevronDown" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem.Header>
+                        <MenuItem Header="This PC">
                             <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="SwapHorizontal"/>
+                                <materialDesign:PackIcon Kind="InformationOutline"/>
                             </MenuItem.Icon>
+                            <MenuItem Header="{Binding IpAddress}" IsEnabled="False"/>
                         </MenuItem>
-                        <MenuItem Header="Flip Y-axis" Command="{Binding FlipY}">
+                        <MenuItem Header="Options">
+                            <MenuItem Header="Flip X-axis" Command="{Binding FlipX}">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="SwapHorizontal"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Flip Y-axis" Command="{Binding FlipY}">
+                                <MenuItem.Icon>
+                                    <materialDesign:PackIcon Kind="SwapVertical"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <Separator/>
+                            <MenuItem Header="vJoy Config" Command="{Binding VJoyConfig}"/>
+                            <MenuItem Header="vJoy Monitor" Command="{Binding VJoyMonitor}"/>
+                        </MenuItem>
+                        <MenuItem Header="View log file" Command="{Binding ViewLogFile}">
                             <MenuItem.Icon>
-                                <materialDesign:PackIcon Kind="SwapVertical"/>
+                                <materialDesign:PackIcon Kind="FileDocument"/>
                             </MenuItem.Icon>
                         </MenuItem>
                         <Separator/>
-                        <MenuItem Header="vJoy Config" Command="{Binding VJoyConfig}"/>
-                        <MenuItem Header="vJoy Monitor" Command="{Binding VJoyMonitor}"/>
+                        <MenuItem Header="Quit" Click="Close_Click"/>
                     </MenuItem>
-                    <MenuItem Header="View log file" Command="{Binding ViewLogFile}">
-                        <MenuItem.Icon>
-                            <materialDesign:PackIcon Kind="FileDocument"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator/>
-                    <MenuItem Header="Quit" Click="Close_Click"/>
-                </MenuItem>
-            </Menu>
-        </StackPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Margin="0,0,16,0" Opacity="1"
+                </Menu>
+            </StackPanel>
+            <StackPanel Margin="4" DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                <Button Margin="0,0,16,0" Opacity="1"
             Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource SecondaryAccentBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
                 Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Button.ToolTip>
-                    <ToolTip Content="{Binding UpdateToolTip}" />
-                </Button.ToolTip>
-                <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
-                <Button.RenderTransform>
-                    <ScaleTransform x:Name="ImageScale" ScaleX="1" ScaleY="1" />
-                </Button.RenderTransform>
-                <Button.RenderTransformOrigin>
-                    0.5, 0.5
-                </Button.RenderTransformOrigin>
-            </Button>
-            <Button DockPanel.Dock="Right"
+                    <Button.ToolTip>
+                        <ToolTip Content="{Binding UpdateToolTip}" />
+                    </Button.ToolTip>
+                    <materialDesign:PackIcon Kind="{Binding UpdateIcon}" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
+                    <Button.RenderTransform>
+                        <ScaleTransform x:Name="ImageScale" ScaleX="1" ScaleY="1" />
+                    </Button.RenderTransform>
+                    <Button.RenderTransformOrigin>
+                        0.5, 0.5
+                    </Button.RenderTransformOrigin>
+                </Button>
+                <Button DockPanel.Dock="Right"
                 Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Minimize_Click" Opacity="0.6">
-                <Button.Triggers>
-                    <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
-                    </EventTrigger>
-                    <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
-                    </EventTrigger>
-                </Button.Triggers>
-                <materialDesign:PackIcon Kind="Minus" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}"/>
-            </Button>
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Control.MouseEnter">
+                            <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Control.MouseLeave">
+                            <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                        </EventTrigger>
+                    </Button.Triggers>
+                    <materialDesign:PackIcon Kind="Minus" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}"/>
+                </Button>
 
-            <Button DockPanel.Dock="Right"
+                <Button DockPanel.Dock="Right"
             Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource MaterialDesignBody}" Click="Close_Click" Opacity="0.6">
-                <Button.Triggers>
-                    <EventTrigger RoutedEvent="Control.MouseEnter">
-                        <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
-                    </EventTrigger>
-                    <EventTrigger RoutedEvent="Control.MouseLeave">
-                        <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
-                    </EventTrigger>
-                </Button.Triggers>
-                <materialDesign:PackIcon Kind="Close" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
-            </Button>
-        </StackPanel>
-    </DockPanel>
-    
+                    <Button.Triggers>
+                        <EventTrigger RoutedEvent="Control.MouseEnter">
+                            <BeginStoryboard Storyboard="{StaticResource FadeIn}"/>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="Control.MouseLeave">
+                            <BeginStoryboard Storyboard="{StaticResource FadeOut}"/>
+                        </EventTrigger>
+                    </Button.Triggers>
+                    <materialDesign:PackIcon Kind="Close" Width="{StaticResource IconSize}" Height="{StaticResource IconSize}" />
+                </Button>
+            </StackPanel>
+        </DockPanel>
+    </materialDesign:Card>
+
 </UserControl>
 
