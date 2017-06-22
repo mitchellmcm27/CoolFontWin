@@ -29,10 +29,10 @@
     <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
         <DockPanel VerticalAlignment="Stretch">
             <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
+                                            Mode="PrimaryDark" DockPanel.Dock="Top">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16"
-                           Text="Output device"/>
+                    <TextBlock HorizontalAlignment="Center" Margin="16" FontSize="16"
+                           Text="Output Device"/>
                     <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
                                 Style="{StaticResource MaterialDesignToolForegroundButton}">
                         <materialDesign:PackIcon Kind="Gauge" Height="24" Width="24"/>

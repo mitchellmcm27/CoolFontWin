@@ -28,10 +28,10 @@
     <!-- Input Column -->
 
     <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
-            <DockPanel>
-                <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
-                                            Mode="PrimaryDark"  DockPanel.Dock="Top">
-                    <TextBlock HorizontalAlignment="Center" Margin="8" FontSize="16">Input devices</TextBlock>
+        <DockPanel>
+            <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
+                                            Mode="Standard"  DockPanel.Dock="Top">
+                <TextBlock HorizontalAlignment="Center" Margin="16" FontSize="16"></TextBlock>
                 </materialDesign:ColorZone>
                 <Grid DockPanel.Dock="Top" Margin="8">
                     <Grid.RowDefinitions>

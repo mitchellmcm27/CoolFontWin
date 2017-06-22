@@ -28,14 +28,11 @@
     <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth2" Background="{DynamicResource MaterialDesignPaper}" UniformCornerRadius="0"
                          MouseLeftButtonDown="Window_MouseLeftButtonDown">
         <DockPanel>
-            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                <Menu IsMainMenu="True" materialDesign:ShadowAssist.ShadowDepth="Depth4">
+            <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                <Menu IsMainMenu="True">
                     <MenuItem>
                         <MenuItem.Header>
-                            <StackPanel Orientation="Horizontal">
-                                <Image Margin="0,0,8,0" Source="../Resources/logo_updated_sm.png" Height="24" RenderOptions.BitmapScalingMode="HighQuality" Stretch="UniformToFill"/>
-                                <materialDesign:PackIcon Margin="4,0,0,0" Kind="ChevronDown" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <materialDesign:PackIcon Kind="Menu"/>
                         </MenuItem.Header>
                         <MenuItem Header="This PC">
                             <MenuItem.Icon>
@@ -54,7 +51,6 @@
                                     <materialDesign:PackIcon Kind="SwapVertical"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <Separator/>
                             <MenuItem Header="vJoy Config" Command="{Binding VJoyConfig}"/>
                             <MenuItem Header="vJoy Monitor" Command="{Binding VJoyMonitor}"/>
                         </MenuItem>
@@ -63,12 +59,12 @@
                                 <materialDesign:PackIcon Kind="FileDocument"/>
                             </MenuItem.Icon>
                         </MenuItem>
-                        <Separator/>
                         <MenuItem Header="Quit" Click="Close_Click"/>
                     </MenuItem>
                 </Menu>
+                <Image Margin="8,0,8,0" Source="../Resources/logo_updated_sm.png" Height="20" RenderOptions.BitmapScalingMode="HighQuality" Stretch="UniformToFill"/>
             </StackPanel>
-            <StackPanel Margin="4" DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel DockPanel.Dock="Right" Margin="4,0,4,0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Margin="0,0,16,0" Opacity="1"
             Style="{DynamicResource MaterialDesignToolButton}" Foreground="{DynamicResource SecondaryAccentBrush}" Command="{Binding DownloadUpdate}" IsEnabled="{Binding UpdateAvailable}"
                 Visibility="{Binding UpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
