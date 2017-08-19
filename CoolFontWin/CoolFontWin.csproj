@@ -147,7 +147,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
@@ -348,6 +348,10 @@
   </ItemGroup>
   <ItemGroup>
     <SplashScreen Include="Resources\unplugged-smallest.png" />
+    <Content Include="..\openvr\bin\win64\openvr_api.dll">
+      <Link>openvr_api.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="EasyHook32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -107,11 +107,23 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 			bool hmd = vr::VR_IsHmdPresent();
 			add_log("  HMD Present? %s", hmd ? "YES" : "NO");
 
+			if (!hmd)
+			{
+				add_log("    No HMD, returning 0");
+				return 0;
+			}
+
 			// request generic interface
 			ver = vr::IVRSystem_Version;
 				
 			bool valid_version = vr::VR_IsInterfaceVersionValid(ver);
 			add_log("  Interface version %s valid? %s", ver, valid_version ? "YES" : "NO");
+
+			if (!valid_version)
+			{
+				add_log("    Version not valid, returning 0");
+				return 0;
+			}
 
 			add_log("Get generic interface...");
 			pVRSystem = NULL;

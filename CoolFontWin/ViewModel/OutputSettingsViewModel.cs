@@ -14,6 +14,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Threading;
 using CFW.Business.Extensions;
+using CFW.VR;
 
 namespace CFW.ViewModel
 {
@@ -200,10 +201,10 @@ namespace CFW.ViewModel
             get { return _InjectedIntoSelected; }
             set { this.RaiseAndSetIfChanged(ref _InjectedIntoSelected, value); }
         }
-        List<string> _ControllerHand = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
+        List<string> _ControllerHand = Enum.GetNames(typeof(PStrafeHand)).ToList();
         public List<string> ControllerHand { get { return _ControllerHand; } }
 
-        List<string> _ControllerTouch = Enum.GetNames(typeof(Valve.VR.EVRButtonType)).ToList();
+        List<string> _ControllerTouch = Enum.GetNames(typeof(PStrafeButtonType)).ToList();
         public List<string> ControllerTouch { get { return _ControllerTouch; } }
 
         int _SelectedControllerTouchIndex;
@@ -549,12 +550,12 @@ namespace CFW.ViewModel
         {
             if (_ViveControllerButtonId[this.SelectedViveControllerButtonIndex] != Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad)
             {
-                this.SelectedControllerTouchIndex = (int)Valve.VR.EVRButtonType.Press;
+                this.SelectedControllerTouchIndex = (int)PStrafeButtonType.Press;
             }
             await Task.Run(() => DeviceManager.ReceivedNewViveBindings(
-                (Valve.VR.EVRButtonType)this.SelectedControllerTouchIndex,
+                (PStrafeButtonType)this.SelectedControllerTouchIndex,
                 _ViveControllerButtonId[this.SelectedViveControllerButtonIndex], 
-                (Valve.VR.EVRHand)this.SelectedControllerHandIndex));
+                (PStrafeHand)this.SelectedControllerHandIndex));
             ViveBindingsChanged = false;
         }
 

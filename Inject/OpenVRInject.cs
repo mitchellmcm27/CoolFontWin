@@ -1,16 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EasyHook;
 using System.Runtime.InteropServices;
-using System.IO;
 using System.Threading;
 using Valve.VR;
+using CFW.VR;
 
 namespace CFW.Business
 {
+    public class VRNotInitializedException : Exception
+    {
+        public VRNotInitializedException()
+        {
+        }
+
+        public VRNotInitializedException(string message)
+            : base(message)
+        {
+        }
+
+        public VRNotInitializedException(string message, Exception inner)
+            : base(message, inner)
+        {
+        }
+    }
+
     public class OpenVRInject : EasyHook.IEntryPoint
     {
         LocalHook GetControllerStateHook;
@@ -27,9 +40,9 @@ namespace CFW.Business
         bool UserRunning;
         uint LeftHandIndex;
         uint RightHandIndex;
-        EVRButtonType ButtonType;
+        PStrafeButtonType ButtonType;
         EVRButtonId RunButton;
-        EVRHand Hand;
+        PStrafeHand Hand;
         uint ChosenDeviceIndex;  
     
         public OpenVRInject(RemoteHooking.IContext context, String channelName)
@@ -51,6 +64,7 @@ namespace CFW.Business
         /// <param name="InArg1"></param>
         public void Run(RemoteHooking.IContext InContext, String InArg1)
         {
+            
             int pid = RemoteHooking.GetCurrentProcessId();
             try
             {
@@ -81,6 +95,12 @@ namespace CFW.Business
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);
                     pPollNextEventWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
+                }
+
+                if ((pGetControllerState==IntPtr.Zero && pGetControllerStateWithPose==IntPtr.Zero) 
+                 || (pPollNextEvent==IntPtr.Zero || pPollNextEventWithPose==IntPtr.Zero))
+                {
+                    throw new VRNotInitializedException("No runtime installed, no HMD present, version mismatch, or other error.");
                 }
 
                 Interface.Write("GetControllerState function pointer: " + (pGetControllerState).ToString());
@@ -128,10 +148,12 @@ namespace CFW.Business
                 /*
                     We should notify our host process about this error...
                  */
+                Interface.Write("Error: ");
                 Interface.ReportError(pid, e);
                 return;
             }
 
+            Interface.Write("DLL installed");
             Interface.IsInstalled(pid);
 
             // Wait for host process termination...
@@ -140,6 +162,7 @@ namespace CFW.Business
                 ChosenDeviceIndex = 0; // base station
                 while (ChosenDeviceIndex == 0)
                 {
+                    
                     // wait until controller comes on?
                     if (RemoteHooking.IsX64Process(pid))
                     {
@@ -153,7 +176,7 @@ namespace CFW.Business
                     }
                     Interface.Write("Left hand " + LeftHandIndex);
                     Interface.Write("Right hand " + RightHandIndex);
-                    ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
+                    ChosenDeviceIndex = Interface.Hand == PStrafeHand.Left ? LeftHandIndex : RightHandIndex;
                     Thread.Sleep(300);
                 }
 
@@ -165,13 +188,13 @@ namespace CFW.Business
                     {
                         RunButton = Interface.RunButton;
                         ButtonType = Interface.ButtonType;
-                        ChosenDeviceIndex = Interface.Hand == EVRHand.Left ? LeftHandIndex : RightHandIndex;
+                        ChosenDeviceIndex = Interface.Hand == PStrafeHand.Left ? LeftHandIndex : RightHandIndex;
 
                         UserRunning = running;
                         MyEvent = new ButtonEvent()
                         {
                             Queued = true,
-                            ShouldPress = ButtonType == EVRButtonType.Press,
+                            ShouldPress = ButtonType == PStrafeButtonType.Press,
                             ShouldTouch = true
                         };
                     }
@@ -190,6 +213,7 @@ namespace CFW.Business
                 Interface.Cleanup();
                 Cleanup();
             }
+
         }
 
         private void Cleanup()
@@ -208,7 +232,7 @@ namespace CFW.Business
         {
             if (UserRunning && unControllerDeviceIndex==ChosenDeviceIndex)
             {
-                if (ButtonType == EVRButtonType.Press)
+                if (ButtonType == PStrafeButtonType.Press)
                 {
                     pControllerState.ulButtonPressed = pControllerState.ulButtonPressed | (1UL << ((int)RunButton));
                 }

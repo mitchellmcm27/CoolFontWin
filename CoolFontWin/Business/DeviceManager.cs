@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using CFW.VR;
 
 namespace CFW.Business
 {
@@ -326,6 +327,12 @@ namespace CFW.Business
         private static System.Runtime.Remoting.Channels.Ipc.IpcServerChannel IpcServer;
         public bool InjectControllerIntoProcess(string proc)
         {
+            if (!Valve.VR.OpenVR.IsHmdPresent())
+            {
+                log.Error("no HMD found");
+                return false;
+            }
+
             string channelName = null;
             try
             {
@@ -343,21 +350,22 @@ namespace CFW.Business
                 log.Info("  Set interface properties");
                 Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
                 log.Info("    Interface RunButton: " + Iface.RunButton);
-                Iface.ButtonType = Valve.VR.EVRButtonType.Press;
+                Iface.ButtonType = PStrafeButtonType.Press;
                 log.Info("    Interface ButtonType: " + Iface.ButtonType);
-                Iface.Hand = Valve.VR.EVRHand.Left;
+                Iface.Hand = PStrafeHand.Left;
                 log.Info("    Interface Hand: " + Iface.Hand);
 
 
-                log.Info("  Subscribe to interface events");
-                log.Info("    UserIsRunning");
+                log.Info("  Subscribe to interface events:");
+                log.Info("    UserIsRunning event");
                 this.WhenAnyValue(x => x.VDevice.UserIsRunning)
                     .Do(x => Iface.UserIsRunning = x)
                     .Subscribe();
    
                 var p = Process.GetProcessesByName(proc)[0];
                 var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll");
-                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + p.Id);
+                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "("+p.Id+")");
+
                 RemoteHooking.Inject(
                     p.Id,
                     InjectionOptions.DoNotRequireStrongName,
@@ -387,7 +395,7 @@ namespace CFW.Business
 
         }
 
-        public void ReceivedNewViveBindings(Valve.VR.EVRButtonType touch, Valve.VR.EVRButtonId button, Valve.VR.EVRHand hand)
+        public void ReceivedNewViveBindings(PStrafeButtonType touch, Valve.VR.EVRButtonId button, PStrafeHand hand)
         {
 
             if (Iface == null)
@@ -397,7 +405,7 @@ namespace CFW.Business
 
             try
             {
-                var handNames = Enum.GetNames(typeof(Valve.VR.EVRHand)).ToList();
+                var handNames = Enum.GetNames(typeof(PStrafeHand)).ToList();
                 log.Info(touch);
                 log.Info(hand);
                 log.Info(button);

@@ -1,12 +1,12 @@
-﻿namespace Valve.VR
+﻿namespace CFW.VR
 {
-    public enum EVRHand
+    public enum PStrafeHand
     {
         Left = 0,
         Right = 1,
     }
     
-    public enum EVRButtonType
+    public enum PStrafeButtonType
     {
         Press = 0,
         Touch = 1,

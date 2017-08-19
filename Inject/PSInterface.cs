@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using CFW.VR;
 using Valve.VR;
 
 namespace CFW.Business
@@ -9,15 +10,15 @@ namespace CFW.Business
     {
         public bool UserIsRunning { get; set; }
         public EVRButtonId RunButton { get; set; }
-        public EVRButtonType ButtonType { get; set; }
-        public EVRHand Hand { get; set; }
+        public PStrafeButtonType ButtonType { get; set; }
+        public PStrafeHand Hand { get; set; }
         public bool Installed { get; set; }
         public PSInterface()
         {
             Installed = false;
             RunButton = EVRButtonId.k_EButton_Axis0;
-            ButtonType = EVRButtonType.Press;
-            Hand = EVRHand.Left;
+            ButtonType = PStrafeButtonType.Press;
+            Hand = PStrafeHand.Left;
         }
 
         public void ReportError(int pid, Exception e)
