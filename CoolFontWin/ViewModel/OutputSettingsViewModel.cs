@@ -455,7 +455,7 @@ namespace CFW.ViewModel
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
 
             InjectProc.ThrownExceptions
-                .Do(ex => MessageBox.Show("Error ", ex.Message, MessageBoxButton.OK))
+                .Do(ex => MessageBox.Show(ex.Message, "Woops!", MessageBoxButton.OK))
                 .Subscribe();
 
             this.WhenAnyValue(

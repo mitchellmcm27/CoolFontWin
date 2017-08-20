@@ -329,8 +329,7 @@ namespace CFW.Business
         {
             if (!Valve.VR.OpenVR.IsHmdPresent())
             {
-                log.Error("no HMD found");
-                return false;
+                throw new Exception("HMD not found.");
             }
 
             string channelName = null;
@@ -383,7 +382,7 @@ namespace CFW.Business
                     }
                     System.Threading.Thread.Sleep(300);
                 }
-                throw new TimeoutException("Injecting process timed out. Make sure Steam VR is running.");
+                throw new TimeoutException("Timed out. Make sure Steam VR is running.");
             }
             catch (Exception e)
             {
