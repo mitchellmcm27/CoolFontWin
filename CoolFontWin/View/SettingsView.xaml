@@ -10,8 +10,8 @@
     x:Class="CFW.View.SettingsView">
 
     <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-        <View:InputSettingsControl  Margin="0,0,0,0" DataContext="{Binding InputSettingsVM}" Height="375" Width="210"/>
-        <View:OutputSettingsControl Margin="0,0,0,0" DataContext="{Binding OutputSettingsVM}" Height="375" Width="280"/>
+        <View:InputSettingsControl  Margin="0,0,0,0" DataContext="{Binding InputSettingsVM}" Height="400" Width="210"/>
+        <View:OutputSettingsControl Margin="0,0,0,0" DataContext="{Binding OutputSettingsVM}" Height="400" Width="280"/>
     </StackPanel>
     
 </UserControl>

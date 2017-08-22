@@ -316,6 +316,7 @@
                                   Width="48"
                                   ItemsSource="{Binding ControllerTouch}"
                                   SelectedIndex="{Binding SelectedControllerTouchIndex}"
+                                  IsEnabled="{Binding NotInjected}"
                                   materialDesign:HintAssist.Hint="Touch"
                                   IsSynchronizedWithCurrentItem="true"/>
                         <ComboBox VerticalAlignment="Center"
@@ -324,6 +325,7 @@
                                   Width="48"
                                   ItemsSource="{Binding ControllerHand}"
                                   SelectedIndex="{Binding SelectedControllerHandIndex}"
+                                  IsEnabled="{Binding NotInjected}"
                                   materialDesign:HintAssist.Hint="Controller"
                                   IsSynchronizedWithCurrentItem="true"/>
                         <ComboBox VerticalAlignment="Center"
@@ -332,16 +334,17 @@
                                   FontSize="11" 
                                   ItemsSource="{Binding ViveControllerButton}"
                                   SelectedIndex="{Binding SelectedViveControllerButtonIndex}"
+                                  IsEnabled="{Binding NotInjected}"
                                   materialDesign:HintAssist.Hint="Button"
                                   IsSynchronizedWithCurrentItem="true"/>
                     </StackPanel>
                     <Button HorizontalAlignment="Center"
-                            ToolTip="Inject process" 
+                            ToolTip="Inject PocketStrafe into an OpenVR game" 
                             Margin="4"
                             Style="{DynamicResource MaterialDesignRaisedButton}" 
                             Command="{Binding InjectProc}"
                             Visibility="{Binding IsChecked, ElementName=VrOutput , Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <TextBlock VerticalAlignment="Center" FontSize="11">Inject</TextBlock>
+                        <TextBlock VerticalAlignment="Center" FontSize="11" Text="{Binding InjectText}" />
                     </Button>
                 </StackPanel>
             </Grid>

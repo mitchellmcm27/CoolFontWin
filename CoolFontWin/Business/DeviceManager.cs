@@ -329,7 +329,7 @@ namespace CFW.Business
         {
             if (!Valve.VR.OpenVR.IsHmdPresent())
             {
-                throw new Exception("HMD not found.");
+                throw new Exception("No HMD was found.");
             }
 
             string channelName = null;
@@ -399,7 +399,7 @@ namespace CFW.Business
 
             if (Iface == null)
             {
-                throw new ArgumentNullException("IPC Interface hasn't been initialized yet.");
+                return;
             }
 
             try
@@ -419,13 +419,10 @@ namespace CFW.Business
             }
         }
 
-        private static readonly HashSet<string> DllNames = new HashSet<string>
+        public void ReleaseHooks()
         {
-            "openvr_api.dll",
-            "ovrplugin.dll",
-            "vrclient.dll",
-
-        };
+            Iface.Cleanup();
+        }
 
         public List<string> GetProcessesWithModule(string dllName)
         {

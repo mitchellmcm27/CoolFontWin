@@ -39,6 +39,7 @@ namespace CFW.Business
 
         public void Cleanup()
         {
+            // The injected class can see this, allowing it to clean itself up
             Installed = false;
         }
     }

@@ -162,7 +162,12 @@ namespace CFW.Business
                 ChosenDeviceIndex = 0; // base station
                 while (ChosenDeviceIndex == 0)
                 {
-                    
+                    if (!Interface.Installed)
+                    {
+                        Interface.Write("Need to uninstall hooks!");
+                        break;
+                    }
+
                     // wait until controller comes on?
                     if (RemoteHooking.IsX64Process(pid))
                     {
@@ -183,14 +188,20 @@ namespace CFW.Business
                 while (true)
                 {
                     Thread.Sleep(10);
+                    if (!Interface.Installed)
+                    {
+                        break;
+                    }
                     bool running = Interface.UserIsRunning;
                     if (running != UserRunning)
                     {
+                        // look for interface changes (keybinding, user is running, etc)
                         RunButton = Interface.RunButton;
                         ButtonType = Interface.ButtonType;
                         ChosenDeviceIndex = Interface.Hand == PStrafeHand.Left ? LeftHandIndex : RightHandIndex;
-
                         UserRunning = running;
+
+                        // create event for vive controller
                         MyEvent = new ButtonEvent()
                         {
                             Queued = true,
@@ -210,13 +221,12 @@ namespace CFW.Business
                 // Note: this will probably not get called if the target application closes before the 
                 //       host application.
                 Interface.Write("Remove and cleanup hooks");
-                Interface.Cleanup();
                 Cleanup();
             }
 
         }
 
-        private void Cleanup()
+        public void Cleanup()
         {
             // Remove hooks
             GetControllerStateHook.Dispose();

@@ -167,9 +167,17 @@ namespace CFW.ViewModel
             get { return _SelectedVrSystemIndex; }
             set { this.RaiseAndSetIfChanged(ref _SelectedVrSystemIndex, value); }
         }
-        
+
+        readonly ObservableAsPropertyHelper<string> _InjectText;
+        public string InjectText
+        {
+            get { return _InjectText.Value; }
+        }
+
         public ReactiveList<string> RunningProcs { get; set; }
+
         public ReactiveList<string> InjectedProcs { get; set; }
+
         string _SelectedProc;
         public string SelectedProc
         {
@@ -193,6 +201,12 @@ namespace CFW.ViewModel
         {
             get { return _Injected; }
             set { this.RaiseAndSetIfChanged(ref _Injected, value); }
+        }
+
+        readonly ObservableAsPropertyHelper<bool> _NotInjected;
+        public bool NotInjected
+        {
+            get { return _NotInjected.Value;  }
         }
 
         bool _InjectedIntoSelected;
@@ -456,21 +470,30 @@ namespace CFW.ViewModel
 
             InjectProc.ThrownExceptions
                 .Do(ex => MessageBox.Show(ex.Message, "Woops!", MessageBoxButton.OK))
-                .Subscribe();
+                .Subscribe();      
 
-            this.WhenAnyValue(
-                x => x.SelectedControllerTouchIndex,
-                x => x.SelectedViveControllerButtonIndex, 
-                x => x.SelectedControllerHandIndex, 
-                x => x.Injected,
-                    (touch, but, hand, injected) => injected)
-                .Do(x => ViveBindingsChanged = x)
-                .Subscribe();
+            this.WhenAnyValue(x => x.Injected)
+                .Select(x => x ? "Release" : "Inject")
+                .ToProperty(this, x => x.InjectText, out _InjectText);
 
             UpdateHookInterface = ReactiveCommand.CreateFromTask(UpdateHookInterfaceImpl);
             UpdateHookInterface.ThrownExceptions
                 .Do(_ => ViveBindingsChanged = true)
                 .Subscribe(ex => log.Debug("UpdateHookInterface error: " + ex));
+
+            this.WhenAnyValue(
+                x => x.SelectedControllerTouchIndex,
+                x => x.SelectedViveControllerButtonIndex,
+                x => x.SelectedControllerHandIndex,
+                (t, b, h) => Unit.Default)
+                    //.Do(x => ViveBindingsChanged = true)
+                    //.Subscribe();
+                    .InvokeCommand(this, x => x.UpdateHookInterface);
+            this.WhenAnyValue(x => x.Injected)
+                .Select(x => !x)
+                .ToProperty(this, x => x.NotInjected, out _NotInjected);
+
+            Injected = false;
 
         }
 
@@ -537,12 +560,20 @@ namespace CFW.ViewModel
 
         private async Task InjectProcImpl()
         {
-            bool success = await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
-            Injected = success;
-            if (Injected)
+            if (!Injected)
             {
-                InjectedProcs.Add(SelectedProc);
-                await UpdateHookInterfaceImpl();
+                bool success = await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
+                Injected = success;
+                if (Injected)
+                {
+                    InjectedProcs.Add(SelectedProc);
+                    await UpdateHookInterfaceImpl();
+                }
+            }
+            else
+            {
+                await Task.Run(() => DeviceManager.ReleaseHooks());
+                Injected = false;
             }
         }
 
@@ -609,15 +640,19 @@ namespace CFW.ViewModel
             });
         }
 
+        private readonly string OpenVRVersion = "OpenVR v1.0.9 (Jul 2017)";
         private void ShowSteamVrDialog()
         {
-            string text = "This feature is highly experimental, doesn't work with many games yet, and could get flagged by VAC.";
+            string text = "This feature is experimental and could get flagged as cheating or spyware.";
             text += "\nUse at your own risk!";
-            text += "\n\n1. Start your game, make sure controllers have synced";
-            text += "\n2. Select the game in PocketStrafe (refresh if needed)";
-            text += "\n3. Setup the run forward binding (touchpad, trigger, or grip)";
-            text += "\n4. Click Inject";
-            MessageBox.Show(text, "SteamVR Output (Beta feature)", MessageBoxButton.OK, MessageBoxImage.Information);
+            text += "\n\n1. Start your game; sync HMD and controllers";
+            text += "\n2. Select the game here (click refresh if needed)";
+            text += "\n3. Setup the desired button for running forward";
+            text += "\n    (touchpad, trigger, or grip; touch or full press)";
+            text += "\n4. Click Inject to start running";
+            text += "\n\nNote: The game needs to use the latest version of OpenVR (SteamVR).";
+            text += "\nPocketStrafe is using: " + OpenVRVersion;
+            MessageBox.Show(text, "SteamVR Output", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void ShowRestartMessage()
