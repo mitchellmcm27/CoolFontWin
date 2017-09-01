@@ -82,7 +82,18 @@ namespace CFW.Business
 
                 if (RemoteHooking.IsX64Process(pid))
                 {
+                    /*
                     Interface.Write("64 bit process");
+                    EVRInitError error = EVRInitError.None;
+                    OpenVR.Init(ref error);
+                    if(error == EVRInitError.None)
+                    {
+                        Func<in uint, VRControllerState_t, in uint, out bool> ptr = null;
+                        ptr = OpenVR.System.GetControllerState;
+                    }
+                    */
+                    
+
                     pGetControllerState = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerState, (int)OpenVRFunctionIndex.Count);
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);

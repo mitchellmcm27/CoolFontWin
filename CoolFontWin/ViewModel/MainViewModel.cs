@@ -2,7 +2,7 @@
 
 namespace CFW.ViewModel
 {
-    class MainViewModel : ReactiveObject
+    internal class MainViewModel : ReactiveObject
     {
         public InputSettingsViewModel InputSettingsVM { get; set; }
         public OutputSettingsViewModel OutputSettingsVM { get; set; }

@@ -1,5 +1,16 @@
-﻿namespace CFW.VR
+﻿using System;
+using System.Data;
+using System.Reflection;
+
+namespace CFW.VR
 {
+    public class IVRSystemInspector
+    {
+        public IVRSystemInspector()
+        {
+        }
+     }
+
     public enum PStrafeHand
     {
         Left = 0,
