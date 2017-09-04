@@ -38,11 +38,16 @@ namespace CFW.Business.Output
             private set { this.RaiseAndSetIfChanged(ref _UserIsRunning, value); }
         }
 
+        private uint _Id = 2;
         public uint Id
         {
             get
             {
-                return 1;
+                return _Id;
+            }
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _Id, value);
             }
         }
 
@@ -73,12 +78,12 @@ namespace CFW.Business.Output
             _LeftMouseButtonDown = false;
             _RightMouseButtonDown = false;
             _UserIsRunning = false;
+            Keybind = "W";
+            SetKeybind(Keybind);
         }
 
         public void Connect()
-        {
-            Keybind = "W";
-            SetKeybind(Keybind);
+        {     
         }
 
         public void Connect(uint id)
@@ -102,7 +107,7 @@ namespace CFW.Business.Output
             }
             catch (Exception e)
             {
-                log.Debug("Unable to set keybind " + e.Message);
+                log.Debug("Unable to set keybind: " + e.Message);
                 Keybind = keybindOld;
             }
         }

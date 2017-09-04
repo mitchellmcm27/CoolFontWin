@@ -45,9 +45,15 @@ namespace CFW.Business
         private XInputDeviceManager XMgr;
         private Controller XDevice; // single xbox controller
         private List<PocketStrafeMobileDevice> MobileDevices; // phones running PocketStrafe
-        public IPocketStrafeOutputDevice OutputDevice; // user-selected output (virtual) device implementing IPocketStrafeOutputDevice interface
-        private VDevOutputDevice VDev;
-        private KeyboardOutputDevice Keyboard;
+        private IPocketStrafeOutputDevice _OutputDevice;
+        public IPocketStrafeOutputDevice OutputDevice // user-selected output (virtual) device implementing IPocketStrafeOutputDevice interface
+        {
+            get { return _OutputDevice; }
+            set { this.RaiseAndSetIfChanged(ref _OutputDevice, value); }
+        }
+        public VDevOutputDevice VDev;
+        public KeyboardOutputDevice Keyboard;
+        public OpenVrInjectDevice Inject;
 
         // timer for updating devices
         private Timer VDeviceUpdateTimer;
@@ -56,15 +62,20 @@ namespace CFW.Business
 
         // the following properties allow access to the underlying devices:
         // joystick smoothing 
+
+        // 0.05 good for mouse movement, 0.15 was a little too smooth
+        // 0.05 probably good for VR, where you don't have to aim with the phone
+        // 0.00 is good for when you have to aim slowly/precisely
+        private double _RCFilterStrength = 0.05;
         public double SmoothingFactor
         {
             get
             {
-                return OutputDevice.RCFilterStrength;
+                return _RCFilterStrength;
             }
             set
             {
-                OutputDevice.RCFilterStrength = value;
+                _RCFilterStrength = value;
             }
         }
 
@@ -106,18 +117,49 @@ namespace CFW.Business
         }
 
         private TimeSpan UpdateInterval;
+        private double UpdateIntervalSeconds;
+
+        private bool _IsPaused;
+        public bool IsPaused
+        {
+            get { return _IsPaused; }
+            set { this.RaiseAndSetIfChanged(ref _IsPaused, value); }
+        }
 
         public PocketStrafeDeviceManager()
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
+            UpdateIntervalSeconds = UpdateInterval.TotalSeconds;
             XMgr = new XInputDeviceManager();
-            InitializeTimer();
             VDev = new VDevOutputDevice();
             Keyboard = new KeyboardOutputDevice();
-            OutputDevice = VDev;
+            Inject = new OpenVrInjectDevice();
             MobileDevices = new List<PocketStrafeMobileDevice> { new PocketStrafeMobileDevice(), new PocketStrafeMobileDevice() };
+            InitializeTimer();
+            IsPaused = true;
+            OutputDevice = null;
+        }
+
+
+        public void PauseOutput(bool pause)
+        {
+            if (pause) Stop(); 
+            else Start();
+        }
+
+        public void Start()
+        {
             log.Info("Get enabled devices...");
             VDev.GetEnabledDevices();
+            if(OutputDevice == null) OutputDevice = Keyboard;
+            VDeviceUpdateTimer.Start();
+            IsPaused = false;
+        }
+
+        public void Stop()
+        {
+            VDeviceUpdateTimer.Stop();
+            IsPaused = true;
         }
 
         public void GetNewOutputDevice(OutputDeviceType type, uint id)
@@ -126,18 +168,23 @@ namespace CFW.Business
             {
                 case OutputDeviceType.Keyboard:
                     DisconnectOutputDevice();
+                    Keyboard.Connect();
                     OutputDevice = Keyboard;
-                    OutputDevice.Connect(id);
                     break;
                 case OutputDeviceType.vJoy:
                     DisconnectOutputDevice();
+                    VDev.Connect(id);
                     OutputDevice = VDev;
-                    OutputDevice.Connect(id);
                     break;
                 case OutputDeviceType.vXbox:
                     DisconnectOutputDevice();
+                    VDev.Connect();
                     OutputDevice = VDev;
-                    OutputDevice.Connect(); 
+                    break;
+                case OutputDeviceType.OpenVRInject:
+                    DisconnectOutputDevice();
+                    Inject.Connect();
+                    OutputDevice = Inject;
                     break;
                 default:
                     break;
@@ -209,7 +256,7 @@ namespace CFW.Business
         {
             VDeviceUpdateTimer = new Timer(UpdateInterval.TotalMilliseconds); // elapse every 1/60 sec, approx 16 ms
             VDeviceUpdateTimer.Elapsed += new ElapsedEventHandler(TimerElapsed); //define a handler
-            VDeviceUpdateTimer.Enabled = true; //enable the timer.
+            VDeviceUpdateTimer.Enabled = false; //enable the timer.
             VDeviceUpdateTimer.AutoReset = true;
             MaxInterpolateCount = (int)Math.Floor(1 / VDeviceUpdateTimer.Interval * 1000 / 2); // = approx 0.5 sec
             log.Info("Started timer to update VDevice with interval " + VDeviceUpdateTimer.Interval.ToString() + "ms, max of " + MaxInterpolateCount.ToString() + " times.");
@@ -230,11 +277,6 @@ namespace CFW.Business
                     OutputDevice.SignY = -OutputDevice.SignY;
                     break;
             }
-        }
-
-        public void PauseOutput(bool pause)
-        {
-
         }
 
         // Executes when the timer elapses.
@@ -263,7 +305,7 @@ namespace CFW.Business
             // Called by a Timer at a fixed interval
 
             // Combine all mobile device data into a single input
-            OutputDevice.AddInput(CombineMobileDevices(MobileDevices));
+            OutputDevice.AddInput(Smooth(CombineMobileDevices(MobileDevices)));
 
             // Xbox controller handling
             if (InterceptXInputDevice)
@@ -314,206 +356,34 @@ namespace CFW.Business
             return combined;
         }
 
-
-        // Injecting
-
-        public PSInterface Iface;
-        private static System.Runtime.Remoting.Channels.Ipc.IpcServerChannel IpcServer;
-        public bool InjectControllerIntoProcess(string proc)
+        private PocketStrafeInput _LastInput;
+        private PocketStrafeInput Smooth(PocketStrafeInput input)
         {
-            if (!Valve.VR.OpenVR.IsHmdPresent())
-            {
-                throw new Exception("No HMD was found.");
-            }
-
-            string channelName = null;
-            try
-            {
-                log.Info("Inject PocketStrafe into " + proc + "...");
-
-                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
-
-                log.Info("  Creating IPC server");
-                IpcServer = RemoteHooking.IpcCreateServer<PSInterface>(
-                    ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
-
-                log.Info("  Connect to IPC as client to get interface");
-                Iface = RemoteHooking.IpcConnectClient<PSInterface>(channelName);
-                ;
-                log.Info("  Set interface properties");
-                Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
-                log.Info("    Interface RunButton: " + Iface.RunButton);
-                Iface.ButtonType = PStrafeButtonType.Press;
-                log.Info("    Interface ButtonType: " + Iface.ButtonType);
-                Iface.Hand = PStrafeHand.Left;
-                log.Info("    Interface Hand: " + Iface.Hand);
-
-
-                log.Info("  Subscribe to interface events:");
-                log.Info("    UserIsRunning event");
-                this.WhenAnyValue(x => x.OutputDevice.UserIsRunning)
-                    .Do(x => Iface.UserIsRunning = x)
-                    .Subscribe();
-
-                var p = Process.GetProcessesByName(proc)[0];
-                var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll");
-                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
-
-                RemoteHooking.Inject(
-                    p.Id,
-                    InjectionOptions.DoNotRequireStrongName,
-                    injectDll,
-                    injectDll,
-                    channelName);
-
-                for (int i = 0; i < 20; i++)
-                {
-                    if (Iface.Installed)
-                    {
-                        ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-                        log.Info("Successfully injected!");
-                        return true;
-                    }
-                    System.Threading.Thread.Sleep(300);
-                }
-                throw new TimeoutException("Timed out. Make sure Steam VR is running.");
-            }
-            catch (Exception e)
-            {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-                log.Error("  EasyHook Error: " + e.Message);
-                log.Error(e);
-                return false;
-            }
-
+            input.speed = Algorithm.LowPassFilter(
+                    input.speed,                   // new data
+                    _LastInput.speed,    // last data
+                    _RCFilterStrength,           // strength
+                    UpdateIntervalSeconds // delta-t in seconds
+            );
+            input.POV = Algorithm.UnwrapAngle(input.POV, _LastInput.POV);
+            input.POV = Algorithm.LowPassFilter(
+                    input.POV,
+                    _LastInput.POV,
+                    _RCFilterStrength,
+                    UpdateIntervalSeconds
+            );
+            input.POV = Algorithm.WrapAngle(input.POV);
+            _LastInput = input;
+            return input;
         }
-
-        public void ReceivedNewViveBindings(PStrafeButtonType touch, Valve.VR.EVRButtonId button, PStrafeHand hand)
-        {
-
-            if (Iface == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var handNames = Enum.GetNames(typeof(PStrafeHand)).ToList();
-                log.Info(touch);
-                log.Info(hand);
-                log.Info(button);
-
-                Iface.ButtonType = touch;
-                Iface.Hand = hand;
-                Iface.RunButton = button;
-            }
-            catch (Exception ex)
-            {
-                throw (ex);
-            }
-        }
-
-        public void ReleaseHooks()
-        {
-            Iface.Cleanup();
-        }
-
-        public List<string> GetProcessesWithModule(string dllName)
-        {
-            var thisName = Process.GetCurrentProcess().ProcessName;
-            var found = new List<string>();
-            var noPermission = new List<string>();
-            var notFound = new List<string>();
-            var modulesList = new List<string>();
-            log.Info("Searching for processes that loaded " + dllName);
-
-            foreach (var proc in Process.GetProcesses())
-            {
-                if (proc.MainWindowTitle.Length == 0 || proc.ProcessName.Equals(thisName))
-                {
-                    continue;
-                }
-
-                ProcessModuleCollection mods;
-                try
-                {
-                    mods = proc.Modules;
-                }
-                catch (System.ComponentModel.Win32Exception ex)
-                {
-                    noPermission.Add(proc.ProcessName);
-                    continue;
-                }
-                foreach (ProcessModule mod in mods)
-                {
-                    modulesList.Add(mod.ModuleName);
-                }
-
-                if (modulesList.Contains(dllName))
-                {
-                    found.Add(proc.ProcessName);
-                }
-                else
-                {
-                    notFound.Add(proc.ProcessName);
-                }
-            }
-
-            log.Info("  Found module:");
-            found.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
-            log.Info("  Module not found:");
-            notFound.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
-            log.Info("  Lacked permissions:");
-            noPermission.OrderBy(x => x).ToList().ForEach(x => log.Info("    " + x));
-            return found;
-        }
-
-        public List<string> GetProcesses()
-        {
-            var thisName = Process.GetCurrentProcess().ProcessName;
-            var list = new List<string>();
-            foreach (var proc in Process.GetProcesses())
-            {
-                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName) && Is64Bit(proc))
-                {
-                    list.Add(proc.ProcessName);
-                }
-            }
-            return list;
-        }
-
-        public static bool Is64Bit(Process process)
-        {
-            if (Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE") == "x86")
-                return false;
-
-            bool isWow64;
-            try
-            {
-                bool success = IsWow64Process(process.Handle, out isWow64);
-                if (!success)
-                    return false;
-                return !isWow64;
-            }
-            catch (Exception ex)
-            {
-                log.Error(ex);
-                return false;
-            }
-        }
-
-        [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        internal static extern bool IsWow64Process([In] IntPtr process, [Out] out bool wow64Process);
-
 
         public void ForceUnplugAllXboxControllers()
         {
-            if (OutputDevice.Type == OutputDeviceType.vJoy || OutputDevice.Type == OutputDeviceType.vXbox)
-            {
-                ((VDevOutputDevice)OutputDevice).ForceUnplugAllXboxControllers();
-            }
+            VDev.ForceUnplugAllXboxControllers();
         }
+
+   
+
 
         public void Dispose()
         {
@@ -524,5 +394,6 @@ namespace CFW.Business
             }
             DisconnectOutputDevice();
         }
+
     }
 }

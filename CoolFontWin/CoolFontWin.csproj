@@ -259,6 +259,7 @@
     </Compile>
     <Compile Include="Business\Output Devices\IPocketStrafeOutputDevice.cs" />
     <Compile Include="Business\Output Devices\KeyboardOutputDevice.cs" />
+    <Compile Include="Business\Output Devices\OpenVrInjectDevice.cs" />
     <Compile Include="Business\Output Devices\VDevOutputDevice.cs" />
     <Compile Include="Business\PocketStrafe Input\PocketStrafeData.cs" />
     <Compile Include="Business\PocketStrafe Input\PocketStrafeMobileDevice.cs" />
@@ -268,6 +269,7 @@
     <Compile Include="Business\CFWMode.cs" />
     <Compile Include="Business\Extensions\ObservableExtensions.cs" />
     <Compile Include="Business\Output Devices\OpenVrEmulator.cs" />
+    <Compile Include="Business\Utils\ProcessInspector.cs" />
     <Compile Include="Business\Utils\ResourceSoundPlayer.cs" />
     <Compile Include="Business\DeviceManager.cs" />
     <Compile Include="Business\Utils\Drawing.cs" />

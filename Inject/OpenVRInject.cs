@@ -268,7 +268,7 @@ namespace CFW.Business
                 {
                     pControllerState.rAxis1.x = 1.0f;
                 }
-                //Interface.Write("Touch");
+               // Interface.Write("Touch");
             }
             else
             {

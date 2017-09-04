@@ -47,8 +47,8 @@ namespace CFW.Business.Output
             }
             private set
             {
-                _Id = value;
                 VDevType = value < 1001 ? DevType.vJoy : DevType.vXbox;
+                this.RaiseAndSetIfChanged(ref _Id, value);
             }
         }
 
@@ -93,13 +93,13 @@ namespace CFW.Business.Output
                 try
                 {
                     AcquireDevice(i, DevType.vXbox);
+                    return;
                 }
-                catch (PocketStrafeDataException ex)
+                catch (PocketStrafeOutputDeviceException ex)
                 {
                     log.Info(ex.Message);
                     continue;
                 }
-                return;
             }
             throw new PocketStrafeOutputDeviceException("Unable to acquire any devices.");
         }
@@ -217,7 +217,7 @@ namespace CFW.Business.Output
                 }
             }
 
-            log.Info("Successfully acquired " + (devType == DevType.vJoy ? "vJoy" : "xBox") + " device " + id);
+            log.Info("j acquired " + (devType == DevType.vJoy ? "vJoy" : "xBox") + " device " + id);
             this.VDevType = devType;
             this.Id = devType == DevType.vXbox ? id + 1000 : id;
             this.VDevAcquired = true;
@@ -313,6 +313,50 @@ namespace CFW.Business.Output
             _Joystick.SetDevButton(_HDev, 8, (_State.Buttons & PocketStrafeButtons.ButtonStart) != 0);
             _Joystick.SetDevButton(_HDev, 9, (_State.Buttons & PocketStrafeButtons.ButtonLAnalog) != 0);
             _Joystick.SetDevButton(_HDev, 10, (_State.Buttons & PocketStrafeButtons.ButtonRAnalog) != 0);
+
+            if (this.VDevType == DevType.vJoy)
+            {
+                _Joystick.SetDevPov(this._HDev, 1, _State.POV);
+            }
+            else
+            {
+                double val = -1;
+                if ((_State.Buttons & PocketStrafeButtons.ButtonUp) != 0)
+                {
+                    if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+                    {
+                        val = 45;
+                    }
+                    else if((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                    {
+                        val = 315;
+                    }
+                    else { val = 0; }
+                }
+                else if ((_State.Buttons & PocketStrafeButtons.ButtonDown) != 0)
+                {
+                    if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                    {
+                        val = 225;
+                    }
+                    else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+                    {
+                        val = 135;
+                    }
+                    else { val = 180; }
+                }
+                else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+                {
+                    val = 90;
+                }
+                else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                {
+  
+                    val = 270;
+                }
+
+                _Joystick.SetDevPov(this._HDev, 1, val);
+            }
 
             ResetState();
         }
@@ -452,7 +496,6 @@ namespace CFW.Business.Output
 
         public void ForceUnplugAllXboxControllers()
         {
-
             log.Info("Unplugging all vXbox controllers.");
             for (uint i = 1; i <= 4; i++)
             {

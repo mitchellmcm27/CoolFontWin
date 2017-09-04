@@ -25,6 +25,13 @@ namespace CFW.Business
             return ang;
         }
 
+        public static double UnwrapAngle(double current, double last, double threshold = 180)
+        {
+            if (current - last > threshold) return current - 360;
+            else if (current - last < -threshold) return current + 360;
+            else return current;
+        }
+
         public static double WrapQ2toQ4(double ang)
         {
             while (ang > 180) { ang -= 360; }

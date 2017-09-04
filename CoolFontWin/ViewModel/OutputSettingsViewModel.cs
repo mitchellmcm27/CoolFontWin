@@ -283,27 +283,49 @@ namespace CFW.ViewModel
                     ShowRestartMessage();
                 });
 
+            DeviceManager.Start();
+     
+            // Changing output device
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.Keyboard)
+                .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
+
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.vJoy)
+                .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
+
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.vXbox)
+                .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
+
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.OpenVRInject)
+                .ToProperty(this, x => x.VrOutput, out _VrOutput);
+
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.OpenVREmulator)
+                .ToProperty(this, x => x.OpenVrOutput, out _OpenVrOutput);
+
             // Current vDevice ID
             this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Id)
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
+            // Coupled output
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Coupled)
+                .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
+
+            this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
+                .ToProperty(this, x => x.CoupledText, out _CoupledText);
+
             // Keybind
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Keybind)
+            this.WhenAnyValue(x => x.DeviceManager.Keyboard.Keybind)
                 .Do(x => Keybind = x)
                 .Subscribe();
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Coupled, x => x ? "Coupled" : "Decoupled")
-                .ToProperty(this, x => x.CoupledText, out _CoupledText);
-
             // Filter list of enabled devices to VJoyDevices list
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+            this.WhenAnyValue(x => x.DeviceManager.VDev.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
                  .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
 
             // Set *DevicesExist property based on *Devices lists having values
             this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
                 .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyDevicesExist);
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+            this.WhenAnyValue(x => x.DeviceManager.VDev.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
                 .ToProperty(this, x => x.XboxDevicesExist, out _XboxDevicesExist);
 
             // No*Devices is the inverse of *DevicesExist
@@ -335,11 +357,15 @@ namespace CFW.ViewModel
                 .Select(x => XboxLedImagePath((int)x))
                 .ToProperty(this, x => x.XboxLedImage, out _XboxLedImage);
 
+            this.WhenAnyValue(x => x.CurrentDeviceID)
+                .Do(x => Console.WriteLine(x))
+                .Subscribe();
+
             // Commands
             //
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 1));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 0));
             });
 
             ChangeKeybind = ReactiveCommand.CreateFromTask(ChangeKeybindImpl);
@@ -355,6 +381,7 @@ namespace CFW.ViewModel
             {
                 await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vXbox, 0));
             });
+
 
             VrMode = ReactiveCommand.CreateFromTask(async _ =>
             {
@@ -383,7 +410,7 @@ namespace CFW.ViewModel
                 RunningProcs.Clear();
                 var procs = await Task.Run(() =>
                     {
-                        return DeviceManager.GetProcesses().Distinct().OrderBy(x => x);
+                        return ProcessInspector.GetProcesses().Distinct().OrderBy(x => x);
                     });
                 foreach (string proc in procs)
                 {
@@ -440,7 +467,6 @@ namespace CFW.ViewModel
                 .ToProperty(this, x => x.NotInjected, out _NotInjected);
 
             Injected = false;
-
         }
 
         public ReactiveCommand KeyboardMode { get; set; }
@@ -449,8 +475,6 @@ namespace CFW.ViewModel
         public ReactiveCommand VrMode { get; set; }
         public ReactiveCommand OpenVrEmulatorMode { get; set; }
         public ReactiveCommand AcquireDevice { get; set; }
-        public ReactiveCommand AddRemoveSecondaryDevice { get; set; }
-        public ReactiveCommand PlayPause { get; set; }
         public ReactiveCommand CoupledDecoupled { get; set; }
         public ReactiveCommand StartKeybind { get; set; }
         public ReactiveCommand ChangeKeybind { get; set; }
@@ -469,7 +493,7 @@ namespace CFW.ViewModel
 
         private async Task CoupledDecoupledImpl()
         {
-            await Task.Run(() => DeviceManager.OutputDevice.SetCoupledLocomotion(CoupledOutput));
+            await Task.Run(() => DeviceManager.OutputDevice.SetCoupledLocomotion(!CoupledOutput));
         }
 
         private async Task ChangeKeybindImpl()
@@ -495,9 +519,9 @@ namespace CFW.ViewModel
 
         private async Task InjectProcImpl()
         {
-            if (!Injected)
+            if (!Injected && DeviceManager.OutputDevice.Type == OutputDeviceType.OpenVRInject)
             {
-                bool success = await Task.Run(() => DeviceManager.InjectControllerIntoProcess(this.SelectedProc));
+                bool success = await Task.Run(() => DeviceManager.Inject.InjectControllerIntoProcess(this.SelectedProc));
                 Injected = success;
                 if (Injected)
                 {
@@ -507,7 +531,7 @@ namespace CFW.ViewModel
             }
             else
             {
-                await Task.Run(() => DeviceManager.ReleaseHooks());
+                await Task.Run(() => DeviceManager.Inject.Disconnect());
                 Injected = false;
             }
         }
@@ -518,7 +542,7 @@ namespace CFW.ViewModel
             {
                 this.SelectedControllerTouchIndex = (int)PStrafeButtonType.Press;
             }
-            await Task.Run(() => DeviceManager.ReceivedNewViveBindings(
+            await Task.Run(() => DeviceManager.Inject.ReceivedNewViveBindings(
                 (PStrafeButtonType)this.SelectedControllerTouchIndex,
                 _ViveControllerButtonId[this.SelectedViveControllerButtonIndex], 
                 (PStrafeHand)this.SelectedControllerHandIndex));

@@ -78,7 +78,6 @@ namespace CFW.Business.Output
         void SetCoupledLocomotion(bool coupled);
         void SwapToDevice(int id);
 
-        double RCFilterStrength { get; set; }
         int SignX { get; set; }
         int SignY { get; set; }
         OutputDeviceType Type { get; }
@@ -92,23 +91,22 @@ namespace CFW.Business.Output
     public abstract class BaseOutputDevice : ReactiveObject
     {
 
-        // 0.05 good for mouse movement, 0.15 was a little too smooth
-        // 0.05 probably good for VR, where you don't have to aim with the phone
-        // 0.00 is good for when you have to aim slowly/precisely
-        public double RCFilterStrength { get; set; }
         public int SignX { get; set; }
         public int SignY { get; set; }
         public TimeSpan UpdateInterval;
         protected OutputDeviceState _State;
         protected bool _Coupled;
-        public bool Coupled { get { return _Coupled; } }
+        public bool Coupled
+        {
+            get { return _Coupled; }
+            protected set { this.RaiseAndSetIfChanged(ref _Coupled, value); }
+        }
 
         protected BaseOutputDevice()
         {
             _State = new OutputDeviceState();
             SignX = 1;
             SignY = 1;
-            RCFilterStrength = 0.05;
             ResetState();
             _Coupled = true;
         }
@@ -129,7 +127,7 @@ namespace CFW.Business.Output
 
         public void SetCoupledLocomotion(bool coupled)
         {
-            _Coupled = coupled;
+            Coupled = coupled;
         }
     }
 }
