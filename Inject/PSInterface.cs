@@ -10,6 +10,7 @@ namespace PocketStrafe.VR
         public PStrafeButtonType ButtonType { get; set; }
         public PStrafeHand Hand { get; set; }
         public bool Installed { get; set; }
+
         public PSInterface()
         {
             Installed = false;

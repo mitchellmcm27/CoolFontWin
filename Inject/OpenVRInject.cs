@@ -1,5 +1,5 @@
-﻿using System;
-using EasyHook;
+﻿using EasyHook;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Valve.VR;
@@ -25,25 +25,25 @@ namespace PocketStrafe.VR
 
     public class OpenVRInject : EasyHook.IEntryPoint
     {
-        LocalHook GetControllerStateHook;
-        LocalHook GetControllerStateWithPoseHook;
-        LocalHook PollNextEventHook;
-        LocalHook PollNextEventWithPoseHook;
+        private LocalHook GetControllerStateHook;
+        private LocalHook GetControllerStateWithPoseHook;
+        private LocalHook PollNextEventHook;
+        private LocalHook PollNextEventWithPoseHook;
 
-        IntPtr GetControllerStatePtr;
-        IntPtr GetControllerStateWithPosePtr;
-        IntPtr PollNextEventPtr;
-        IntPtr PollNextEventWithPosePtr;
+        private IntPtr GetControllerStatePtr;
+        private IntPtr GetControllerStateWithPosePtr;
+        private IntPtr PollNextEventPtr;
+        private IntPtr PollNextEventWithPosePtr;
 
-        PSInterface Interface;
-        bool UserRunning;
-        uint LeftHandIndex;
-        uint RightHandIndex;
-        PStrafeButtonType ButtonType;
-        EVRButtonId RunButton;
-        PStrafeHand Hand;
-        uint ChosenDeviceIndex;  
-    
+        private PSInterface Interface;
+        private bool UserRunning;
+        private uint LeftHandIndex;
+        private uint RightHandIndex;
+        private PStrafeButtonType ButtonType;
+        private EVRButtonId RunButton;
+        private PStrafeHand Hand;
+        private uint ChosenDeviceIndex;
+
         public OpenVRInject(RemoteHooking.IContext context, String channelName)
         {
             // Get reference to IPC to host application
@@ -68,8 +68,8 @@ namespace PocketStrafe.VR
             try
             {
                 // NOTE: We are now already running within the target process
-                
-                // We want to hook each method of we are interested in  
+
+                // We want to hook each method of we are interested in
                 IntPtr pGetControllerState = IntPtr.Zero;
                 IntPtr pGetControllerStateWithPose = IntPtr.Zero;
                 IntPtr pPollNextEvent = IntPtr.Zero;
@@ -81,8 +81,6 @@ namespace PocketStrafe.VR
 
                 if (RemoteHooking.IsX64Process(pid))
                 {
-
-
                     /*
                     EVRInitError error = EVRInitError.None;
                     OpenVR.Init(ref error);
@@ -108,8 +106,8 @@ namespace PocketStrafe.VR
                     pPollNextEventWithPose = GetIVRSystemFunctionAddress32((short)OpenVRFunctionIndex.PollNextEventWithPose, (int)OpenVRFunctionIndex.Count);
                 }
 
-                if ((pGetControllerState==IntPtr.Zero && pGetControllerStateWithPose==IntPtr.Zero) 
-                 || (pPollNextEvent==IntPtr.Zero || pPollNextEventWithPose==IntPtr.Zero))
+                if ((pGetControllerState == IntPtr.Zero && pGetControllerStateWithPose == IntPtr.Zero)
+                 || (pPollNextEvent == IntPtr.Zero || pPollNextEventWithPose == IntPtr.Zero))
                 {
                     throw new VRNotInitializedException("No runtime installed, no HMD present, version mismatch, or other error.");
                 }
@@ -153,7 +151,6 @@ namespace PocketStrafe.VR
                 PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
-
             catch (Exception e)
             {
                 /*
@@ -229,12 +226,11 @@ namespace PocketStrafe.VR
             }
             finally
             {
-                // Note: this will probably not get called if the target application closes before the 
+                // Note: this will probably not get called if the target application closes before the
                 //       host application.
                 Interface.Write("Remove and cleanup hooks");
                 Cleanup();
             }
-
         }
 
         public void Cleanup()
@@ -249,9 +245,9 @@ namespace PocketStrafe.VR
             LocalHook.Release();
         }
 
-        void SetControllerState(ref VRControllerState_t pControllerState, uint unControllerDeviceIndex)
+        private void SetControllerState(ref VRControllerState_t pControllerState, uint unControllerDeviceIndex)
         {
-            if (UserRunning && unControllerDeviceIndex==ChosenDeviceIndex)
+            if (UserRunning && unControllerDeviceIndex == ChosenDeviceIndex)
             {
                 if (ButtonType == PStrafeButtonType.Press)
                 {
@@ -264,11 +260,11 @@ namespace PocketStrafe.VR
                 {
                     pControllerState.rAxis0.y = 1.0f;
                 }
-                else if(RunButton == EVRButtonId.k_EButton_SteamVR_Trigger)
+                else if (RunButton == EVRButtonId.k_EButton_SteamVR_Trigger)
                 {
                     pControllerState.rAxis1.x = 1.0f;
                 }
-               // Interface.Write("Touch");
+                // Interface.Write("Touch");
             }
             else
             {
@@ -308,13 +304,13 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate bool vr_GetControllerStateDelegate(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize);
+        private delegate bool vr_GetControllerStateDelegate(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize);
 
-        static bool GetControllerState_Hooked(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize)
+        private static bool GetControllerState_Hooked(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize)
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
-                      
+
             try
             {
                 var getControllerState = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateDelegate>(This.GetControllerStatePtr);
@@ -341,9 +337,9 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate bool vr_GetControllerStateWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose);
+        private delegate bool vr_GetControllerStateWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose);
 
-        static bool GetControllerStateWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose)
+        private static bool GetControllerStateWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose)
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
@@ -373,9 +369,9 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate bool vr_PollNextEventDelegate(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent);
+        private delegate bool vr_PollNextEventDelegate(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent);
 
-        static bool PollNextEvent_Hooked(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent)
+        private static bool PollNextEvent_Hooked(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent)
         {
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
             try
@@ -388,24 +384,25 @@ namespace PocketStrafe.VR
                     //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
                 }
-                else if(This.MyEvent.Queued)
+                else if (This.MyEvent.Queued)
                 {
-                     res = This.CreateEvent(ref pEvent);
-                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
-                     //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
+                    res = This.CreateEvent(ref pEvent);
+                    //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
+                    //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
                 }
             }
             catch (Exception ex)
             {
-               // This.Interface.Write("Error in PollNextEvent_Hooked " + ex);
+                // This.Interface.Write("Error in PollNextEvent_Hooked " + ex);
             }
             return false;
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        delegate bool vr_PollNextEventWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose);
-        static bool PollNextEventWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose)
+        private delegate bool vr_PollNextEventWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose);
+
+        private static bool PollNextEventWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose)
         {
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
             bool res = false;
@@ -439,13 +436,13 @@ namespace PocketStrafe.VR
         /// <param name="methodIndex"></param>
         /// <returns></returns>
         [DllImport("OpenVRHelper32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetIVRSystemFunctionAddress")]
-        static extern IntPtr GetIVRSystemFunctionAddress32(short methodIndex, int methodCount);
+        private static extern IntPtr GetIVRSystemFunctionAddress32(short methodIndex, int methodCount);
 
         [DllImport("OpenVRHelper32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetLeftHandIndex")]
-        static extern uint GetLeftHandIndex32();
+        private static extern uint GetLeftHandIndex32();
 
         [DllImport("OpenVRHelper32.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetRightHandIndex")]
-        static extern uint GetRightHandIndex32();
+        private static extern uint GetRightHandIndex32();
 
         /// <summary>
         /// The helper export from the c++ helper dll that will retrieve a function address for the provided index of the IVRSystem interface
@@ -453,12 +450,12 @@ namespace PocketStrafe.VR
         /// <param name="methodIndex"></param>
         /// <returns></returns>
         [DllImport("OpenVRHelper64.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetIVRSystemFunctionAddress")]
-        static extern IntPtr GetIVRSystemFunctionAddress64(short methodIndex, int methodCount);
+        private static extern IntPtr GetIVRSystemFunctionAddress64(short methodIndex, int methodCount);
 
         [DllImport("OpenVRHelper64.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetLeftHandIndex")]
-        static extern uint GetLeftHandIndex64();
+        private static extern uint GetLeftHandIndex64();
 
         [DllImport("OpenVRHelper64.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall, EntryPoint = "GetRightHandIndex")]
-        static extern uint GetRightHandIndex64();
+        private static extern uint GetRightHandIndex64();
     }
 }

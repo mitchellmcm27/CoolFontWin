@@ -1,22 +1,18 @@
-﻿using System;
-using System.Data;
-using System.Reflection;
-
-namespace PocketStrafe.VR
+﻿namespace PocketStrafe.VR
 {
     public class IVRSystemInspector
     {
         public IVRSystemInspector()
         {
         }
-     }
+    }
 
     public enum PStrafeHand
     {
         Left = 0,
         Right = 1,
     }
-    
+
     public enum PStrafeButtonType
     {
         Press = 0,
