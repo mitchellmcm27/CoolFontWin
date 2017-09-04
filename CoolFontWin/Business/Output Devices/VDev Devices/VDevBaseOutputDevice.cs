@@ -9,30 +9,23 @@ namespace PocketStrafe.Output
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.
     /// </summary>
-    public class VDevOutputDevice : BaseOutputDevice, IPocketStrafeOutputDevice
+    public abstract class VDevBaseOutputDevice : BaseOutputDevice
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         // private properties
-        private static readonly double _MaxAxis = 100.0;
+        protected static readonly double _MaxAxis = 100.0;
 
-        private static readonly double _MinAxis = 0.0;
-        private static readonly double _MaxPov = 359.9;
-        private static readonly double _MinPov = 0.0;
+        protected static readonly double _MinAxis = 0.0;
+        protected static readonly double _MaxPov = 359.9;
+        protected static readonly double _MinPov = 0.0;
 
-        private vDev _Joystick;
-        private int _HDev;
+        protected vDev _Joystick;
+        protected int _HDev;
 
-        // public properties
-        public DevType VDevType;
 
-        public OutputDeviceType Type
-        {
-            get { return (VDevType == DevType.vJoy ? OutputDeviceType.vJoy : VDevType == DevType.vXbox ? OutputDeviceType.vXbox : OutputDeviceType.None); }
-        }
-
-        private uint _Id;
+        protected uint _Id;
 
         public uint Id // 1-16 for vJoy, 1001-1004 for vXbox
         {
@@ -40,62 +33,35 @@ namespace PocketStrafe.Output
             {
                 return _Id;
             }
-            private set
+            protected set
             {
-                VDevType = value < 1001 ? DevType.vJoy : DevType.vXbox;
                 this.RaiseAndSetIfChanged(ref _Id, value);
             }
         }
 
         public string Keybind { get; set; }
 
-        private List<int> _EnabledDevices;
+        protected List<int> _EnabledDevices;
 
         public List<int> EnabledDevices
         {
             get { return _EnabledDevices; }
-            private set { _EnabledDevices = value; }
+            protected set { _EnabledDevices = value; }
         }
 
-        private bool _UserIsRunning;
+        protected bool _UserIsRunning;
         public bool UserIsRunning { get { return _UserIsRunning; } }
 
         public bool DriverEnabled;
         public bool VDevAcquired;
 
-        public VDevOutputDevice() : base()
+        public VDevBaseOutputDevice() : base()
         {
             _Joystick = new vDev();
             DriverEnabled = false;
             VDevAcquired = false;
             _HDev = 0;
             Keybind = "Left Thumbstick";
-        }
-
-        /// <summary>
-        /// Loop through vJoy devices, find the first disabled device. Enable, config, and acquire it.
-        /// </summary>
-        /// <returns>Bool indicating if device was found, enabled, created, and acquired. </returns>
-        public void Connect()
-        {
-            log.Info("Will acquire first available vXbox device");
-            VDevAcquired = false;
-
-            // find a disabled device
-            for (uint i = 1; i <= 4; i++)
-            {
-                try
-                {
-                    AcquireDevice(i, DevType.vXbox);
-                    return;
-                }
-                catch (PocketStrafeOutputDeviceException ex)
-                {
-                    log.Info(ex.Message);
-                    continue;
-                }
-            }
-            throw new PocketStrafeOutputDeviceException("Unable to acquire any devices.");
         }
 
         public void Connect(uint id)
@@ -117,7 +83,7 @@ namespace PocketStrafe.Output
             }
         }
 
-        private void AcquireDevice(uint id, DevType devType)
+        protected void AcquireDevice(uint id, DevType devType)
         {
             if (devType == DevType.vJoy && (id < 1 || id > 16) // vjoy
                 ||
@@ -210,7 +176,6 @@ namespace PocketStrafe.Output
             }
 
             log.Info("j acquired " + (devType == DevType.vJoy ? "vJoy" : "xBox") + " device " + id);
-            this.VDevType = devType;
             this.Id = devType == DevType.vXbox ? id + 1000 : id;
             this.VDevAcquired = true;
             ResetState();
@@ -266,89 +231,10 @@ namespace PocketStrafe.Output
             // _State.RZ += 0;
         }
 
-        private void NeutralizeCurrentDevice()
+        protected void NeutralizeCurrentDevice()
         {
             log.Info("Feeding vJoy device with neutral values.");
-            ResetState();
-            Update();
-            ResetState();
-        }
-
-        public void Update()
-        {
-            // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
-            AddJoystickConstants();
-
-            // clamp values to min/max
-            _State.X = Algorithm.Clamp(_State.X, _MinAxis, _MaxAxis);
-            _State.Y = Algorithm.Clamp(_State.Y, _MinAxis, _MaxAxis);
-            _State.RX = Algorithm.Clamp(_State.RX, _MinAxis, _MaxAxis);
-            _State.RY = Algorithm.Clamp(_State.RY, _MinAxis, _MaxAxis);
-            _State.Z = Algorithm.Clamp(_State.Z, 0, 255);
-            _State.RZ = Algorithm.Clamp(_State.RZ, 0, 255);
-
-            _Joystick.SetDevAxis(_HDev, 1, _State.X);
-            _Joystick.SetDevAxis(_HDev, 2, _State.Y);
-            _Joystick.SetDevAxis(_HDev, 3, _State.Z);
-            _Joystick.SetDevAxis(_HDev, 4, _State.RX);
-            _Joystick.SetDevAxis(_HDev, 5, _State.RY);
-            _Joystick.SetDevAxis(_HDev, 6, _State.RZ);
-
-            _Joystick.SetDevButton(_HDev, 1, (_State.Buttons & PocketStrafeButtons.ButtonA) != 0);
-            _Joystick.SetDevButton(_HDev, 2, (_State.Buttons & PocketStrafeButtons.ButtonB) != 0);
-            _Joystick.SetDevButton(_HDev, 3, (_State.Buttons & PocketStrafeButtons.ButtonX) != 0);
-            _Joystick.SetDevButton(_HDev, 4, (_State.Buttons & PocketStrafeButtons.ButtonY) != 0);
-            _Joystick.SetDevButton(_HDev, 5, (_State.Buttons & PocketStrafeButtons.ButtonLTrigger) != 0);
-            _Joystick.SetDevButton(_HDev, 6, (_State.Buttons & PocketStrafeButtons.ButtonRTrigger) != 0);
-            _Joystick.SetDevButton(_HDev, 7, (_State.Buttons & PocketStrafeButtons.ButtonBack) != 0);
-            _Joystick.SetDevButton(_HDev, 8, (_State.Buttons & PocketStrafeButtons.ButtonStart) != 0);
-            _Joystick.SetDevButton(_HDev, 9, (_State.Buttons & PocketStrafeButtons.ButtonLAnalog) != 0);
-            _Joystick.SetDevButton(_HDev, 10, (_State.Buttons & PocketStrafeButtons.ButtonRAnalog) != 0);
-
-            if (this.VDevType == DevType.vJoy)
-            {
-                _Joystick.SetDevPov(this._HDev, 1, _State.POV);
-            }
-            else
-            {
-                double val = -1;
-                if ((_State.Buttons & PocketStrafeButtons.ButtonUp) != 0)
-                {
-                    if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
-                    {
-                        val = 45;
-                    }
-                    else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
-                    {
-                        val = 315;
-                    }
-                    else { val = 0; }
-                }
-                else if ((_State.Buttons & PocketStrafeButtons.ButtonDown) != 0)
-                {
-                    if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
-                    {
-                        val = 225;
-                    }
-                    else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
-                    {
-                        val = 135;
-                    }
-                    else { val = 180; }
-                }
-                else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
-                {
-                    val = 90;
-                }
-                else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
-                {
-                    val = 270;
-                }
-
-                _Joystick.SetDevPov(this._HDev, 1, val);
-            }
-
-            ResetState();
+            _Joystick.ResetAll();
         }
 
         #region vDev helper methods
@@ -374,7 +260,7 @@ namespace PocketStrafe.Output
             log.Info("Will try to acquire " + (devType == DevType.vJoy ? "vJoy" : "xBox") + " device " + id.ToString() + " and return result.");
             if (VDevAcquired)
             {
-                log.Info("First, relinquishing " + (VDevType == DevType.vJoy ? "vJoy" : "xBox") + " device " + Id.ToString());
+                log.Info("First, relinquishing device " + Id.ToString());
                 _Joystick.ResetAll();
                 _Joystick.RelinquishDev(_HDev);
                 VDevAcquired = false;
@@ -400,7 +286,7 @@ namespace PocketStrafe.Output
             AcquireDevice((uint)id, devType);
         }
 
-        private bool IsDriverEnabled(DevType devType)
+        protected bool IsDriverEnabled(DevType devType)
         {
             switch (devType)
             {
@@ -430,51 +316,6 @@ namespace PocketStrafe.Output
             return true;
         }
 
-        public void GetEnabledDevices()
-        {
-            _Joystick = new vDev();
-            log.Info("Get virtual devices able to be acquired...");
-            List<int> enabledDevs = new List<int>();
-
-            log.Info("Check drivers enabled: ");
-            IsDriverEnabled(DevType.vJoy);
-            IsDriverEnabled(DevType.vXbox);
-
-            bool owned = false;
-            bool exist = false;
-            bool free = false;
-
-            // loop through possible vJoy devices
-            for (int i = 1; i <= 16; i++)
-            {
-                _Joystick.isDevOwned((uint)i, DevType.vJoy, ref owned);
-                _Joystick.isDevFree((uint)i, DevType.vJoy, ref free);
-                _Joystick.isDevExist((uint)i, DevType.vJoy, ref exist);
-
-                if (free || owned)
-                {
-                    log.Info("Found vJoy device " + i.ToString());
-                    enabledDevs.Add(i);
-                }
-            }
-
-            // loop through possible Xbox devices
-            for (int i = 1; i <= 4; i++)
-            {
-                _Joystick.isDevOwned((uint)i, DevType.vXbox, ref owned);
-                _Joystick.isDevFree((uint)i, DevType.vXbox, ref free);
-                _Joystick.isDevExist((uint)i, DevType.vXbox, ref exist);
-
-                if (free || owned)
-                {
-                    log.Info("Found vXbox device " + i.ToString());
-                    enabledDevs.Add(i + 1000);
-                }
-            }
-
-            EnabledDevices = enabledDevs;
-        }
-
         public void Disconnect()
         {
             _Joystick.ResetAll();
@@ -482,16 +323,6 @@ namespace PocketStrafe.Output
             Id = 0;
             _HDev = 0;
             VDevAcquired = false;
-        }
-
-        public void ForceUnplugAllXboxControllers()
-        {
-            log.Info("Unplugging all vXbox controllers.");
-            for (uint i = 1; i <= 4; i++)
-            {
-                _Joystick.UnPlugForce(i);
-            }
-            GetEnabledDevices();
         }
 
         #endregion vDev helper methods

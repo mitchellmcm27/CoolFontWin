@@ -40,7 +40,8 @@ namespace PocketStrafe
             set { this.RaiseAndSetIfChanged(ref _OutputDevice, value); }
         }
 
-        public VDevOutputDevice VDev;
+        public VXboxOutputDevice VXbox;
+        public VJoyOutputDevice VJoy;
         public KeyboardOutputDevice Keyboard;
         public OpenVrInjectDevice Inject;
 
@@ -97,7 +98,7 @@ namespace PocketStrafe
         {
             get
             {
-                return VDev.DriverEnabled;
+                return VJoy.DriverEnabled;
             }
         }
 
@@ -105,7 +106,7 @@ namespace PocketStrafe
         {
             get
             {
-                return VDev.VDevAcquired;
+                return VJoy.VDevAcquired;
             }
         }
 
@@ -125,7 +126,8 @@ namespace PocketStrafe
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             UpdateIntervalSeconds = UpdateInterval.TotalSeconds;
             XMgr = new XInputDeviceManager();
-            VDev = new VDevOutputDevice();
+            VJoy = new VJoyOutputDevice();
+            VXbox = new VXboxOutputDevice();
             Keyboard = new KeyboardOutputDevice();
             Inject = new OpenVrInjectDevice();
             MobileDevices = new List<PocketStrafeMobileDevice> { new PocketStrafeMobileDevice(), new PocketStrafeMobileDevice() };
@@ -143,7 +145,8 @@ namespace PocketStrafe
         public void Start()
         {
             log.Info("Get enabled devices...");
-            VDev.GetEnabledDevices();
+            VJoy.GetEnabledDevices();
+            VXbox.GetEnabledDevices();
             if (OutputDevice == null) OutputDevice = Keyboard;
             VDeviceUpdateTimer.Start();
             IsPaused = false;
@@ -171,13 +174,13 @@ namespace PocketStrafe
                     break;
 
                 case OutputDeviceType.vJoy:
-                    VDev.Connect(id);
-                    OutputDevice = VDev;
+                    VJoy.Connect(id);
+                    OutputDevice = VJoy;
                     break;
 
                 case OutputDeviceType.vXbox:
-                    VDev.Connect();
-                    OutputDevice = VDev;
+                    VXbox.Connect();
+                    OutputDevice = VXbox;
                     break;
 
                 case OutputDeviceType.OpenVRInject:
@@ -380,16 +383,13 @@ namespace PocketStrafe
 
         public void ForceUnplugAllXboxControllers()
         {
-            VDev.ForceUnplugAllXboxControllers();
+            VXbox.ForceUnplugAllXboxControllers();
         }
 
         public void Dispose()
         {
-            if (OutputDevice.Type == OutputDeviceType.vJoy)
-            {
-                Properties.Settings.Default.VJoyID = (int)((VDevOutputDevice)OutputDevice).Id;
-                Properties.Settings.Default.Save();
-            }
+            Properties.Settings.Default.VJoyID = (int)VJoy.Id;
+            Properties.Settings.Default.Save();
             DisconnectOutputDevice();
         }
     }

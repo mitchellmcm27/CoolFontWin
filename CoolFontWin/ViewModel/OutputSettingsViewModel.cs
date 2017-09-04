@@ -313,19 +313,19 @@ namespace PocketStrafe.ViewModel
                 });
 
             // Changing output device
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.Keyboard)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice, d => d.Type == OutputDeviceType.Keyboard)
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.vJoy)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice, d => d.Type == OutputDeviceType.vJoy)
                 .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.vXbox)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice, d => d.Type == OutputDeviceType.vXbox)
                 .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.OpenVRInject)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice, d => d.Type == OutputDeviceType.OpenVRInject)
                 .ToProperty(this, x => x.VrOutput, out _VrOutput);
 
-            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.OpenVREmulator)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice, d => d.Type == OutputDeviceType.OpenVREmulator)
                 .ToProperty(this, x => x.OpenVrOutput, out _OpenVrOutput);
 
             // Current vDevice ID
@@ -345,14 +345,14 @@ namespace PocketStrafe.ViewModel
                 .Subscribe();
 
             // Filter list of enabled devices to VJoyDevices list
-            this.WhenAnyValue(x => x.DeviceManager.VDev.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+            this.WhenAnyValue(x => x.DeviceManager.VJoy.EnabledDevices, x => x.ToList())
                  .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
 
             // Set *DevicesExist property based on *Devices lists having values
             this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
                 .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyDevicesExist);
 
-            this.WhenAnyValue(x => x.DeviceManager.VDev.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+            this.WhenAnyValue(x => x.DeviceManager.VXbox.EnabledDevices, x => x.Count() > 0)
                 .ToProperty(this, x => x.XboxDevicesExist, out _XboxDevicesExist);
 
             // No*Devices is the inverse of *DevicesExist
