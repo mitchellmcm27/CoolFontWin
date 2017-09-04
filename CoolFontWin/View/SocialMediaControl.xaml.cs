@@ -36,7 +36,7 @@ namespace PocketStrafe.View
 
         public void LaunchWeb(object sender, EventArgs e)
         {
-            Process.Start("http://www.pocketstrafe.com");
+            Process.Start("http://www.pocketstrafe.com/setting-up");
         }
 
         public void LaunchDiscord(object sender, EventArgs e)

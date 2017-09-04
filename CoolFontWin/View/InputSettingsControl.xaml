@@ -68,13 +68,14 @@
                             Visibility="{Binding PrimaryDevice, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                             IsEnabled="False"
                             Margin="8,0,8,0" />
+                        
                         <materialDesign:PackIcon Kind="CellphoneIphone" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="8,0,8,0"
                                                  Width="18" Height="18" />
 
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Primary mobile</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="11">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="11">PocketStrafe app</TextBlock>
                 </Grid>
 
                 <Grid Grid.Row="1" Grid.Column="1">
@@ -91,7 +92,7 @@
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket">Secondary mobile</TextBlock>
                     </StackPanel>
                     <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
-                               IsEnabled="False" FontSize="11">iPhone/Android</TextBlock>
+                               IsEnabled="False" FontSize="11">PocketStrafe app</TextBlock>
                 </Grid>
 
                 <Grid Grid.Row="2" Grid.Column="1">

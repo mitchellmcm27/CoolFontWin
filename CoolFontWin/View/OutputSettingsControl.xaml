@@ -45,6 +45,7 @@
                 VerticalAlignment="Bottom"
                 Style="{DynamicResource MaterialDesignFlatButton}"
                 Command="{Binding UnplugAllXboxCommand}" Content="Reset" />
+            
             <Grid Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -141,10 +142,10 @@
                                 Visibility="{Binding IsChecked, ElementName=XboxOutput, Converter={StaticResource BooleanToVisibilityConverter}}"
                                 ToolTip="In coupled locomotion games, movement direction is bound to look direction"
                                 HorizontalAlignment="Left" Margin="43,0,0,24">
-                        <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16" Margin="0,0,8,0"
+                        <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="20" Height="20" Margin="0,0,8,0"
                                       IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupled}">
                             <ToggleButton.Content>
-                                <materialDesign:PackIcon Kind="CallMerge" Width="12" Height="12" />
+                                <materialDesign:PackIcon Kind="LinkVariant" Width="16" Height="16" />
                             </ToggleButton.Content>
                         </ToggleButton>
                         <TextBlock FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -199,11 +200,10 @@
                     <StackPanel Grid.Row="2" Orientation="Horizontal" ToolTip="In decoupled locomotion games, movement and look directions are independent"
                                 HorizontalAlignment="Left" Margin="43,0,0,24" Grid.ColumnSpan="2"
                                 Visibility="{Binding IsChecked, ElementName=VJoyOutput, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="16" Height="16"
-                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}"
-                                      HorizontalAlignment="Center" Margin="0,0,8,0">
+                        <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="20" Height="20" Margin="0,0,8,0"
+                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding VJoyOutput}" Command="{Binding CoupledDecoupled}">
                             <ToggleButton.Content>
-                                <materialDesign:PackIcon Kind="CallMerge" Width="12" Height="12" />
+                                <materialDesign:PackIcon Kind="LinkVariant" Width="16" Height="16" />
                             </ToggleButton.Content>
                         </ToggleButton>
                         <TextBlock FontSize="11" HorizontalAlignment="Stretch" VerticalAlignment="Center"

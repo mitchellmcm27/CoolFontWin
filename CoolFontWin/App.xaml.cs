@@ -1,6 +1,7 @@
 ﻿using log4net;
+using Microsoft.Shell;
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms.Integration;
@@ -10,28 +11,40 @@ namespace PocketStrafe
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, ISingleInstanceApp
     {
         private static readonly ILog log =
            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        private Mutex mutex = null;
+        public bool SignalExternalCommandLineArgs(IList<string> args)
+        {
+            // handle command line arguments of second instance, if necessary
+            return true;
+        }
+
+        private const string Unique = "PocketStrafePC-1";
+
+        [STAThread]
+        public static void Main()
+        {
+            if (SingleInstance<App>.InitializeAsFirstInstance(Unique))
+            {
+                SplashScreen splashScreen = new SplashScreen("resources/unplugged-smallest.png");
+                splashScreen.Show(true);
+                var app = new App();
+                app.InitializeComponent();
+                app.Run();
+
+                // Allow single instance code to perform cleanup operations
+                SingleInstance<App>.Cleanup();
+            }
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             log.Info("===APP STARTUP===");
-
-            mutex = AcquireMutex();
-            if (mutex == null)
-            {
-                log.Warn("Application was already running.");
-                Application.Current.Shutdown();
-                return;
-            }
-
             AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
-
+            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
             StartAsync();
             base.OnStartup(e);
         }
@@ -59,21 +72,10 @@ namespace PocketStrafe
         protected override void OnExit(ExitEventArgs e)
         {
             log.Info("===APP SHUTDOWN===");
-            mutex.ReleaseMutex();
             base.OnExit(e);
         }
 
-        private static Mutex AcquireMutex()
-        {
-            Mutex appGlobalMutex = new Mutex(false, "mutex");
-            if (!appGlobalMutex.WaitOne(3000))
-            {
-                return null;
-            }
-            return appGlobalMutex;
-        }
-
-        private static void MyHandler(object sender, UnhandledExceptionEventArgs args)
+        private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs args)
         {
             Exception e = (Exception)args.ExceptionObject;
             log.Fatal("Unhandled Exception: " + e);

@@ -147,7 +147,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
@@ -280,6 +280,7 @@
     <Compile Include="Business\Networking\UDPServer.cs" />
     <Compile Include="Business\Networking\DNSNetworkService.cs" />
     <Compile Include="Business\Updating\SilentUpdater.cs" />
+    <Compile Include="Business\Utils\SingleInstanceApplication.cs" />
     <Compile Include="Business\Utils\VJoyInfoDialog.cs" />
     <Compile Include="Business\Input Devices\XInputDevice.cs" />
     <Compile Include="Business\InputSimulator\IInputDeviceStateAdaptor.cs" />
@@ -473,10 +474,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </ApplicationDefinition>
+    </Page>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
