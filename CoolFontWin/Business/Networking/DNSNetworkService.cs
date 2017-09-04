@@ -10,7 +10,7 @@ using ReactiveUI;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
 
     /// <summary>

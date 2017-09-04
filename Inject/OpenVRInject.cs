@@ -3,9 +3,8 @@ using EasyHook;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Valve.VR;
-using CFW.VR;
 
-namespace CFW.Business
+namespace PocketStrafe.VR
 {
     public class VRNotInitializedException : Exception
     {
@@ -64,7 +63,7 @@ namespace CFW.Business
         /// <param name="InArg1"></param>
         public void Run(RemoteHooking.IContext InContext, String InArg1)
         {
-            
+            Interface.Write("Running in target.");
             int pid = RemoteHooking.GetCurrentProcessId();
             try
             {
@@ -82,8 +81,9 @@ namespace CFW.Business
 
                 if (RemoteHooking.IsX64Process(pid))
                 {
+
+
                     /*
-                    Interface.Write("64 bit process");
                     EVRInitError error = EVRInitError.None;
                     OpenVR.Init(ref error);
                     if(error == EVRInitError.None)
@@ -92,8 +92,8 @@ namespace CFW.Business
                         ptr = OpenVR.System.GetControllerState;
                     }
                     */
-                    
 
+                    Interface.Write("64 bit process");
                     pGetControllerState = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerState, (int)OpenVRFunctionIndex.Count);
                     pGetControllerStateWithPose = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.GetControllerStateWithPose, (int)OpenVRFunctionIndex.Count);
                     pPollNextEvent = GetIVRSystemFunctionAddress64((short)OpenVRFunctionIndex.PollNextEvent, (int)OpenVRFunctionIndex.Count);

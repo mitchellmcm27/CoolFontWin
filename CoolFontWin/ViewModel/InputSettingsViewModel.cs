@@ -1,14 +1,10 @@
 ﻿using log4net;
 using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using CFW.Business;
 using System.Reactive.Linq;
 
-namespace CFW.ViewModel
+namespace PocketStrafe.ViewModel
 {
     public class InputSettingsViewModel : ReactiveObject
     {
@@ -71,7 +67,7 @@ namespace CFW.ViewModel
         private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
 
-        public InputSettingsViewModel(PocketStrafe ps)
+        public InputSettingsViewModel(PocketStrafeBootStrapper ps)
         {
             DeviceManager = ps.DeviceManager;
             DnsServer = ps.DnsServer;

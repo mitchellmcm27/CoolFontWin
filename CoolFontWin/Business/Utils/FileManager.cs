@@ -5,7 +5,7 @@ using System.IO;
 
 using log4net;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public static class FileManager
     {

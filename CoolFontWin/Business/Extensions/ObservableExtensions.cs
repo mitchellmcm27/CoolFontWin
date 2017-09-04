@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 
 
-namespace CFW.Business.Extensions
+namespace PocketStrafe.Extensions
 {
     public static class ObservableExtensions
     {

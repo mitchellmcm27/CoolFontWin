@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using log4net;
 using AutoUpdaterDotNET;
 using ReactiveUI;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public class AppCastUpdater : ReactiveObject
     {

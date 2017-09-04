@@ -7,8 +7,8 @@
     <ProjectGuid>{BA180A90-96C9-422D-916D-4A07643E8558}</ProjectGuid>
     <!--<OutputType>Exe</OutputType>-->
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CFW</RootNamespace>
-    <AssemblyName>CoolFontWin</AssemblyName>
+    <RootNamespace>PocketStrafe</RootNamespace>
+    <AssemblyName>PocketStrafe</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -117,7 +117,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>CFW.App</StartupObject>
+    <StartupObject>PocketStrafe.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>tray-icon-transparent.ico</ApplicationIcon>
@@ -257,24 +257,23 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Business\Output Devices\BaseOutputDevice.cs" />
     <Compile Include="Business\Output Devices\IPocketStrafeOutputDevice.cs" />
     <Compile Include="Business\Output Devices\KeyboardOutputDevice.cs" />
     <Compile Include="Business\Output Devices\OpenVrInjectDevice.cs" />
     <Compile Include="Business\Output Devices\VDevOutputDevice.cs" />
-    <Compile Include="Business\PocketStrafe Input\PocketStrafeData.cs" />
-    <Compile Include="Business\PocketStrafe Input\PocketStrafeMobileDevice.cs" />
+    <Compile Include="Business\PocketStrafeData.cs" />
+    <Compile Include="Business\PocketStrafeTypes.cs" />
+    <Compile Include="Business\Input Devices\PocketStrafeMobileDevice.cs" />
     <Compile Include="Business\PocketStrafeDeviceManager.cs" />
     <Compile Include="Business\Utils\Algorithm.cs" />
     <Compile Include="Business\Updating\AppCastUpdater.cs" />
-    <Compile Include="Business\CFWMode.cs" />
     <Compile Include="Business\Extensions\ObservableExtensions.cs" />
     <Compile Include="Business\Output Devices\OpenVrEmulator.cs" />
     <Compile Include="Business\Utils\ProcessInspector.cs" />
     <Compile Include="Business\Utils\ResourceSoundPlayer.cs" />
-    <Compile Include="Business\DeviceManager.cs" />
     <Compile Include="Business\Utils\Drawing.cs" />
     <Compile Include="Business\Utils\FileManager.cs" />
-    <Compile Include="Business\PocketStrafe Input\MobileDevice.cs" />
     <Compile Include="Business\Utils\ScpVBus.cs" />
     <Compile Include="Business\Utils\SendInputWrapper.cs" />
     <Compile Include="Business\Logging\LogFileManager.cs" />
@@ -282,8 +281,7 @@
     <Compile Include="Business\Networking\DNSNetworkService.cs" />
     <Compile Include="Business\Updating\SilentUpdater.cs" />
     <Compile Include="Business\Utils\VJoyInfoDialog.cs" />
-    <Compile Include="Business\PocketStrafe Input\XInputDevice.cs" />
-    <Compile Include="Business\Output Devices\VirtualDevice.cs" />
+    <Compile Include="Business\Input Devices\XInputDevice.cs" />
     <Compile Include="Business\InputSimulator\IInputDeviceStateAdaptor.cs" />
     <Compile Include="Business\InputSimulator\IInputMessageDispatcher.cs" />
     <Compile Include="Business\InputSimulator\IInputSimulator.cs" />
@@ -305,7 +303,6 @@
     <Compile Include="Business\InputSimulator\Native\MOUSEINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\MOUSEKEYBDHARDWAREINPUT.cs" />
     <Compile Include="Business\InputSimulator\Native\NativeMethods.cs" />
-    <Compile Include="Business\NotifyIcon %28Unused%29\NotifyIconViewModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -323,8 +320,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Business\Utils\Colors.cs" />
-    <Compile Include="Business\PocketStrafe.cs" />
-    <Compile Include="Business\NotifyIcon %28Unused%29\CFWContextMenuRenderer.cs" />
+    <Compile Include="Business\PocketStrafeBootStrapper.cs" />
     <Compile Include="ViewModel\InputSettingsViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\OutputSettingsViewModel.cs" />

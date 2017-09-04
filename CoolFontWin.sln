@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolFontWin", "CoolFontWin\CoolFontWin.csproj", "{BA180A90-96C9-422D-916D-4A07643E8558}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PocketStrafe", "CoolFontWin\PocketStrafe.csproj", "{BA180A90-96C9-422D-916D-4A07643E8558}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D90ABA94-328A-4B35-978B-BA6DADABB799} = {D90ABA94-328A-4B35-978B-BA6DADABB799}
 		{0B65E2D9-68ED-4E62-B50E-75151B4C986A} = {0B65E2D9-68ED-4E62-B50E-75151B4C986A}

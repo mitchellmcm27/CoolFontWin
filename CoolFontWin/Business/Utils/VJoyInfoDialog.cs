@@ -8,7 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using log4net;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public static class VJoyInfoDialog
     {

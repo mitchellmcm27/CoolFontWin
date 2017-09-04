@@ -4,25 +4,11 @@ using System.Collections.Generic;
 using SharpDX.XInput;
 using log4net;
 using ReactiveUI;
-using System.Diagnostics;
-using EasyHook;
-using System.Reflection;
-using System.Linq;
-using System.Reactive.Linq;
-using System.Runtime.InteropServices;
-using System.ComponentModel;
-using CFW.VR;
-using CFW.Business.Input;
-using CFW.Business.Output;
+using PocketStrafe.Input;
+using PocketStrafe.Output;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
-    public enum OutputDeviceAxis
-    {
-        AxisX,
-        AxisY,
-    }
-
     /// <summary>
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
@@ -162,27 +148,29 @@ namespace CFW.Business
             IsPaused = true;
         }
 
-        public void GetNewOutputDevice(OutputDeviceType type, uint id)
+        /// <summary>
+        /// Disconnect current output device and connect a new one of given type and (optional) ID.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="id"></param>
+        public void GetNewOutputDevice(OutputDeviceType type, uint id = 0)
         {
+            DisconnectOutputDevice();
             switch (type)
             {
                 case OutputDeviceType.Keyboard:
-                    DisconnectOutputDevice();
                     Keyboard.Connect();
                     OutputDevice = Keyboard;
                     break;
                 case OutputDeviceType.vJoy:
-                    DisconnectOutputDevice();
                     VDev.Connect(id);
                     OutputDevice = VDev;
                     break;
                 case OutputDeviceType.vXbox:
-                    DisconnectOutputDevice();
                     VDev.Connect();
                     OutputDevice = VDev;
                     break;
                 case OutputDeviceType.OpenVRInject:
-                    DisconnectOutputDevice();
                     Inject.Connect();
                     OutputDevice = Inject;
                     break;
@@ -191,12 +179,13 @@ namespace CFW.Business
             }
         }
 
+        /// <summary>
+        /// Sets the keybind to be used for running forward in keyboard output.
+        /// </summary>
+        /// <param name="key"></param>
         public void SetKeybind(string key)
         {
-            if (OutputDevice.Type == OutputDeviceType.Keyboard)
-            {
-                Keyboard.SetKeybind(key);
-            }
+            Keyboard.SetKeybind(key);
         }
 
         /// <summary>
@@ -332,7 +321,7 @@ namespace CFW.Business
         {
             double avgPOV = 0;
             int avgCount = 0;
-            double[] valsf = new double[IndexOf.ValCount];
+            double[] valsf = new double[PocketStrafePacketIndex.Count];
             PocketStrafeInput combined = new PocketStrafeInput();
 
             // Add vals and buttons from Ready devices
@@ -381,9 +370,6 @@ namespace CFW.Business
         {
             VDev.ForceUnplugAllXboxControllers();
         }
-
-   
-
 
         public void Dispose()
         {

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Diagnostics;
 using WindowsInput;
-using vGenWrap;
 using log4net;
 using System.Collections.Generic;
 using ReactiveUI;
 using System.ComponentModel;
 using System.Windows.Forms;
-using CFW.Business.Input;
 
-namespace CFW.Business.Output
+namespace PocketStrafe.Output
 {
     /// <summary>
     /// Emulates vJoy, Keyboard, and Mouse devices on Windows.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public static class Algorithm
     {

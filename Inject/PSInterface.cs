@@ -1,10 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using CFW.VR;
 using Valve.VR;
 
-namespace CFW.Business
+namespace PocketStrafe.VR
 {
     public class PSInterface : MarshalByRefObject
     {

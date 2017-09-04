@@ -3,7 +3,7 @@ using log4net;
 using System.Diagnostics;
 using ReactiveUI;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public class ScpVBus : ReactiveObject
     {

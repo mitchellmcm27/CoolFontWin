@@ -1,17 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using log4net;
 using System.Threading;
 using System.Windows.Forms.Integration;
-using System.Windows.Media.Animation;
-using AutoUpdaterDotNET;
 
-namespace CFW
+namespace PocketStrafe
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -42,20 +36,20 @@ namespace CFW
             base.OnStartup(e);
         }
 
-        private Business.PocketStrafe bs;
+        private PocketStrafeBootStrapper ps;
         private async void StartAsync()
         {
             var main = new MainWindow();
             main.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             main.splashControl.Content = new View.Splash();
-            bs = new Business.PocketStrafe();
-            main.DataContext = new ViewModel.MainViewModel(bs);
+            ps = new PocketStrafeBootStrapper();
+            main.DataContext = new ViewModel.MainViewModel(ps);
             main.contentControl.Visibility = Visibility.Hidden;
             var settings = new View.SettingsView();
             main.contentControl.Content = settings;
             main.Show();
 
-            await Task.Run(() => bs.Start());
+            await Task.Run(() => ps.Start());
             main.splashControl.Visibility = Visibility.Collapsed;
             main.contentControl.Visibility = Visibility.Visible;
             ElementHost.EnableModelessKeyboardInterop(main);
@@ -64,7 +58,6 @@ namespace CFW
         protected override void OnExit(ExitEventArgs e)
         {
             log.Info("===APP SHUTDOWN===");
-
             mutex.ReleaseMutex();
             base.OnExit(e);
         }
@@ -86,14 +79,14 @@ namespace CFW
             log.Fatal(String.Format("Runtime terminating: {0}", args.IsTerminating));
 
             MessageBoxResult res = MessageBox.Show(
-                "Would you like to send a report to CoolFont?",
+                "Would you like to send a report to Cool Font?",
                 "Program Terminated Unexpectedly",
                 MessageBoxButton.YesNo, 
                 MessageBoxImage.Error);
 
             if (res == MessageBoxResult.Yes || res == MessageBoxResult.OK)
             {
-                Business.LogFileManager.EmailLogFile();
+                LogFileManager.EmailLogFile();
             }
 
         }

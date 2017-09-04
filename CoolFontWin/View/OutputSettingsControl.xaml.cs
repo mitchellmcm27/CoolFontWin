@@ -1,8 +1,8 @@
 ﻿using System.Windows.Controls;
-using CFW.ViewModel;
+using PocketStrafe.ViewModel;
 using System.Windows;
 
-namespace CFW.View
+namespace PocketStrafe.View
 {
     /// <summary>
     /// Interaction logic for OutputSettingsControl.xaml

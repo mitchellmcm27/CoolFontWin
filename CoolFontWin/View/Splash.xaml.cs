@@ -1,7 +1,6 @@
 ﻿using System.Windows.Controls;
 
-
-namespace CFW.View
+namespace PocketStrafe.View
 {
     /// <summary>
     /// Interaction logic for SplashScreen.xaml

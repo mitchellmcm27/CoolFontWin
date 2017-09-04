@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using EasyHook;
-using CFW.VR;
 using ReactiveUI;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using CFW.Business.Input;
 using System.Reactive.Linq;
+using PocketStrafe.VR;
 
-namespace CFW.Business.Output
+
+namespace PocketStrafe.Output
 {
     public class OpenVrInjectDevice: BaseOutputDevice, IPocketStrafeOutputDevice
     {
@@ -39,6 +38,8 @@ namespace CFW.Business.Output
             set { this.RaiseAndSetIfChanged(ref _UserIsRunning, value); }
         }
 
+        private string _ChannelName = null;
+
         public OpenVrInjectDevice()
         {
         }
@@ -50,6 +51,37 @@ namespace CFW.Business.Output
 
         public void Connect()
         {
+            _ChannelName = null;
+            try
+            {
+                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
+                log.Info("  Creating IPC server");
+                IpcServer = RemoteHooking.IpcCreateServer<PSInterface>(
+                    ref _ChannelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
+
+                log.Info("  Connect to IPC as client to get interface");
+                Iface = RemoteHooking.IpcConnectClient<PSInterface>(_ChannelName);
+                ;
+                log.Info("  Set interface properties");
+                Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
+                log.Info("    Interface RunButton: " + Iface.RunButton);
+                Iface.ButtonType = PStrafeButtonType.Press;
+                log.Info("    Interface ButtonType: " + Iface.ButtonType);
+                Iface.Hand = PStrafeHand.Left;
+                log.Info("    Interface Hand: " + Iface.Hand);
+
+                log.Info("  Subscribe to interface events:");
+                log.Info("    UserIsRunning event");
+                this.WhenAnyValue(x => x.UserIsRunning)
+                    .Do(x => Iface.UserIsRunning = x)
+                    .Subscribe();
+            }
+            catch (Exception ex)
+            {
+                log.Error("  EasyHook Error: " + ex.Message);
+                log.Error(ex);
+                throw new PocketStrafeOutputDeviceException(ex.Message);
+            }
         }
 
         public void SwapToDevice(int id)
@@ -90,43 +122,17 @@ namespace CFW.Business.Output
             ResetState();
         }
 
-        public bool InjectControllerIntoProcess(string proc)
+        public void InjectControllerIntoProcess(string proc)
         {
             if (!Valve.VR.OpenVR.IsHmdPresent())
             {
-                throw new Exception("No HMD was found.");
+                throw new PocketStrafeOutputDeviceException("No HMD was found.");
             }
-
-            string channelName = null;
             try
             {
                 log.Info("Inject PocketStrafe into " + proc + "...");
-
-                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
-
-                log.Info("  Creating IPC server");
-                IpcServer = RemoteHooking.IpcCreateServer<PSInterface>(
-                    ref channelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
-
-                log.Info("  Connect to IPC as client to get interface");
-                Iface = RemoteHooking.IpcConnectClient<PSInterface>(channelName);
-                ;
-                log.Info("  Set interface properties");
-                Iface.RunButton = Valve.VR.EVRButtonId.k_EButton_Axis0;
-                log.Info("    Interface RunButton: " + Iface.RunButton);
-                Iface.ButtonType = PStrafeButtonType.Press;
-                log.Info("    Interface ButtonType: " + Iface.ButtonType);
-                Iface.Hand = PStrafeHand.Left;
-                log.Info("    Interface Hand: " + Iface.Hand);
-
-                log.Info("  Subscribe to interface events:");
-                log.Info("    UserIsRunning event");
-                this.WhenAnyValue(x => x.UserIsRunning)
-                    .Do(x => Iface.UserIsRunning = x)
-                    .Subscribe();
-
                 var p = Process.GetProcessesByName(proc)[0];
-                var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll");
+                var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafeBootStrapper).Assembly.Location), "Inject.dll");
                 log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
 
                 RemoteHooking.Inject(
@@ -134,26 +140,26 @@ namespace CFW.Business.Output
                     InjectionOptions.DoNotRequireStrongName,
                     injectDll,
                     injectDll,
-                    channelName);
-
+                    _ChannelName);
+     
                 for (int i = 0; i < 20; i++)
                 {
                     if (Iface.Installed)
                     {
                         ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
                         log.Info("Successfully injected!");
-                        return true;
+                        return;
                     }
                     System.Threading.Thread.Sleep(300);
                 }
-                throw new TimeoutException("Timed out. Make sure Steam VR is running.");
+                throw new PocketStrafeOutputDeviceException("Connecting hook timed out. Make sure Steam VR is running.");
             }
             catch (Exception e)
             {
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
                 log.Error("  EasyHook Error: " + e.Message);
                 log.Error(e);
-                return false;
+                throw new PocketStrafeOutputDeviceException(e.Message);
             }
 
         }

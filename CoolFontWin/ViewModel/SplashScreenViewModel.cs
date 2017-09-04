@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CFW.ViewModel
+namespace PocketStrafe.ViewModel
 {
     class SplashScreenViewModel : ReactiveObject
     {
@@ -17,9 +17,9 @@ namespace CFW.ViewModel
             get { return _StatusText.Value; }
         }
 
-        private Business.PocketStrafe ps;
+        private PocketStrafeBootStrapper ps;
 
-        public SplashScreenViewModel(Business.PocketStrafe bs)
+        public SplashScreenViewModel(PocketStrafeBootStrapper bs)
         {
             ps = bs;
             this.WhenAnyValue(x => x.ps.Status)

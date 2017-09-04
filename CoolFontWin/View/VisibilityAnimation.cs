@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
 
-namespace CFW.View
+namespace PocketStrafe.View
 {
     /// <summary>
     /// Supplies attached properties that provides visibility of animations

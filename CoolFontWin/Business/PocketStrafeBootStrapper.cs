@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Windows.Forms.Integration;
 using System.Linq;
-using System.Diagnostics;
 using System.Collections.Generic;
 using log4net;
-
-using System.Threading;
 using ReactiveUI;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
-    public class PocketStrafe : ReactiveObject
+    public class PocketStrafeBootStrapper : ReactiveObject
     {
         private static readonly ILog log =
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -23,21 +19,19 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _Status, value); }
         }
 
-        public ScpVBus ScpVBus;
         public UDPServer UdpServer { get; set; }
         public DNSNetworkService DnsServer { get; set; }
         public PocketStrafeDeviceManager DeviceManager { get; set; }
         public AppCastUpdater AppCastUpdater { get; set; }
 
-        public PocketStrafe()
+        public PocketStrafeBootStrapper()
         {
-            ScpVBus = new ScpVBus();
+            Status = "Initializing";
             DeviceManager = new PocketStrafeDeviceManager();
             UdpServer = new UDPServer(DeviceManager);
             AppCastUpdater = new AppCastUpdater("http://coolfont.win.app.s3.amazonaws.com/publish/currentversion.xml");
             DnsServer = new DNSNetworkService();
-            Status = "Initializing";
-            
+            DeviceManager.Start();
         }
 
         public void Start()
@@ -61,6 +55,7 @@ namespace CFW.Business
             DnsServer.Publish(port, "Primary");
 
             Status = "Creating virtual devices";
+            
             Properties.Settings.Default.FirstInstall = false;
             Properties.Settings.Default.Save();
             try
@@ -72,11 +67,6 @@ namespace CFW.Business
                 log.Error("Unable to open temp TCP socket because: " + e.Message);
                 log.Info("Windows Firewall should prompt on the next startup.");
             }
-        }
-
-        private void NotifyIcon_BalloonTipClicked(object sender, EventArgs e)
-        {
-            Process.Start("http://www.pocketstrafe.com");
         }
 
         /// <summary>

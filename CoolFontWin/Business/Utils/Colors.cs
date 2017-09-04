@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public sealed class Colors
     {

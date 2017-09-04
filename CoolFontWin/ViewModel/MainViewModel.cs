@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace CFW.ViewModel
+namespace PocketStrafe.ViewModel
 {
     internal class MainViewModel : ReactiveObject
     {
@@ -9,7 +9,7 @@ namespace CFW.ViewModel
         public SplashScreenViewModel SplashVM { get; set; }
         public ToolbarViewModel ToolbarVM { get; set; }
 
-        public MainViewModel(Business.PocketStrafe ps)
+        public MainViewModel(PocketStrafeBootStrapper ps)
         {
             SplashVM = new SplashScreenViewModel(ps);
             InputSettingsVM = new InputSettingsViewModel(ps);

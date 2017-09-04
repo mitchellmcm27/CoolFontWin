@@ -1,15 +1,12 @@
 ﻿using ReactiveUI;
 using System.Reactive.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using log4net;
-using CFW.Business;
 using System.Windows.Forms;
 
-namespace CFW.ViewModel
+namespace PocketStrafe.ViewModel
 {
     class ToolbarViewModel : ReactiveObject
     {
@@ -51,10 +48,7 @@ namespace CFW.ViewModel
         private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
 
-        private ObservableAsPropertyHelper<SimulatorMode> _Mode;
-        private SimulatorMode Mode { get { return (_Mode.Value); } }
-
-        public ToolbarViewModel(PocketStrafe ps)
+        public ToolbarViewModel(PocketStrafeBootStrapper ps)
         {
             Updater = ps.AppCastUpdater;
             DnsServer = ps.DnsServer;

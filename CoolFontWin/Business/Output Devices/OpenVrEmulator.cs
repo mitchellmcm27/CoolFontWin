@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using log4net;
 
-namespace CFW.Business
+namespace PocketStrafe.Output
 {
     class OpenVrEmulator
     {
@@ -31,7 +30,7 @@ namespace CFW.Business
            
         }
 
-        public void Update(VirtualDevice.State iReport)
+        public void Update()
         {
 
         }

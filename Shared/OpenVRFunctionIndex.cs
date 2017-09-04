@@ -2,7 +2,7 @@
 using System.Data;
 using System.Reflection;
 
-namespace CFW.VR
+namespace PocketStrafe.VR
 {
     public class IVRSystemInspector
     {

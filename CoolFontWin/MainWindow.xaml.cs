@@ -1,11 +1,10 @@
 ﻿using AutoUpdaterDotNET;
 using log4net;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 
-namespace CFW
+
+namespace PocketStrafe
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

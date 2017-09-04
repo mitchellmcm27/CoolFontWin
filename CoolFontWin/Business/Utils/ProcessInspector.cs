@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public static class ProcessInspector
     {

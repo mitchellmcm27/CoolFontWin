@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace CFW.View
+namespace PocketStrafe.View
 {
     /// <summary>
     /// Interaction logic for UpdateControl.xaml

@@ -1,7 +1,7 @@
-﻿<Application x:Class="CFW.App"
+﻿<Application x:Class="PocketStrafe.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:CFW">
+             xmlns:local="clr-namespace:PocketStrafe">
     
     <Application.Resources>
         <ResourceDictionary>

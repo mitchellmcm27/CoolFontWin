@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public class SendInputWrapper
     {

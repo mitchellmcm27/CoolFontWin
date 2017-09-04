@@ -2,12 +2,12 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:View="clr-namespace:CFW.View"
-    xmlns:ViewModel="clr-namespace:CFW.ViewModel"
+    xmlns:View="clr-namespace:PocketStrafe.View"
+    xmlns:ViewModel="clr-namespace:PocketStrafe.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     mc:Ignorable="d" 
-    x:Class="CFW.View.SettingsView">
+    x:Class="PocketStrafe.View.SettingsView">
 
     <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
         <View:InputSettingsControl  Margin="0,0,0,0" DataContext="{Binding InputSettingsVM}" Height="400" Width="210"/>

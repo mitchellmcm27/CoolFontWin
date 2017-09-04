@@ -1,133 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SharpDX.XInput;
-using CFW.Business.Input;
-using ReactiveUI;
 
-namespace CFW.Business.Output
+namespace PocketStrafe.Output
 {
-
-    public class PocketStrafeOutputDeviceException : Exception
-    {
-        public PocketStrafeOutputDeviceException()
-        {
-        }
-
-        public PocketStrafeOutputDeviceException(string msg) : base(msg)
-        {
-        }
-    }
-
-    public class OutputDeviceState
-    {
-        public double X;
-        public double Y;
-        public double Z;
-        public double RX;
-        public double RY;
-        public double RZ;
-        public double Slider0;
-        public double Slider1;
-        public double POV;
-        public double DPad;
-        public double Speed;
-        public PocketStrafeButtons Buttons;
-    }
-
-    public enum PocketStrafeButtons
-    {
-        //  ButtonNone      = 0,
-        ButtonUp = 1 << 0,  // 00000001 = 1
-        ButtonDown = 1 << 1,  // 00000010 = 2
-        ButtonLeft = 1 << 2,  // 00000100 = 4
-        ButtonRight = 1 << 3,  // 8
-        ButtonStart = 1 << 4,  // 16
-        ButtonBack = 1 << 5,  // 32
-        ButtonLAnalog = 1 << 6,  // 64
-        ButtonRAnalog = 1 << 7,  // 128
-        ButtonLTrigger = 1 << 8,  // 256
-        ButtonRTrigger = 1 << 9,  // 512
-        ButtonA = 1 << 12, // 4096
-        ButtonB = 1 << 13, // 8192
-        ButtonX = 1 << 14, // 16384
-        ButtonY = 1 << 15, // 32768
-        ButtonHome = 1 << 16, // 65536
-        ButtonChooseL = 1 << 17, // 131072
-        ButtonChooseR = 1 << 18, // 262144
-    };
-
-    public enum OutputDeviceType
-    {
-        None,
-        vJoy,
-        vXbox,
-        Keyboard,
-        OpenVRInject,
-        OpenVREmulator
-    }
-
-
     public interface IPocketStrafeOutputDevice
     {
+        /// <summary>
+        /// Connects to an output device of given id.
+        /// </summary>
+        /// <param name="id">Identification number of output device. 1-16 for vJoy, 1-4 for vXbox, doesn't matter for others.</param>
         void Connect(uint id);
+
+        /// <summary>
+        /// Connects to first available output device.
+        /// </summary>
         void Connect();
+
+        /// <summary>
+        /// Resets and gives up control of output device.
+        /// </summary>
         void Disconnect();
+
+        /// <summary>
+        /// Gives the device input from PocketStrafe mobile devices.
+        /// </summary>
+        /// <param name="input"></param>
         void AddInput(PocketStrafeInput input);
+
+        /// <summary>
+        /// Gives the device input from Xbox controller.
+        /// </summary>
+        /// <param name="state"></param>
         void AddController(State state);
+
+        /// <summary>
+        /// Updates the device driver with the latest input. Must be called for device to do anything. Make sure to ResetState if needed.
+        /// </summary>
         void Update(); // probably need to reset state here too
+
+        /// <summary>
+        /// Tells the output device whether or not to treat locomotion as coupled. Some devices change behavior based on this, others don't.
+        /// </summary>
+        /// <param name="coupled"></param>
         void SetCoupledLocomotion(bool coupled);
+
+        /// <summary>
+        /// For devices with multiple ID's, swap to another one given by id (vJoy, vXbox).
+        /// </summary>
+        /// <param name="id"></param>
         void SwapToDevice(int id);
 
+        /// <summary>
+        /// Sign of X Axis (1 for regular, -1 for inverse).
+        /// </summary>
         int SignX { get; set; }
+
+        /// <summary>
+        /// Sign of Y Axis (1 for regular, -1 for inverse).
+        /// </summary>
         int SignY { get; set; }
+
+        /// <summary>
+        /// Type of output device (See OutputDeviceType enum)
+        /// </summary>
         OutputDeviceType Type { get; }
+
+        /// <summary>
+        /// Set by the device when it detects that the user is running.
+        /// </summary>
         bool UserIsRunning { get; }
+
+        /// <summary>
+        /// Identification number set by device (only applies to vJoy or vXbox).
+        /// </summary>
         uint Id { get; }
+
+        /// <summary>
+        /// Keybind that maps to user running (only used for keyboard output device).
+        /// </summary>
         string Keybind { get; set; }
+
+        /// <summary>
+        /// Property set by the device indicating whether it is using coupled locomotion.
+        /// </summary>
         bool Coupled { get; }
+
+        /// <summary>
+        /// List of device ID's that can be acquired (vJoy or vXbox).
+        /// </summary>
         List<int> EnabledDevices { get; }
-    }
-
-    public abstract class BaseOutputDevice : ReactiveObject
-    {
-
-        public int SignX { get; set; }
-        public int SignY { get; set; }
-        public TimeSpan UpdateInterval;
-        protected OutputDeviceState _State;
-        protected bool _Coupled;
-        public bool Coupled
-        {
-            get { return _Coupled; }
-            protected set { this.RaiseAndSetIfChanged(ref _Coupled, value); }
-        }
-
-        protected BaseOutputDevice()
-        {
-            _State = new OutputDeviceState();
-            SignX = 1;
-            SignY = 1;
-            ResetState();
-            _Coupled = true;
-        }
-
-        protected void ResetState()
-        {
-            _State.X = 0;
-            _State.Y = 0;
-            _State.Z = 0;
-            _State.RX = 0;
-            _State.RY = 0;
-            _State.RZ = 0;
-            _State.POV = -1;
-            _State.DPad = -1;
-            _State.Buttons = 0;
-            _State.Speed = 0;
-        }
-
-        public void SetCoupledLocomotion(bool coupled)
-        {
-            Coupled = coupled;
-        }
     }
 }

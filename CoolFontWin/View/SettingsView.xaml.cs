@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace CFW.View
+namespace PocketStrafe.View
 {
     public partial class SettingsView : UserControl
     {

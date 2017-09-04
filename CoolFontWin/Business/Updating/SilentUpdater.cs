@@ -5,7 +5,7 @@ using System.Timers;
 using NAppUpdate.Framework;
 using log4net;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     public class SilentUpdater : INotifyPropertyChanged
     {

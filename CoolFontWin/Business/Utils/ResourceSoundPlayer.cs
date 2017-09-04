@@ -4,7 +4,7 @@ using System.IO;
 using log4net;
 using System.Threading.Tasks;
 
-namespace CFW.Business
+namespace PocketStrafe
 {
     
     public static class ResourceSoundPlayer

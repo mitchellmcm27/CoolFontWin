@@ -2,7 +2,7 @@
 using SharpDX.XInput;
 using log4net;
 
-namespace CFW.Business
+namespace PocketStrafe.Input
 {
 
     /// <summary>

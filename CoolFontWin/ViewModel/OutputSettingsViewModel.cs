@@ -4,20 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using CFW.Business;
 using System.Diagnostics;
 using System.Windows;
 using Ookii.Dialogs;
 using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Threading;
-using CFW.Business.Extensions;
-using CFW.VR;
-using CFW.Business.Output;
+using PocketStrafe.VR;
 
-namespace CFW.ViewModel
+namespace PocketStrafe.ViewModel
 {
     public class OutputSettingsViewModel : ReactiveObject
     {
@@ -268,12 +262,11 @@ namespace CFW.ViewModel
         private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
         private readonly ScpVBus ScpVBus;
-
-        public OutputSettingsViewModel(PocketStrafe ps)
+        public OutputSettingsViewModel(PocketStrafeBootStrapper ps)
         {
             DeviceManager = ps.DeviceManager;
             DnsServer = ps.DnsServer;
-            ScpVBus = ps.ScpVBus;
+            ScpVBus = new ScpVBus();
 
             this.WhenAnyValue(x => x.ScpVBus.InstallSuccess)
                 .Where(x => x)
@@ -282,8 +275,6 @@ namespace CFW.ViewModel
                     log.Info("ScpVBis Installation Succeeded");
                     ShowRestartMessage();
                 });
-
-            DeviceManager.Start();
      
             // Changing output device
             this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.Keyboard)
@@ -365,32 +356,32 @@ namespace CFW.ViewModel
             //
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 0));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard));
             });
 
             ChangeKeybind = ReactiveCommand.CreateFromTask(ChangeKeybindImpl);
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, ((uint)id)));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id:(uint)id ));
             });
 
             AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireVJoyDeviceImpl);
 
             XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vXbox, 0));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vXbox));
             });
 
 
             VrMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVRInject, 0));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVRInject));
             });
 
             OpenVrEmulatorMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVREmulator, 0));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVREmulator));
             });
 
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
@@ -507,22 +498,22 @@ namespace CFW.ViewModel
             await Task.Run(() =>
             {
                 DeviceManager.ForceUnplugAllXboxControllers();
-                DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 1);
+                DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard);
             });
         }
 
         private async Task AcquireVJoyDeviceImpl()
         {
             uint id = (uint)(CurrentVJoyDevice ?? VJoyDevices.FirstOrDefault());
-            await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id));
+            await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id: id));
         }
 
         private async Task InjectProcImpl()
         {
             if (!Injected && DeviceManager.OutputDevice.Type == OutputDeviceType.OpenVRInject)
             {
-                bool success = await Task.Run(() => DeviceManager.Inject.InjectControllerIntoProcess(this.SelectedProc));
-                Injected = success;
+                await Task.Run(() => DeviceManager.Inject.InjectControllerIntoProcess(this.SelectedProc));
+                Injected = true;
                 if (Injected)
                 {
                     InjectedProcs.Add(SelectedProc);
@@ -554,15 +545,15 @@ namespace CFW.ViewModel
             switch (id)
             {
                 default:
-                    return "/CoolFontWin;component/Resources/ic_xbox_off_blue_18dp.png";
+                    return "/PocketStrafe;component/Resources/ic_xbox_off_blue_18dp.png";
                 case 1001:
-                    return "/CoolFontWin;component/Resources/ic_xbox_1p_blue_18dp.png";
+                    return "/PocketStrafe;component/Resources/ic_xbox_1p_blue_18dp.png";
                 case 1002:
-                    return "/CoolFontWin;component/Resources/ic_xbox_2p_blue_18dp.png";
+                    return "/PocketStrafe;component/Resources/ic_xbox_2p_blue_18dp.png";
                 case 1003:
-                    return "/CoolFontWin;component/Resources/ic_xbox_3p_blue_18dp.png";
+                    return "/PocketStrafe;component/Resources/ic_xbox_3p_blue_18dp.png";
                 case 1004:
-                    return "/CoolFontWin;component/Resources/ic_xbox_4p_blue_18dp.png";
+                    return "/PocketStrafe;component/Resources/ic_xbox_4p_blue_18dp.png";
             }
         }
 
