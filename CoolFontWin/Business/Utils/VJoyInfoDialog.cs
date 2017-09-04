@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using log4net;
 using Ookii.Dialogs;
-using System.Threading;
+using System;
 using System.Diagnostics;
-using log4net;
+using System.Threading;
 
 namespace PocketStrafe
 {
@@ -14,6 +10,7 @@ namespace PocketStrafe
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         private static readonly string exe = "vJoy\\vJoySetup.exe";
 
         public static void ShowVJoyInfoDialog()

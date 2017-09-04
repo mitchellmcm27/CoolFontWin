@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using SharpDX.XInput;
+﻿using SharpDX.XInput;
+using System.Collections.Generic;
 
 namespace PocketStrafe.Output
 {

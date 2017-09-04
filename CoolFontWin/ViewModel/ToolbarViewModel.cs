@@ -1,44 +1,48 @@
-﻿using ReactiveUI;
-using System.Reactive.Linq;
+﻿using log4net;
+using ReactiveUI;
 using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
-using log4net;
 using System.Windows.Forms;
 
 namespace PocketStrafe.ViewModel
 {
-    class ToolbarViewModel : ReactiveObject
+    internal class ToolbarViewModel : ReactiveObject
     {
-
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        readonly ObservableAsPropertyHelper<bool> _UpdateAvailable;
+        private readonly ObservableAsPropertyHelper<bool> _UpdateAvailable;
+
         public bool UpdateAvailable
         {
             get { return _UpdateAvailable.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _UpdateIcon;
+        private readonly ObservableAsPropertyHelper<string> _UpdateIcon;
+
         public string UpdateIcon
         {
             get { return _UpdateIcon.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _UpdateToolTip;
+        private readonly ObservableAsPropertyHelper<string> _UpdateToolTip;
+
         public string UpdateToolTip
         {
             get { return _UpdateToolTip.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _LightDarkIcon;
+        private readonly ObservableAsPropertyHelper<string> _LightDarkIcon;
+
         public string LightDarkIcon
         {
             get { return _LightDarkIcon.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _IpAddress;
+        private readonly ObservableAsPropertyHelper<string> _IpAddress;
+
         public string IpAddress
         {
             get { return _IpAddress.Value; }
@@ -78,7 +82,6 @@ namespace PocketStrafe.ViewModel
             VJoyConfig = ReactiveCommand.CreateFromTask(VJoyConfigImpl);
             VJoyMonitor = ReactiveCommand.CreateFromTask(VJoyMonitorImpl);
             ViewLogFile = ReactiveCommand.CreateFromTask(ViewLogFileImpl);
-
         }
 
         public ReactiveCommand FlipX { get; set; }
@@ -100,7 +103,7 @@ namespace PocketStrafe.ViewModel
             {
                 await Task.Run(() => Updater.DownloadUpdate());
             }
-        }               
+        }
 
         private async Task ViewLogFileImpl()
         {
@@ -108,14 +111,14 @@ namespace PocketStrafe.ViewModel
             {
                 string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
                 log.Info(path + "\\PocketStrafe\\Log.txt");
-                await Task.Run(()=>System.Diagnostics.Process.Start(path + "\\PocketStrafe\\Log.txt"));
+                await Task.Run(() => System.Diagnostics.Process.Start(path + "\\PocketStrafe\\Log.txt"));
             }
             catch (Exception ex)
             {
                 log.Error("Error opening Log.txt: " + ex);
             }
         }
-    
+
         private async Task VJoyConfigImpl()
         {
             string fname = "vJoyConf.exe";

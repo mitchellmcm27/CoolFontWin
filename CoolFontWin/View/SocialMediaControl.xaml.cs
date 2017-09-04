@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Windows.Controls;
 
-
 namespace PocketStrafe.View
 {
     /// <summary>

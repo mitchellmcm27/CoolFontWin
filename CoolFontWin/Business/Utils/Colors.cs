@@ -90,7 +90,7 @@ namespace PocketStrafe
         }
 
         public static Color LightText
-        {    
+        {
             get { return Color.FromArgb(220, 220, 220); }
         }
 

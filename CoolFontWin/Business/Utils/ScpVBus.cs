@@ -1,7 +1,7 @@
-﻿using System;
-using log4net;
-using System.Diagnostics;
+﻿using log4net;
 using ReactiveUI;
+using System;
+using System.Diagnostics;
 
 namespace PocketStrafe
 {
@@ -27,6 +27,7 @@ namespace PocketStrafe
         private readonly Process proc = new Process();
 
         private bool _InstallSuccess;
+
         public bool InstallSuccess
         {
             get { return _InstallSuccess; }
@@ -47,13 +48,13 @@ namespace PocketStrafe
         {
             log.Info("Attempt to install ScpVBus...");
             ProcessStartInfo startInfo = new ProcessStartInfo(exe, installargs);
-           // startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            // startInfo.WindowStyle = ProcessWindowStyle.Hidden;
             startInfo.Verb = "runas";
             try
             {
                 proc.StartInfo = startInfo;
                 proc.EnableRaisingEvents = true;
-                proc.Exited += Proc_Exited; 
+                proc.Exited += Proc_Exited;
                 proc.Start();
                 proc.WaitForExit();
             }
@@ -66,7 +67,6 @@ namespace PocketStrafe
 
         private void Proc_Exited(object sender, EventArgs args)
         {
-            
             DevconExitCode exitCode = (DevconExitCode)proc.ExitCode;
             log.Info("ScpVBus installation finished with code: " + exitCode.ToString());
 
@@ -76,18 +76,22 @@ namespace PocketStrafe
                     log.Info("ScpVBus installation suceeded.");
                     InstallSuccess = true;
                     break;
+
                 case DevconExitCode.EXIT_REBOOT:
                     log.Info("ScpVBus installation requires reboot.");
                     InstallSuccess = true;
                     break;
+
                 case DevconExitCode.EXIT_FAIL:
                     log.Info("ScpVBus installation failed.");
                     InstallSuccess = false;
                     break;
+
                 case DevconExitCode.EXIT_USAGE:
                     log.Info("Devcon.exe command received incorrect argument.");
                     InstallSuccess = false;
                     break;
+
                 default:
                     log.Info("Devcon.exe returned an unkown exit code.");
                     InstallSuccess = false;

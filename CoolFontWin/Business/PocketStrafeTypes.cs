@@ -13,6 +13,7 @@ namespace PocketStrafe
         {
         }
     }
+
     public class PocketStrafeDataException : PocketStrafeException
     {
         public PocketStrafeDataException()
@@ -23,7 +24,6 @@ namespace PocketStrafe
         : base(msg)
         {
         }
-        
     }
 
     public class PocketStrafeOutputDeviceException : PocketStrafeException
@@ -61,6 +61,7 @@ namespace PocketStrafe
     {
         // Index of data after separating string by $
         public static readonly int Mode = 0;
+
         public static readonly int ValidPOV = 0;
         public static readonly int Vals = 1;
         public static readonly int Buttons = 2;
@@ -69,6 +70,7 @@ namespace PocketStrafe
 
         // Index of vals after separating DataVals by :
         public static readonly int Speed = 0;
+
         public static readonly int X = 1;
         public static readonly int Y = 2;
         public static readonly int RX = 3;
@@ -107,6 +109,7 @@ namespace PocketStrafe
     {
         //  ButtonNone      = 0,
         ButtonUp = 1 << 0,  // 00000001 = 1
+
         ButtonDown = 1 << 1,  // 00000010 = 2
         ButtonLeft = 1 << 2,  // 00000100 = 4
         ButtonRight = 1 << 3,  // 8

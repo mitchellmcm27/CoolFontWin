@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Reactive.Linq;
 
-
 namespace PocketStrafe.Extensions
 {
     public static class ObservableExtensions

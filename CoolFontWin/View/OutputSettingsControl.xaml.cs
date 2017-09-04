@@ -1,6 +1,5 @@
-﻿using System.Windows.Controls;
-using PocketStrafe.ViewModel;
-using System.Windows;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 namespace PocketStrafe.View
 {
@@ -22,7 +21,6 @@ namespace PocketStrafe.View
 
         private void ProgressBar_QueryContinueDrag(object sender, QueryContinueDragEventArgs e)
         {
-
         }
     }
 }

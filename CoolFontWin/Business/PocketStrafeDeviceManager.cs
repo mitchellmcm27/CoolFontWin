@@ -1,11 +1,11 @@
-﻿using System;
-using System.Timers;
-using System.Collections.Generic;
-using SharpDX.XInput;
-using log4net;
-using ReactiveUI;
+﻿using log4net;
 using PocketStrafe.Input;
 using PocketStrafe.Output;
+using ReactiveUI;
+using SharpDX.XInput;
+using System;
+using System.Collections.Generic;
+using System.Timers;
 
 namespace PocketStrafe
 {
@@ -25,34 +25,39 @@ namespace PocketStrafe
             1, 2, 3, 4 ,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 // vJoy
         };
 
-        static readonly object locker = new object();
+        private static readonly object locker = new object();
 
         // Devices
         private XInputDeviceManager XMgr;
+
         private Controller XDevice; // single xbox controller
         private List<PocketStrafeMobileDevice> MobileDevices; // phones running PocketStrafe
         private IPocketStrafeOutputDevice _OutputDevice;
+
         public IPocketStrafeOutputDevice OutputDevice // user-selected output (virtual) device implementing IPocketStrafeOutputDevice interface
         {
             get { return _OutputDevice; }
             set { this.RaiseAndSetIfChanged(ref _OutputDevice, value); }
         }
+
         public VDevOutputDevice VDev;
         public KeyboardOutputDevice Keyboard;
         public OpenVrInjectDevice Inject;
 
         // timer for updating devices
         private Timer VDeviceUpdateTimer;
+
         private int TimerCount = 0;
         private static int MaxInterpolateCount;
 
         // the following properties allow access to the underlying devices:
-        // joystick smoothing 
+        // joystick smoothing
 
         // 0.05 good for mouse movement, 0.15 was a little too smooth
         // 0.05 probably good for VR, where you don't have to aim with the phone
         // 0.00 is good for when you have to aim slowly/precisely
         private double _RCFilterStrength = 0.05;
+
         public double SmoothingFactor
         {
             get
@@ -67,6 +72,7 @@ namespace PocketStrafe
 
         // which devices are connected and which should be updated
         private bool _InterceptXInputDevice;
+
         public bool InterceptXInputDevice
         {
             get
@@ -80,6 +86,7 @@ namespace PocketStrafe
         }
 
         private bool _XInputDeviceConnected;
+
         public bool XInputDeviceConnected
         {
             get { return _XInputDeviceConnected; }
@@ -106,6 +113,7 @@ namespace PocketStrafe
         private double UpdateIntervalSeconds;
 
         private bool _IsPaused;
+
         public bool IsPaused
         {
             get { return _IsPaused; }
@@ -126,10 +134,9 @@ namespace PocketStrafe
             OutputDevice = null;
         }
 
-
         public void PauseOutput(bool pause)
         {
-            if (pause) Stop(); 
+            if (pause) Stop();
             else Start();
         }
 
@@ -137,7 +144,7 @@ namespace PocketStrafe
         {
             log.Info("Get enabled devices...");
             VDev.GetEnabledDevices();
-            if(OutputDevice == null) OutputDevice = Keyboard;
+            if (OutputDevice == null) OutputDevice = Keyboard;
             VDeviceUpdateTimer.Start();
             IsPaused = false;
         }
@@ -162,18 +169,22 @@ namespace PocketStrafe
                     Keyboard.Connect();
                     OutputDevice = Keyboard;
                     break;
+
                 case OutputDeviceType.vJoy:
                     VDev.Connect(id);
                     OutputDevice = VDev;
                     break;
+
                 case OutputDeviceType.vXbox:
                     VDev.Connect();
                     OutputDevice = VDev;
                     break;
+
                 case OutputDeviceType.OpenVRInject:
                     Inject.Connect();
                     OutputDevice = Inject;
                     break;
+
                 default:
                     break;
             }
@@ -235,7 +246,6 @@ namespace PocketStrafe
             ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
-
         public void DisconnectOutputDevice()
         {
             OutputDevice.Disconnect();
@@ -262,6 +272,7 @@ namespace PocketStrafe
                 case OutputDeviceAxis.AxisX:
                     OutputDevice.SignX = -OutputDevice.SignX;
                     break;
+
                 case OutputDeviceAxis.AxisY:
                     OutputDevice.SignY = -OutputDevice.SignY;
                     break;
@@ -346,6 +357,7 @@ namespace PocketStrafe
         }
 
         private PocketStrafeInput _LastInput;
+
         private PocketStrafeInput Smooth(PocketStrafeInput input)
         {
             input.speed = Algorithm.LowPassFilter(
@@ -374,12 +386,11 @@ namespace PocketStrafe
         public void Dispose()
         {
             if (OutputDevice.Type == OutputDeviceType.vJoy)
-            { 
+            {
                 Properties.Settings.Default.VJoyID = (int)((VDevOutputDevice)OutputDevice).Id;
                 Properties.Settings.Default.Save();
             }
             DisconnectOutputDevice();
         }
-
     }
 }

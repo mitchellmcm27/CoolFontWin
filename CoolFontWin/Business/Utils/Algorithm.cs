@@ -1,10 +1,7 @@
-﻿using System;
-
-namespace PocketStrafe
+﻿namespace PocketStrafe
 {
     public static class Algorithm
     {
-
         public static double LowPassFilter(double val, double last, double RC, double dt)
         {
             if (last == 0) // If it's a valid 0 it doesn't make a difference in the filter

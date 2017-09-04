@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net.Mail;
-using System.Net;
-using log4net;
+﻿using log4net;
 using log4net.Appender;
 using log4net.Repository.Hierarchy;
+using System;
+using System.Linq;
+using System.Net;
+using System.Net.Mail;
 
 namespace PocketStrafe
 {
-    static class LogFileManager
+    internal static class LogFileManager
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -31,7 +28,7 @@ namespace PocketStrafe
 
         private static readonly string RollingLogFilename = rootAppender != null ? rootAppender.File : string.Empty;
         private static readonly string LastLogFilename = lastAppender != null ? lastAppender.File : string.Empty;
-        
+
         public static bool EmailLogFile()
         {
             log.Info("Will attempt to email file: " + RollingLogFilename);

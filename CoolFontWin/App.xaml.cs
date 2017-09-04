@@ -1,8 +1,8 @@
-﻿using System;
+﻿using log4net;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using log4net;
-using System.Threading;
 using System.Windows.Forms.Integration;
 
 namespace PocketStrafe
@@ -31,12 +31,13 @@ namespace PocketStrafe
 
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(MyHandler);
-  
+
             StartAsync();
             base.OnStartup(e);
         }
 
         private PocketStrafeBootStrapper ps;
+
         private async void StartAsync()
         {
             var main = new MainWindow();
@@ -72,7 +73,7 @@ namespace PocketStrafe
             return appGlobalMutex;
         }
 
-        static void MyHandler(object sender, UnhandledExceptionEventArgs args)
+        private static void MyHandler(object sender, UnhandledExceptionEventArgs args)
         {
             Exception e = (Exception)args.ExceptionObject;
             log.Fatal("Unhandled Exception: " + e);
@@ -81,14 +82,13 @@ namespace PocketStrafe
             MessageBoxResult res = MessageBox.Show(
                 "Would you like to send a report to Cool Font?",
                 "Program Terminated Unexpectedly",
-                MessageBoxButton.YesNo, 
+                MessageBoxButton.YesNo,
                 MessageBoxImage.Error);
 
             if (res == MessageBoxResult.Yes || res == MessageBoxResult.OK)
             {
                 LogFileManager.EmailLogFile();
             }
-
         }
     }
 }

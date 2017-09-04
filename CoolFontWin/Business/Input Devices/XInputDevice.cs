@@ -1,14 +1,12 @@
-﻿using System;
+﻿using log4net;
 using SharpDX.XInput;
-using log4net;
 
 namespace PocketStrafe.Input
 {
-
     /// <summary>
     /// Finds and returns connected XInput devices using SharpDX.
     /// </summary>
-    class XInputDeviceManager
+    internal class XInputDeviceManager
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -37,7 +35,7 @@ namespace PocketStrafe.Input
         /// Loop through device IDs and check if controllers are connected.
         /// </summary>
         /// <returns>Returns first connected Controller or null.</returns>
-        public Controller getController ()
+        public Controller getController()
         {
             foreach (Controller selectController in controllers)
             {
@@ -72,4 +70,3 @@ namespace PocketStrafe.Input
         }
     }
 }
-

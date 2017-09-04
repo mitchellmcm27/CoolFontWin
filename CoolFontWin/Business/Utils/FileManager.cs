@@ -1,9 +1,8 @@
-﻿using System;
-using System.Diagnostics;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-
-using log4net;
 
 namespace PocketStrafe
 {
@@ -43,7 +42,7 @@ namespace PocketStrafe
                     log.Info("Setting port to 0");
                     ints.Add(0);
                 }
-            }    
+            }
             return ints;
         }
 
@@ -67,7 +66,6 @@ namespace PocketStrafe
             {
                 log.Info("Port file doesn't exist. Creating file: " + filename);
                 File.Create(filename).Dispose();
-
             }
             try
             {
@@ -120,7 +118,7 @@ namespace PocketStrafe
             foreach (string dr in drives)
             {
                 DriveInfo di = new DriveInfo(dr);
-                
+
                 // Here we skip the drive if it is not ready to be read. This
                 // is not necessarily the appropriate action in all scenarios.
                 if (!di.IsReady)
@@ -147,16 +145,16 @@ namespace PocketStrafe
                     try
                     {
                         Process.Start(exe);
-                        return exe.Replace(fname,"");
+                        return exe.Replace(fname, "");
                     }
                     catch (Exception e)
                     {
                         log.Debug("Failed to start process " + exe + ": " + e);
                         return string.Empty;
-                    }              
+                    }
                 }
             }
-            return string.Empty; 
+            return string.Empty;
         }
 
         /// <summary>

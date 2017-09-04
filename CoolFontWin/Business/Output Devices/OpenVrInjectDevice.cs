@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using EasyHook;
 using log4net;
-using EasyHook;
-using ReactiveUI;
-using System.Diagnostics;
-using System.Reactive.Linq;
 using PocketStrafe.VR;
-
+using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Linq;
 
 namespace PocketStrafe.Output
 {
-    public class OpenVrInjectDevice: BaseOutputDevice, IPocketStrafeOutputDevice
+    public class OpenVrInjectDevice : BaseOutputDevice, IPocketStrafeOutputDevice
     {
         private static readonly ILog log =
     LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -25,13 +24,15 @@ namespace PocketStrafe.Output
         public List<int> EnabledDevices { get { return _EnabledDevices; } }
 
         private string _Keybind;
+
         public string Keybind
         {
             get { return _Keybind; }
-          set { _Keybind = value; }
+            set { _Keybind = value; }
         }
 
         private bool _UserIsRunning;
+
         public bool UserIsRunning
         {
             get { return _UserIsRunning; }
@@ -89,7 +90,6 @@ namespace PocketStrafe.Output
             // do nothing
         }
 
-
         public void Disconnect()
         {
             Iface.Cleanup();
@@ -107,12 +107,12 @@ namespace PocketStrafe.Output
 
         private readonly double _ThreshRun = 0.1;
         private readonly double _ThreshWalk = 0.1;
+
         public void Update()
         {
             if (_State.Speed > _ThreshRun && !UserIsRunning)
             {
                 UserIsRunning = true;
-
             }
             else if (_State.Speed <= _ThreshRun && UserIsRunning)
             {
@@ -141,7 +141,7 @@ namespace PocketStrafe.Output
                     injectDll,
                     injectDll,
                     _ChannelName);
-     
+
                 for (int i = 0; i < 20; i++)
                 {
                     if (Iface.Installed)
@@ -161,12 +161,10 @@ namespace PocketStrafe.Output
                 log.Error(e);
                 throw new PocketStrafeOutputDeviceException(e.Message);
             }
-
         }
 
         public void ReceivedNewViveBindings(PStrafeButtonType touch, Valve.VR.EVRButtonId button, PStrafeHand hand)
         {
-
             if (Iface == null)
             {
                 return;

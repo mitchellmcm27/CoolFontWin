@@ -1,17 +1,13 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PocketStrafe.ViewModel
 {
-    class SplashScreenViewModel : ReactiveObject
+    internal class SplashScreenViewModel : ReactiveObject
     {
+        private readonly ObservableAsPropertyHelper<string> _StatusText;
 
-        readonly ObservableAsPropertyHelper<string> _StatusText;
         public string StatusText
         {
             get { return _StatusText.Value; }
@@ -26,6 +22,5 @@ namespace PocketStrafe.ViewModel
                 .Throttle(TimeSpan.FromSeconds(1))
                 .ToProperty(this, x => x.StatusText, out _StatusText);
         }
-
     }
 }

@@ -1,13 +1,12 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using log4net;
 
 namespace PocketStrafe
 {
-
     /// <summary>
     /// Asynchronous UDP listen server. Passes data to DeviceManager.
     /// </summary>
@@ -22,7 +21,7 @@ namespace PocketStrafe
         private List<EndPoint> ClientList;
         private byte[] ByteData = new byte[1024];
         private PocketStrafeDeviceManager DeviceManager;
-        public int Port;    
+        public int Port;
 
         private void OnClientAdded()
         {

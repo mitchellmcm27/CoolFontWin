@@ -1,8 +1,8 @@
 ﻿using log4net;
 using ReactiveUI;
 using System;
-using System.Threading.Tasks;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace PocketStrafe.ViewModel
 {
@@ -11,43 +11,50 @@ namespace PocketStrafe.ViewModel
         private static readonly ILog log =
            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        readonly ObservableAsPropertyHelper<bool> _BonjourNotInstalled;
+        private readonly ObservableAsPropertyHelper<bool> _BonjourNotInstalled;
+
         public bool BonjourNotInstalled
         {
             get { return _BonjourNotInstalled.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _PrimaryDevice;
+        private readonly ObservableAsPropertyHelper<bool> _PrimaryDevice;
+
         public bool PrimaryDevice
         {
             get { return _PrimaryDevice.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _SecondaryDevice;
+        private readonly ObservableAsPropertyHelper<bool> _SecondaryDevice;
+
         public bool SecondaryDevice
         {
             get { return _SecondaryDevice.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _XboxController;
+        private readonly ObservableAsPropertyHelper<bool> _XboxController;
+
         public bool XboxController
         {
             get { return _XboxController.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _PauseButtonText;
+        private readonly ObservableAsPropertyHelper<string> _PauseButtonText;
+
         public string PauseButtonText
         {
             get { return _PauseButtonText.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _PauseButtonIcon;
+        private readonly ObservableAsPropertyHelper<string> _PauseButtonIcon;
+
         public string PauseButtonIcon
         {
             get { return _PauseButtonIcon.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _IsPaused;
+        private readonly ObservableAsPropertyHelper<bool> _IsPaused;
+
         public bool IsPaused
         {
             get { return _IsPaused.Value; }
@@ -57,7 +64,8 @@ namespace PocketStrafe.ViewModel
             }
         }
 
-        bool _IsNotPaused;
+        private bool _IsNotPaused;
+
         public bool IsNotPaused
         {
             get { return _IsNotPaused; }
@@ -96,9 +104,8 @@ namespace PocketStrafe.ViewModel
             this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
                .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
 
-           this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause")
-                .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
-
+            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause")
+                 .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
             PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
 
@@ -108,15 +115,13 @@ namespace PocketStrafe.ViewModel
                     {
                         await Task.Run(() => DeviceManager.AcquireXInputDevice());
                     }
-                    else DeviceManager.InterceptXInputDevice = false; 
+                    else DeviceManager.InterceptXInputDevice = false;
                 });
 
             AddRemoveSecondaryDevice = ReactiveCommand.CreateFromTask(AddRemoveSecondaryDeviceImpl);
             AddRemoveSecondaryDevice.ThrownExceptions.Subscribe(ex => log.Error("AddRemoveSecondaryDevice\n" + ex));
 
-            
             BonjourInfo = ReactiveCommand.CreateFromTask(_ => Task.Run(() => DnsServer.ShowBonjourDialog()));
-
         }
 
         public ReactiveCommand BonjourInfo { get; set; }
@@ -130,11 +135,10 @@ namespace PocketStrafe.ViewModel
         }
 
         public ReactiveCommand PlayPause { get; set; }
+
         private async Task PlayPauseImpl()
-        {    
+        {
             await Task.Run(() => DeviceManager.PauseOutput(!IsPaused));
         }
     }
-
-
 }

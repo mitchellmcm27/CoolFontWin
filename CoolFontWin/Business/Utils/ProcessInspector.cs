@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-
 namespace PocketStrafe
 {
     public static class ProcessInspector

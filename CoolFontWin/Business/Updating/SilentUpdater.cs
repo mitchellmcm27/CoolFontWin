@@ -1,9 +1,9 @@
-﻿using System;
+﻿using log4net;
+using NAppUpdate.Framework;
+using System;
 using System.ComponentModel;
 using System.Deployment.Application;
 using System.Timers;
-using NAppUpdate.Framework;
-using log4net;
 
 namespace PocketStrafe
 {
@@ -18,10 +18,13 @@ namespace PocketStrafe
         private bool _ClickOnce = true;
 
         public event EventHandler<DeploymentProgressChangedEventArgs> ProgressChanged;
+
         public event EventHandler<EventArgs> Completed;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private bool _UpdateAvailable;
+
         public bool UpdateAvailable
         {
             get
@@ -62,7 +65,7 @@ namespace PocketStrafe
             }
 
             // use ClickOnce
- 
+
             log.Info("Checking for updates...");
             Deployment = ApplicationDeployment.CurrentDeployment;
             Deployment.UpdateCompleted += UpdateCompleted;
@@ -105,7 +108,7 @@ namespace PocketStrafe
                 {
                     UpdateManager.Instance.PrepareUpdates();
                 }
-            }        
+            }
         }
 
         private void BeginUpdate()
@@ -118,12 +121,12 @@ namespace PocketStrafe
             ad.UpdateAsync();
         }
 
-        void UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
+        private void UpdateProgressChanged(object sender, DeploymentProgressChangedEventArgs e)
         {
             OnProgressChanged(e);
         }
 
-        void UpdateCompleted(object sender, AsyncCompletedEventArgs e)
+        private void UpdateCompleted(object sender, AsyncCompletedEventArgs e)
         {
             processing = false;
             if (e.Cancelled)

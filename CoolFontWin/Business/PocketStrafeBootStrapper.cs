@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using log4net;
+﻿using log4net;
 using ReactiveUI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PocketStrafe
 {
@@ -13,6 +13,7 @@ namespace PocketStrafe
 
         public string Description = "PocketStrafe";
         private string _Status;
+
         public string Status
         {
             get { return _Status; }
@@ -55,7 +56,7 @@ namespace PocketStrafe
             DnsServer.Publish(port, "Primary");
 
             Status = "Creating virtual devices";
-            
+
             Properties.Settings.Default.FirstInstall = false;
             Properties.Settings.Default.Save();
             try

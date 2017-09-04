@@ -1,9 +1,8 @@
-﻿using System;
-using vGenWrap;
-using log4net;
-using System.Collections.Generic;
+﻿using log4net;
 using ReactiveUI;
-
+using System;
+using System.Collections.Generic;
+using vGenWrap;
 
 namespace PocketStrafe.Output
 {
@@ -15,10 +14,9 @@ namespace PocketStrafe.Output
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
- 
-
         // private properties
         private static readonly double _MaxAxis = 100.0;
+
         private static readonly double _MinAxis = 0.0;
         private static readonly double _MaxPov = 359.9;
         private static readonly double _MinPov = 0.0;
@@ -35,6 +33,7 @@ namespace PocketStrafe.Output
         }
 
         private uint _Id;
+
         public uint Id // 1-16 for vJoy, 1001-1004 for vXbox
         {
             get
@@ -51,6 +50,7 @@ namespace PocketStrafe.Output
         public string Keybind { get; set; }
 
         private List<int> _EnabledDevices;
+
         public List<int> EnabledDevices
         {
             get { return _EnabledDevices; }
@@ -60,12 +60,10 @@ namespace PocketStrafe.Output
         private bool _UserIsRunning;
         public bool UserIsRunning { get { return _UserIsRunning; } }
 
-        public bool DriverEnabled ;
+        public bool DriverEnabled;
         public bool VDevAcquired;
 
-
-
-        public VDevOutputDevice():base()
+        public VDevOutputDevice() : base()
         {
             _Joystick = new vDev();
             DriverEnabled = false;
@@ -153,7 +151,6 @@ namespace PocketStrafe.Output
                 log.Info(String.Format("Acquired: " + (devType == DevType.vXbox ? "xBox" : "vJoy") + " device number {0}.", id));
             }
 
-
             bool AxisX = false;
             _Joystick.isAxisExist(_HDev, 1, ref AxisX);
             bool AxisY = false;
@@ -173,7 +170,6 @@ namespace PocketStrafe.Output
             _Joystick.GetDevHatN(_HDev, ref nHat);
 
             int DiscPovNumber = _Joystick.GetVJDDiscPovNumber(id);
-
 
             // Print results
             log.Info(String.Format("Device {0} capabilities:", id));
@@ -280,7 +276,6 @@ namespace PocketStrafe.Output
 
         public void Update()
         {
-
             // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
             AddJoystickConstants();
 
@@ -323,7 +318,7 @@ namespace PocketStrafe.Output
                     {
                         val = 45;
                     }
-                    else if((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                    else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
                     {
                         val = 315;
                     }
@@ -347,7 +342,6 @@ namespace PocketStrafe.Output
                 }
                 else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
                 {
-  
                     val = 270;
                 }
 
@@ -358,6 +352,7 @@ namespace PocketStrafe.Output
         }
 
         #region vDev helper methods
+
         /// <summary>
         /// Tries to acquire given vDev device, relinquishing current device if necessary.
         /// </summary>
@@ -384,7 +379,6 @@ namespace PocketStrafe.Output
                 _Joystick.RelinquishDev(_HDev);
                 VDevAcquired = false;
             }
-
 
             if (devType == DevType.vJoy && (id < 1 || id > 16) // vjoy
                 ||
@@ -499,7 +493,7 @@ namespace PocketStrafe.Output
             }
             GetEnabledDevices();
         }
-        #endregion
-    }
 
+        #endregion vDev helper methods
+    }
 }

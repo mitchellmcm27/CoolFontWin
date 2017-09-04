@@ -75,7 +75,7 @@ namespace WindowsInput
         /// <returns>true if the key code is an extended key; otherwise, false.</returns>
         /// <remarks>
         /// The extended keys consist of the ALT and CTRL keys on the right-hand side of the keyboard; the INS, DEL, HOME, END, PAGE UP, PAGE DOWN, and arrow keys in the clusters to the left of the numeric keypad; the NUM LOCK key; the BREAK (CTRL+PAUSE) key; the PRINT SCRN key; and the divide (/) and ENTER keys in the numeric keypad.
-        /// 
+        ///
         /// See http://msdn.microsoft.com/en-us/library/ms646267(v=vs.85).aspx Section "Extended-Key Flag"
         /// </remarks>
         public static bool IsExtendedKey(VirtualKeyCode keyCode)
@@ -117,9 +117,9 @@ namespace WindowsInput
         {
             var down =
                 new INPUT
-                    {
-                        Type = (UInt32) InputType.Keyboard,
-                        Data =
+                {
+                    Type = (UInt32)InputType.Keyboard,
+                    Data =
                             {
                                 Keyboard =
                                     new KEYBDINPUT
@@ -131,7 +131,7 @@ namespace WindowsInput
                                             ExtraInfo = IntPtr.Zero
                                         }
                             }
-                    };
+                };
 
             _inputList.Add(down);
             return this;
@@ -146,9 +146,9 @@ namespace WindowsInput
         {
             var up =
                 new INPUT
-                    {
-                        Type = (UInt32) InputType.Keyboard,
-                        Data =
+                {
+                    Type = (UInt32)InputType.Keyboard,
+                    Data =
                             {
                                 Keyboard =
                                     new KEYBDINPUT
@@ -162,7 +162,7 @@ namespace WindowsInput
                                             ExtraInfo = IntPtr.Zero
                                         }
                             }
-                    };
+                };
 
             _inputList.Add(up);
             return this;
@@ -190,9 +190,9 @@ namespace WindowsInput
             UInt16 scanCode = character;
 
             var down = new INPUT
-                           {
-                               Type = (UInt32)InputType.Keyboard,
-                               Data =
+            {
+                Type = (UInt32)InputType.Keyboard,
+                Data =
                                    {
                                        Keyboard =
                                            new KEYBDINPUT
@@ -204,12 +204,12 @@ namespace WindowsInput
                                                    ExtraInfo = IntPtr.Zero
                                                }
                                    }
-                           };
+            };
 
             var up = new INPUT
-                         {
-                             Type = (UInt32)InputType.Keyboard,
-                             Data =
+            {
+                Type = (UInt32)InputType.Keyboard,
+                Data =
                                  {
                                      Keyboard =
                                          new KEYBDINPUT
@@ -222,11 +222,11 @@ namespace WindowsInput
                                                  ExtraInfo = IntPtr.Zero
                                              }
                                  }
-                         };
+            };
 
             // Handle extended keys:
             // If the scan code is preceded by a prefix byte that has the value 0xE0 (224),
-            // we need to include the KEYEVENTF_EXTENDEDKEY flag in the Flags property. 
+            // we need to include the KEYEVENTF_EXTENDEDKEY flag in the Flags property.
             if ((scanCode & 0xFF00) == 0xE000)
             {
                 down.Data.Keyboard.Flags |= (UInt32)KeyboardFlag.ExtendedKey;

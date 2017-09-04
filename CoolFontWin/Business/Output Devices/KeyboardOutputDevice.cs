@@ -1,10 +1,10 @@
-﻿using System;
-using WindowsInput;
-using log4net;
-using System.Collections.Generic;
+﻿using log4net;
 using ReactiveUI;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using WindowsInput;
 
 namespace PocketStrafe.Output
 {
@@ -18,6 +18,7 @@ namespace PocketStrafe.Output
 
         // private properties
         private InputSimulator _KbM;
+
         private SendInputWrapper.ScanCodeShort _VirtualKeyCode;
         private TypeConverter _Converter;
         private bool _LeftMouseButtonDown;
@@ -29,6 +30,7 @@ namespace PocketStrafe.Output
 
         //public
         private bool _UserIsRunning;
+
         public bool UserIsRunning
         {
             get { return _UserIsRunning; }
@@ -36,6 +38,7 @@ namespace PocketStrafe.Output
         }
 
         private uint _Id = 2;
+
         public uint Id
         {
             get
@@ -54,13 +57,13 @@ namespace PocketStrafe.Output
         }
 
         private string _Keybind;
+
         public string Keybind
         {
             get { return _Keybind; }
             set
             {
                 this.RaiseAndSetIfChanged(ref _Keybind, value);
-
             }
         }
 
@@ -69,7 +72,6 @@ namespace PocketStrafe.Output
 
         public KeyboardOutputDevice()
         {
-
             _KbM = new InputSimulator();
             _Converter = TypeDescriptor.GetConverter(typeof(Keys));
             _LeftMouseButtonDown = false;
@@ -80,7 +82,7 @@ namespace PocketStrafe.Output
         }
 
         public void Connect()
-        {     
+        {
         }
 
         public void Connect(uint id)
@@ -88,8 +90,13 @@ namespace PocketStrafe.Output
             Connect();
         }
 
-        public void Disconnect() { }
-        public void SwapToDevice(int id) { }
+        public void Disconnect()
+        {
+        }
+
+        public void SwapToDevice(int id)
+        {
+        }
 
         public void SetKeybind(string key)
         {
@@ -108,7 +115,7 @@ namespace PocketStrafe.Output
                 Keybind = keybindOld;
             }
         }
-      
+
         public void AddInput(PocketStrafeInput input)
         {
             _State.Speed += input.speed;
@@ -138,6 +145,7 @@ namespace PocketStrafe.Output
 
         private readonly double _ThreshRun = 0.1;
         private readonly double _ThreshWalk = 0.1;
+
         public void Update()
         {
             if (_State.Speed > _ThreshRun && !_UserIsRunning)
@@ -231,9 +239,5 @@ namespace PocketStrafe.Output
         {
             return (SendInputWrapper.ScanCodeShort)SendInputWrapper.MapVirtualKey((uint)key, 0x00);
         }
-
-
-       
     }
-
 }

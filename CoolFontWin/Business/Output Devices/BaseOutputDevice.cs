@@ -8,12 +8,12 @@ namespace PocketStrafe.Output
     /// </summary>
     public abstract class BaseOutputDevice : ReactiveObject
     {
-
         public int SignX { get; set; }
         public int SignY { get; set; }
         public TimeSpan UpdateInterval;
         protected OutputDeviceState _State;
         protected bool _Coupled;
+
         public bool Coupled
         {
             get { return _Coupled; }

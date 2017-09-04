@@ -1,15 +1,15 @@
 ﻿using log4net;
+using Ookii.Dialogs;
+using PocketStrafe.VR;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using System.Windows;
-using Ookii.Dialogs;
-using System.Reactive;
-using PocketStrafe.VR;
 
 namespace PocketStrafe.ViewModel
 {
@@ -17,29 +17,34 @@ namespace PocketStrafe.ViewModel
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
 
         // Input devices
-        readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
+        private readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
+
         private uint CurrentDeviceID
         {
             get { return _CurrentDeviceID.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _XboxLedImage;
+        private readonly ObservableAsPropertyHelper<string> _XboxLedImage;
+
         public string XboxLedImage
         {
             get { return _XboxLedImage.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _KeyboardOutput;
+        private readonly ObservableAsPropertyHelper<bool> _KeyboardOutput;
+
         public bool KeyboardOutput
         {
             get { return _KeyboardOutput.Value; }
         }
 
-        string _Keybind;
+        private string _Keybind;
+
         public string Keybind
         {
             get { return _Keybind; }
@@ -50,45 +55,51 @@ namespace PocketStrafe.ViewModel
             }
         }
 
-        bool _KeybindChanged;
+        private bool _KeybindChanged;
+
         public bool KeybindChanged
         {
             get { return _KeybindChanged; }
             set { this.RaiseAndSetIfChanged(ref _KeybindChanged, value); }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _XboxOutput;
+        private readonly ObservableAsPropertyHelper<bool> _XboxOutput;
+
         public bool XboxOutput
         {
             get { return _XboxOutput.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _XboxDevicesExist;
+        private readonly ObservableAsPropertyHelper<bool> _XboxDevicesExist;
+
         public bool XboxDevicesExist
         {
             get { return _XboxDevicesExist.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _VJoyOutput;
+        private readonly ObservableAsPropertyHelper<bool> _VJoyOutput;
+
         public bool VJoyOutput
         {
             get { return _VJoyOutput.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool>_OpenVrOutput;
+        private readonly ObservableAsPropertyHelper<bool> _OpenVrOutput;
+
         public bool OpenVrOutput
         {
             get { return _OpenVrOutput.Value; }
         }
 
+        private readonly ObservableAsPropertyHelper<bool> _VrOutput;
 
-        readonly ObservableAsPropertyHelper<bool> _VrOutput;
         public bool VrOutput
         {
             get { return _VrOutput.Value; }
         }
 
-        int? _CurrentVJoyDevice;
+        private int? _CurrentVJoyDevice;
+
         public int? CurrentVJoyDevice // nullable
         {
             get { return _CurrentVJoyDevice; }
@@ -98,57 +109,66 @@ namespace PocketStrafe.ViewModel
             }
         }
 
-        bool _VJoyDeviceChanged;
+        private bool _VJoyDeviceChanged;
+
         public bool VJoyDeviceChanged
         {
             get { return _VJoyDeviceChanged; }
             set { this.RaiseAndSetIfChanged(ref _VJoyDeviceChanged, value); }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _vJoyDevicesExist;
+        private readonly ObservableAsPropertyHelper<bool> _vJoyDevicesExist;
+
         public bool VJoyDevicesExist
         {
             get { return _vJoyDevicesExist.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _NoVJoyDevices;
+        private readonly ObservableAsPropertyHelper<bool> _NoVJoyDevices;
+
         public bool NoVJoyDevices
         {
             get { return _NoVJoyDevices.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _NoXboxDevices;
+        private readonly ObservableAsPropertyHelper<bool> _NoXboxDevices;
+
         public bool NoXboxDevices
         {
             get { return _NoXboxDevices.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<string> _CoupledText;
+        private readonly ObservableAsPropertyHelper<string> _CoupledText;
+
         public string CoupledText
         {
             get { return _CoupledText.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _CoupledOutput;
+        private readonly ObservableAsPropertyHelper<bool> _CoupledOutput;
+
         public bool CoupledOutput
         {
             get { return _CoupledOutput.Value; }
         }
 
-        readonly ObservableAsPropertyHelper<List<int>> _VJoyDevices;
+        private readonly ObservableAsPropertyHelper<List<int>> _VJoyDevices;
+
         public List<int> VJoyDevices
         {
             get { return _VJoyDevices.Value; }
         }
 
-        Visibility _VJoyVisibility;
+        private Visibility _VJoyVisibility;
+
         public Visibility VJoyVisibility
         {
             get { return _VJoyVisibility; }
             set { this.RaiseAndSetIfChanged(ref _VJoyVisibility, value); }
         }
 
-        Visibility _XboxVisibility;
+        private Visibility _XboxVisibility;
+
         public Visibility XboxVisibility
         {
             get { return _XboxVisibility; }
@@ -157,17 +177,19 @@ namespace PocketStrafe.ViewModel
 
         // Vive controller injection
 
-        static readonly List<string> _SupportedVrSystems = new List<string> { "SteamVR" };
+        private static readonly List<string> _SupportedVrSystems = new List<string> { "SteamVR" };
         public List<string> SupportedVrSystems { get { return _SupportedVrSystems; } }
 
-        int _SelectedVrSystemIndex = 0;
+        private int _SelectedVrSystemIndex = 0;
+
         public int SelectedVrSystemIndex
         {
             get { return _SelectedVrSystemIndex; }
             set { this.RaiseAndSetIfChanged(ref _SelectedVrSystemIndex, value); }
         }
 
-        readonly ObservableAsPropertyHelper<string> _InjectText;
+        private readonly ObservableAsPropertyHelper<string> _InjectText;
+
         public string InjectText
         {
             get { return _InjectText.Value; }
@@ -177,57 +199,67 @@ namespace PocketStrafe.ViewModel
 
         public ReactiveList<string> InjectedProcs { get; set; }
 
-        string _SelectedProc;
+        private string _SelectedProc;
+
         public string SelectedProc
         {
             get { return _SelectedProc; }
             set { this.RaiseAndSetIfChanged(ref _SelectedProc, value); }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _ProcsRefreshing;
+        private readonly ObservableAsPropertyHelper<bool> _ProcsRefreshing;
+
         public bool ProcsRefreshing
         {
             get { return _ProcsRefreshing.Value; }
         }
-        readonly ObservableAsPropertyHelper<bool> _ProcsDoneRefreshing;
+
+        private readonly ObservableAsPropertyHelper<bool> _ProcsDoneRefreshing;
+
         public bool ProcsDoneRefreshing
         {
             get { return _ProcsDoneRefreshing.Value; }
         }
 
-        bool _Injected;
+        private bool _Injected;
+
         public bool Injected
         {
             get { return _Injected; }
             set { this.RaiseAndSetIfChanged(ref _Injected, value); }
         }
 
-        readonly ObservableAsPropertyHelper<bool> _NotInjected;
+        private readonly ObservableAsPropertyHelper<bool> _NotInjected;
+
         public bool NotInjected
         {
-            get { return _NotInjected.Value;  }
+            get { return _NotInjected.Value; }
         }
 
-        bool _InjectedIntoSelected;
+        private bool _InjectedIntoSelected;
+
         public bool InjectedIntoSelected
         {
             get { return _InjectedIntoSelected; }
             set { this.RaiseAndSetIfChanged(ref _InjectedIntoSelected, value); }
         }
-        List<string> _ControllerHand = Enum.GetNames(typeof(PStrafeHand)).ToList();
+
+        private List<string> _ControllerHand = Enum.GetNames(typeof(PStrafeHand)).ToList();
         public List<string> ControllerHand { get { return _ControllerHand; } }
 
-        List<string> _ControllerTouch = Enum.GetNames(typeof(PStrafeButtonType)).ToList();
+        private List<string> _ControllerTouch = Enum.GetNames(typeof(PStrafeButtonType)).ToList();
         public List<string> ControllerTouch { get { return _ControllerTouch; } }
 
-        int _SelectedControllerTouchIndex;
+        private int _SelectedControllerTouchIndex;
+
         public int SelectedControllerTouchIndex
         {
             get { return _SelectedControllerTouchIndex; }
             set { this.RaiseAndSetIfChanged(ref _SelectedControllerTouchIndex, value); }
         }
 
-        int _SelectedControllerHandIndex;
+        private int _SelectedControllerHandIndex;
+
         public int SelectedControllerHandIndex
         {
             get { return _SelectedControllerHandIndex; }
@@ -235,22 +267,25 @@ namespace PocketStrafe.ViewModel
         }
 
         // must keep these 2 lists in sync
-        List<Valve.VR.EVRButtonId> _ViveControllerButtonId = new List<Valve.VR.EVRButtonId> {
+        private List<Valve.VR.EVRButtonId> _ViveControllerButtonId = new List<Valve.VR.EVRButtonId> {
             Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad,
             Valve.VR.EVRButtonId.k_EButton_Grip,
             Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger
         };
-        List<string> _ViveControllerButton = new List<string> { "Touchpad", "Grip", "Trigger" };
-        public  List<string> ViveControllerButton { get { return _ViveControllerButton; } }
 
-        int _SelectedViveControllerButtonIndex;
+        private List<string> _ViveControllerButton = new List<string> { "Touchpad", "Grip", "Trigger" };
+        public List<string> ViveControllerButton { get { return _ViveControllerButton; } }
+
+        private int _SelectedViveControllerButtonIndex;
+
         public int SelectedViveControllerButtonIndex
         {
             get { return _SelectedViveControllerButtonIndex; }
             set { this.RaiseAndSetIfChanged(ref _SelectedViveControllerButtonIndex, value); }
         }
 
-        bool _ViveBindingsChanged;
+        private bool _ViveBindingsChanged;
+
         public bool ViveBindingsChanged
         {
             get { return _ViveBindingsChanged; }
@@ -262,6 +297,7 @@ namespace PocketStrafe.ViewModel
         private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
         private readonly ScpVBus ScpVBus;
+
         public OutputSettingsViewModel(PocketStrafeBootStrapper ps)
         {
             DeviceManager = ps.DeviceManager;
@@ -270,12 +306,12 @@ namespace PocketStrafe.ViewModel
 
             this.WhenAnyValue(x => x.ScpVBus.InstallSuccess)
                 .Where(x => x)
-                .Subscribe(x => 
+                .Subscribe(x =>
                 {
                     log.Info("ScpVBis Installation Succeeded");
                     ShowRestartMessage();
                 });
-     
+
             // Changing output device
             this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Type, t => t == OutputDeviceType.Keyboard)
                 .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
@@ -363,7 +399,7 @@ namespace PocketStrafe.ViewModel
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id:(uint)id ));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id: (uint)id));
             });
 
             AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireVJoyDeviceImpl);
@@ -372,7 +408,6 @@ namespace PocketStrafe.ViewModel
             {
                 await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vXbox));
             });
-
 
             VrMode = ReactiveCommand.CreateFromTask(async _ =>
             {
@@ -391,7 +426,7 @@ namespace PocketStrafe.ViewModel
 
             SteamVRInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => ShowSteamVrDialog()));
 
-            JoyCplCommand = ReactiveCommand.CreateFromTask(async _=> await Task.Run(()=>Process.Start("joy.cpl")));
+            JoyCplCommand = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => Process.Start("joy.cpl")));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
 
             RunningProcs = new ReactiveList<string>();
@@ -429,12 +464,12 @@ namespace PocketStrafe.ViewModel
 
             var canInject = this
                 .WhenAnyValue(x => x.SelectedProc, x => !string.IsNullOrEmpty(x));
-            
+
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
 
             InjectProc.ThrownExceptions
                 .Do(ex => MessageBox.Show(ex.Message, "Woops!", MessageBoxButton.OK))
-                .Subscribe();      
+                .Subscribe();
 
             this.WhenAnyValue(x => x.Injected)
                 .Select(x => x ? "Release" : "Inject")
@@ -535,7 +570,7 @@ namespace PocketStrafe.ViewModel
             }
             await Task.Run(() => DeviceManager.Inject.ReceivedNewViveBindings(
                 (PStrafeButtonType)this.SelectedControllerTouchIndex,
-                _ViveControllerButtonId[this.SelectedViveControllerButtonIndex], 
+                _ViveControllerButtonId[this.SelectedViveControllerButtonIndex],
                 (PStrafeHand)this.SelectedControllerHandIndex));
             ViveBindingsChanged = false;
         }
@@ -580,7 +615,7 @@ namespace PocketStrafe.ViewModel
             taskDialog.Buttons.Add(customButton);
             taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Close));
 
-            await Task.Run(()=>
+            await Task.Run(() =>
             {
                 TaskDialogButton res = taskDialog.Show(); // Windows Vista and later
                 if (res != null && res.ButtonType == ButtonType.Custom)
@@ -591,6 +626,7 @@ namespace PocketStrafe.ViewModel
         }
 
         private readonly string OpenVRVersion = "OpenVR v1.0.9 (Jul 2017)";
+
         private void ShowSteamVrDialog()
         {
             string text = "This feature is experimental and could get flagged as cheating or spyware.";
@@ -607,9 +643,7 @@ namespace PocketStrafe.ViewModel
 
         public void ShowRestartMessage()
         {
-            MessageBox.Show("Restart PocketStrafe PC to use vXbox","Success!",MessageBoxButton.OK,MessageBoxImage.Information);
+            MessageBox.Show("Restart PocketStrafe PC to use vXbox", "Success!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
-
     }
 }

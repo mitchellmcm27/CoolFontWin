@@ -1,5 +1,4 @@
-﻿using System;
-using WindowsInput.Native;
+﻿using WindowsInput.Native;
 
 namespace WindowsInput
 {

@@ -54,7 +54,7 @@ namespace WindowsInput.Native
         XUp = 0x0100,
 
         /// <summary>
-        /// Windows NT/2000/XP: Specifies that the wheel was moved, if the mouse has a wheel. The amount of movement is specified in mouseData. 
+        /// Windows NT/2000/XP: Specifies that the wheel was moved, if the mouse has a wheel. The amount of movement is specified in mouseData.
         /// </summary>
         VerticalWheel = 0x0800,
 

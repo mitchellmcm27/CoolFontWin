@@ -3,6 +3,7 @@
 namespace WindowsInput.Native
 {
 #pragma warning disable 649
+
     /// <summary>
     /// The INPUT structure is used by SendInput to store information for synthesizing input events such as keystrokes, mouse movement, and mouse clicks. (see: http://msdn.microsoft.com/en-us/library/ms646270(VS.85).aspx)
     /// Declared in Winuser.h, include Windows.h
@@ -14,7 +15,7 @@ namespace WindowsInput.Native
     internal struct INPUT
     {
         /// <summary>
-        /// Specifies the type of the input event. This member can be one of the following values. 
+        /// Specifies the type of the input event. This member can be one of the following values.
         /// <see cref="InputType.Mouse"/> - The event is a mouse event. Use the mi structure of the union.
         /// <see cref="InputType.Keyboard"/> - The event is a keyboard event. Use the ki structure of the union.
         /// <see cref="InputType.Hardware"/> - Windows 95/98/Me: The event is from input hardware other than a keyboard or mouse. Use the hi structure of the union.
@@ -26,5 +27,6 @@ namespace WindowsInput.Native
         /// </summary>
         public MOUSEKEYBDHARDWAREINPUT Data;
     }
+
 #pragma warning restore 649
 }

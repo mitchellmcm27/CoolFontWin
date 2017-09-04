@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AutoUpdaterDotNET;
 using log4net;
-using AutoUpdaterDotNET;
 using ReactiveUI;
+using System;
 using System.Windows.Forms;
 
 namespace PocketStrafe
@@ -12,6 +12,7 @@ namespace PocketStrafe
                 LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private bool _UpdateAvailable;
+
         public bool UpdateAvailable
         {
             get { return _UpdateAvailable; }
@@ -19,6 +20,7 @@ namespace PocketStrafe
         }
 
         private bool _UpdateProblem;
+
         public bool UpdateProblem
         {
             get { return _UpdateProblem; }
@@ -26,6 +28,7 @@ namespace PocketStrafe
         }
 
         private bool _UpdateOnShutdown;
+
         public bool UpdateOnShutdown
         {
             get { return _UpdateOnShutdown; }
@@ -63,7 +66,6 @@ namespace PocketStrafe
 
         private void AutoUpdaterOnCheckForUpdateEvent(UpdateInfoEventArgs args)
         {
-            
             log.Info("Update Check completed.");
 
             if (args == null)
@@ -93,7 +95,7 @@ namespace PocketStrafe
             try
             {
                 AutoUpdater.Start(_AppCastPath);
-                
+
                 //You can use Download Update dialog used by AutoUpdater.NET to download the update.
                 // AutoUpdater.DownloadUpdate();
             }
@@ -101,8 +103,7 @@ namespace PocketStrafe
             {
                 MessageBox.Show(exception.Message, exception.GetType().ToString(), MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-            }   
+            }
         }
-        
     }
 }

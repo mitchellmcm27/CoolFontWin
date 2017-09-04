@@ -1,18 +1,16 @@
-﻿using System;
+﻿using log4net;
+using Mono.Zeroconf;
+using ReactiveUI;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using Mono.Zeroconf;
-using log4net;
 using System.Windows.Forms;
-using ReactiveUI;
-using System.Collections.Specialized;
-using System.Linq;
 
 namespace PocketStrafe
 {
-
     /// <summary>
     /// Manages DNS Services through Mono.Zeroconf. Works with and requires Bonjour.
     /// </summary>
@@ -23,16 +21,18 @@ namespace PocketStrafe
          * Currently receives packets consisting of a string.
          * Contains a method for splitting string into ints.
          * Helper method to get a local PC IP address .
-         * 
+         *
          * You can access the underlying UdpClient listener using the public .Listener property.
          * You can access the underlying Socket using the public .listener.Client property.
          * </summary>*/
+
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public List<RegisterService> PublishedServices = new List<RegisterService>();
 
-        List<string> _DeviceNames = new List<string>();
+        private List<string> _DeviceNames = new List<string>();
+
         public List<string> DeviceNames
         {
             get { return _DeviceNames; }
@@ -43,6 +43,7 @@ namespace PocketStrafe
         }
 
         private int _DeviceCount;
+
         public int DeviceCount
         {
             get { return _DeviceCount; }
@@ -50,6 +51,7 @@ namespace PocketStrafe
         }
 
         private int _Port = 0;
+
         public int Port
         {
             get { return _Port; }
@@ -61,6 +63,7 @@ namespace PocketStrafe
         }
 
         private bool _BonjourInstalled = true;
+
         public bool BonjourInstalled
         {
             get { return _BonjourInstalled; }
@@ -68,6 +71,7 @@ namespace PocketStrafe
         }
 
         private string _Address;
+
         public string Address
         {
             get { return _Address; }
@@ -109,8 +113,8 @@ namespace PocketStrafe
             }
 
             log.Info("Found " + localAddrs.Count.ToString() + " addresses.");
-           
-            if (localAddrs.Count>0)
+
+            if (localAddrs.Count > 0)
             {
                 Address = localAddrs.First().ToString();
             }
@@ -180,7 +184,6 @@ namespace PocketStrafe
                 // go to website
                 System.Diagnostics.Process.Start("https://support.apple.com/kb/DL999?locale=en_US");
             }
-
         }
 
         public void Unpublish(string appendToName)
@@ -198,7 +201,7 @@ namespace PocketStrafe
                 }
             }
 
-            if(serviceToDelete!=null)
+            if (serviceToDelete != null)
             {
                 serviceToDelete.Dispose();
                 PublishedServices.Remove(serviceToDelete);
@@ -213,11 +216,13 @@ namespace PocketStrafe
                     log.Error(String.Format("!! Name Collision! '{0}' is already registered",
                         args.Service.Name));
                     break;
+
                 case ServiceErrorCode.None:
                     log.Info(String.Format("!! Successfully registered name = '{0}'", args.Service.Name));
                     break;
+
                 case ServiceErrorCode.Unknown:
-                    log.Error(String.Format("!! Unknown Error registering name = '{0}'", args.Service.Name +". Details: " + args.ServiceError.ToString()));
+                    log.Error(String.Format("!! Unknown Error registering name = '{0}'", args.Service.Name + ". Details: " + args.ServiceError.ToString()));
                     break;
             }
         }
@@ -230,7 +235,7 @@ namespace PocketStrafe
         {
             if (Publish(Port, name))
             {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);    
+                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
             }
         }
 
@@ -260,7 +265,7 @@ namespace PocketStrafe
         private static List<IPAddress> GetAddresses(NetworkInterfaceType type, AddressFamily family)
         {
             // Helper method to choose a local IP address
-            // Device may have multiple interfaces/addresses, including IPv6 addresses 
+            // Device may have multiple interfaces/addresses, including IPv6 addresses
             // Return string array
 
             List<IPAddress> ipAddrList = new List<IPAddress>();
@@ -289,6 +294,6 @@ namespace PocketStrafe
                 }
             }
             return ipAddrList;
-        }   
+        }
     }
 }

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Diagnostics;
-using log4net;
 
 namespace PocketStrafe.Output
 {
-    class OpenVrEmulator
+    internal class OpenVrEmulator
     {
         private static readonly ILog log =
     LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -27,12 +27,10 @@ namespace PocketStrafe.Output
 
         private void SetupController(int n)
         {
-           
         }
 
         public void Update()
         {
-
         }
     }
 }

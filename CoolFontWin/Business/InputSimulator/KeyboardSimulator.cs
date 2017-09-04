@@ -149,7 +149,7 @@ namespace WindowsInput
         /// <param name="keyCode">The key to simulate</param>
         public IKeyboardSimulator ModifiedKeyStroke(IEnumerable<VirtualKeyCode> modifierKeyCodes, VirtualKeyCode keyCode)
         {
-            ModifiedKeyStroke(modifierKeyCodes, new[] {keyCode});
+            ModifiedKeyStroke(modifierKeyCodes, new[] { keyCode });
             return this;
         }
 
@@ -161,7 +161,7 @@ namespace WindowsInput
         /// <param name="keyCodes">The list of keys to simulate</param>
         public IKeyboardSimulator ModifiedKeyStroke(VirtualKeyCode modifierKey, IEnumerable<VirtualKeyCode> keyCodes)
         {
-            ModifiedKeyStroke(new [] {modifierKey}, keyCodes);
+            ModifiedKeyStroke(new[] { modifierKey }, keyCodes);
             return this;
         }
 

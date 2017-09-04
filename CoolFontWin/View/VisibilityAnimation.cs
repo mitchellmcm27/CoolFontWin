@@ -98,7 +98,7 @@ namespace PocketStrafe.View
                 return;
             }
 
-            // If AnimationType is set to True on this framework element, 
+            // If AnimationType is set to True on this framework element,
             if (GetAnimationType(frameworkElement) != AnimationType.None)
             {
                 // Add this framework element to hooked list
@@ -172,11 +172,11 @@ namespace PocketStrafe.View
             Visibility visibility = (Visibility)baseValue;
 
             // If Visibility value hasn't change, do nothing.
-            // This can happen if the Visibility property is set using data binding and the binding source has changed 
+            // This can happen if the Visibility property is set using data binding and the binding source has changed
             // but the new visibility value hasn't changed.
             if (visibility == frameworkElement.Visibility)
             {
-             //   return baseValue;
+                //   return baseValue;
             }
 
             // If element is not hooked by our attached property, stop here
@@ -192,7 +192,7 @@ namespace PocketStrafe.View
                 return baseValue;
             }
 
-            // If we get here, it means we have to start fade in or fade out animation. 
+            // If we get here, it means we have to start fade in or fade out animation.
             // In any case return value of this method will be Visibility.Visible, to allow the animation.
             DependencyProperty property;
             DoubleAnimation doubleAnimation;
@@ -225,9 +225,9 @@ namespace PocketStrafe.View
                 }
                 else
                 {
-                    // This will trigger value coercion again 
-                    // but UpdateAnimationStartedFlag() function will reture true this time, 
-                    // thus animation will not be triggered. 
+                    // This will trigger value coercion again
+                    // but UpdateAnimationStartedFlag() function will reture true this time,
+                    // thus animation will not be triggered.
                     if (BindingOperations.IsDataBound(frameworkElement, UIElement.VisibilityProperty))
                     {
                         // Set visiblity using bounded value
@@ -242,7 +242,6 @@ namespace PocketStrafe.View
                 }
             };
 
-
             frameworkElement.BeginAnimation(property, doubleAnimation);
 
             // Make sure the element remains visible during the animation
@@ -252,7 +251,6 @@ namespace PocketStrafe.View
 
         private static DoubleAnimation GetFadeAnimation(Visibility visibility)
         {
-
             DoubleAnimation doubleAnimation = new DoubleAnimation
             {
                 Duration = new Duration(TimeSpan.FromMilliseconds(AnimationDuration))
@@ -271,12 +269,11 @@ namespace PocketStrafe.View
                 doubleAnimation.To = 1.0;
             }
 
-            return doubleAnimation;            
+            return doubleAnimation;
         }
 
         private static DoubleAnimation GetExpandAnimation(Visibility visibility, double? currentHeight, double? targetHeight)
         {
-
             DoubleAnimation doubleAnimation = new DoubleAnimation
             {
                 Duration = new Duration(TimeSpan.FromMilliseconds(AnimationDuration))
@@ -290,7 +287,7 @@ namespace PocketStrafe.View
             }
             else
             {
-                // Fade in 
+                // Fade in
                 doubleAnimation.From = 0;
                 doubleAnimation.To = targetHeight;
             }

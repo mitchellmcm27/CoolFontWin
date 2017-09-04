@@ -1,15 +1,13 @@
-﻿using System;
-using System.Media;
+﻿using log4net;
+using System;
 using System.IO;
-using log4net;
+using System.Media;
 using System.Threading.Tasks;
 
 namespace PocketStrafe
 {
-    
     public static class ResourceSoundPlayer
     {
-
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace PocketStrafe
 {
-    static class Drawing
+    internal static class Drawing
     {
         public static Bitmap CreateBitmapImage(string sImageText, Color color)
         {
@@ -33,7 +29,6 @@ namespace PocketStrafe
             // Create the bmpImage again with the correct size for the text and font.
             objBmpImage = new Bitmap(objBmpImage, new Size(intWidth, intHeight));
 
-
             // Add the colors to the new bitmap.
             objGraphics = Graphics.FromImage(objBmpImage);
 
@@ -43,7 +38,7 @@ namespace PocketStrafe
             objGraphics.SmoothingMode = SmoothingMode.HighQuality;
 
             objGraphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            objGraphics.DrawString(sImageText, objFont, new SolidBrush(color), (intWidth-stringWidth)/2, (intHeight - stringHeight)/2, StringFormat.GenericDefault);
+            objGraphics.DrawString(sImageText, objFont, new SolidBrush(color), (intWidth - stringWidth) / 2, (intHeight - stringHeight) / 2, StringFormat.GenericDefault);
 
             objGraphics.Flush();
 
