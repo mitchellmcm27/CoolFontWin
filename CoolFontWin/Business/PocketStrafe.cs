@@ -26,16 +26,16 @@ namespace CFW.Business
         public ScpVBus ScpVBus;
         public UDPServer UdpServer { get; set; }
         public DNSNetworkService DnsServer { get; set; }
-        public DeviceManager DeviceManager { get; set; }
+        public PocketStrafeDeviceManager DeviceManager { get; set; }
         public AppCastUpdater AppCastUpdater { get; set; }
 
         public PocketStrafe()
         {
             ScpVBus = new ScpVBus();
-            DeviceManager = new DeviceManager();
+            DeviceManager = new PocketStrafeDeviceManager();
             UdpServer = new UDPServer(DeviceManager);
             AppCastUpdater = new AppCastUpdater("http://coolfont.win.app.s3.amazonaws.com/publish/currentversion.xml");
-            DnsServer = new DNSNetworkService(DeviceManager);
+            DnsServer = new DNSNetworkService();
             Status = "Initializing";
             
         }
@@ -52,7 +52,6 @@ namespace CFW.Business
 
             Status = "Starting network services";
             // Get number of expected mobile device inputs from Default
-            DeviceManager.MobileDevicesCount = 1;
             UdpServer.Start(Properties.Settings.Default.LastPort);
             int port = UdpServer.Port;
             Properties.Settings.Default.LastPort = port;
@@ -62,8 +61,6 @@ namespace CFW.Business
             DnsServer.Publish(port, "Primary");
 
             Status = "Creating virtual devices";
-            log.Info("Get enabled devices...");
-            DeviceManager.VDevice.GetEnabledDevices();
             Properties.Settings.Default.FirstInstall = false;
             Properties.Settings.Default.Save();
             try

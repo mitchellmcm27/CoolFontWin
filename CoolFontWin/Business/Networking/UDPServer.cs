@@ -22,7 +22,7 @@ namespace CFW.Business
         private Socket ServerSocket;
         private List<EndPoint> ClientList;
         private byte[] ByteData = new byte[1024];
-        private DeviceManager DeviceManager;
+        private PocketStrafeDeviceManager DeviceManager;
         public int Port;    
 
         private void OnClientAdded()
@@ -30,7 +30,7 @@ namespace CFW.Business
             ClientAdded?.Invoke(this, null);
         }
 
-        public UDPServer(DeviceManager d)
+        public UDPServer(PocketStrafeDeviceManager d)
         {
             ServerSocket = null;
             ClientList = new List<EndPoint>();

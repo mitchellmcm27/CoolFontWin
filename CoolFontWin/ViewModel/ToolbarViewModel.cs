@@ -48,7 +48,7 @@ namespace CFW.ViewModel
         }
 
         private readonly AppCastUpdater Updater;
-        private readonly DeviceManager DeviceManager;
+        private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
 
         private ObservableAsPropertyHelper<SimulatorMode> _Mode;
@@ -79,8 +79,8 @@ namespace CFW.ViewModel
 
             DownloadUpdate = ReactiveCommand.CreateFromTask(DownloadUpdateImpl);
 
-            FlipX = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(Axis.AxisX)));
-            FlipY = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(Axis.AxisY)));
+            FlipX = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(OutputDeviceAxis.AxisX)));
+            FlipY = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => DeviceManager.FlipAxis(OutputDeviceAxis.AxisY)));
             VJoyConfig = ReactiveCommand.CreateFromTask(VJoyConfigImpl);
             VJoyMonitor = ReactiveCommand.CreateFromTask(VJoyMonitorImpl);
             ViewLogFile = ReactiveCommand.CreateFromTask(ViewLogFileImpl);

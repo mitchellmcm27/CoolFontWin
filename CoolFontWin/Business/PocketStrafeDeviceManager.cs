@@ -12,11 +12,12 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using CFW.VR;
+using CFW.Business.Input;
 using CFW.Business.Output;
 
 namespace CFW.Business
 {
-    public enum Axis
+    public enum OutputDeviceAxis
     {
         AxisX,
         AxisY,
@@ -26,7 +27,7 @@ namespace CFW.Business
     /// Thread-safe singleton class for managing connected and virtual devices.
     /// Updates vJoy device with data from socket, optionally including an XInput device.
     /// </summary>
-    public class DeviceManager : ReactiveObject
+    public class PocketStrafeDeviceManager : ReactiveObject
     {
         private static readonly ILog log =
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
@@ -39,11 +40,14 @@ namespace CFW.Business
         };
 
         static readonly object locker = new object();
-        
+
         // Devices
-        public VirtualDevice VDevice; // single vjoy device, combines multiple mobile device inputs
         private XInputDeviceManager XMgr;
         private Controller XDevice; // single xbox controller
+        private List<PocketStrafeMobileDevice> MobileDevices; // phones running PocketStrafe
+        public IPocketStrafeOutputDevice OutputDevice; // user-selected output (virtual) device implementing IPocketStrafeOutputDevice interface
+        private VDevOutputDevice VDev;
+        private KeyboardOutputDevice Keyboard;
 
         // timer for updating devices
         private Timer VDeviceUpdateTimer;
@@ -56,29 +60,11 @@ namespace CFW.Business
         {
             get
             {
-                return VDevice.RCFilterStrength;
+                return OutputDevice.RCFilterStrength;
             }
             set
             {
-                VDevice.RCFilterStrength = value;
-            }
-        }
-
-        // get mode
-        public SimulatorMode Mode
-        {
-            get
-            {
-                return VDevice.Mode;
-            }
-        }
-
-        // get source of current mode
-        public bool CurrentModeIsFromPhone
-        {
-            get
-            {
-                return VDevice.CurrentModeIsFromPhone;
+                OutputDevice.RCFilterStrength = value;
             }
         }
 
@@ -107,7 +93,7 @@ namespace CFW.Business
         {
             get
             {
-                return VDevice.DriverEnabled;
+                return VDev.DriverEnabled;
             }
         }
 
@@ -115,42 +101,55 @@ namespace CFW.Business
         {
             get
             {
-                return VDevice.VDevAcquired;
+                return VDev.VDevAcquired;
             }
         }
 
         private TimeSpan UpdateInterval;
 
-        private int _MobileDevicesCount;
-
-        /// <summary>
-        /// Tells Virtual Device how many different input streams to expect.
-        /// </summary>
-        public int MobileDevicesCount
-        {
-            get
-            {
-                return _MobileDevicesCount;
-            }
-            set
-            {
-                _MobileDevicesCount = value;
-                VDevice.DeviceList = new List<MobileDevice>(value); // reset device list
-                for (int i = 0; i < value; i++)
-                {
-                    VDevice.DeviceList.Add(new MobileDevice());
-                }
-                VDevice.MaxDevices = _MobileDevicesCount;
-            }
-        }
-
-
-        public DeviceManager()
+        public PocketStrafeDeviceManager()
         {
             UpdateInterval = TimeSpan.FromSeconds(1 / 60.0);
             XMgr = new XInputDeviceManager();
-            VDevice = new VirtualDevice(UpdateInterval);   
             InitializeTimer();
+            VDev = new VDevOutputDevice();
+            Keyboard = new KeyboardOutputDevice();
+            OutputDevice = VDev;
+            MobileDevices = new List<PocketStrafeMobileDevice> { new PocketStrafeMobileDevice(), new PocketStrafeMobileDevice() };
+            log.Info("Get enabled devices...");
+            VDev.GetEnabledDevices();
+        }
+
+        public void GetNewOutputDevice(OutputDeviceType type, uint id)
+        {
+            switch (type)
+            {
+                case OutputDeviceType.Keyboard:
+                    DisconnectOutputDevice();
+                    OutputDevice = Keyboard;
+                    OutputDevice.Connect(id);
+                    break;
+                case OutputDeviceType.vJoy:
+                    DisconnectOutputDevice();
+                    OutputDevice = VDev;
+                    OutputDevice.Connect(id);
+                    break;
+                case OutputDeviceType.vXbox:
+                    DisconnectOutputDevice();
+                    OutputDevice = VDev;
+                    OutputDevice.Connect(); 
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void SetKeybind(string key)
+        {
+            if (OutputDevice.Type == OutputDeviceType.Keyboard)
+            {
+                Keyboard.SetKeybind(key);
+            }
         }
 
         /// <summary>
@@ -158,14 +157,15 @@ namespace CFW.Business
         /// </summary>
         /// <returns>Returns boolean indicating if a controller was acquired.</returns>
         public bool AcquireXInputDevice()
-        {                 
-            uint id = VDevice.Id;
-            if (id > 1000)
+        {
+            bool reacquire = false;
+            if (OutputDevice.Type == OutputDeviceType.vXbox)
             {
-                RelinquishCurrentDevice(silent: true);
+                OutputDevice.Disconnect();
+                reacquire = true;
             }
             ForceUnplugAllXboxControllers();
-            
+
             XInputDeviceConnected = false;
             bool xDeviceAcquired = false;
 
@@ -176,17 +176,6 @@ namespace CFW.Business
                 XInputDeviceConnected = true;
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good, afterMilliseconds: 1000);
                 xDeviceAcquired = true;
-                
-                if (id == 0)
-                {
-                    VDevice.AcquireUnusedVDev();
-                }
-                else
-                {
-                    AcquireVDev(id);
-                }
-
-                TryMode((int)SimulatorMode.ModeJoystickCoupled);
                 InterceptXInputDevice = true;
             }
             else
@@ -195,9 +184,12 @@ namespace CFW.Business
                 xDeviceAcquired = false;
                 InterceptXInputDevice = true;
                 InterceptXInputDevice = false;
-                AcquireVDev(id);
             }
 
+            if (reacquire)
+            {
+                OutputDevice.Connect();
+            }
             return xDeviceAcquired;
         }
 
@@ -207,34 +199,10 @@ namespace CFW.Business
             ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
         }
 
-        /// <summary>
-        /// Aquire vJoy device according to Default setting.
-        /// </summary>
-        /// <returns>Bool indicating whether device was acquired.</returns>
-        public bool AcquireDefaultVDev()
-        {
-            return VDevice.SwapToVDev((uint)Properties.Settings.Default.VJoyID);
-        }
 
-        public bool AcquireVDev(uint id)
+        public void DisconnectOutputDevice()
         {
-            bool res = VDevice.SwapToVDev(id);
-            if (res)
-            {
-                if (id < 1000 ) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);
-            }
-            else if (id!=0 && id !=1000)
-            {
-                ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-            }
-            return res;
-        }
-
-        public void RelinquishCurrentDevice(bool silent=false)
-        {
-            log.Info("Relinquish current device");
-            if (VDevice.VDevType == DevType.vJoy && !silent) ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-            VDevice.RelinquishCurrentDevice();
+            OutputDevice.Disconnect();
         }
 
         private void InitializeTimer()
@@ -248,38 +216,32 @@ namespace CFW.Business
         }
 
         /// <summary>
-        /// Pass along selected mode to the virtual device, which will decide whether to switch.
-        /// </summary>
-        /// <param name="mode">A valid SimulatorMode cast as int.</param>
-        /// <returns>Returns a bool indicating whether the mode switched.</returns>
-        public bool TryMode(int mode)
-        {
-            if (mode == (int)SimulatorMode.ModeWASD) RelinquishCurrentDevice(silent: true);
-            return VDevice.ClickedMode((SimulatorMode)mode);
-        }
-
-        /// <summary>
         /// Invert an axis on the virutal device.
         /// </summary>
         /// <param name="axis">A valid Axis enum item.</param>
-        public void FlipAxis(Axis axis)
+        public void FlipAxis(OutputDeviceAxis axis)
         {
             switch (axis)
             {
-                case Axis.AxisX:
-                    VDevice.signX = -VDevice.signX;
+                case OutputDeviceAxis.AxisX:
+                    OutputDevice.SignX = -OutputDevice.SignX;
                     break;
-                case Axis.AxisY:
-                    VDevice.signY = -VDevice.signY;
+                case OutputDeviceAxis.AxisY:
+                    OutputDevice.SignY = -OutputDevice.SignY;
                     break;
             }
+        }
+
+        public void PauseOutput(bool pause)
+        {
+
         }
 
         // Executes when the timer elapses.
         private void TimerElapsed(object sender, ElapsedEventArgs e)
         {
             TimerCount++;
-            UpdateVirtualDevice();
+            UpdateOutputDevice();
         }
 
         /// <summary>
@@ -291,26 +253,24 @@ namespace CFW.Business
             // Called by a socket thread whenver it rcvs data
             lock (locker)
             {
-                if (!VDevice.HandleNewData(data))
-                {
-                    return;
-                }
+                PocketStrafeInput input = PocketStrafeData.GetData(data);
+                MobileDevices[input.deviceNumber].SetState(input);
             }
         }
 
-        public void UpdateVirtualDevice()
+        private void UpdateOutputDevice()
         {
             // Called by a Timer at a fixed interval
 
-            // Combine all mobile device data into a single input 
-            VDevice.CombineMobileDevices();
+            // Combine all mobile device data into a single input
+            OutputDevice.AddInput(CombineMobileDevices(MobileDevices));
 
             // Xbox controller handling
             if (InterceptXInputDevice)
             {
                 if (XDevice.IsConnected)
                 {
-                    VDevice.AddControllerState(XDevice.GetState());
+                    OutputDevice.AddController(XDevice.GetState());
                 }
                 else
                 {
@@ -320,9 +280,42 @@ namespace CFW.Business
                     XInputDeviceConnected = false;
                 }
             }
-
-            VDevice.FeedVDev();
+            OutputDevice.Update();
         }
+
+        /// <summary>
+        /// Combine all Ready MobileDevices into a single input and get ready for vJoy
+        /// </summary>
+        public PocketStrafeInput CombineMobileDevices(List<PocketStrafeMobileDevice> devices)
+        {
+            double avgPOV = 0;
+            int avgCount = 0;
+            double[] valsf = new double[IndexOf.ValCount];
+            PocketStrafeInput combined = new PocketStrafeInput();
+
+            // Add vals and buttons from Ready devices
+            combined.buttons = 0;
+
+            for (int i = 0; i < MobileDevices.Count; i++)
+            {
+                if (!MobileDevices[i].Ready) continue;
+
+                combined.speed += MobileDevices[i].State.speed;
+                combined.buttons = combined.buttons | MobileDevices[i].State.buttons; // bitmask
+
+                // rolling average of POV, no need to know beforehand how many devices are Ready
+                if (MobileDevices[i].State.validPOV)
+                {
+                    avgCount++;
+                    avgPOV = avgPOV * (avgCount - 1) / avgCount + MobileDevices[i].State.POV / avgCount;
+                }
+            }
+            combined.POV = avgPOV;
+            return combined;
+        }
+
+
+        // Injecting
 
         public PSInterface Iface;
         private static System.Runtime.Remoting.Channels.Ipc.IpcServerChannel IpcServer;
@@ -358,13 +351,13 @@ namespace CFW.Business
 
                 log.Info("  Subscribe to interface events:");
                 log.Info("    UserIsRunning event");
-                this.WhenAnyValue(x => x.VDevice.UserIsRunning)
+                this.WhenAnyValue(x => x.OutputDevice.UserIsRunning)
                     .Do(x => Iface.UserIsRunning = x)
                     .Subscribe();
-   
+
                 var p = Process.GetProcessesByName(proc)[0];
                 var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafe).Assembly.Location), "Inject.dll");
-                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "("+p.Id+")");
+                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
 
                 RemoteHooking.Inject(
                     p.Id,
@@ -512,18 +505,24 @@ namespace CFW.Business
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsWow64Process([In] IntPtr process, [Out] out bool wow64Process);
-    
+
 
         public void ForceUnplugAllXboxControllers()
-        {  
-            VDevice.ForceUnplugAllXboxControllers();
+        {
+            if (OutputDevice.Type == OutputDeviceType.vJoy || OutputDevice.Type == OutputDeviceType.vXbox)
+            {
+                ((VDevOutputDevice)OutputDevice).ForceUnplugAllXboxControllers();
+            }
         }
 
         public void Dispose()
         {
-            RelinquishCurrentDevice(silent:true);
-            Properties.Settings.Default.VJoyID = (int)VDevice.Id;
-            Properties.Settings.Default.Save(); 
-        }    
+            if (OutputDevice.Type == OutputDeviceType.vJoy)
+            { 
+                Properties.Settings.Default.VJoyID = (int)((VDevOutputDevice)OutputDevice).Id;
+                Properties.Settings.Default.Save();
+            }
+            DisconnectOutputDevice();
+        }
     }
 }

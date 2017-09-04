@@ -26,6 +26,9 @@ namespace CFW.Business
         [Description("SteamVR")]
         ModeSteamVr,
 
+        [Description("OpenVR Emulator")]
+        ModeOpenVrEmulator,
+
         [Description("Gamepad+Mouse")]
         ModeJoystickTurn, //TODO: Move character forward and turn L/R using joystick. Difficult.
 

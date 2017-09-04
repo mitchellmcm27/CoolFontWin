@@ -68,7 +68,7 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _IsNotPaused, value); }
         }
 
-        private readonly DeviceManager DeviceManager;
+        private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
 
         public InputSettingsViewModel(PocketStrafe ps)
@@ -93,14 +93,11 @@ namespace CFW.ViewModel
             this.WhenAnyValue(x => x.DeviceManager.InterceptXInputDevice)
                 .ToProperty(this, x => x.XboxController, out _XboxController);
 
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.Mode, m => m == SimulatorMode.ModePaused)
-                .ToProperty(this, x => x.IsPaused, out _IsPaused);
+           // this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
+           //     .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
 
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Resume" : "Pause")
-                .ToProperty(this, x => x.PauseButtonText, out _PauseButtonText);
-
-            this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause")
-                .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
+            //this.WhenAnyValue(x => x.IsPaused, x => x ? "Play" : "Pause")
+            //    .ToProperty(this, x => x.PauseButtonIcon, out _PauseButtonIcon);
 
 
             PlayPause = ReactiveCommand.CreateFromTask(PlayPauseImpl);
@@ -136,21 +133,9 @@ namespace CFW.ViewModel
 
         private int previousMode;
         private async Task PlayPauseImpl()
-        {
-            if (!IsPaused)
-            {
-                if (DeviceManager.Mode != SimulatorMode.ModePaused) previousMode = (int)DeviceManager.Mode;
-                await UpdateMode((int)SimulatorMode.ModePaused);
-            }
-            else await UpdateMode(previousMode);
+        {    
+            await Task.Run(() => DeviceManager.PauseOutput(!IsPaused));
         }
-
-        private async Task UpdateMode(int mode)
-        {
-            await Task.Run(() => DeviceManager.TryMode(mode));
-        }
-
-
     }
 
 

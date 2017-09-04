@@ -109,6 +109,7 @@ namespace CFW.Business
         private InputSimulator KbM;
         private MobileDevice CombinedDevice;
         private int HDev;
+        private Lazy<OpenVrEmulator> OpenVrEmulator = new Lazy<OpenVrEmulator>();
 
         private bool LeftMouseButtonDown = false;
         private bool RightMoustButtonDown = false;
@@ -196,8 +197,7 @@ namespace CFW.Business
             KbM = new InputSimulator();
             Joystick = new vDev();
             iReport = new State();
-            CombinedDevice = new MobileDevice();
-            
+            CombinedDevice = new MobileDevice();            
 
             // DeviceManager will fill this list as needed
             DeviceList = new List<MobileDevice>();
@@ -575,7 +575,7 @@ namespace CFW.Business
                         KbM.Keyboard.KeyPress(WindowsInput.Native.VirtualKeyCode.SPACE);
                     }
                     break;
-
+        
                 case SimulatorMode.ModeSteamVr:
                     if (valsf[0] > VirtualDevice.ThreshRun && !UserIsRunning)
                     {
@@ -585,9 +585,9 @@ namespace CFW.Business
                     {
                         UserIsRunning = false;
                     }
+                    
                     break;
-               
-
+    
                 case SimulatorMode.ModeJoystickCoupled:
 
                     /* no strafing */
@@ -595,6 +595,7 @@ namespace CFW.Business
                     iReport.POV = valsf[IndexOf.ValPOV];
                     break;
 
+                case SimulatorMode.ModeOpenVrEmulator:
                 case SimulatorMode.ModeJoystickDecoupled:
 
                     /* strafing but no turning*/
@@ -734,6 +735,10 @@ namespace CFW.Business
             iReport.RY = Algorithm.Clamp(iReport.RY, MinAxis, MaxAxis);
             iReport.Z = Algorithm.Clamp(iReport.Z, 0, 255);
             iReport.RZ = Algorithm.Clamp(iReport.RZ, 0, 255);
+
+            if (Mode==SimulatorMode.ModeOpenVrEmulator) {
+                OpenVrEmulator.Value.Update(iReport);
+             }
 
             Joystick.SetDevAxis(HDev, 1, iReport.X);
             Joystick.SetDevAxis(HDev, 2, iReport.Y);

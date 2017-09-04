@@ -56,11 +56,8 @@ namespace CFW.Business
             set { this.RaiseAndSetIfChanged(ref _Port, value); }
         }
 
-        private DeviceManager DeviceHub;
-
-        public DNSNetworkService(DeviceManager deviceHub)
+        public DNSNetworkService()
         {
-            DeviceHub = deviceHub;
         }
 
         private bool _BonjourInstalled = true;
@@ -235,7 +232,6 @@ namespace CFW.Business
             {
                 ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_good);    
             }
-            DeviceHub.MobileDevicesCount = DeviceNames.Count;
         }
 
         /// <summary>
@@ -259,7 +255,6 @@ namespace CFW.Business
             // unpublish service containing this name
             Unpublish(name);
             ResourceSoundPlayer.TryToPlay(Properties.Resources.beep_bad);
-            DeviceHub.MobileDevicesCount = DeviceNames.Count;
         }
 
         private static List<IPAddress> GetAddresses(NetworkInterfaceType type, AddressFamily family)

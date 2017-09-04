@@ -15,6 +15,7 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using CFW.Business.Extensions;
 using CFW.VR;
+using CFW.Business.Output;
 
 namespace CFW.ViewModel
 {
@@ -24,9 +25,6 @@ namespace CFW.ViewModel
             LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         // Expose model properties that the view can bind to
         // Raise propertychangedevent on set
-
-        private ObservableAsPropertyHelper<SimulatorMode> _Mode;
-        private SimulatorMode Mode { get { return (_Mode.Value); } }
 
         // Input devices
         readonly ObservableAsPropertyHelper<uint> _CurrentDeviceID;
@@ -82,6 +80,13 @@ namespace CFW.ViewModel
         {
             get { return _VJoyOutput.Value; }
         }
+
+        readonly ObservableAsPropertyHelper<bool>_OpenVrOutput;
+        public bool OpenVrOutput
+        {
+            get { return _OpenVrOutput.Value; }
+        }
+
 
         readonly ObservableAsPropertyHelper<bool> _VrOutput;
         public bool VrOutput
@@ -156,7 +161,7 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _XboxVisibility, value); }
         }
 
-        // Vive controller
+        // Vive controller injection
 
         static readonly List<string> _SupportedVrSystems = new List<string> { "SteamVR" };
         public List<string> SupportedVrSystems { get { return _SupportedVrSystems; } }
@@ -258,26 +263,9 @@ namespace CFW.ViewModel
             set { this.RaiseAndSetIfChanged(ref _ViveBindingsChanged, value); }
         }
 
-
-        //OVRPlugin.dll
-        string _HookedDllName = "openvr_api.dll";
-        public string HookedDllName
-        {
-            get { return _HookedDllName; }
-            set { this.RaiseAndSetIfChanged(ref _HookedDllName, value); }
-        }
-
-        string _HookedFnName = "GetControllerStateWithPose";
-        public string HookedFnName
-        {
-            get { return _HookedFnName; }
-            set { this.RaiseAndSetIfChanged(ref _HookedFnName, value); }
-        }
-
-
         // Constructor
 
-        private readonly DeviceManager DeviceManager;
+        private readonly PocketStrafeDeviceManager DeviceManager;
         private readonly DNSNetworkService DnsServer;
         private readonly ScpVBus ScpVBus;
 
@@ -296,47 +284,26 @@ namespace CFW.ViewModel
                 });
 
             // Current vDevice ID
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.Id)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Id)
                 .ToProperty(this, x => x.CurrentDeviceID, out _CurrentDeviceID);
 
             // Keybind
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.Keybind)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Keybind)
                 .Do(x => Keybind = x)
                 .Subscribe();
 
-            // Cascade down Mode and Current Device ID
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.Mode)
-                .ToProperty(this, x => x.Mode, out _Mode);
-
-            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeWASD)
-                .ToProperty(this, x => x.KeyboardOutput, out _KeyboardOutput);
-
-            this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
-                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id > 1000 && id < 1005)
-                .ToProperty(this, x => x.XboxOutput, out _XboxOutput);
-
-            this.WhenAnyValue(x => x.Mode, x => x.CurrentDeviceID, (m, id) =>
-                (m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeJoystickDecoupled) && id < 17 && id > 0)
-                .ToProperty(this, x => x.VJoyOutput, out _VJoyOutput);
-
-            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeJoystickCoupled || m == SimulatorMode.ModeWASD)
-                .ToProperty(this, x => x.CoupledOutput, out _CoupledOutput);
-
-            this.WhenAnyValue(x => x.Mode, m => m == SimulatorMode.ModeSteamVr)
-                .ToProperty(this, x => x.VrOutput, out _VrOutput);
-
-            this.WhenAnyValue(x => x.CoupledOutput, x => x ? "Coupled" : "Decoupled")
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.Coupled, x => x ? "Coupled" : "Decoupled")
                 .ToProperty(this, x => x.CoupledText, out _CoupledText);
 
             // Filter list of enabled devices to VJoyDevices list
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.EnabledDevices, x => x.Where(y => y > 0 && y < 17).ToList())
                  .ToProperty(this, x => x.VJoyDevices, out _VJoyDevices);
 
             // Set *DevicesExist property based on *Devices lists having values
             this.WhenAnyValue(x => x.VJoyDevices, x => x.Count > 0)
                 .ToProperty(this, x => x.VJoyDevicesExist, out _vJoyDevicesExist);
 
-            this.WhenAnyValue(x => x.DeviceManager.VDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
+            this.WhenAnyValue(x => x.DeviceManager.OutputDevice.EnabledDevices, x => x.Where(y => y > 1000 && y < 1005).Count() > 0)
                 .ToProperty(this, x => x.XboxDevicesExist, out _XboxDevicesExist);
 
             // No*Devices is the inverse of *DevicesExist
@@ -372,54 +339,33 @@ namespace CFW.ViewModel
             //
             KeyboardMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.RelinquishCurrentDevice(silent: true));
-                await UpdateMode((int)SimulatorMode.ModeWASD);
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 1));
             });
 
             ChangeKeybind = ReactiveCommand.CreateFromTask(ChangeKeybindImpl);
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
-                await Task.Run(() => DeviceManager.AcquireVDev((uint)id));
-                if (CoupledOutput)
-                {
-                    log.Info("Update mode to coupled");
-                    await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-                }
-                else
-                {
-                    log.Info("Update mode to decoupled");
-                    await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
-                }
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, ((uint)id)));
             });
 
             AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireVJoyDeviceImpl);
 
             XboxMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.AcquireVDev(0));
-                if (CoupledOutput)
-                {
-                    log.Info("Update mode to coupled");
-                    await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-                }
-                else
-                {
-                    log.Info("Update mode to decoupled");
-                    await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
-                }
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vXbox, 0));
             });
 
             VrMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.RelinquishCurrentDevice(silent: true));
-                await UpdateMode((int)SimulatorMode.ModeSteamVr);
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVRInject, 0));
             });
 
-            AcquireDevice = ReactiveCommand.CreateFromTask(async _ => 
+            OpenVrEmulatorMode = ReactiveCommand.CreateFromTask(async _ =>
             {
-                await Task.Run(() => DeviceManager.AcquireVDev(CurrentDeviceID));
+                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVREmulator, 0));
             });
+
             CoupledDecoupled = ReactiveCommand.CreateFromTask(CoupledDecoupledImpl);
             VJoyInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => VJoyInfoDialog.ShowVJoyInfoDialog()));
             VXboxInfo = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => ShowScpVbusDialog()));
@@ -501,6 +447,7 @@ namespace CFW.ViewModel
         public ReactiveCommand VJoyMode { get; set; }
         public ReactiveCommand XboxMode { get; set; }
         public ReactiveCommand VrMode { get; set; }
+        public ReactiveCommand OpenVrEmulatorMode { get; set; }
         public ReactiveCommand AcquireDevice { get; set; }
         public ReactiveCommand AddRemoveSecondaryDevice { get; set; }
         public ReactiveCommand PlayPause { get; set; }
@@ -522,40 +469,28 @@ namespace CFW.ViewModel
 
         private async Task CoupledDecoupledImpl()
         {
-            if (KeyboardOutput) return;
-            if (CoupledOutput)
-            {
-                await UpdateMode((int)SimulatorMode.ModeJoystickDecoupled);
-            }
-            else
-            {
-                await UpdateMode((int)SimulatorMode.ModeJoystickCoupled);
-            }
+            await Task.Run(() => DeviceManager.OutputDevice.SetCoupledLocomotion(CoupledOutput));
         }
 
         private async Task ChangeKeybindImpl()
         {
-            await Task.Run(() => DeviceManager.VDevice.SetKeybind(Keybind));
+            await Task.Run(() => DeviceManager.SetKeybind(Keybind));
             KeybindChanged = false;
-        }
-
-        private async Task UpdateMode(int mode)
-        {
-            await Task.Run(() => DeviceManager.TryMode(mode));
         }
 
         private async Task UnplugAllXboxImpl()
         {
-            await Task.Run(() => DeviceManager.ForceUnplugAllXboxControllers());
-            await UpdateMode((int)SimulatorMode.ModeWASD);
+            await Task.Run(() =>
+            {
+                DeviceManager.ForceUnplugAllXboxControllers();
+                DeviceManager.GetNewOutputDevice(OutputDeviceType.Keyboard, 1);
+            });
         }
 
         private async Task AcquireVJoyDeviceImpl()
         {
             uint id = (uint)(CurrentVJoyDevice ?? VJoyDevices.FirstOrDefault());
-
-            await Task.Run(() => DeviceManager.AcquireVDev(id));
-            await Task.Run(() => DeviceManager.TryMode(CoupledOutput ? (int)SimulatorMode.ModeJoystickCoupled : (int)SimulatorMode.ModeJoystickDecoupled));
+            await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id));
         }
 
         private async Task InjectProcImpl()
