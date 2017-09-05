@@ -264,6 +264,12 @@ namespace PocketStrafe
             log.Info("Started timer to update VDevice with interval " + VDeviceUpdateTimer.Interval.ToString() + "ms, max of " + MaxInterpolateCount.ToString() + " times.");
         }
 
+        public void SetCoupledLocomotion(bool coupled)
+        {
+            VXbox.SetCoupledLocomotion(coupled);
+            VJoy.SetCoupledLocomotion(coupled);
+        }
+
         /// <summary>
         /// Invert an axis on the virutal device.
         /// </summary>

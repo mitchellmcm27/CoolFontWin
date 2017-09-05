@@ -399,7 +399,10 @@ namespace PocketStrafe.ViewModel
 
             VJoyMode = ReactiveCommand.CreateFromTask<int>(async (id) =>
             {
-                await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id: (uint)id));
+                await Task.Run(() => {
+                    DeviceManager.GetNewOutputDevice(OutputDeviceType.vJoy, id: (uint)id);
+                    DeviceManager.VJoy.GetEnabledDevices();
+                });
             });
 
             AcquireVJoyDevice = ReactiveCommand.CreateFromTask(AcquireVJoyDeviceImpl);
@@ -519,7 +522,7 @@ namespace PocketStrafe.ViewModel
 
         private async Task CoupledDecoupledImpl()
         {
-            await Task.Run(() => DeviceManager.OutputDevice.SetCoupledLocomotion(!CoupledOutput));
+            await Task.Run(() => DeviceManager.SetCoupledLocomotion(!CoupledOutput));
         }
 
         private async Task ChangeKeybindImpl()

@@ -45,7 +45,7 @@
                 VerticalAlignment="Bottom"
                 Style="{DynamicResource MaterialDesignFlatButton}"
                 Command="{Binding UnplugAllXboxCommand}" Content="Reset" />
-            
+
             <Grid Margin="8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -143,7 +143,7 @@
                                 ToolTip="In coupled locomotion games, movement direction is bound to look direction"
                                 HorizontalAlignment="Left" Margin="43,0,0,24">
                         <ToggleButton Style="{DynamicResource MaterialDesignFlatToggleButton}" Width="20" Height="20" Margin="0,0,8,0"
-                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" IsEnabled="{Binding XboxOutput}" Command="{Binding CoupledDecoupled}">
+                                      IsChecked="{Binding CoupledOutput, Mode=OneWay}" Command="{Binding CoupledDecoupled}">
                             <ToggleButton.Content>
                                 <materialDesign:PackIcon Kind="LinkVariant" Width="16" Height="16" />
                             </ToggleButton.Content>
@@ -190,6 +190,7 @@
                              CommandParameter="{Binding ElementName=VJoyDevices, Path=SelectedItem}" />
                         <Rectangle Fill="{DynamicResource MaterialDesignBody}" VerticalAlignment="Center" Margin="8,0,8,0"
                                    Width="18" Height="18">
+                            
                             <Rectangle.OpacityMask>
                                 <ImageBrush  ImageSource="/PocketStrafe;component/Resources/joystick.png" Stretch="None" />
                             </Rectangle.OpacityMask>
@@ -383,7 +384,7 @@
                                 Command="{Binding SetupOpenVrBindings}"
                                 Visibility="{Binding OpenVrOutput, Converter={StaticResource BoolToHiddenConverter}}">
 
-                                <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />
+                            <materialDesign:PackIcon Kind="Settings" Height="18" Width="18" />
                         </Button>
                         <TextBlock VerticalAlignment="Center">Virtual Vive wand</TextBlock>
                     </StackPanel>

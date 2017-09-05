@@ -74,7 +74,7 @@
 
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Primary mobile</TextBlock>
                     </StackPanel>
-                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="11">PocketStrafe app</TextBlock>
                 </Grid>
 
@@ -91,7 +91,7 @@
                                                  Width="18" Height="18" />
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top" ToolTip="Another phone in your other pocket">Secondary mobile</TextBlock>
                     </StackPanel>
-                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="11">PocketStrafe app</TextBlock>
                 </Grid>
 
@@ -114,7 +114,7 @@
                         </Rectangle>
                         <TextBlock VerticalAlignment="Center" DockPanel.Dock="Top">Xbox controller</TextBlock>
                     </StackPanel>
-                    <TextBlock Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
+                    <TextBlock Foreground="{DynamicResource MaterialDesignBodyLight}" Grid.Row="2" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="72,0,24,0"
                                IsEnabled="False" FontSize="11">Physical controller</TextBlock>
                 </Grid>
             </Grid>

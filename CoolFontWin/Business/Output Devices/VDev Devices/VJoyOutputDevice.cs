@@ -56,36 +56,53 @@ namespace PocketStrafe.Output
 
         public void Update()
         {
-            // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
-            AddJoystickConstants();
+            BaseUpdate();
 
-            // clamp values to min/max
-            _State.X = Algorithm.Clamp(_State.X, _MinAxis, _MaxAxis);
-            _State.Y = Algorithm.Clamp(_State.Y, _MinAxis, _MaxAxis);
-            _State.RX = Algorithm.Clamp(_State.RX, _MinAxis, _MaxAxis);
-            _State.RY = Algorithm.Clamp(_State.RY, _MinAxis, _MaxAxis);
-            _State.Z = Algorithm.Clamp(_State.Z, 0, 255);
-            _State.RZ = Algorithm.Clamp(_State.RZ, 0, 255);
+            // NOTE: useful to instantly see direction user is facing, but commented out in case it interferes with games
+            // _Joystick.SetDevPov(this._HDev, 1, _State.POV);
 
-            _Joystick.SetDevAxis(_HDev, 1, _State.X);
-            _Joystick.SetDevAxis(_HDev, 2, _State.Y);
-            _Joystick.SetDevAxis(_HDev, 3, _State.Z);
-            _Joystick.SetDevAxis(_HDev, 4, _State.RX);
-            _Joystick.SetDevAxis(_HDev, 5, _State.RY);
-            _Joystick.SetDevAxis(_HDev, 6, _State.RZ);
+            // vJoy deals with arrow buttons by controlling the main joystick
+            double val = -1;
+            if ((_State.Buttons & PocketStrafeButtons.ButtonUp) != 0)
+            {
+                if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+                {
+                    val = 45;
+                }
+                else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                {
+                    val = 315;
+                }
+                else { val = 0; }
+            }
+            else if ((_State.Buttons & PocketStrafeButtons.ButtonDown) != 0)
+            {
+                if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+                {
+                    val = 225;
+                }
+                else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+                {
+                    val = 135;
+                }
+                else { val = 180; }
+            }
+            else if ((_State.Buttons & PocketStrafeButtons.ButtonRight) != 0)
+            {
+                val = 90;
+            }
+            else if ((_State.Buttons & PocketStrafeButtons.ButtonLeft) != 0)
+            {
+                val = 270;
+            }
 
-            _Joystick.SetDevButton(_HDev, 1, (_State.Buttons & PocketStrafeButtons.ButtonA) != 0);
-            _Joystick.SetDevButton(_HDev, 2, (_State.Buttons & PocketStrafeButtons.ButtonB) != 0);
-            _Joystick.SetDevButton(_HDev, 3, (_State.Buttons & PocketStrafeButtons.ButtonX) != 0);
-            _Joystick.SetDevButton(_HDev, 4, (_State.Buttons & PocketStrafeButtons.ButtonY) != 0);
-            _Joystick.SetDevButton(_HDev, 5, (_State.Buttons & PocketStrafeButtons.ButtonLTrigger) != 0);
-            _Joystick.SetDevButton(_HDev, 6, (_State.Buttons & PocketStrafeButtons.ButtonRTrigger) != 0);
-            _Joystick.SetDevButton(_HDev, 7, (_State.Buttons & PocketStrafeButtons.ButtonBack) != 0);
-            _Joystick.SetDevButton(_HDev, 8, (_State.Buttons & PocketStrafeButtons.ButtonStart) != 0);
-            _Joystick.SetDevButton(_HDev, 9, (_State.Buttons & PocketStrafeButtons.ButtonLAnalog) != 0);
-            _Joystick.SetDevButton(_HDev, 10, (_State.Buttons & PocketStrafeButtons.ButtonRAnalog) != 0);
-
-            _Joystick.SetDevPov(this._HDev, 1, _State.POV);
+            if (val > -1)
+            {
+                var x = _MaxAxis / 2 + _MaxAxis * Math.Sin(val * Math.PI / 180.0);
+                var y = _MaxAxis / 2 + _MaxAxis * Math.Cos(val * Math.PI / 180.0);
+                _Joystick.SetDevAxis(_HDev, 1, x);
+                _Joystick.SetDevAxis(_HDev, 2, y);
+            }
 
             ResetState();
         }

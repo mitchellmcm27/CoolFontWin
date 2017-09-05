@@ -46,7 +46,7 @@ namespace PocketStrafe.Output
         public List<int> EnabledDevices
         {
             get { return _EnabledDevices; }
-            protected set { _EnabledDevices = value; }
+            protected set { this.RaiseAndSetIfChanged(ref _EnabledDevices, value); }
         }
 
         protected bool _UserIsRunning;
@@ -231,7 +231,40 @@ namespace PocketStrafe.Output
             // _State.RZ += 0;
         }
 
-        protected void NeutralizeCurrentDevice()
+        protected void BaseUpdate()
+        {
+            // vJoy joysticks are generally neutral at 50% values, this function takes care of that.
+            AddJoystickConstants();
+
+            // clamp values to min/max
+            _State.X = Algorithm.Clamp(_State.X, _MinAxis, _MaxAxis);
+            _State.Y = Algorithm.Clamp(_State.Y, _MinAxis, _MaxAxis);
+            _State.RX = Algorithm.Clamp(_State.RX, _MinAxis, _MaxAxis);
+            _State.RY = Algorithm.Clamp(_State.RY, _MinAxis, _MaxAxis);
+            _State.Z = Algorithm.Clamp(_State.Z, 0, 255);
+            _State.RZ = Algorithm.Clamp(_State.RZ, 0, 255);
+
+            _Joystick.SetDevAxis(_HDev, 1, _State.X);
+            _Joystick.SetDevAxis(_HDev, 2, _State.Y);
+            _Joystick.SetDevAxis(_HDev, 3, _State.Z);
+            _Joystick.SetDevAxis(_HDev, 4, _State.RX);
+            _Joystick.SetDevAxis(_HDev, 5, _State.RY);
+            _Joystick.SetDevAxis(_HDev, 6, _State.RZ);
+
+            _Joystick.SetDevButton(_HDev, 1, (_State.Buttons & PocketStrafeButtons.ButtonA) != 0);
+            _Joystick.SetDevButton(_HDev, 2, (_State.Buttons & PocketStrafeButtons.ButtonB) != 0);
+            _Joystick.SetDevButton(_HDev, 3, (_State.Buttons & PocketStrafeButtons.ButtonX) != 0);
+            _Joystick.SetDevButton(_HDev, 4, (_State.Buttons & PocketStrafeButtons.ButtonY) != 0);
+            _Joystick.SetDevButton(_HDev, 5, (_State.Buttons & PocketStrafeButtons.ButtonLTrigger) != 0);
+            _Joystick.SetDevButton(_HDev, 6, (_State.Buttons & PocketStrafeButtons.ButtonRTrigger) != 0);
+            _Joystick.SetDevButton(_HDev, 7, (_State.Buttons & PocketStrafeButtons.ButtonBack) != 0);
+            _Joystick.SetDevButton(_HDev, 8, (_State.Buttons & PocketStrafeButtons.ButtonStart) != 0);
+            _Joystick.SetDevButton(_HDev, 9, (_State.Buttons & PocketStrafeButtons.ButtonLAnalog) != 0);
+            _Joystick.SetDevButton(_HDev, 10, (_State.Buttons & PocketStrafeButtons.ButtonRAnalog) != 0);
+
+        }
+
+            protected void NeutralizeCurrentDevice()
         {
             log.Info("Feeding vJoy device with neutral values.");
             _Joystick.ResetAll();
