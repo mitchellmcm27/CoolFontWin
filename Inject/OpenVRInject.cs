@@ -147,7 +147,7 @@ namespace PocketStrafe.VR
                  * Note: you must do this for each hook.
                  */
                 GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                //GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
@@ -245,30 +245,34 @@ namespace PocketStrafe.VR
             LocalHook.Release();
         }
 
-        private void SetControllerState(ref VRControllerState_t pControllerState, uint unControllerDeviceIndex)
+        private void SetControllerState(IntPtr pControllerState, uint unControllerDeviceIndex)
         {
+            VRControllerState_t cs;
+            cs = (VRControllerState_t)Marshal.PtrToStructure(pControllerState, typeof(VRControllerState_t));
             if (UserRunning && unControllerDeviceIndex == ChosenDeviceIndex)
             {
                 if (ButtonType == PStrafeButtonType.Press)
                 {
-                    pControllerState.ulButtonPressed = pControllerState.ulButtonPressed | (1UL << ((int)RunButton));
+                    cs.ulButtonPressed = cs.ulButtonPressed | (1UL << ((int)RunButton));
                 }
 
-                pControllerState.ulButtonTouched = pControllerState.ulButtonTouched | (1UL << ((int)RunButton));
+                cs.ulButtonTouched = cs.ulButtonTouched | (1UL << ((int)RunButton));
 
                 if (RunButton == EVRButtonId.k_EButton_Axis0)
                 {
-                    pControllerState.rAxis0.y = 1.0f;
+                    cs.rAxis0.y = 1.0f;
                 }
                 else if (RunButton == EVRButtonId.k_EButton_SteamVR_Trigger)
                 {
-                    pControllerState.rAxis1.x = 1.0f;
+                    cs.rAxis1.x = 1.0f;
                 }
-                // Interface.Write("Touch");
+                Interface.Write("Touch");
+                Marshal.StructureToPtr(cs, pControllerState, true);
             }
             else
             {
             }
+           
         }
 
         public class ButtonEvent
@@ -282,31 +286,33 @@ namespace PocketStrafe.VR
 
         public ButtonEvent MyEvent = new ButtonEvent();
 
-        private bool CreateEvent(ref VREvent_t pEvent)
+        private bool CreateEvent(IntPtr pEvent)
         {
+            VREvent_t ev;
+            ev = (VREvent_t)Marshal.PtrToStructure(pEvent, typeof(VREvent_t));
             // First, touch the trackpad, then fully press it on the next event. This is reversed on Untouch/Unpress
             if (MyEvent.ShouldTouch && !MyEvent.TouchDone)
             {
-                pEvent.eventType = UserRunning ? (uint)EVREventType.VREvent_ButtonTouch : (uint)EVREventType.VREvent_ButtonUnpress;
+                ev.eventType = UserRunning ? (uint)EVREventType.VREvent_ButtonTouch : (uint)EVREventType.VREvent_ButtonUnpress;
                 MyEvent.TouchDone = true;
                 if (!MyEvent.ShouldPress) MyEvent.Queued = false;
             }
             else if (MyEvent.ShouldPress && !MyEvent.PressDone)
             {
-                pEvent.eventType = UserRunning ? (uint)EVREventType.VREvent_ButtonPress : (uint)EVREventType.VREvent_ButtonUntouch;
+                ev.eventType = UserRunning ? (uint)EVREventType.VREvent_ButtonPress : (uint)EVREventType.VREvent_ButtonUntouch;
                 MyEvent.PressDone = true;
                 MyEvent.Queued = false;
             }
-            pEvent.eventAgeSeconds = 0;
-            pEvent.trackedDeviceIndex = ChosenDeviceIndex;
-            pEvent.data.controller.button = (uint)RunButton;
+            ev.eventAgeSeconds = 0;
+            ev.trackedDeviceIndex = ChosenDeviceIndex;
+            ev.data.controller.button = (uint)RunButton;
             return true;
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate bool vr_GetControllerStateDelegate(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize);
+        private delegate bool vr_GetControllerStateDelegate(IntPtr instance, uint unControllerDeviceIndex, IntPtr pControllerState, uint unControllerStateSize);
 
-        private static bool GetControllerState_Hooked(IntPtr instance, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize)
+        private static bool GetControllerState_Hooked(IntPtr instance, uint unControllerDeviceIndex, IntPtr pControllerState, uint unControllerStateSize)
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
@@ -314,7 +320,7 @@ namespace PocketStrafe.VR
             try
             {
                 var getControllerState = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateDelegate>(This.GetControllerStatePtr);
-                res = getControllerState(instance, unControllerDeviceIndex, ref pControllerState, unControllerStateSize);
+                res = getControllerState(instance, unControllerDeviceIndex, pControllerState, unControllerStateSize);
                 /*
                 This.Interface.Write("GetControllerState");
                 This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
@@ -328,7 +334,7 @@ namespace PocketStrafe.VR
                 This.Interface.Write("    Axis 3 " + pControllerState.rAxis3.x + ", " + pControllerState.rAxis3.y);
                 This.Interface.Write("    Axis 4 " + pControllerState.rAxis4.x + ", " + pControllerState.rAxis4.y);
                 */
-                This.SetControllerState(ref pControllerState, unControllerDeviceIndex);
+                This.SetControllerState(pControllerState, unControllerDeviceIndex);
             }
             catch
             {
@@ -337,9 +343,9 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate bool vr_GetControllerStateWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose);
+        private delegate bool vr_GetControllerStateWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, IntPtr pControllerState, uint unControllerStateSize, IntPtr pTrackedDevicePose);
 
-        private static bool GetControllerStateWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, ref VRControllerState_t pControllerState, uint unControllerStateSize, ref TrackedDevicePose_t pTrackedDevicePose)
+        private static bool GetControllerStateWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, uint unControllerDeviceIndex, IntPtr pControllerState, uint unControllerStateSize, IntPtr pTrackedDevicePose)
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
@@ -359,8 +365,8 @@ namespace PocketStrafe.VR
             try
             {
                 var getControllerStateWithPose = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateWithPoseDelegate>(This.GetControllerStateWithPosePtr);
-                res = getControllerStateWithPose(instance, eOrigin, unControllerDeviceIndex, ref pControllerState, unControllerStateSize, ref pTrackedDevicePose);
-                This.SetControllerState(ref pControllerState, unControllerDeviceIndex);
+                res = getControllerStateWithPose(instance, eOrigin, unControllerDeviceIndex, pControllerState, unControllerStateSize, pTrackedDevicePose);
+                This.SetControllerState( pControllerState, unControllerDeviceIndex);
             }
             catch
             {
@@ -369,15 +375,16 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate bool vr_PollNextEventDelegate(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent);
+        private delegate bool vr_PollNextEventDelegate(IntPtr instance, IntPtr pEvent, uint uncbVREvent);
 
-        private static bool PollNextEvent_Hooked(IntPtr instance, ref VREvent_t pEvent, uint uncbVREvent)
+        private static bool PollNextEvent_Hooked(IntPtr instance, IntPtr pEvent, uint uncbVREvent)
         {
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
             try
             {
                 var pollNextEvent = Marshal.GetDelegateForFunctionPointer<vr_PollNextEventDelegate>(This.PollNextEventPtr);
-                bool res = pollNextEvent(instance, ref pEvent, uncbVREvent);
+                
+                bool res = pollNextEvent(instance, pEvent, uncbVREvent);
                 if (res)
                 {
                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
@@ -386,7 +393,7 @@ namespace PocketStrafe.VR
                 }
                 else if (This.MyEvent.Queued)
                 {
-                    res = This.CreateEvent(ref pEvent);
+                    res = This.CreateEvent(pEvent);
                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
                     //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
@@ -400,16 +407,16 @@ namespace PocketStrafe.VR
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate bool vr_PollNextEventWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose);
+        private delegate bool vr_PollNextEventWithPoseDelegate(IntPtr instance, ETrackingUniverseOrigin eOrigin, IntPtr pEvent, uint uncbVREvent, IntPtr pTrackedDevicePose);
 
-        private static bool PollNextEventWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, ref VREvent_t pEvent, uint uncbVREvent, ref TrackedDevicePose_t pTrackedDevicePose)
+        private static bool PollNextEventWithPose_Hooked(IntPtr instance, ETrackingUniverseOrigin eOrigin, IntPtr pEvent, uint uncbVREvent, IntPtr pTrackedDevicePose)
         {
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
             bool res = false;
             try
             {
                 var pollNextEventWithPose = Marshal.GetDelegateForFunctionPointer<vr_PollNextEventWithPoseDelegate>(This.PollNextEventPtr);
-                res = pollNextEventWithPose(instance, eOrigin, ref pEvent, uncbVREvent, ref pTrackedDevicePose);
+                res = pollNextEventWithPose(instance, eOrigin, pEvent, uncbVREvent, pTrackedDevicePose);
                 if (res)
                 {
                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
@@ -418,7 +425,7 @@ namespace PocketStrafe.VR
                 }
                 else if (This.MyEvent.Queued)
                 {
-                    res = This.CreateEvent(ref pEvent);
+                    res = This.CreateEvent(pEvent);
                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);
                     //This.Interface.Write("Device index: " + pEvent.trackedDeviceIndex);
                     return true;
