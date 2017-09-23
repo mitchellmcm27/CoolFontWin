@@ -17,7 +17,7 @@ namespace PocketStrafe
             var list = new List<string>();
             foreach (var proc in Process.GetProcesses())
             {
-                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName) && Is64Bit(proc))
+                if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName))// && Is64Bit(proc))
                 {
                     list.Add(proc.ProcessName);
                 }
