@@ -416,6 +416,7 @@ namespace PocketStrafe.ViewModel
             {
                 await Task.Run(() => DeviceManager.GetNewOutputDevice(OutputDeviceType.OpenVRInject));
             });
+            VrMode.ThrownExceptions.Subscribe(ex => MessageBox.Show(ex.Message));
 
             OpenVrEmulatorMode = ReactiveCommand.CreateFromTask(async _ =>
             {
