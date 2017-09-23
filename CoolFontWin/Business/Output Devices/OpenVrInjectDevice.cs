@@ -5,6 +5,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 
@@ -22,6 +23,8 @@ namespace PocketStrafe.Output
         public uint Id { get { return 1; } }
         private List<int> _EnabledDevices = new List<int>() { 1 };
         public List<int> EnabledDevices { get { return _EnabledDevices; } }
+        private string _InjectDll;
+        
 
         private string _Keybind;
 
@@ -43,6 +46,7 @@ namespace PocketStrafe.Output
 
         public OpenVrInjectDevice()
         {
+            _InjectDll = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Inject.dll");
         }
 
         public void Connect(uint id)
@@ -53,9 +57,9 @@ namespace PocketStrafe.Output
         public void Connect()
         {
             _ChannelName = null;
+            log.Info("Dll to inject: " + _InjectDll);
             try
             {
-                //Config.Register("PocketStrafe", "PocketStrafeInterface.dll", "Inject.dll");
                 log.Info("  Creating IPC server");
                 IpcServer = RemoteHooking.IpcCreateServer<PSInterface>(
                     ref _ChannelName, System.Runtime.Remoting.WellKnownObjectMode.Singleton);
@@ -132,14 +136,12 @@ namespace PocketStrafe.Output
             {
                 log.Info("Inject PocketStrafe into " + proc + "...");
                 var p = Process.GetProcessesByName(proc)[0];
-                var injectDll = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(PocketStrafeBootStrapper).Assembly.Location), "Inject.dll");
-                log.Info("  Injecting " + injectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
-
+                log.Info("  Injecting " + _InjectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
                 RemoteHooking.Inject(
                     p.Id,
                     InjectionOptions.DoNotRequireStrongName,
-                    injectDll,
-                    injectDll,
+                    _InjectDll,
+                    _InjectDll,
                     _ChannelName);
 
                 for (int i = 0; i < 20; i++)
