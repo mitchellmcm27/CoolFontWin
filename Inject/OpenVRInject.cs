@@ -306,6 +306,7 @@ namespace PocketStrafe.VR
             ev.eventAgeSeconds = 0;
             ev.trackedDeviceIndex = ChosenDeviceIndex;
             ev.data.controller.button = (uint)RunButton;
+            Marshal.StructureToPtr(ev, pEvent, true);
             return true;
         }
 
@@ -383,8 +384,7 @@ namespace PocketStrafe.VR
             try
             {
                 var pollNextEvent = Marshal.GetDelegateForFunctionPointer<vr_PollNextEventDelegate>(This.PollNextEventPtr);
-                
-                bool res = pollNextEvent(instance, pEvent, uncbVREvent);
+                bool res = pollNextEvent(instance, pEvent, uncbVREvent); // CRASH on 32 bit
                 if (res)
                 {
                     //This.Interface.Write("Event type: " + (EVREventType)pEvent.eventType);

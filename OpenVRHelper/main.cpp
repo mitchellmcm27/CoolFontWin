@@ -1,19 +1,3 @@
-/*
-	Author	: Justin S
-	Date	: March 14th, 2010
-
-	Credits :
-		Matthew L (Azorbix) @ http://www.game-deception.com
-		Plenty of background information and examples on hooking (and I used the add_log function from there).
-
-	Tools used:
-		Microsoft Visual Studio .NET 2008
-		Microsoft DirectX SDK (February 2010)
-
-	Information:
-		This D3D helper was developed for an article on Direct3D 9 hooking at http://spazzarama.wordpress.com
-*/
-
 // Check windows
 #if _WIN32 || _WIN64
 #if _WIN64
