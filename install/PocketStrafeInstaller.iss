@@ -40,7 +40,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Include Bonjour for Windows installer
 Source: "Bonjour64.msi"; DestDir: "{tmp}"; Flags: deleteafterinstall
 ; Include pocketstrafe exe
-Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\CoolFontWin.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\PocketStrafe.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; Include the rest of the files
 Source: "E:\Documents\Developer\CoolFontWin\CoolFontWin\bin\x64\Release\*"; Excludes: "*.pdb, *.xml, *.manifest, *vshost*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
