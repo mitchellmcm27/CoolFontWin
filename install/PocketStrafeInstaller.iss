@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "PocketStrafe PC"
-#define MyAppVersion "1.5"
+#define MyAppVersion "1.5.1"
 #define MyAppPublisher "Cool Font LLC"
 #define MyAppURL "http://www.pocketstrafe.com"
 #define MyAppExeName "CoolFontWin.exe"
