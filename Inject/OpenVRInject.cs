@@ -247,8 +247,7 @@ namespace PocketStrafe.VR
 
         private void SetControllerState(IntPtr pControllerState, uint unControllerDeviceIndex)
         {
-            VRControllerState_t cs;
-            cs = (VRControllerState_t)Marshal.PtrToStructure(pControllerState, typeof(VRControllerState_t));
+            VRControllerState_t cs = (VRControllerState_t)Marshal.PtrToStructure(pControllerState, typeof(VRControllerState_t));
             if (UserRunning && unControllerDeviceIndex == ChosenDeviceIndex)
             {
                 if (ButtonType == PStrafeButtonType.Press)
@@ -260,13 +259,15 @@ namespace PocketStrafe.VR
 
                 if (RunButton == EVRButtonId.k_EButton_Axis0)
                 {
+                    // -1 to 1
                     cs.rAxis0.y = 1.0f;
                 }
-                else if (RunButton == EVRButtonId.k_EButton_SteamVR_Trigger)
+                else if (RunButton == EVRButtonId.k_EButton_Axis1)
                 {
+                    // 0 to 1
                     cs.rAxis1.x = 1.0f;
                 }
-                Interface.Write("Touch");
+                //Interface.Write("Touch");
                 Marshal.StructureToPtr(cs, pControllerState, true);
             }
             else

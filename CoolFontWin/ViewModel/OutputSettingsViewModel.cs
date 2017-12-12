@@ -268,9 +268,9 @@ namespace PocketStrafe.ViewModel
 
         // must keep these 2 lists in sync
         private List<Valve.VR.EVRButtonId> _ViveControllerButtonId = new List<Valve.VR.EVRButtonId> {
-            Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad,
+            Valve.VR.EVRButtonId.k_EButton_Axis0,
             Valve.VR.EVRButtonId.k_EButton_Grip,
-            Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger
+            Valve.VR.EVRButtonId.k_EButton_Axis1
         };
 
         private List<string> _ViveControllerButton = new List<string> { "Touchpad", "Grip", "Trigger" };
