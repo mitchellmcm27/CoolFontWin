@@ -39,16 +39,9 @@ void *pGenericInterface;
 
 extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(short methodIndex, const int methodCount)
 {
-	// There are 119 functions defined in the IDirect3DDevice9 interface (including our 3 IUnknown methods QueryInterface, AddRef, and Release)
-	const int interfaceMethodCount = methodCount;
-
-	// If we do not yet have the addresses, we need to create our own Direct3D Device and determine the addresses of each of the methods
-	// Note: to create a Direct3D device we need a valid HWND - in this case we will create a temporary window ourselves - but it could be a HWND
-	//       passed through as a parameter of this function or some other initialisation export.
 	if (!g_deviceFunctionAddresses) 
 	{
 		// Ensure hook dll is loaded
-
 		__try 
 		{
 			add_log("Load openvr_api.dll...");
@@ -74,11 +67,9 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 
 			char buffer[320];
 			GetModuleFileNameA(hMod, buffer, sizeof(buffer));
-			
 			add_log("  Module path: %s", buffer);
 
 			const char *ver;
-
 			bool installed = vr::VR_IsRuntimeInstalled();
 			add_log("  Runtime installed? %s", installed ? "YES" : "NO");
 
@@ -90,7 +81,6 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 
 			bool hmd = vr::VR_IsHmdPresent();
 			add_log("  HMD Present? %s", hmd ? "YES" : "NO");
-
 			if (!hmd)
 			{
 				add_log("    No HMD, returning 0");
@@ -99,7 +89,6 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 
 			// request generic interface
 			ver = vr::IVRSystem_Version;
-				
 			bool valid_version = vr::VR_IsInterfaceVersionValid(ver);
 			add_log("  Interface version %s valid? %s", ver, valid_version ? "YES" : "NO");
 
@@ -144,12 +133,12 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 				{
 					pInterfaceVTable = (uintptr_t*)*(uintptr_t*)pVRSystem;
 				}
-				g_deviceFunctionAddresses = new void*[interfaceMethodCount]; // array size depends on how many methods
+				g_deviceFunctionAddresses = new void*[methodCount]; // array size depends on how many methods
 
 				// Retrieve the addresses of each of the methods (note first 3 IUnknown methods)
 				// See steamvr.h to see the list of methods, the order they appear there
 				// is the order they appear in the VTable, 1st one is index 0 and so on.
-				for (int i=0; i<interfaceMethodCount; i++) {
+				for (int i=0; i<methodCount; i++) {
 					g_deviceFunctionAddresses[i] = (void*)pInterfaceVTable[i];
 						
 					// Log the address offset
