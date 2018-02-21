@@ -29,7 +29,7 @@
         GetTimeSinceLastVsync,
         GetD3D9AdapterIndex,
         GetDXGIOutputInfo,
-        GetOutputDevice, // 1.06
+        GetOutputDevice,
         IsDisplayOnDesktop,
         SetDisplayVisibility,
         GetDeviceToAbsoluteTrackingPose,
@@ -48,7 +48,7 @@
         GetInt32TrackedDeviceProperty,
         GetUint64TrackedDeviceProperty,
         GetMatrix34TrackedDeviceProperty,
-        GetArrayTrackedDeviceProperty, // 1.0 something
+        GetArrayTrackedDeviceProperty,
         GetStringTrackedDeviceProperty,
         GetPropErrorNameFromEnum,
         PollNextEvent,
