@@ -126,7 +126,7 @@ namespace PocketStrafe.Output
             ResetState();
         }
 
-        public void InjectControllerIntoProcess(string proc)
+        public void InjectControllerIntoProcess(Process p)
         {
             if (!Valve.VR.OpenVR.IsHmdPresent())
             {
@@ -134,8 +134,6 @@ namespace PocketStrafe.Output
             }
             try
             {
-                log.Info("Inject PocketStrafe into " + proc + "...");
-                var p = Process.GetProcessesByName(proc)[0];
                 log.Info("  Injecting " + _InjectDll + " into " + p.ProcessName + " " + "(" + p.Id + ")");
                 RemoteHooking.Inject(
                     p.Id,

@@ -289,9 +289,10 @@
                                   Width="184"
                                   HorizontalAlignment="Left"
                                   FontSize="11"
-                                  materialDesign:HintAssist.Hint="Select game"
+                                  materialDesign:HintAssist.Hint="Select game"    
                                   ItemsSource="{Binding RunningProcs, TargetNullValue=''}"
                                   SelectedItem="{Binding SelectedProc, TargetNullValue=''}"
+                                  DisplayMemberPath="MainWindowTitle"
                                   IsSynchronizedWithCurrentItem="true" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

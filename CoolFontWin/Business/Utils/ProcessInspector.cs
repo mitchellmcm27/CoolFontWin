@@ -11,15 +11,15 @@ namespace PocketStrafe
         private static readonly ILog log =
         LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static List<string> GetProcesses()
+        public static List<Process> GetProcesses()
         {
             var thisName = Process.GetCurrentProcess().ProcessName;
-            var list = new List<string>();
+            var list = new List<Process>();
             foreach (var proc in Process.GetProcesses())
             {
                 if (proc.MainWindowTitle.Length > 0 && !proc.ProcessName.Equals(thisName))// && Is64Bit(proc))
                 {
-                    list.Add(proc.ProcessName);
+                    list.Add(proc);
                 }
             }
             return list;

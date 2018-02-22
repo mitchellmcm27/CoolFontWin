@@ -189,23 +189,23 @@ namespace PocketStrafe.ViewModel
         }
 
         private readonly ObservableAsPropertyHelper<string> _InjectText;
-
         public string InjectText
         {
             get { return _InjectText.Value; }
         }
 
-        public ReactiveList<string> RunningProcs { get; set; }
+        public ReactiveList<Process> RunningProcs { get; set; }
 
-        public ReactiveList<string> InjectedProcs { get; set; }
+        public ReactiveList<Process> InjectedProcs { get; set; }
 
-        private string _SelectedProc;
-
-        public string SelectedProc
+        private Process _SelectedProc;
+        public Process SelectedProc
         {
             get { return _SelectedProc; }
             set { this.RaiseAndSetIfChanged(ref _SelectedProc, value); }
         }
+
+  
 
         private readonly ObservableAsPropertyHelper<bool> _ProcsRefreshing;
 
@@ -433,22 +433,24 @@ namespace PocketStrafe.ViewModel
             JoyCplCommand = ReactiveCommand.CreateFromTask(async _ => await Task.Run(() => Process.Start("joy.cpl")));
             UnplugAllXboxCommand = ReactiveCommand.CreateFromTask(UnplugAllXboxImpl);
 
-            RunningProcs = new ReactiveList<string>();
+            RunningProcs = new ReactiveList<Process>();
 
             RefreshProcs = ReactiveCommand.CreateFromTask(async () =>
             {
-                RunningProcs.Clear();
                 var procs = await Task.Run(() =>
-                    {
-                        return ProcessInspector.GetProcesses().Distinct().OrderBy(x => x);
-                    });
-                foreach (string proc in procs)
                 {
-                    RunningProcs.Add(proc);
+                    return ProcessInspector.GetProcesses().OrderBy(x => x.ProcessName);
+                });
+                RunningProcs.Clear();
+                foreach (var p in procs)
+                {
+                    RunningProcs.Add(p);
                 }
+                
             });
             RefreshProcs.ThrownExceptions
                 .Subscribe(ex => log.Error("RefreshProcs: " + ex));
+            
 
             RefreshProcs.IsExecuting
                 .Throttle(TimeSpan.FromMilliseconds(250))
@@ -460,14 +462,17 @@ namespace PocketStrafe.ViewModel
             Observable.Return(Unit.Default)
                 .InvokeCommand(RefreshProcs);
 
-            InjectedProcs = new ReactiveList<string>();
+            InjectedProcs = new ReactiveList<Process>();
             InjectedProcs.ItemsAdded
-                .Select(_ => InjectedProcs.Contains(SelectedProc))
+                .Select(_ => InjectedProcs.Select(p=>p.Id).ToList().Contains(SelectedProc.Id))
                 .Do(x => InjectedIntoSelected = x)
                 .Subscribe();
 
+            this.WhenAnyValue(x => x.SelectedProc)
+                .Do(p => log.Debug("selected " + p)).Subscribe();
+
             var canInject = this
-                .WhenAnyValue(x => x.SelectedProc, x => !string.IsNullOrEmpty(x));
+                .WhenAnyValue(x => x.SelectedProc).Select(p => p != null);
 
             InjectProc = ReactiveCommand.CreateFromTask(InjectProcImpl, canInject);
 
@@ -551,11 +556,13 @@ namespace PocketStrafe.ViewModel
         {
             if (!Injected && DeviceManager.OutputDevice.Type == OutputDeviceType.OpenVRInject)
             {
-                await Task.Run(() => DeviceManager.Inject.InjectControllerIntoProcess(this.SelectedProc));
+                var proc = SelectedProc;
+                if (proc == null) throw new Exception("Game not selected");
+                await Task.Run(() => DeviceManager.Inject.InjectControllerIntoProcess(proc));
                 Injected = true;
                 if (Injected)
                 {
-                    InjectedProcs.Add(SelectedProc);
+                    InjectedProcs.Add(proc);
                     await UpdateHookInterfaceImpl();
                 }
             }
