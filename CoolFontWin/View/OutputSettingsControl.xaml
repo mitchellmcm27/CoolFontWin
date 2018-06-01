@@ -19,13 +19,10 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <System:Double x:Key="SelectedMargin">24</System:Double>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
+    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0" Background="#E530363C">
         <DockPanel VerticalAlignment="Stretch">
             <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark" DockPanel.Dock="Top">
@@ -33,8 +30,16 @@
                     <TextBlock HorizontalAlignment="Center" Margin="16" FontSize="16"
                            Text="Output Device" />
                     <Button Margin="0,0,0,0" Command="{Binding JoyCplCommand}" DockPanel.Dock="Right" ToolTip="Windows USB device properties"
-                                Style="{StaticResource MaterialDesignToolForegroundButton}">
-                        <materialDesign:PackIcon Kind="Gauge" Height="24" Width="24" />
+                                Style="{StaticResource MaterialDesignToolForegroundButton}" Opacity="0.6">
+                        <materialDesign:PackIcon Kind="Magnify" Height="24" Width="24" />
+                        <Button.Triggers>
+                            <EventTrigger RoutedEvent="Control.MouseEnter">
+                                <BeginStoryboard Storyboard="{StaticResource FadeIn}" />
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="Control.MouseLeave">
+                                <BeginStoryboard Storyboard="{StaticResource FadeOut}" />
+                            </EventTrigger>
+                        </Button.Triggers>
                     </Button>
                 </StackPanel>
             </materialDesign:ColorZone>
@@ -116,9 +121,17 @@
                                 VerticalAlignment="Center"
                                 ToolTip="Info on installing virtual joysticks"
                                 Command="{Binding VXboxInfo}"
-                                IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                IsEnabled="{Binding NoXboxDevices}" Visibility="{Binding NoXboxDevices, Converter={StaticResource BooleanToVisibilityConverter}}" Opacity="0.6">
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Control.MouseEnter">
+                                    <BeginStoryboard Storyboard="{StaticResource FadeIn}" />
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="Control.MouseLeave">
+                                    <BeginStoryboard Storyboard="{StaticResource FadeOut}" />
+                                </EventTrigger>
+                            </Button.Triggers>
                             <materialDesign:PackIcon Kind="AlertCircle" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                             Width="19" Height="19" Foreground="{DynamicResource SecondaryAccentBrush}" />
+                                             Width="19" Height="19" Foreground="White" />
                         </Button>
                         <RadioButton x:Name="XboxOutput"
                                      GroupName="Output"
@@ -179,9 +192,17 @@
                                 ToolTip="Info on installing virtual joysticks"
                                 Command="{Binding VJoyInfo}"
                                 IsEnabled="{Binding NoVJoyDevices}"
-                                Visibility="{Binding NoVJoyDevices, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                Visibility="{Binding NoVJoyDevices, Converter={StaticResource BooleanToVisibilityConverter}}" Opacity="0.6">
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="Control.MouseEnter">
+                                    <BeginStoryboard Storyboard="{StaticResource FadeIn}" />
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="Control.MouseLeave">
+                                    <BeginStoryboard Storyboard="{StaticResource FadeOut}" />
+                                </EventTrigger>
+                            </Button.Triggers>
                             <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                             Width="19" Height="19" />
+                                             Width="19" Height="19" Foreground="White" />
                         </Button>
                         <RadioButton  GroupName="Output" x:Name="VJoyOutput" VerticalAlignment="Center" Margin="8,0,8,0"
                              IsChecked="{Binding VJoyOutput, Mode=OneWay}"
@@ -248,9 +269,17 @@
                                 Margin="4,0,4,0"
                                 VerticalAlignment="Center"
                                 ToolTip="Using SteamVR output"
-                                Command="{Binding SteamVRInfo}">
+                                Command="{Binding SteamVRInfo}" Opacity="0.6">
                                 <materialDesign:PackIcon Kind="Information" VerticalAlignment="Center" HorizontalAlignment="Center"
                                              Width="19" Height="19" />
+                                <Button.Triggers>
+                                    <EventTrigger RoutedEvent="Control.MouseEnter">
+                                        <BeginStoryboard Storyboard="{StaticResource FadeIn}" />
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="Control.MouseLeave">
+                                        <BeginStoryboard Storyboard="{StaticResource FadeOut}" />
+                                    </EventTrigger>
+                                </Button.Triggers>
                             </Button>
                         </StackPanel>
                     </StackPanel>

@@ -10,6 +10,9 @@
     x:Class="PocketStrafe.View.SettingsView">
 
     <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+        <StackPanel.Background>
+            <ImageBrush ImageSource="/PocketStrafe;component/Assets/iphone-sm.jpg" Opacity="1" Stretch="UniformToFill" AlignmentX="Left"/>
+        </StackPanel.Background>
         <View:InputSettingsControl  Margin="0,0,0,0" DataContext="{Binding InputSettingsVM}" Height="400" Width="210" />
         <View:OutputSettingsControl Margin="0,0,0,0" DataContext="{Binding OutputSettingsVM}" Height="400" Width="280" />
     </StackPanel>

@@ -20,20 +20,21 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBlock.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
+            
         </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
+    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0" Background="#CC283138">
+        
         <DockPanel>
             <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark"  DockPanel.Dock="Top">
                 <TextBlock HorizontalAlignment="Center" Margin="16" FontSize="16">Input Sources</TextBlock>
                 </materialDesign:ColorZone>
-                <Grid DockPanel.Dock="Top" Margin="8">
+            
+            <Grid DockPanel.Dock="Top" Margin="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="72" />
                         <RowDefinition Height="72" />
@@ -43,6 +44,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+  
 
                 <Grid Grid.Row="0" Grid.Column="1">
                     <Grid.RowDefinitions>

@@ -14,15 +14,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <System:Double x:Key="IconSize">18</System:Double>
-            <System:Double x:Key="ButtonSize">24</System:Double>
-            <Storyboard x:Key="FadeIn">
-                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity" />
-            </Storyboard>
-            <Storyboard x:Key="FadeOut">
-                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity" />
-            </Storyboard>
         </ResourceDictionary>
     </UserControl.Resources>
     <materialDesign:Card materialDesign:ShadowAssist.ShadowDepth="Depth2" Background="{DynamicResource MaterialDesignPaper}" UniformCornerRadius="0"

@@ -1,7 +1,8 @@
 ﻿<Application x:Class="PocketStrafe.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PocketStrafe">
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:PocketStrafe.View">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -11,6 +12,17 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Cyan.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.Orange.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Storyboard x:Key="FadeIn">
+                <DoubleAnimation Duration="0:0:0.01" To="1" Storyboard.TargetProperty="Opacity" />
+            </Storyboard>
+            <Storyboard x:Key="FadeOut">
+                <DoubleAnimation Duration="0:0:0.01" To="0.6" Storyboard.TargetProperty="Opacity" />
+            </Storyboard>
+            <System:Double x:Key="IconSize">18</System:Double>
+            <System:Double x:Key="ButtonSize">24</System:Double>
+            <System:Double x:Key="SelectedMargin">24</System:Double>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
