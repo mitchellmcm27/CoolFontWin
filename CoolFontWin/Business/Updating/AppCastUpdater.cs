@@ -2,6 +2,7 @@
 using log4net;
 using ReactiveUI;
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Threading;
@@ -49,6 +50,7 @@ namespace PocketStrafe
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
             AutoUpdater.UpdateOnShutdownEvent += AutoUpdaterOnUpdateOnShutdownEvent;
             AutoUpdater.UpdateDownloadedEvent += AutoUpdaterOnUpdateDownloadedEvent;
+            AutoUpdater.InstalledVersion = Assembly.GetEntryAssembly().GetName().Version;
         }
 
         private void AutoUpdaterOnUpdateOnShutdownEvent(object sender, EventArgs e)

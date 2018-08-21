@@ -50,7 +50,7 @@ namespace AutoUpdaterDotNET
 
         internal static Version CurrentVersion;
 
-        internal static Version InstalledVersion;
+        public static Version InstalledVersion;
 
         internal static bool IsWinFormsApplication;
 
@@ -181,8 +181,6 @@ namespace AutoUpdaterDotNET
                     }
                 }
             }
-
-            InstalledVersion = mainAssembly.GetName().Version;
 
             WebRequest webRequest = WebRequest.Create(AppCastURL);
             webRequest.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
