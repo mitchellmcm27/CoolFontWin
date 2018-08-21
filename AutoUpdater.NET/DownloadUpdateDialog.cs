@@ -49,14 +49,7 @@ namespace AutoUpdaterDotNET
             {
                 var processStartInfo = new ProcessStartInfo {FileName = _tempPath, UseShellExecute = true};
                 Process.Start(processStartInfo);
-                if (AutoUpdater.IsWinFormsApplication)
-                {
-                    Application.Exit();
-                }
-                else
-                {
-                    Environment.Exit(0);
-                }
+         
             }
 
             if (e.Error != null)

@@ -102,6 +102,7 @@ namespace PocketStrafe.ViewModel
             else
             {
                 await Task.Run(() => Updater.DownloadUpdate());
+                System.Windows.Application.Current.Shutdown();
             }
         }
 
