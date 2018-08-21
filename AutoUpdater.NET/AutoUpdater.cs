@@ -343,6 +343,7 @@ namespace AutoUpdaterDotNET
             return (Attribute) attributes[0];
         }
 
+
         /// <summary>
         ///     Opens the Download window that download the update and execute the installer when download completes.
         /// </summary>
@@ -360,6 +361,8 @@ namespace AutoUpdaterDotNET
             {
             }
         }
+
+   
     }
 
     /// <summary>

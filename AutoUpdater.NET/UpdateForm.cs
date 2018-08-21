@@ -47,6 +47,7 @@ namespace AutoUpdaterDotNET
             {
                 AutoUpdater.DownloadUpdate();
             }
+            this.Close();
         }
 
         private void ButtonSkipClick(object sender, EventArgs e)
