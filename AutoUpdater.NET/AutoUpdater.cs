@@ -110,6 +110,16 @@ namespace AutoUpdaterDotNET
         /// </summary>
         public static event CheckForUpdateEventHandler CheckForUpdateEvent;
 
+        /// <summary>
+        ///     A delegate type for hooking up downloaded notifications.
+        /// </summary>
+        public delegate void UpdateDownloadedEventHandler();
+
+        /// <summary>
+        ///     An event that clients can use to be notified whenever the update is checked.
+        /// </summary>
+        public static event UpdateDownloadedEventHandler UpdateDownloadedEvent;
+
         public static event EventHandler UpdateOnShutdownEvent;
 
         /// <summary>
@@ -341,6 +351,8 @@ namespace AutoUpdaterDotNET
         public static void DownloadUpdate()
         {
             var downloadDialog = new DownloadUpdateDialog(DownloadURL);
+            downloadDialog.UpdateDownloadedEvent += UpdateDownloadedEvent;
+            
 
             try
             {

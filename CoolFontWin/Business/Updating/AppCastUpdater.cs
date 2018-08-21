@@ -2,7 +2,9 @@
 using log4net;
 using ReactiveUI;
 using System;
+using System.Threading;
 using System.Windows.Forms;
+using System.Windows.Threading;
 
 namespace PocketStrafe
 {
@@ -46,6 +48,7 @@ namespace PocketStrafe
             _AppCastPath = appCastPath;
             AutoUpdater.CheckForUpdateEvent += AutoUpdaterOnCheckForUpdateEvent;
             AutoUpdater.UpdateOnShutdownEvent += AutoUpdaterOnUpdateOnShutdownEvent;
+            AutoUpdater.UpdateDownloadedEvent += AutoUpdaterOnUpdateDownloadedEvent;
         }
 
         private void AutoUpdaterOnUpdateOnShutdownEvent(object sender, EventArgs e)
@@ -88,8 +91,15 @@ namespace PocketStrafe
             }
         }
 
+        private void AutoUpdaterOnUpdateDownloadedEvent()
+        {
+            log.Info("Update downloaded... shutting down.");
+            System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Application.Current.Shutdown);
+        }
+
         public void DownloadUpdate()
         {
+
             if (!UpdateAvailable) return;
             AutoUpdater.CheckForUpdateEvent -= AutoUpdaterOnCheckForUpdateEvent;
             try

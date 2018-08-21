@@ -16,6 +16,13 @@ namespace AutoUpdaterDotNET
 
         private WebClient _webClient;
 
+  
+
+        /// <summary>
+        ///     An event that clients can use to be notified whenever the update is checked.
+        /// </summary>
+        public event AutoUpdater.UpdateDownloadedEventHandler UpdateDownloadedEvent;
+
         public DownloadUpdateDialog(string downloadURL)
         {
             InitializeComponent();
@@ -43,13 +50,13 @@ namespace AutoUpdaterDotNET
             progressBar.Value = e.ProgressPercentage;
         }
 
-        private void OnDownloadComplete(object sender, AsyncCompletedEventArgs e)
+        public void OnDownloadComplete(object sender, AsyncCompletedEventArgs e)
         {
             if (!e.Cancelled)
             {
-                var processStartInfo = new ProcessStartInfo {FileName = _tempPath, UseShellExecute = true};
+                var processStartInfo = new ProcessStartInfo { FileName = _tempPath, UseShellExecute = true };
                 Process.Start(processStartInfo);
-         
+                UpdateDownloadedEvent();
             }
 
             if (e.Error != null)
