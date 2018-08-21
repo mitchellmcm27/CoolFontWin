@@ -26,7 +26,7 @@
 
     <!-- Input Column -->
 
-    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0" Background="#CC283138">
+    <materialDesign:Card Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
         
         <DockPanel>
             <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"

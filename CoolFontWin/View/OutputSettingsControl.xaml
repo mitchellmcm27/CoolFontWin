@@ -22,7 +22,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0" Background="#E530363C">
+    <materialDesign:Card Margin="0,0,0,0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  materialDesign:ShadowAssist.ShadowDepth="Depth2" UniformCornerRadius="0">
         <DockPanel VerticalAlignment="Stretch">
             <materialDesign:ColorZone Padding="0" materialDesign:ShadowAssist.ShadowDepth="Depth0"
                                             Mode="PrimaryDark" DockPanel.Dock="Top">
