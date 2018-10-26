@@ -248,6 +248,19 @@ namespace PocketStrafe.VR
         private void SetControllerState(IntPtr pControllerState, uint unControllerDeviceIndex)
         {
             VRControllerState_t cs = (VRControllerState_t)Marshal.PtrToStructure(pControllerState, typeof(VRControllerState_t));
+            /*
+                This.Interface.Write("GetControllerState");
+                This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
+                This.Interface.Write("  Controller state size " + (int)unControllerStateSize);
+                This.Interface.Write("    Packet num " + cs.unPacketNum);
+                This.Interface.Write("    Buttons pressed " + cs.ulButtonPressed);
+                This.Interface.Write("    Buttons touched " + cs.ulButtonTouched);
+                This.Interface.Write("    Axis 0 " + cs.rAxis0.x + ", " + cs.rAxis0.y);
+                This.Interface.Write("    Axis 1 " + cs.rAxis1.x + ", " + cs.rAxis1.y);
+                This.Interface.Write("    Axis 2 " + cs.rAxis2.x + ", " + cs.rAxis2.y);
+                This.Interface.Write("    Axis 3 " + cs.rAxis3.x + ", " + cs.rAxis3.y);
+                This.Interface.Write("    Axis 4 " + cs.rAxis4.x + ", " + cs.rAxis4.y);
+              */
             if (UserRunning && unControllerDeviceIndex == ChosenDeviceIndex)
             {
                 if (ButtonType == PStrafeButtonType.Press)
@@ -257,7 +270,7 @@ namespace PocketStrafe.VR
 
                 cs.ulButtonTouched = cs.ulButtonTouched | (1UL << ((int)RunButton));
 
-                if (RunButton == EVRButtonId.k_EButton_Axis0)
+                if (RunButton == EVRButtonId.k_EButton_SteamVR_Touchpad || RunButton == EVRButtonId.k_EButton_Axis0)
                 {
                     // -1 to 1
                     cs.rAxis0.y = 1.0f;
@@ -323,20 +336,7 @@ namespace PocketStrafe.VR
             {
                 var getControllerState = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateDelegate>(This.GetControllerStatePtr);
                 res = getControllerState(instance, unControllerDeviceIndex, pControllerState, unControllerStateSize);
-                /*
-                This.Interface.Write("GetControllerState");
-                This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
-                This.Interface.Write("  Controller state size " + (int)unControllerStateSize);
-                This.Interface.Write("    Packet num " + (int)pControllerState.unPacketNum);
-                This.Interface.Write("    Buttons pressed " + pControllerState.ulButtonPressed);
-                This.Interface.Write("    Buttons touched " + pControllerState.ulButtonTouched);
-                This.Interface.Write("    Axis 0 " + pControllerState.rAxis0.x + ", " + pControllerState.rAxis0.y);
-                This.Interface.Write("    Axis 1 " + pControllerState.rAxis1.x + ", " + pControllerState.rAxis1.y);
-                This.Interface.Write("    Axis 2 " + pControllerState.rAxis2.x + ", " + pControllerState.rAxis2.y);
-                This.Interface.Write("    Axis 3 " + pControllerState.rAxis3.x + ", " + pControllerState.rAxis3.y);
-                This.Interface.Write("    Axis 4 " + pControllerState.rAxis4.x + ", " + pControllerState.rAxis4.y);
-                */
-                This.SetControllerState(pControllerState, unControllerDeviceIndex);
+                This.SetControllerState(pControllerState, unControllerDeviceIndex);       
             }
             catch
             {
@@ -351,19 +351,7 @@ namespace PocketStrafe.VR
         {
             bool res = false;
             OpenVRInject This = (OpenVRInject)HookRuntimeInfo.Callback;
-            /*
-            This.Interface.Write("GetControllerStateWithPose");
-            This.Interface.Write("  Device index " + unControllerDeviceIndex);
-            This.Interface.Write("  Controller state size " + unControllerStateSize);
-            This.Interface.Write("    Packet num " + pControllerState.unPacketNum);
-            This.Interface.Write("    Buttons pressed " + pControllerState.ulButtonPressed);
-            This.Interface.Write("    Buttons touched " + pControllerState.ulButtonTouched);
-            This.Interface.Write("    Axis 0 " + pControllerState.rAxis0.x + ", " + pControllerState.rAxis0.y);
-            This.Interface.Write("    Axis 1 " + pControllerState.rAxis1.x + ", " + pControllerState.rAxis1.y);
-            This.Interface.Write("    Axis 2 " + pControllerState.rAxis2.x + ", " + pControllerState.rAxis2.y);
-            This.Interface.Write("    Axis 3 " + pControllerState.rAxis3.x + ", " + pControllerState.rAxis3.y);
-            This.Interface.Write("    Axis 4 " + pControllerState.rAxis4.x + ", " + pControllerState.rAxis4.y);
-            */
+  
             try
             {
                 var getControllerStateWithPose = Marshal.GetDelegateForFunctionPointer<vr_GetControllerStateWithPoseDelegate>(This.GetControllerStateWithPosePtr);
