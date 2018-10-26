@@ -147,7 +147,7 @@ namespace PocketStrafe.VR
                  * Note: you must do this for each hook.
                  */
                 GetControllerStateHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
-                //GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+                GetControllerStateWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
                 PollNextEventWithPoseHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
             }
@@ -280,7 +280,6 @@ namespace PocketStrafe.VR
                     // 0 to 1
                     cs.rAxis1.x = 1.0f;
                 }
-                //Interface.Write("Touch");
                 Marshal.StructureToPtr(cs, pControllerState, true);
             }
             else
