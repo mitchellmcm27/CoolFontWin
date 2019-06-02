@@ -75,8 +75,8 @@ extern "C" __declspec(dllexport) void* APIENTRY GetIVRSystemFunctionAddress(shor
 
 			if (installed)
 			{
-				const char * path = vr::VR_RuntimePath();
-				add_log("    %s", path);
+				//const char * path = vr::VR_RuntimePath();
+				//add_log("    %s", path);
 			}
 
 			bool hmd = vr::VR_IsHmdPresent();

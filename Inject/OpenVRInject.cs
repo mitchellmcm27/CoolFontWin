@@ -248,21 +248,21 @@ namespace PocketStrafe.VR
         private void SetControllerState(IntPtr pControllerState, uint unControllerDeviceIndex)
         {
             VRControllerState_t cs = (VRControllerState_t)Marshal.PtrToStructure(pControllerState, typeof(VRControllerState_t));
-            /*
-                This.Interface.Write("GetControllerState");
-                This.Interface.Write("  Device index " + (int)unControllerDeviceIndex);
-                This.Interface.Write("  Controller state size " + (int)unControllerStateSize);
-                This.Interface.Write("    Packet num " + cs.unPacketNum);
-                This.Interface.Write("    Buttons pressed " + cs.ulButtonPressed);
-                This.Interface.Write("    Buttons touched " + cs.ulButtonTouched);
-                This.Interface.Write("    Axis 0 " + cs.rAxis0.x + ", " + cs.rAxis0.y);
-                This.Interface.Write("    Axis 1 " + cs.rAxis1.x + ", " + cs.rAxis1.y);
-                This.Interface.Write("    Axis 2 " + cs.rAxis2.x + ", " + cs.rAxis2.y);
-                This.Interface.Write("    Axis 3 " + cs.rAxis3.x + ", " + cs.rAxis3.y);
-                This.Interface.Write("    Axis 4 " + cs.rAxis4.x + ", " + cs.rAxis4.y);
-              */
+            
+                //Interface.Write("GetControllerState");
+                //Interface.Write("  Device index " + (int)unControllerDeviceIndex);
+                //Interface.Write("    Packet num " + cs.unPacketNum);
+                //Interface.Write("    Buttons pressed " + cs.ulButtonPressed);
+                //Interface.Write("    Buttons touched " + cs.ulButtonTouched);
+                //Interface.Write("    Axis 0 " + cs.rAxis0.x + ", " + cs.rAxis0.y);
+                //Interface.Write("    Axis 1 " + cs.rAxis1.x + ", " + cs.rAxis1.y);
+                //Interface.Write("    Axis 2 " + cs.rAxis2.x + ", " + cs.rAxis2.y);
+                //Interface.Write("    Axis 3 " + cs.rAxis3.x + ", " + cs.rAxis3.y);
+               // Interface.Write("    Axis 4 " + cs.rAxis4.x + ", " + cs.rAxis4.y);
+              
             if (UserRunning && unControllerDeviceIndex == ChosenDeviceIndex)
             {
+                // Interface.Write("Running");
                 if (ButtonType == PStrafeButtonType.Press)
                 {
                     cs.ulButtonPressed = cs.ulButtonPressed | (1UL << ((int)RunButton));
@@ -285,6 +285,7 @@ namespace PocketStrafe.VR
             else
             {
             }
+            
            
         }
 
