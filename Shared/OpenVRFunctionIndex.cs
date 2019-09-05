@@ -64,11 +64,11 @@
         IsSteamVRDrawingControllers,
         ShouldApplicationPause,
         ShouldApplicationReduceRenderingWork,
-        DriverDebugRequest,
         PerformFirmwareUpdate,
         AcknowledgeQuit_Exiting,
         AcknowledgeQuit_UserPrompt,
-
+        GetAppContainerFilePaths,
+        GetRuntimeVersion,
         Count,
     }
 }
