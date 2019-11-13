@@ -636,7 +636,7 @@ namespace PocketStrafe.ViewModel
             });
         }
 
-        private readonly string OpenVRVersion = "OpenVR v1.6.10b (Aug 2019)";
+        private readonly string OpenVRVersion = "OpenVR v1.8.20 (Nov 2019)";
 
         private void ShowSteamVrDialog()
         {
