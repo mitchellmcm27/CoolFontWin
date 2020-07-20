@@ -68,6 +68,6 @@
         AcknowledgeQuit_Exiting,
         GetAppContainerFilePaths,
         GetRuntimeVersion,
-        Count,
+        Count
     }
 }
